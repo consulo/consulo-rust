@@ -98,6 +98,10 @@ allprojects {
     }
 
     tasks {
+        withType<JavaCompile> {
+            options.compilerArgs.add("-Xmaxerrs")
+            options.compilerArgs.add("50000")
+        }
         withType<KotlinCompile> {
             compilerOptions {
                 jvmTarget.set(JvmTarget.JVM_17)
@@ -169,21 +173,11 @@ allprojects {
 
     sourceSets {
         main {
-            java.srcDirs("src/gen")
+            java.srcDirs("src/gen", "src/$platformVersion/main/java")
             resources.srcDirs("src/$platformVersion/main/resources")
         }
         test {
             resources.srcDirs("src/$platformVersion/test/resources")
-        }
-    }
-    kotlin {
-        sourceSets {
-            main {
-                kotlin.srcDirs("src/$platformVersion/main/kotlin")
-            }
-            test {
-                kotlin.srcDirs("src/$platformVersion/test/kotlin")
-            }
         }
     }
 
@@ -290,16 +284,10 @@ project(":plugin") {
     dependencies {
         implementation(project(":"))
         implementation(project(":idea"))
-        implementation(project(":clion"))
-        implementation(project(":debugger"))
-        implementation(project(":profiler"))
         implementation(project(":copyright"))
         implementation(project(":coverage"))
         implementation(project(":intelliLang"))
         implementation(project(":duplicates"))
-        implementation(project(":grazie"))
-        implementation(project(":js"))
-        implementation(project(":ml-completion"))
     }
 
     // Collects all jars produced by compilation of project modules and merges them into singe one.
@@ -518,74 +506,7 @@ project(":idea") {
     }
 }
 
-project(":clion") {
-    intellij {
-        version.set(clionVersion)
-        plugins.set(clionPlugins)
-    }
-    dependencies {
-        implementation(project(":"))
-        implementation(project(":debugger"))
-        testImplementation(project(":", "testOutput"))
-    }
-}
 
-project(":debugger") {
-    apply {
-        plugin("antlr")
-    }
-    intellij {
-        if (baseIDE == "idea") {
-            plugins.set(listOf(nativeDebugPlugin))
-        } else {
-            version.set(clionVersion)
-            plugins.set(clionPlugins)
-        }
-    }
-
-    // Kotlin Gradle support doesn't generate proper extensions if the plugin is not declared in `plugin` block.
-    // But if we do it, `antlr` plugin will be applied to root project as well that we want to avoid.
-    // So, let's define all necessary things manually
-    val antlr by configurations
-    val generateGrammarSource: AntlrTask by tasks
-    val generateTestGrammarSource: AntlrTask by tasks
-
-    dependencies {
-        implementation(project(":"))
-        antlr("org.antlr:antlr4:4.13.0")
-        implementation("org.antlr:antlr4-runtime:4.13.0")
-        testImplementation(project(":", "testOutput"))
-    }
-    tasks {
-        compileKotlin {
-            dependsOn(generateGrammarSource)
-        }
-        compileTestKotlin {
-            dependsOn(generateTestGrammarSource)
-        }
-
-        generateGrammarSource {
-            arguments.add("-no-listener")
-            arguments.add("-visitor")
-            outputDirectory = file("src/gen/org/rust/debugger/lang")
-        }
-    }
-    // Exclude antlr4 from transitive dependencies of `:debugger:api` configuration (https://github.com/gradle/gradle/issues/820)
-    configurations.api {
-        setExtendsFrom(extendsFrom.filter { it.name != "antlr" })
-    }
-}
-
-project(":profiler") {
-    intellij {
-        version.set(clionVersion)
-        plugins.set(clionPlugins)
-    }
-    dependencies {
-        implementation(project(":"))
-        testImplementation(project(":", "testOutput"))
-    }
-}
 
 project(":intelliLang") {
     intellij {
@@ -617,37 +538,6 @@ project(":duplicates") {
 
 project(":coverage") {
     dependencies {
-        implementation(project(":"))
-        testImplementation(project(":", "testOutput"))
-    }
-}
-
-project(":grazie") {
-    intellij {
-        plugins.set(listOf(graziePlugin))
-    }
-    dependencies {
-        implementation(project(":"))
-        testImplementation(project(":", "testOutput"))
-    }
-}
-
-project(":js") {
-    intellij {
-        plugins.set(listOf(javaScriptPlugin))
-    }
-    dependencies {
-        implementation(project(":"))
-        testImplementation(project(":", "testOutput"))
-    }
-}
-
-project(":ml-completion") {
-    intellij {
-        plugins.set(listOf(mlCompletionPlugin))
-    }
-    dependencies {
-        implementation("org.jetbrains.intellij.deps.completion:completion-ranking-rust:0.4.1")
         implementation(project(":"))
         testImplementation(project(":", "testOutput"))
     }

@@ -1,0 +1,18 @@
+/*
+ * Use of this source code is governed by the MIT license that can be
+ * found in the LICENSE file.
+ */
+
+package org.rust.ide.newProject;
+
+import com.intellij.ide.util.projectWizard.AbstractNewProjectStep;
+import com.intellij.ide.util.projectWizard.ProjectSettingsStepBase;
+import com.intellij.platform.DirectoryProjectGenerator;
+import org.jetbrains.annotations.NotNull;
+
+public class RsProjectSettingsStep extends ProjectSettingsStepBase<ConfigurationData> {
+
+    public RsProjectSettingsStep(@NotNull DirectoryProjectGenerator<ConfigurationData> generator) {
+        super(generator, new AbstractNewProjectStep.AbstractCallback<>());
+    }
+}

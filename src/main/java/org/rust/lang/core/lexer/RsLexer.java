@@ -1,0 +1,14 @@
+/*
+ * Use of this source code is governed by the MIT license that can be
+ * found in the LICENSE file.
+ */
+
+package org.rust.lang.core.lexer;
+
+import com.intellij.lexer.FlexAdapter;
+
+public class RsLexer extends FlexAdapter {
+    public RsLexer() {
+        super(new _RustLexer());
+    }
+}

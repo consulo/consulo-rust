@@ -1499,7 +1499,7 @@ BlockElementMacro ::= AttrsAndVis Macro {
 
 MacroBody ::= <<any_braces (MacroCase ';'?)*>> {
   extends = "org.rust.lang.core.psi.ext.RsLazyParseableElementImpl"
-  elementTypeFactory = "org.rust.lang.core.psi.LazyElementsKt.factory"
+  elementTypeFactory = "org.rust.lang.core.psi.LazyElements.factory"
   extraRoot = true
 }
 private ShallowMacroBody ::= <<parseMacroBodyLazy>>
@@ -1590,7 +1590,7 @@ MacroCallInMetaItem ::= <<parseMacroCall 'MacroCallParsingMode.META'>> {
 
 MacroArgument ::= <<any_braces MacroArgumentTTImpl>> {
   extends = "org.rust.lang.core.psi.ext.RsLazyParseableElementImpl"
-  elementTypeFactory = "org.rust.lang.core.psi.LazyElementsKt.factory"
+  elementTypeFactory = "org.rust.lang.core.psi.LazyElements.factory"
   extraRoot = true
 }
 private MacroArgumentTTImpl ::= (MacroArgumentTT | MacroBodyIdent | MacroBodyQuoteIdent | StringLitExpr | <<unpairedToken>>)*

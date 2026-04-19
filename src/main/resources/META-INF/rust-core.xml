@@ -158,22 +158,22 @@
         <!-- Imports -->
 
         <lang.importOptimizer language="Rust" implementationClass="org.rust.ide.refactoring.RsImportOptimizer"/>
-        <referenceImporter implementation="org.rust.ide.inspections.import.RsReferenceImporter"/>
+        <referenceImporter implementation="org.rust.ide.inspections.imports.RsReferenceImporter"/>
         <autoImportOptionsProvider instance="org.rust.ide.settings.RsAutoImportOptions"/>
 
         <!-- Navigation -->
 
-        <gotoClassContributor implementation="org.rust.ide.navigation.goto.RsClassNavigationContributor"/>
-        <gotoSymbolContributor implementation="org.rust.ide.navigation.goto.RsSymbolNavigationContributor"/>
-        <codeInsight.gotoSuper language="Rust" implementationClass="org.rust.ide.navigation.goto.RsGotoSuperHandler"/>
+        <gotoClassContributor implementation="org.rust.ide.navigation.goto_.RsClassNavigationContributor"/>
+        <gotoSymbolContributor implementation="org.rust.ide.navigation.goto_.RsSymbolNavigationContributor"/>
+        <codeInsight.gotoSuper language="Rust" implementationClass="org.rust.ide.navigation.goto_.RsGotoSuperHandler"/>
         // `ctrl+alt+b`
-        <definitionsScopedSearch implementation="org.rust.ide.navigation.goto.RsImplsSearch"/>
-        <gotoTargetRendererProvider implementation="org.rust.ide.navigation.goto.RsGotoTargetRendererProvider"/>
+        <definitionsScopedSearch implementation="org.rust.ide.navigation.goto_.RsImplsSearch"/>
+        <gotoTargetRendererProvider implementation="org.rust.ide.navigation.goto_.RsGotoTargetRendererProvider"/>
         // `ctrl+shift+b`
-        <typeDeclarationProvider implementation="org.rust.ide.navigation.goto.RsTypeDeclarationProvider"/>
+        <typeDeclarationProvider implementation="org.rust.ide.navigation.goto_.RsTypeDeclarationProvider"/>
 
         <targetElementEvaluator language="Rust"
-                                implementationClass="org.rust.ide.navigation.goto.RsTargetElementEvaluator"/>
+                                implementationClass="org.rust.ide.navigation.goto_.RsTargetElementEvaluator"/>
 
         <!-- Focus mode -->
         <focusModeProvider language="Rust" implementationClass="org.rust.ide.focusMode.RsFocusModeProvider"/>
@@ -1478,7 +1478,7 @@
     <applicationListeners>
         <listener class="org.rust.ide.security.RsTrustStateListener"
                   topic="com.intellij.ide.impl.TrustStateListener"/>
-        <listener class="org.rust.ide.navigation.goto.RsGoToDeclarationRunningService$Listener"
+        <listener class="org.rust.ide.navigation.goto_.RsGoToDeclarationRunningService$Listener"
                   topic="com.intellij.openapi.actionSystem.ex.AnActionListener" />
         <listener class="org.rust.ide.dynamic.RsDynamicPluginListener"
                   topic="com.intellij.ide.plugins.DynamicPluginListener" />

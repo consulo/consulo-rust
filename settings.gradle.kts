@@ -4,16 +4,10 @@ include("plugin")
 include(
     "grammar-kit-fake-psi-deps",
     "idea",
-    "clion",
-    "debugger",
-    "profiler",
     "copyright",
     "coverage",
     "intelliLang",
-    "duplicates",
-    "grazie",
-    "js",
-    "ml-completion"
+    "duplicates"
 )
 
 // Configure Gradle Build Cache. It is enabled in `gradle.properties` via `org.gradle.caching`.

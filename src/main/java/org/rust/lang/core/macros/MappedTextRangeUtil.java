@@ -1,0 +1,14 @@
+/*
+ * Use of this source code is governed by the MIT license that can be
+ * found in the LICENSE file.
+ */
+
+package org.rust.lang.core.macros;
+
+/**
+ * Bridge class delegating to {@link MappedTextRange}.
+ */
+public final class MappedTextRangeUtil {
+    private MappedTextRangeUtil() {
+    }
+}
