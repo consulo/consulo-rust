@@ -240,7 +240,7 @@ public abstract class RsAsyncRunner extends AsyncProgramRunner<RunnerSettings> {
                         RsResult<RsCapturingProcessHandler, ?> handlerResult = RsCapturingProcessHandler.startProcess(
                             ((org.rust.cargo.toolchain.tools.Cargo) cargo).toGeneralCommandLine(project, jsonCommand)
                         );
-                        consulo.process.internal.CapturingProcessHandler processForJson = ((RsCapturingProcessHandler) handlerResult.unwrap()).getDelegate();
+                        RsCapturingProcessHandler processForJson = handlerResult.unwrap();
                         ProcessOutput output = processForJson.runProcessWithProgressIndicator(indicator);
                         if (output.isCancelled() || output.getExitCode() != 0) {
                             promise.setResult(null);

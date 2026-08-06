@@ -19,7 +19,6 @@ import consulo.language.editor.completion.lookup.InsertionContext;
 import consulo.language.editor.completion.lookup.PrioritizedLookupElement;
 import consulo.language.editor.completion.lookup.LookupElement;
 import consulo.language.editor.completion.lookup.LookupElementBuilder;
-import consulo.language.editor.impl.internal.template.LiveTemplateCompletionContributor;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -71,7 +70,9 @@ public final class Utils {
     public static void rerunCompletion(@Nonnull CompletionParameters parameters, @Nonnull CompletionResultSet result) {
         CompletionContributor liveTemplateContributor = null;
         for (CompletionContributor contributor : CompletionContributor.forParameters(parameters)) {
-            if (contributor instanceof LiveTemplateCompletionContributor) {
+            // LiveTemplateCompletionContributor is platform-internal, so it can only be recognised
+            // by name here.
+            if (contributor.getClass().getName().endsWith("LiveTemplateCompletionContributor")) {
                 liveTemplateContributor = contributor;
                 break;
             }

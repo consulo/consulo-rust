@@ -12,8 +12,6 @@ import consulo.execution.executor.ExecutorRegistry;
 import consulo.execution.RunManager;
 import consulo.execution.configuration.EnvironmentVariablesData;
 import consulo.execution.executor.DefaultRunExecutor;
-import consulo.execution.impl.internal.configuration.RunManagerImpl;
-import consulo.execution.impl.internal.configuration.RunnerAndConfigurationSettingsImpl;
 import consulo.execution.runner.ExecutionEnvironment;
 import consulo.execution.runner.ProgramRunner;
 import com.intellij.ide.nls.NlsMessages;
@@ -31,6 +29,7 @@ import consulo.project.ui.wm.ToolWindowManager;
 import consulo.ui.ex.SystemNotifications;
 import consulo.process.cmd.ParametersListUtil;
 import consulo.ui.ex.awt.UIUtil;
+import consulo.execution.RunnerAndConfigurationSettings;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -301,12 +300,14 @@ public final class CargoBuildManager {
         }
         Project project = buildConfiguration.getProject();
         RunManager runManager = RunManager.getInstance(project);
-        if (!(runManager instanceof RunManagerImpl runManagerImpl)) return null;
         consulo.execution.executor.Executor executor = ExecutorRegistry.getInstance().getExecutorById(DefaultRunExecutor.EXECUTOR_ID);
         if (executor == null) return null;
         ProgramRunner<?> runner = ProgramRunner.PROGRAM_RUNNER_EP.getExtensionList().stream().filter(r -> CargoCommandRunner.RUNNER_ID.equals(r.getRunnerId())).findFirst().orElse(null);
         if (runner == null) return null;
-        RunnerAndConfigurationSettingsImpl settings = new RunnerAndConfigurationSettingsImpl(runManagerImpl, buildConfiguration, false);
+        // Upstream built RunnerAndConfigurationSettingsImpl directly against RunManagerImpl; both are
+        // platform-internal. RunManager.createConfiguration is the public factory for the same thing.
+        RunnerAndConfigurationSettings settings =
+            runManager.createConfiguration(buildConfiguration, buildConfiguration.getFactory());
         // setActivateToolWindowBeforeRun not exposed in Consulo (read-only on RunnerAndConfigurationSettings)
         ExecutionEnvironment buildEnvironment = new ExecutionEnvironment(executor, runner, settings, project);
         if (environment != null) {

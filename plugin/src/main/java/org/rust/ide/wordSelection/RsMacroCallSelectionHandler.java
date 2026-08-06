@@ -7,7 +7,6 @@ package org.rust.ide.wordSelection;
 import consulo.codeEditor.EditorPopupHandler;
 import consulo.codeEditor.event.FocusChangeListener;
 import consulo.codeEditor.markup.MarkupModelEx;
-import consulo.document.internal.DocumentEx;
 import consulo.codeEditor.FoldingModelEx;
 import consulo.codeEditor.ScrollingModelEx;
 import consulo.codeEditor.SoftWrapModelEx;
@@ -28,7 +27,7 @@ import consulo.colorScheme.EditorColorsScheme;
 import consulo.codeEditor.EditorEx;
 import consulo.language.editor.highlight.LexerEditorHighlighter;
 import consulo.codeEditor.EditorHighlighter;
-import consulo.document.impl.DocumentImpl;
+import consulo.codeEditor.EditorFactory;
 import com.intellij.openapi.editor.impl.ImaginaryEditor;
 import consulo.codeEditor.TextDrawingCallback;
 import consulo.colorScheme.TextAttributes;
@@ -107,17 +106,12 @@ public class RsMacroCallSelectionHandler extends ExtendWordSelectionHandlerBase 
         private final EditorHighlighter myHighlighter;
 
         FakeEditorEx(@Nonnull Project project, @Nonnull String text, @Nonnull Editor editor) {
-            super(project, new DocumentImpl(text));
+            // DocumentImpl is platform-internal; EditorFactory is the public way to make a Document.
+            super(project, EditorFactory.getInstance().createDocument(text));
             myEditor = editor;
             LexerEditorHighlighter highlighter = new LexerEditorHighlighter(new RsHighlighter(), editor.getColorsScheme());
             highlighter.setText(text);
             myHighlighter = highlighter;
-        }
-
-        @Nonnull
-        @Override
-        public DocumentEx getDocument() {
-            return (DocumentEx) super.getDocument();
         }
 
         @Nonnull

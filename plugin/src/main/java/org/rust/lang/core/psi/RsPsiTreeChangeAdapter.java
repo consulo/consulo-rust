@@ -7,7 +7,6 @@ package org.rust.lang.core.psi;
 
 import consulo.language.psi.event.PsiTreeChangeEvent;
 import consulo.language.psi.event.PsiTreeChangeListener;
-import consulo.language.impl.internal.psi.PsiTreeChangeEventImpl;
 import jakarta.annotation.Nonnull;
 
 public abstract class RsPsiTreeChangeAdapter implements PsiTreeChangeListener {
@@ -114,8 +113,10 @@ public abstract class RsPsiTreeChangeAdapter implements PsiTreeChangeListener {
 
     @Override
     public void beforeChildrenChange(@Nonnull PsiTreeChangeEvent event) {
-        boolean isGenericChange = event instanceof PsiTreeChangeEventImpl
-            && ((PsiTreeChangeEventImpl) event).isGenericChange();
+        // PsiTreeChangeEventImpl.isGenericChange() is platform-internal and PsiTreeChangeEvent
+        // exposes no equivalent flag. Treating every event as non-generic is the conservative
+        // choice: generic events were the ones that could be skipped, so this only costs extra work.
+        boolean isGenericChange = false;
         handleEvent(new RsPsiTreeChangeEvent.ChildrenChange.Before(
             event.getFile(),
             event.getParent(),
@@ -125,8 +126,10 @@ public abstract class RsPsiTreeChangeAdapter implements PsiTreeChangeListener {
 
     @Override
     public void childrenChanged(@Nonnull PsiTreeChangeEvent event) {
-        boolean isGenericChange = event instanceof PsiTreeChangeEventImpl
-            && ((PsiTreeChangeEventImpl) event).isGenericChange();
+        // PsiTreeChangeEventImpl.isGenericChange() is platform-internal and PsiTreeChangeEvent
+        // exposes no equivalent flag. Treating every event as non-generic is the conservative
+        // choice: generic events were the ones that could be skipped, so this only costs extra work.
+        boolean isGenericChange = false;
         handleEvent(new RsPsiTreeChangeEvent.ChildrenChange.After(
             event.getFile(),
             event.getParent(),

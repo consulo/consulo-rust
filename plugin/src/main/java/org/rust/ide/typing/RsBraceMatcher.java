@@ -5,7 +5,6 @@
 
 package org.rust.ide.typing;
 
-import consulo.language.editor.internal.PairedBraceMatcherAdapter;
 import consulo.language.BracePair;
 import consulo.language.PairedBraceMatcher;
 import consulo.codeEditor.HighlighterIterator;
@@ -21,7 +20,7 @@ import org.rust.lang.core.psi.RsElementTypes;
 
 import java.util.ArrayDeque;
 
-public class RsBraceMatcher extends PairedBraceMatcherAdapter {
+public class RsBraceMatcher extends RsPairedBraceMatcherAdapter {
 
     public static final TokenSet UNPAIRED_TYPE_TOKENS = TokenSet.orSet(
         RsTokenType.RS_COMMENTS,

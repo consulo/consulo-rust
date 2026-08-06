@@ -25,7 +25,7 @@ import consulo.ui.ex.awt.MessageDialogBuilder;
 import consulo.ui.ex.awt.Messages;
 import consulo.http.HttpRequests;
 import com.intellij.util.net.ssl.CertificateManager;
-import consulo.http.impl.internal.proxy.CommonProxy;
+import consulo.http.HttpProxyManager;
 import consulo.ui.ex.action.LegacyDumbAwareAction;
 import jakarta.annotation.Nonnull;
 
@@ -156,7 +156,7 @@ public class ShareInPlaygroundAction extends LegacyDumbAwareAction {
             .connectTimeout(Duration.ofMillis(10000))
             .executor(ProcessIOExecutorService.INSTANCE)
             .sslContext(CertificateManager.getInstance().getSslContext())
-            .proxy(CommonProxy.getInstance())
+            .proxy(HttpProxyManager.getInstance().getOnlyBySettingsSelector())
             .build();
     }
 

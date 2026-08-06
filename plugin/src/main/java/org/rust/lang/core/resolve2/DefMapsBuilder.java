@@ -6,7 +6,7 @@
 package org.rust.lang.core.resolve2;
 
 import com.google.common.util.concurrent.SettableFuture;
-import consulo.application.internal.SensitiveProgressWrapper;
+import org.rust.openapiext.RsSensitiveProgressWrapper;
 import consulo.application.progress.ProgressIndicator;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -116,7 +116,7 @@ public class DefMapsBuilder {
         pool.execute(() -> {
             try {
                 long start = System.currentTimeMillis();
-                OpenApiUtil.computeInReadActionWithWriteActionPriority(new SensitiveProgressWrapper(indicator), () -> {
+                OpenApiUtil.computeInReadActionWithWriteActionPriority(new RsSensitiveProgressWrapper(indicator), () -> {
                     doBuildDefMap(crate);
                     return null;
                 });

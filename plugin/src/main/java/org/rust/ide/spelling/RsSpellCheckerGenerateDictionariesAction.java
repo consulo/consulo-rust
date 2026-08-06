@@ -12,6 +12,7 @@ import consulo.module.Module;
 import consulo.project.Project;
 import consulo.module.content.ModuleRootManager;
 import consulo.virtualFileSystem.VirtualFile;
+import consulo.ui.ex.action.LegacyAnAction;
 import jakarta.annotation.Nonnull;
 import org.rust.cargo.project.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectsService;
@@ -23,7 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public class RsSpellCheckerGenerateDictionariesAction extends AnAction {
+public class RsSpellCheckerGenerateDictionariesAction extends LegacyAnAction {
 
     private static final List<String> EXCLUDE_DIRS = Arrays.asList("tests", "benches");
 

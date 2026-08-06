@@ -8,7 +8,6 @@ package org.rust.stdext;
 import consulo.logging.Logger;
 import consulo.component.ProcessCanceledException;
 import consulo.application.progress.ProgressManager;
-import consulo.application.internal.ProgressIndicatorUtils;
 import jakarta.annotation.Nonnull;
 
 import java.util.Queue;
@@ -37,17 +36,44 @@ public final class Concurrency {
         }
     }
 
+    /**
+     * Acquires {@code lock}, polling so that progress cancellation is still observed while waiting.
+     * {@code ProgressIndicatorUtils.computeWithLockAndCheckingCanceled} is platform-internal, so the
+     * poll loop is spelled out here.
+     */
     public static <T> T withLockAndCheckingCancelled(@Nonnull Lock lock, @Nonnull Supplier<T> action) {
-        return ProgressIndicatorUtils.computeWithLockAndCheckingCanceled(lock, 10, TimeUnit.MILLISECONDS, action::get);
+        while (true) {
+            ProgressManager.checkCanceled();
+            boolean acquired;
+            try {
+                acquired = lock.tryLock(10, TimeUnit.MILLISECONDS);
+            }
+            catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new ProcessCanceledException(e);
+            }
+            if (acquired) {
+                try {
+                    return action.get();
+                }
+                finally {
+                    lock.unlock();
+                }
+            }
+        }
     }
 
+    /** Awaits {@code condition}, checking progress cancellation between short waits. */
     public static void awaitWithCheckCancelled(@Nonnull Condition condition) {
-        // Consulo's ProgressIndicatorUtils.awaitWithCheckCanceled doesn't accept a Condition;
-        // poll with a ThrowableComputable<Boolean> that returns true when the wait finished.
-        ProgressIndicatorUtils.awaitWithCheckCanceled(
-            (consulo.application.util.function.ThrowableComputable<Boolean, Exception>) () -> {
-                condition.await(10, TimeUnit.MILLISECONDS);
-                return Boolean.TRUE;
-            });
+        while (true) {
+            ProgressManager.checkCanceled();
+            try {
+                if (condition.await(10, TimeUnit.MILLISECONDS)) return;
+            }
+            catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new ProcessCanceledException(e);
+            }
+        }
     }
 }

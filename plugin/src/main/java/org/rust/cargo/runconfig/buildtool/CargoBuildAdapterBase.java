@@ -4,7 +4,8 @@
  */
 
 package org.rust.cargo.runconfig.buildtool;
-import consulo.build.ui.impl.internal.output.BuildOutputInstantReaderImpl;
+import consulo.application.Application;
+import consulo.build.ui.output.BuildOutputService;
 
 import consulo.build.ui.progress.BuildProgressListener;
 import consulo.build.ui.output.BuildOutputInstantReader;
@@ -13,32 +14,42 @@ import consulo.process.event.ProcessEvent;
 import consulo.util.dataholder.Key;
 import consulo.util.lang.StringUtil;
 
+import java.io.IOException;
 import java.util.List;
 
 @SuppressWarnings("UnstableApiUsage")
 public abstract class CargoBuildAdapterBase extends ProcessAdapter {
     private final CargoBuildContextBase context;
     protected final BuildProgressListener buildProgressListener;
-    private final BuildOutputInstantReaderImpl instantReader;
+    private final BuildOutputInstantReader.Primary instantReader;
 
     public CargoBuildAdapterBase(CargoBuildContextBase context, BuildProgressListener buildProgressListener) {
         this.context = context;
         this.buildProgressListener = buildProgressListener;
-        this.instantReader = new BuildOutputInstantReaderImpl(
-            context.getBuildId(),
-            context.getParentId(),
-            buildProgressListener,
-            List.of(new RsBuildEventsConverter(context))
-        );
+        // BuildOutputInstantReaderImpl is platform-internal; BuildOutputService is the public factory.
+        this.instantReader = Application.get().getInstance(BuildOutputService.class)
+            .createBuildOutputInstantReader(
+                context.getBuildId(),
+                context.getParentId(),
+                buildProgressListener,
+                List.of(new RsBuildEventsConverter(context))
+            );
     }
 
     @Override
     public void processTerminated(ProcessEvent event) {
-        instantReader.closeAndGetFuture().whenComplete((result, error) -> {
-            boolean isSuccess = event.getExitCode() == 0 && context.getErrors().get() == 0;
-            boolean isCanceled = context.getIndicator() != null && context.getIndicator().isCanceled();
-            onBuildOutputReaderFinish(event, isSuccess, isCanceled, error);
-        });
+        // The internal impl exposed closeAndGetFuture(); the public Primary interface only extends
+        // Closeable, so the completion callback runs right after the synchronous close.
+        Throwable error = null;
+        try {
+            instantReader.close();
+        }
+        catch (IOException e) {
+            error = e;
+        }
+        boolean isSuccess = event.getExitCode() == 0 && context.getErrors().get() == 0;
+        boolean isCanceled = context.getIndicator() != null && context.getIndicator().isCanceled();
+        onBuildOutputReaderFinish(event, isSuccess, isCanceled, error);
     }
 
     public void onBuildOutputReaderFinish(ProcessEvent event, boolean isSuccess, boolean isCanceled, Throwable error) {

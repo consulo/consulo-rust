@@ -36,7 +36,7 @@ import consulo.language.psi.NavigatablePsiElement;
 import consulo.language.psi.PsiLanguageInjectionHost;
 import consulo.language.psi.ContributedReferenceHost;
 import consulo.language.psi.SyntaxTraverser;
-import consulo.language.impl.internal.psi.PsiManagerEx;
+import consulo.language.impl.file.SingleRootFileViewProvider;
 import consulo.language.impl.psi.PsiFileImpl;
 import consulo.language.impl.ast.FileElement;
 import consulo.language.psi.scope.GlobalSearchScope;
@@ -94,8 +94,10 @@ public abstract class RsCodeFragment extends RsFileBase implements PsiCodeFragme
         @Nullable RsItemsOwner importTarget
     ) {
         this(
-            PsiManagerEx.getInstanceEx(project).getFileManager().createFileViewProvider(
-                new LightVirtualFile("fragment.rs", RsLanguage.INSTANCE, text), true
+            new SingleRootFileViewProvider(
+                PsiManager.getInstance(project),
+                new LightVirtualFile("fragment.rs", RsLanguage.INSTANCE, text),
+                true
             ),
             contentElementType,
             context,
@@ -196,7 +198,8 @@ public abstract class RsCodeFragment extends RsFileBase implements PsiCodeFragme
         @Nonnull CharSequence text,
         boolean eventSystemEnabled
     ) {
-        return PsiManagerEx.getInstanceEx(project).getFileManager().createFileViewProvider(
+        return new SingleRootFileViewProvider(
+            PsiManager.getInstance(project),
             new LightVirtualFile("fragment.rs", RsLanguage.INSTANCE, text),
             eventSystemEnabled
         );

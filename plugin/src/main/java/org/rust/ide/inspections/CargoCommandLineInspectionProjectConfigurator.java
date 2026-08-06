@@ -8,9 +8,10 @@ package org.rust.ide.inspections;
 import com.intellij.ide.CommandLineInspectionProgressReporter;
 import com.intellij.ide.CommandLineInspectionProjectConfigurator;
 import consulo.logging.Logger;
-import consulo.application.internal.ProgressIndicatorUtils;
 import consulo.project.Project;
 import consulo.application.util.registry.Registry;
+import consulo.application.progress.ProgressManager;
+import consulo.component.ProcessCanceledException;
 import org.rust.RsBundle;
 import org.rust.cargo.CargoConstants;
 import org.rust.cargo.project.model.CargoProject;
@@ -24,6 +25,7 @@ import jakarta.annotation.Nonnull;
 
 import java.nio.file.Files;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class CargoCommandLineInspectionProjectConfigurator implements CommandLineInspectionProjectConfigurator {
 
@@ -104,8 +106,8 @@ public class CargoCommandLineInspectionProjectConfigurator implements CommandLin
             }
         }
 
-        ProgressIndicatorUtils.awaitWithCheckCanceled(refreshStarted);
-        ProgressIndicatorUtils.awaitWithCheckCanceled(refreshFinished);
+        awaitWithCheckCanceled(refreshStarted);
+        awaitWithCheckCanceled(refreshFinished);
 
         for (CargoProject cargoProject : cargoProjectsService.getAllProjects()) {
             CargoProject.UpdateStatus status = cargoProject.getMergedStatus();
@@ -115,7 +117,7 @@ public class CargoCommandLineInspectionProjectConfigurator implements CommandLin
         }
 
         logger.info("Expanding Rust macros...");
-        ProgressIndicatorUtils.awaitWithCheckCanceled(macroExpansionFinished);
+        awaitWithCheckCanceled(macroExpansionFinished);
 
         // Ensure all Rust plugin tasks has been finished
         var taskQueue = RsProjectTaskQueueService.getInstance(project);
@@ -148,6 +150,22 @@ public class CargoCommandLineInspectionProjectConfigurator implements CommandLin
         void error(String message) {
             logger.error(message);
             inspectionProgressReporter.reportError(message);
+        }
+    }
+    /**
+     * Waits for {@code latch}, letting progress cancellation interrupt the wait.
+     * {@code ProgressIndicatorUtils.awaitWithCheckCanceled} is platform-internal.
+     */
+    private static void awaitWithCheckCanceled(@Nonnull CountDownLatch latch) {
+        while (true) {
+            ProgressManager.checkCanceled();
+            try {
+                if (latch.await(10, TimeUnit.MILLISECONDS)) return;
+            }
+            catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new ProcessCanceledException(e);
+            }
         }
     }
 }

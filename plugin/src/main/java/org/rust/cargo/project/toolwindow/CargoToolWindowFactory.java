@@ -17,6 +17,7 @@ import consulo.ui.ex.toolWindow.ToolWindow;
 import consulo.ui.ex.toolWindow.ToolWindowAnchor;
 import consulo.ui.image.Image;
 import consulo.util.dataholder.Key;
+import consulo.dataContext.DataSink;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
@@ -46,12 +47,13 @@ public class CargoToolWindowFactory implements ToolWindowFactory, DumbAware {
         CargoProjectServiceUtil.guessAndSetupRustProject(project);
         CargoToolWindow cargoToolWindow = new CargoToolWindow(project);
         SimpleToolWindowPanel toolwindowPanel = new SimpleToolWindowPanel(true, false) {
-            @Nullable
+            // Consulo replaced DataProvider.getData(Key) on this panel with
+            // UiDataProvider.uiDataSnapshot(DataSink).
             @Override
-            public Object getData(@Nonnull Key<?> dataId) {
-                if (CargoToolWindow.SELECTED_CARGO_PROJECT == dataId) return cargoToolWindow.getSelectedProject();
-                if (PlatformDataKeys.TREE_EXPANDER == dataId) return cargoToolWindow.treeExpander;
-                return super.getData(dataId);
+            public void uiDataSnapshot(@Nonnull DataSink sink) {
+                super.uiDataSnapshot(sink);
+                sink.set(CargoToolWindow.SELECTED_CARGO_PROJECT, cargoToolWindow.getSelectedProject());
+                sink.set(PlatformDataKeys.TREE_EXPANDER, cargoToolWindow.treeExpander);
             }
         };
         toolwindowPanel.setToolbar(cargoToolWindow.toolbar.getComponent());

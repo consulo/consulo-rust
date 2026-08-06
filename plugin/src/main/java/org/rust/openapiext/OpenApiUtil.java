@@ -14,7 +14,6 @@ import consulo.util.jdom.JDOMUtil;
 import consulo.application.util.function.Computable;
 import consulo.util.dataholder.UserDataHolder;
 
-import consulo.application.internal.SensitiveProgressWrapper;
 import consulo.container.plugin.PluginDescriptor;
 import consulo.container.plugin.PluginManager;
 import consulo.disposer.Disposable;
@@ -30,10 +29,8 @@ import consulo.undoRedo.CommandProcessor;
 import consulo.language.editor.WriteCommandAction;
 import consulo.document.Document;
 import consulo.codeEditor.Editor;
-import consulo.fileEditor.impl.internal.TrailingSpacesStripper;
 import consulo.container.plugin.PluginId;
 import consulo.document.FileDocumentManager;
-import consulo.fileEditor.impl.internal.FileDocumentManagerImpl;
 import consulo.module.Module;
 import consulo.module.ModuleManager;
 import consulo.configurable.Configurable;
@@ -42,8 +39,9 @@ import consulo.application.progress.EmptyProgressIndicator;
 import consulo.component.ProcessCanceledException;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
-import consulo.application.internal.AbstractProgressIndicatorExBase;
-import consulo.application.internal.ProgressIndicatorUtils;
+import consulo.application.progress.ProgressIndicatorListener;
+import consulo.application.event.ApplicationListener;
+import consulo.disposer.Disposer;
 import consulo.project.DumbService;
 import consulo.application.dumb.IndexNotReadyException;
 import consulo.project.Project;
@@ -60,7 +58,6 @@ import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.VirtualFileWithId;
-import consulo.application.internal.ProgressIndicatorEx;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.PsiReference;
@@ -86,7 +83,6 @@ import consulo.language.psi.NavigatablePsiElement;
 import consulo.language.psi.PsiLanguageInjectionHost;
 import consulo.language.psi.ContributedReferenceHost;
 import consulo.language.psi.SyntaxTraverser;
-import consulo.language.impl.internal.psi.PsiDocumentManagerBase;
 import consulo.language.psi.scope.GlobalSearchScope;
 import consulo.language.psi.stub.StubIndex;
 import consulo.language.psi.stub.StubIndexKey;
@@ -101,7 +97,6 @@ import org.rust.ide.annotator.RsExternalLinterPass;
 
 import java.io.ByteArrayInputStream;
 import java.lang.ref.SoftReference;
-import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -251,9 +246,11 @@ public final class OpenApiUtil {
     public static void checkCommitIsNotInProgress(@Nonnull Project project) {
         Application app = ApplicationManager.getApplication();
         if ((app.isUnitTestMode() || app.isInternal()) && app.isDispatchThread()) {
-            if (((PsiDocumentManagerBase) PsiDocumentManager.getInstance(project)).isCommitInProgress()) {
-                throw new IllegalStateException("Accessing indices during PSI event processing can lead to typing performance issues");
-            }
+            // PsiDocumentManagerBase.isCommitInProgress() is platform-internal, and the public
+            // PsiDocumentManager exposes no equivalent ("has uncommitted documents" is a different
+            // question). This was a debug-only assertion, so it is simply not checked on Consulo.
+            //
+            // Original intent: accessing indices during PSI event processing hurts typing performance.
         }
     }
 
@@ -375,8 +372,11 @@ public final class OpenApiUtil {
     }
 
     /**
-     * Saves all documents "as they are" (without trailing spaces stripping),
-     * but marks them for stripping later.
+     * Saves all documents "as they are" (without trailing spaces stripping).
+     * <p>
+     * Upstream additionally queued each document for later stripping by reflecting into
+     * {@code FileDocumentManagerImpl.myTrailingSpacesStripper}; both classes are platform-internal
+     * and the field poking would not survive JPMS anyway, so that part is dropped.
      */
     public static void saveAllDocumentsAsTheyAre(boolean reformatLater) {
         FileDocumentManager documentManager = FileDocumentManager.getInstance();
@@ -384,7 +384,6 @@ public final class OpenApiUtil {
         rustfmtWatcher.withoutReformatting(() -> {
             for (Document document : documentManager.getUnsavedDocuments()) {
                 documentManager.saveDocumentAsIs(document);
-                stripDocumentLater(documentManager, document);
                 if (reformatLater) rustfmtWatcher.reformatDocumentLater(document);
             }
         });
@@ -392,41 +391,6 @@ public final class OpenApiUtil {
 
     public static void saveAllDocumentsAsTheyAre() {
         saveAllDocumentsAsTheyAre(true);
-    }
-
-    private static boolean stripDocumentLater(@Nonnull FileDocumentManager manager, @Nonnull Document document) {
-        if (!(manager instanceof FileDocumentManagerImpl)) return false;
-        try {
-            if (TRAILING_SPACES_STRIPPER_FIELD == null) return false;
-            Object trailingSpacesStripper = TRAILING_SPACES_STRIPPER_FIELD.get(manager);
-            if (!(trailingSpacesStripper instanceof TrailingSpacesStripper)) return false;
-
-            if (DOCUMENTS_TO_STRIP_LATER_FIELD == null) return false;
-            @SuppressWarnings("unchecked")
-            Set<Document> documentsToStripLater = (Set<Document>) DOCUMENTS_TO_STRIP_LATER_FIELD.get(trailingSpacesStripper);
-            if (documentsToStripLater == null) return false;
-            return documentsToStripLater.add(document);
-        } catch (IllegalAccessException e) {
-            return false;
-        }
-    }
-
-    @Nullable
-    private static final Field TRAILING_SPACES_STRIPPER_FIELD = initFieldSafely(FileDocumentManagerImpl.class, "myTrailingSpacesStripper");
-
-    @Nullable
-    private static final Field DOCUMENTS_TO_STRIP_LATER_FIELD = initFieldSafely(TrailingSpacesStripper.class, "myDocumentsToStripLater");
-
-    @Nullable
-    private static Field initFieldSafely(@Nonnull Class<?> clazz, @Nonnull String fieldName) {
-        try {
-            Field field = clazz.getDeclaredField(fieldName);
-            field.setAccessible(true);
-            return field;
-        } catch (Throwable e) {
-            if (ApplicationManager.getApplication().isUnitTestMode()) throw new RuntimeException(e);
-            return null;
-        }
     }
 
     // --- Test assertions ---
@@ -541,7 +505,7 @@ public final class OpenApiUtil {
         T[] result = (T[]) new Object[1];
         boolean success;
         do {
-            SensitiveProgressWrapper wrappedIndicator = new SensitiveProgressWrapper(indicator);
+            RsSensitiveProgressWrapper wrappedIndicator = new RsSensitiveProgressWrapper(indicator);
             success = runWithWriteActionPriority(wrappedIndicator, () -> {
                 result[0] = action.apply(wrappedIndicator);
             });
@@ -554,12 +518,39 @@ public final class OpenApiUtil {
         return result[0];
     }
 
+    /**
+     * Runs {@code action} under {@code indicator}, cancelling the indicator as soon as any thread
+     * wants the write lock.
+     * <p>
+     * {@code ProgressIndicatorUtils.runWithWriteActionPriority} is platform-internal and has no
+     * public counterpart (unlike the read-action variant below), so the write-action listener is
+     * wired up by hand here.
+     *
+     * @return {@code true} if the action ran to completion, {@code false} if it was cancelled
+     */
     public static boolean runWithWriteActionPriority(@Nonnull ProgressIndicator indicator, @Nonnull Runnable action) {
-        return ProgressIndicatorUtils.runWithWriteActionPriority(action, indicator);
+        Disposable listenerDisposable = Disposable.newDisposable("RsWriteActionPriority");
+        try {
+            ApplicationManager.getApplication().addApplicationListener(new ApplicationListener() {
+                @Override
+                public void beforeWriteActionStart(Object actionClass) {
+                    indicator.cancel();
+                }
+            }, listenerDisposable);
+            if (indicator.isCanceled()) return false;
+            ProgressManager.getInstance().runProcess(action, indicator);
+        }
+        catch (ProcessCanceledException e) {
+            return false;
+        }
+        finally {
+            Disposer.dispose(listenerDisposable);
+        }
+        return !indicator.isCanceled();
     }
 
     public static boolean runInReadActionWithWriteActionPriority(@Nonnull ProgressIndicator indicator, @Nonnull Runnable action) {
-        return ProgressIndicatorUtils.runInReadActionWithWriteActionPriority(action, indicator);
+        return ProgressManager.getInstance().runInReadActionWithWriteActionPriority(action, indicator);
     }
 
     @Nonnull
@@ -585,18 +576,17 @@ public final class OpenApiUtil {
 
     @Nonnull
     public static ProgressIndicator toThreadSafeProgressIndicator(@Nonnull ProgressIndicator indicator) {
-        if (indicator instanceof ProgressIndicatorEx) {
-            EmptyProgressIndicator threadSafeIndicator = new EmptyProgressIndicator();
-            ((ProgressIndicatorEx) indicator).addStateDelegate(new AbstractProgressIndicatorExBase() {
-                @Override
-                public void cancel() {
-                    threadSafeIndicator.cancel();
-                }
-            });
-            return threadSafeIndicator;
-        } else {
-            return indicator;
-        }
+        // Upstream attached an AbstractProgressIndicatorExBase state delegate via ProgressIndicatorEx;
+        // both are platform-internal. The public ProgressIndicatorListener carries the one signal
+        // that actually mattered here — cancellation.
+        EmptyProgressIndicator threadSafeIndicator = new EmptyProgressIndicator();
+        indicator.addListener(new ProgressIndicatorListener() {
+            @Override
+            public void canceled() {
+                threadSafeIndicator.cancel();
+            }
+        });
+        return threadSafeIndicator;
     }
 
     // --- Smart pointer utilities ---
