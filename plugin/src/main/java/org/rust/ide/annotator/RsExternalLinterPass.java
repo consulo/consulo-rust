@@ -10,7 +10,6 @@ import org.rust.stdext.Lazy;
 import consulo.language.editor.impl.highlight.DirtyScopeTrackingHighlightingPassFactory;
 import consulo.language.editor.highlight.TextEditorHighlightingPass;
 import com.intellij.codeHighlighting.TextEditorHighlightingPassRegistrar;
-import consulo.language.editor.internal.DaemonCodeAnalyzerInternal;
 import consulo.language.editor.rawHighlight.HighlightInfo;
 import consulo.language.editor.highlight.UpdateHighlightersUtil;
 import consulo.disposer.Disposable;
@@ -24,13 +23,14 @@ import consulo.codeEditor.Editor;
 import consulo.component.ProcessCanceledException;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
-import consulo.application.internal.BackgroundTaskUtil;
 import consulo.application.dumb.DumbAware;
 import consulo.project.Project;
 import consulo.disposer.Disposer;
 import consulo.language.psi.PsiFile;
 import consulo.ui.ex.awt.util.MergingUpdateQueue;
 import consulo.ui.ex.awt.util.Update;
+import consulo.language.editor.DaemonCodeAnalyzer;
+import consulo.application.progress.EmptyProgressIndicator;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.project.settings.RsExternalLinterSettingsUtil;
@@ -117,7 +117,7 @@ public class RsExternalLinterPass extends TextEditorHighlightingPass implements 
 
             @Override
             public void run() {
-                BackgroundTaskUtil.runUnderDisposeAwareIndicator(myDisposable, () -> {
+                runUnderDisposeAwareIndicator(myDisposable, () -> {
                     Lazy<RsExternalLinterResult> info = myAnnotationInfo;
                     if (info == null) return;
                     RsExternalLinterResult annotationResult = info.getValue();
@@ -167,11 +167,33 @@ public class RsExternalLinterPass extends TextEditorHighlightingPass implements 
                 getColorsScheme(),
                 getId()
             );
-            DaemonCodeAnalyzerInternal.getInstanceEx(myProject).getFileStatusMap().markFileUpToDate(getDocument(), getId());
+            DaemonCodeAnalyzer.getInstance(myProject).getFileStatusMap().markFileUpToDate(getDocument(), getId());
         }, ModalityState.nonModal());
     }
 
     private boolean isAnnotationPassEnabled() {
         return RsProjectSettingsServiceUtil.getExternalLinterSettings(myProject).getRunOnTheFly();
+    }
+    /**
+     * Runs {@code runnable} under a progress indicator that is cancelled when {@code parent} is
+     * disposed. Replaces {@code BackgroundTaskUtil.runUnderDisposeAwareIndicator}, which is
+     * platform-internal.
+     */
+    private static void runUnderDisposeAwareIndicator(@Nonnull Disposable parent, @Nonnull Runnable runnable) {
+        EmptyProgressIndicator indicator = new EmptyProgressIndicator();
+        Disposable cancelOnDispose = indicator::cancel;
+        if (!Disposer.tryRegister(parent, cancelOnDispose)) {
+            // parent is already disposed - nothing to run
+            return;
+        }
+        try {
+            ProgressManager.getInstance().runProcess(runnable, indicator);
+        }
+        catch (ProcessCanceledException ignored) {
+            // disposal cancelled the work
+        }
+        finally {
+            Disposer.dispose(cancelOnDispose);
+        }
     }
 }

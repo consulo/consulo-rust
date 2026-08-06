@@ -18,7 +18,6 @@ import com.intellij.codeInsight.hints.ImmediateConfigurable;
 import com.intellij.codeInsight.hints.ImmediateConfigurable.Case;
 import com.intellij.codeInsight.hints.InlayHintsProvider.ChangeListener;
 import consulo.language.editor.inlay.InlayPresentation;
-import consulo.ide.impl.idea.codeInsight.hints.presentation.InsetPresentation;
 import com.intellij.codeInsight.hints.presentation.MenuOnClickPresentation;
 import consulo.codeEditor.Editor;
 import consulo.project.DumbService;
@@ -165,10 +164,10 @@ public class RsInlayValueHintsProvider implements InlayHintsProvider<RsInlayValu
 
     @Nonnull
     private InlayPresentation withDisableAction(@Nonnull InlayPresentation presentation, @Nonnull Project project) {
-        return new InsetPresentation(
-            new MenuOnClickPresentation(presentation, project, () ->
-                Collections.singletonList(new InlayProviderDisablingAction(getName(), RsLanguage.INSTANCE, project, KEY))
-            ), 1, 0, 0, 0
+        // Upstream wrapped this in an InsetPresentation for 1px of left padding; that class is
+        // internal to consulo.ide.impl and the padding is purely cosmetic.
+        return new MenuOnClickPresentation(presentation, project, () ->
+            Collections.singletonList(new InlayProviderDisablingAction(getName(), RsLanguage.INSTANCE, project, KEY))
         );
     }
 

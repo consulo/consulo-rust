@@ -4,7 +4,6 @@
  */
 
 package org.rust.lang.core.macros;
-import consulo.virtualFileSystem.internal.VfsImplUtil;
 
 import consulo.util.dataholder.Key;
 import consulo.util.io.BufferExposingByteArrayInputStream;
@@ -13,7 +12,6 @@ import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.VirtualFileManager;
 import consulo.virtualFileSystem.NewVirtualFileSystem;
-import consulo.virtualFileSystem.internal.FakeVirtualFile;
 import consulo.util.collection.ArrayUtil;
 import consulo.util.io.PathUtil;
 import consulo.util.lang.Pair;
@@ -76,25 +74,25 @@ public class MacroExpansionFileSystem extends NewVirtualFileSystem {
 
     @Override
     public void refresh(boolean asynchronous) {
-        VfsImplUtil.refresh(this, asynchronous);
+        RsVfsImplUtil.refresh(this, asynchronous);
     }
 
     @Nullable
     @Override
     public VirtualFile refreshAndFindFileByPath(@Nonnull String path) {
-        return VfsImplUtil.refreshAndFindFileByPath(this, path);
+        return RsVfsImplUtil.refreshAndFindFileByPath(this, path);
     }
 
     @Nullable
     @Override
     public VirtualFile findFileByPath(@Nonnull String path) {
-        return VfsImplUtil.findFileByPath(this, path);
+        return RsVfsImplUtil.findFileByPath(this, path);
     }
 
     @Nullable
     @Override
     public VirtualFile findFileByPathIfCached(@Nonnull String path) {
-        return VfsImplUtil.findFileByPathIfCached(this, path);
+        return RsVfsImplUtil.findFileByPathIfCached(this, path);
     }
 
     @Override
@@ -117,7 +115,7 @@ public class MacroExpansionFileSystem extends NewVirtualFileSystem {
         } else if (!(existingDir instanceof FSDir)) {
             throw new IOException("Directory already contains a file named " + dir);
         }
-        return new FakeVirtualFile(parent, dir);
+        return new RsFakeVirtualFile(parent, dir);
     }
 
     @Nonnull

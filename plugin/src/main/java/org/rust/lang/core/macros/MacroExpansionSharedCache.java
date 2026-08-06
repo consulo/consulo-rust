@@ -15,7 +15,6 @@ import consulo.language.psi.stub.SerializerNotFoundException;
 import consulo.language.psi.stub.StubTreeBuilder;
 import consulo.language.file.light.ReadOnlyLightVirtualFile;
 import consulo.language.psi.stub.FileContent;
-import consulo.language.impl.internal.psi.stub.FileContentImpl;
 import consulo.index.io.data.DataExternalizer;
 import consulo.index.io.KeyDescriptor;
 import consulo.index.io.EnumeratorStringDescriptor;
@@ -106,7 +105,7 @@ public final class MacroExpansionSharedCache implements Disposable {
         ExpansionResultOk resultOk = ((RsResult.Ok<ExpansionResultOk, E>) expandResult).get();
 
         ReadOnlyLightVirtualFile lightFile = new ReadOnlyLightVirtualFile("macro.rs", RsLanguage.INSTANCE, resultOk.getText());
-        FileContent fc = new FileContentImpl(lightFile, resultOk.getText(), 0L);
+        FileContent fc = new RsMacroExpansionFileContent(project, lightFile, resultOk.getText());
 
         var stub = StubTreeBuilder.buildStubTree(fc);
         if (stub == null) {

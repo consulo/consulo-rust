@@ -5,7 +5,6 @@
 
 package org.rust.ide.template.postfix.editable;
 
-import consulo.language.editor.impl.internal.template.TemplateImpl;
 import consulo.language.editor.template.TextExpression;
 import consulo.language.editor.postfixTemplate.PostfixTemplateProvider;
 import consulo.language.editor.refactoring.postfixTemplate.EditablePostfixTemplateWithMultipleExpressions;
@@ -84,21 +83,6 @@ public class RsEditablePostfixTemplate extends EditablePostfixTemplateWithMultip
         return false;
     }
 
-    public static TemplateImpl createTemplate(String templateText) {
-        TemplateImpl template = new TemplateImpl("fakeKey", templateText, "");
-        template.setToReformat(false);
-        template.parseSegments();
-
-        for (int i = 0; i < template.getSegmentsCount(); i++) {
-            String segmentName = template.getSegmentName(i);
-            boolean internalName = segmentName.equals("EXPR")
-                || segmentName.equals(TemplateImpl.ARG)
-                || TemplateImpl.INTERNAL_VARS_SET.contains(segmentName);
-            if (!internalName) {
-                template.addVariable(segmentName, new TextExpression(segmentName), true);
-            }
-        }
-
-        return template;
-    }
+    // createTemplate(String) is inherited from EditablePostfixTemplateWithMultipleExpressions,
+    // which does the same segment parsing the local copy did against the internal TemplateImpl.
 }

@@ -13,12 +13,15 @@ import consulo.process.event.ProcessAdapter;
 import consulo.process.event.ProcessEvent;
 import consulo.util.dataholder.Key;
 import consulo.util.lang.StringUtil;
+import consulo.logging.Logger;
 
 import java.io.IOException;
 import java.util.List;
 
 @SuppressWarnings("UnstableApiUsage")
 public abstract class CargoBuildAdapterBase extends ProcessAdapter {
+    private static final Logger LOG = Logger.getInstance(CargoBuildAdapterBase.class);
+
     private final CargoBuildContextBase context;
     protected final BuildProgressListener buildProgressListener;
     private final BuildOutputInstantReader.Primary instantReader;
@@ -61,6 +64,13 @@ public abstract class CargoBuildAdapterBase extends ProcessAdapter {
         // Progress messages end with '\r' instead of '\n'. We want to replace '\r' with '\n'
         // so that `instantReader` sends progress messages to parsers separately from other messages.
         String text = StringUtil.convertLineSeparators(event.getText());
-        instantReader.append(text);
+        try {
+            // BuildOutputInstantReader.Primary appends via Appendable, whose append is checked;
+            // the internal impl this replaced declared no exception.
+            instantReader.append(text);
+        }
+        catch (IOException e) {
+            LOG.warn("Failed to forward build output to the parsers", e);
+        }
     }
 }

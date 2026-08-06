@@ -6,7 +6,6 @@
 package org.rust.ide.annotator;
 import consulo.language.editor.rawHighlight.HighlightInfo;
 
-import consulo.language.editor.impl.internal.highlight.AnnotationHolderImpl;
 import consulo.language.editor.rawHighlight.HighlightInfoType;
 import consulo.language.editor.highlight.UpdateHighlightersUtil;
 import consulo.language.editor.annotation.Annotation;
@@ -104,7 +103,12 @@ public class RsMacroExpansionHighlightingPass extends TextEditorHighlightingPass
             AnnotationSession annotationSession = new AnnotationSession(macro.getExpansion().getFile());
             AnnotationSessionEx.setCurrentCrate(annotationSession, crate);
 
-            AnnotationHolderImpl holder = new AnnotationHolderImpl(org.rust.lang.RsLanguage.INSTANCE, annotationSession, false);
+            // AnnotationHolderImpl is platform-internal. The holder is only needed so the
+            // cfg-disabled check can read the crate off the session; annotators themselves are run
+            // through the public LanguageEditorInternalHelperImpl, which builds its own holder.
+            RsAnnotationSessionHolder holder = new RsAnnotationSessionHolder(annotationSession);
+            List<Annotation> collectedAnnotations = new ArrayList<>();
+            var annotatorRunner = new consulo.ide.impl.language.editor.LanguageEditorInternalHelperImpl();
             List<Annotator> annotators = macro.isDeeplyAttrMacro() ? annotatorsForAttrMacros : annotatorsForDeclMacros;
             List<PsiElement> cfgDisabledElements = new ArrayList<>();
 
@@ -114,7 +118,8 @@ public class RsMacroExpansionHighlightingPass extends TextEditorHighlightingPass
                 }
                 for (Annotator ann : annotators) {
                     ProgressManager.checkCanceled();
-                    holder.runAnnotatorWithContext(element, ann);
+                    collectedAnnotations.addAll(annotatorRunner.runAnnotator(
+                        org.rust.lang.RsLanguage.INSTANCE, ann, macro.getExpansion().getFile(), element, false));
                 }
 
                 if (element instanceof RsMacroCall) {
@@ -123,7 +128,7 @@ public class RsMacroExpansionHighlightingPass extends TextEditorHighlightingPass
                 }
             }
 
-            for (Annotation ann : holder) {
+            for (Annotation ann : collectedAnnotations) {
                 mapAndCollectAnnotation(macro, ann);
             }
 
