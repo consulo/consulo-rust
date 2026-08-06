@@ -1,0 +1,13 @@
+/*
+ * Use of this source code is governed by the MIT license that can be
+ * found in the LICENSE file.
+ */
+
+package org.rust.lang.core.macros.errors;
+
+/**
+ * An error type for {@link org.rust.lang.core.macros.MacroExpander}
+ */
+public abstract class MacroExpansionError {
+    MacroExpansionError() {}
+}

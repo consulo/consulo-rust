@@ -15,3 +15,5 @@ testData
 /attributes-info/target
 
 .claude/
+.consulo
+target/

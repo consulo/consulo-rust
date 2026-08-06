@@ -1,0 +1,13 @@
+/*
+ * Use of this source code is governed by the MIT license that can be
+ * found in the LICENSE file.
+ */
+
+package org.rust.lang.core.types.infer;
+
+public enum BoundConstness {
+    /** T: Trait */
+    NotConst,
+    /** T: ~const Trait */
+    ConstIfConst
+}
