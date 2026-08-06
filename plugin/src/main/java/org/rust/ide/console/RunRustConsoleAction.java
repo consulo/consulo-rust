@@ -10,12 +10,13 @@ import consulo.ui.ex.action.AnActionEvent;
 import com.intellij.openapi.application.TransactionGuard;
 import consulo.ui.ex.action.DumbAwareAction;
 import consulo.project.Project;
+import consulo.ui.ex.action.LegacyDumbAwareAction;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.cargo.runconfig.RsRunConfigurationUtil;
 import org.rust.ide.notifications.NotificationUtils;
 
-public class RunRustConsoleAction extends DumbAwareAction {
+public class RunRustConsoleAction extends LegacyDumbAwareAction {
 
 
     @Override

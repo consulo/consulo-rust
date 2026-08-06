@@ -13,7 +13,6 @@ import consulo.ui.ex.action.event.AnActionListener;
 import consulo.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
 import consulo.application.progress.ProgressManager;
-import consulo.application.impl.internal.progress.ProgressWindow;
 import jakarta.annotation.Nonnull;
 import org.rust.openapiext.OpenApiUtil;
 
@@ -26,9 +25,9 @@ public final class RsGoToDeclarationRunningService {
     private volatile boolean _isGoToDeclarationAction = false;
 
     public boolean isGoToDeclarationAction() {
-        return _isGoToDeclarationAction
-            && (OpenApiUtil.isDispatchThread()
-                || ProgressManager.getGlobalProgressIndicator() instanceof ProgressWindow);
+        // Upstream also accepted a ProgressWindow-backed indicator here; that class is
+        // platform-internal, so only the dispatch-thread case can be recognised.
+        return _isGoToDeclarationAction && OpenApiUtil.isDispatchThread();
     }
 
     @Nonnull

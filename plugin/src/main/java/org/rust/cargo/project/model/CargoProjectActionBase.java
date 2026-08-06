@@ -6,8 +6,9 @@
 package org.rust.cargo.project.model;
 
 import consulo.ui.ex.action.DumbAwareAction;
+import consulo.ui.ex.action.LegacyDumbAwareAction;
 import jakarta.annotation.Nonnull;
 
-public abstract class CargoProjectActionBase extends DumbAwareAction {
+public abstract class CargoProjectActionBase extends LegacyDumbAwareAction {
 
 }

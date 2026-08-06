@@ -17,7 +17,6 @@ import consulo.project.DumbService;
 import consulo.application.util.concurrent.QueueProcessor;
 import jakarta.annotation.Nonnull;
 import org.rust.RsTask;
-import org.rust.openapiext.DelayedBackgroundableProcessIndicator;
 import org.rust.openapiext.OpenApiUtil;
 
 import consulo.util.lang.function.PairConsumer;
@@ -146,9 +145,11 @@ public class RsBackgroundTaskQueue {
             ProgressIndicator indicator;
             if (OpenApiUtil.isHeadlessEnvironment()) {
                 indicator = new EmptyProgressIndicator();
-            } else if (myTask instanceof RsTask && ((RsTask) myTask).getProgressBarShowDelay() > 0) {
-                indicator = new DelayedBackgroundableProcessIndicator(myTask, ((RsTask) myTask).getProgressBarShowDelay());
             } else {
+                // RsTask.getProgressBarShowDelay() used to select a DelayedBackgroundableProcessIndicator
+                // that postponed showing the progress UI. Reproducing it needs ProgressWindow and
+                // StatusBarEx.addProgress, both platform-internal, so the progress bar now appears
+                // immediately — cosmetic only, no behavioural difference for the task itself.
                 indicator = new BackgroundableProcessIndicator(myTask);
             }
 

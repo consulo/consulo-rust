@@ -13,6 +13,7 @@ import consulo.codeEditor.Editor;
 import consulo.ui.ex.action.DumbAwareAction;
 import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
+import consulo.ui.ex.action.LegacyDumbAwareAction;
 import org.rust.RsBundle;
 import org.rust.cargo.project.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
@@ -23,7 +24,7 @@ import org.rust.cargo.toolchain.tools.Rustup;
 import org.rust.lang.core.psi.RsFile;
 import org.rust.openapiext.OpenApiUtil;
 
-public class RustfmtFileAction extends DumbAwareAction {
+public class RustfmtFileAction extends LegacyDumbAwareAction {
 
 
     @Override

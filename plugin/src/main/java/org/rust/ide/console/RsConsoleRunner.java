@@ -9,7 +9,6 @@ import consulo.ui.ex.action.Shortcut;
 import consulo.ui.ex.action.CustomShortcutSet;
 import consulo.ui.ex.action.CommonShortcuts;
 
-import consulo.execution.impl.internal.action.EOFAction;
 import consulo.process.cmd.GeneralCommandLine;
 import consulo.execution.ui.console.ConsoleHistoryController;
 import consulo.execution.ui.console.language.ProcessBackedConsoleExecuteActionHandler;
@@ -161,7 +160,9 @@ public class RsConsoleRunner extends AbstractConsoleRunnerWithHistory<RsConsoleV
         List<AnAction> allActions = new ArrayList<>();
         allActions.addAll(outputActions);
         allActions.addAll(runActions);
-        allActions.add(new EOFAction());
+        // EOFAction is platform-internal and cannot be instantiated by a plugin; take the instance
+        // the platform already registered under its action id.
+        allActions.add(ActionManager.getInstance().getAction("SendEOF"));
         allActions.removeIf(a -> a == null);
         AnAction[] actionsArray = allActions.toArray(AnAction.EMPTY_ARRAY);
 

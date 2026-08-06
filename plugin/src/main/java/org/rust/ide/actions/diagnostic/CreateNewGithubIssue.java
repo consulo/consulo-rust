@@ -15,6 +15,7 @@ import consulo.codeEditor.Editor;
 import consulo.ui.ex.action.DumbAwareAction;
 import consulo.project.Project;
 import consulo.util.io.URLUtil;
+import consulo.ui.ex.action.LegacyDumbAwareAction;
 import org.rust.cargo.project.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import org.rust.cargo.project.settings.RustProjectSettingsService.MacroExpansionEngine;
@@ -29,7 +30,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CreateNewGithubIssue extends DumbAwareAction {
+public class CreateNewGithubIssue extends LegacyDumbAwareAction {
 
     private static final String ISSUE_TEMPLATE =
         "<!--\n" +

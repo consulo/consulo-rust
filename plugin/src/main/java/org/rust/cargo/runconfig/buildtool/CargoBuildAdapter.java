@@ -31,6 +31,7 @@ import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.localize.LocalizeValue;
+import consulo.ui.ex.action.LegacyDumbAwareAction;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.cargo.CargoConstants;
@@ -134,7 +135,7 @@ public class CargoBuildAdapter extends CargoBuildAdapterBase {
         return new RestartProcessAction(processHandler, environment);
     }
 
-    private static class RestartProcessAction extends DumbAwareAction {
+    private static class RestartProcessAction extends LegacyDumbAwareAction {
         private final ProcessHandler processHandler;
         private final ExecutionEnvironment environment;
 

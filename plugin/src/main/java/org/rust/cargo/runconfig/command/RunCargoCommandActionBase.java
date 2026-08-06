@@ -8,10 +8,11 @@ import consulo.project.Project;
 
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DumbAwareAction;
+import consulo.ui.ex.action.LegacyDumbAwareAction;
 import jakarta.annotation.Nonnull;
 import org.rust.cargo.runconfig.RunConfigUtil;
 
-public abstract class RunCargoCommandActionBase extends DumbAwareAction {
+public abstract class RunCargoCommandActionBase extends LegacyDumbAwareAction {
 
     @Override
     public void update(@Nonnull AnActionEvent e) {

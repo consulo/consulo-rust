@@ -23,8 +23,8 @@ import consulo.application.util.CachedValue;
 import consulo.application.util.CachedValueProvider;
 import consulo.application.util.CachedValuesManager;
 import consulo.language.psi.PsiUtilCore;
-import consulo.util.collection.impl.map.ConcurrentWeakKeySoftValueHashMap;
 import consulo.util.collection.HashingStrategy;
+import consulo.util.collection.Maps;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.*;
@@ -112,7 +112,8 @@ public final class RsResolveCache implements Disposable {
 
     @Nullable
     public Object getCached(@Nonnull PsiElement key, @Nonnull ResolveCacheDependency dep) {
-        return getCacheFor(key, refineDependency(key, dep)).get(key);
+        Object cached = getCacheFor(key, refineDependency(key, dep)).get(key);
+        return cached == NULL_RESULT ? null : cached;
     }
 
     @Nonnull
@@ -212,32 +213,24 @@ public final class RsResolveCache implements Disposable {
     }
 
     @SuppressWarnings("UnstableApiUsage")
+    /**
+     * Upstream subclassed {@code ConcurrentWeakKeySoftValueHashMap} to (a) hold trivial values
+     * (the NULL_RESULT sentinel, empty arrays/lists) behind strong rather than soft references and
+     * (b) translate NULL_RESULT to {@code null} inside {@code get}. That class is platform-internal;
+     * the public factory returns a plain {@link ConcurrentMap} with no subclass hooks.
+     * <p>
+     * (a) was a memory optimisation only — trivial values may now be softly collected and
+     * recomputed. (b) moved to the single call site that needed it, {@link #getCached}
+     * ({@code resolveWithCaching} already translated the sentinel itself).
+     */
     @Nonnull
     private static <K, V> ConcurrentMap<K, V> createWeakMap() {
-        return new ConcurrentWeakKeySoftValueHashMap<K, V>(
+        return Maps.newConcurrentWeakKeySoftValueHashMap(
             100,
             0.75f,
             Runtime.getRuntime().availableProcessors(),
             HashingStrategy.canonical()
-        ) {
-            @Override
-            protected ValueReference<K, V> createValueReference(V value, ReferenceQueue<? super V> queue) {
-                boolean isTrivialValue = value == NULL_RESULT ||
-                    (value instanceof Object[] && ((Object[]) value).length == 0) ||
-                    (value instanceof List && ((List<?>) value).isEmpty());
-                if (isTrivialValue) {
-                    return new StrongValueReference<>(value);
-                }
-                return super.createValueReference(value, queue);
-            }
-
-            @Override
-            public V get(Object key) {
-                V v = super.get(key);
-                if (v == NULL_RESULT) return null;
-                return v;
-            }
-        };
+        );
     }
 
     private static void ensureValidResult(@Nullable Object result) {
@@ -254,25 +247,6 @@ public final class RsResolveCache implements Disposable {
             }
         } else if (result instanceof PsiElement) {
             PsiUtilCore.ensureValid((PsiElement) result);
-        }
-    }
-
-    @SuppressWarnings("UnstableApiUsage")
-    private static class StrongValueReference<K, V> implements ConcurrentWeakKeySoftValueHashMap.ValueReference<K, V> {
-        private final V myValue;
-
-        StrongValueReference(V value) {
-            myValue = value;
-        }
-
-        @Override
-        public ConcurrentWeakKeySoftValueHashMap.KeyReference<K, V> getKeyReference() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public V get() {
-            return myValue;
         }
     }
 

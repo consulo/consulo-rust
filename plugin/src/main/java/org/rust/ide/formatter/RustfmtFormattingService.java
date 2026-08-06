@@ -15,7 +15,7 @@ import com.intellij.formatting.service.FormattingService;
 import consulo.undoRedo.CommandProcessor;
 import consulo.document.Document;
 import consulo.document.FileDocumentManager;
-import consulo.application.internal.ProgressIndicatorBase;
+import consulo.application.progress.EmptyProgressIndicator;
 import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.language.psi.PsiFile;
@@ -70,7 +70,7 @@ public class RustfmtFormattingService extends AsyncDocumentFormattingService {
         Rustfmt rustfmt = Rustfmt.create(toolchain);
 
         return new FormattingTask() {
-            private final ProgressIndicatorBase indicator = new ProgressIndicatorBase();
+            private final EmptyProgressIndicator indicator = new EmptyProgressIndicator();
 
             @Override
             public void run() {

@@ -9,6 +9,7 @@ import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DumbAwareAction;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import consulo.virtualFileSystem.VirtualFile;
+import consulo.ui.ex.action.LegacyDumbAwareAction;
 import org.rust.cargo.project.model.CargoProject;
 import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
@@ -17,7 +18,7 @@ import org.rust.cargo.toolchain.tools.Rustup;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.stdext.RsResult;
 
-public class RustfmtCargoProjectAction extends DumbAwareAction {
+public class RustfmtCargoProjectAction extends LegacyDumbAwareAction {
 
 
     @Override

@@ -10,6 +10,7 @@ import consulo.ui.ex.action.AnActionEvent;
 import consulo.dataContext.DataContext;
 import consulo.codeEditor.Editor;
 import consulo.project.Project;
+import consulo.ui.ex.action.LegacyAnAction;
 import org.rust.RsBundle;
 import org.rust.lang.core.macros.errors.GetMacroExpansionError;
 import org.rust.lang.core.psi.ext.RsPossibleMacroCall;
@@ -19,7 +20,7 @@ import org.rust.stdext.RsResult;
 
 public abstract class RsShowMacroExpansionActions {
 
-    public static abstract class RsShowMacroExpansionActionBase extends AnAction {
+    public static abstract class RsShowMacroExpansionActionBase extends LegacyAnAction {
         private final boolean expandRecursively;
 
         protected RsShowMacroExpansionActionBase(boolean expandRecursively) {

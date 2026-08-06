@@ -9,12 +9,13 @@ import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.dataContext.DataContext;
 import consulo.project.Project;
+import consulo.ui.ex.action.LegacyAnAction;
 import com.intellij.task.ProjectTaskManager;
 import com.intellij.util.PlatformUtils;
 import org.rust.ide.experiments.RsExperiments;
 import org.rust.openapiext.OpenApiUtil;
 
-public class RsBuildAction extends AnAction {
+public class RsBuildAction extends LegacyAnAction {
 
     @Override
     public void actionPerformed(AnActionEvent e) {

@@ -9,9 +9,10 @@ import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DefaultActionGroup;
 import consulo.application.dumb.DumbAware;
 import consulo.project.Project;
+import consulo.ui.ex.action.AnActionWithSyncUpdate;
 import org.rust.cargo.runconfig.RunConfigUtil;
 
-public class RsToolsActionGroup extends DefaultActionGroup implements DumbAware {
+public class RsToolsActionGroup extends DefaultActionGroup implements DumbAware, AnActionWithSyncUpdate {
 
 
     @Override

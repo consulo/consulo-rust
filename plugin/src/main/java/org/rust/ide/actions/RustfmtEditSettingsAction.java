@@ -9,9 +9,10 @@ import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ide.setting.ShowSettingsUtil;
 import consulo.application.dumb.DumbAware;
+import consulo.ui.ex.action.LegacyAnAction;
 import org.rust.cargo.project.configurable.RustfmtConfigurable;
 
-public class RustfmtEditSettingsAction extends AnAction implements DumbAware {
+public class RustfmtEditSettingsAction extends LegacyAnAction implements DumbAware {
 
     public RustfmtEditSettingsAction(String text) {
         super(text);

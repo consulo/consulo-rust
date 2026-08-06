@@ -10,9 +10,10 @@ import consulo.ui.ex.action.AnActionEvent;
 import consulo.application.dumb.DumbAware;
 import consulo.project.Project;
 import consulo.ide.setting.ShowSettingsUtil;
+import consulo.ui.ex.action.LegacyAnAction;
 import org.rust.cargo.project.configurable.CargoConfigurable;
 
-public class CargoEditSettingsAction extends AnAction implements DumbAware {
+public class CargoEditSettingsAction extends LegacyAnAction implements DumbAware {
 
 
     @Override

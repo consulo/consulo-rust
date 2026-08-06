@@ -6,7 +6,6 @@
 package org.rust.ide.console;
 import consulo.ui.ex.action.ToggleAction;
 
-import consulo.execution.impl.internal.action.EOFAction;
 import consulo.application.AllIcons;
 import consulo.ui.ex.action.ActionsBundle;
 import consulo.ui.ex.action.AnAction;
@@ -26,13 +25,16 @@ import consulo.language.editor.PlatformDataKeys;
 import consulo.ui.ex.action.util.ActionUtil;
 import consulo.application.dumb.DumbAware;
 import consulo.ui.ex.action.DumbAwareAction;
+import consulo.ui.ex.action.LegacyDumbAwareAction;
+import consulo.ui.ex.action.LegacyAnAction;
+import consulo.ui.ex.action.AnActionWithSyncUpdate;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 
 public class RsConsoleActions {
 
-    public static class RestartAction extends AnAction {
+    public static class RestartAction extends LegacyAnAction {
         @Nonnull
         private final RsConsoleRunner consoleRunner;
 
@@ -48,7 +50,7 @@ public class RsConsoleActions {
         }
     }
 
-    public static class StopAction extends DumbAwareAction {
+    public static class StopAction extends LegacyDumbAwareAction {
         @Nonnull
         private final RsConsoleProcessHandler processHandler;
 
@@ -57,7 +59,7 @@ public class RsConsoleActions {
                   RsBundle.message("action.stop.rust.console.description"),
                   AllIcons.Actions.Suspend);
             this.processHandler = processHandler;
-            AnAction eofAction = ActionManager.getInstance().getAction(EOFAction.ACTION_ID);
+            AnAction eofAction = ActionManager.getInstance().getAction("SendEOF" /* EOFAction.ACTION_ID, platform-internal */);
             copyShortcutFrom(eofAction);
         }
 
@@ -102,7 +104,7 @@ public class RsConsoleActions {
         }
     }
 
-    public static class PrintAction extends DumbAwareAction {
+    public static class PrintAction extends LegacyDumbAwareAction {
         @Nonnull
         private final RsConsoleView consoleView;
         @Nonnull
@@ -116,7 +118,10 @@ public class RsConsoleActions {
 
         @Override
         public void update(@Nonnull AnActionEvent e) {
-            printAction.update(createActionEvent(e));
+            // AnAction has no update() in Consulo; only sync-update actions expose one.
+            if (printAction instanceof AnActionWithSyncUpdate syncUpdate) {
+                syncUpdate.update(createActionEvent(e));
+            }
         }
 
         @Override

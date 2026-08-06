@@ -26,6 +26,7 @@ import consulo.ui.ex.awt.Messages;
 import consulo.http.HttpRequests;
 import com.intellij.util.net.ssl.CertificateManager;
 import consulo.http.impl.internal.proxy.CommonProxy;
+import consulo.ui.ex.action.LegacyDumbAwareAction;
 import jakarta.annotation.Nonnull;
 
 import org.rust.RsBundle;
@@ -41,7 +42,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 
-public class ShareInPlaygroundAction extends DumbAwareAction {
+public class ShareInPlaygroundAction extends LegacyDumbAwareAction {
 
     private static final String SHOW_SHARE_IN_PLAYGROUND_CONFIRMATION = "rs.show.share.in.playground.confirmation";
     private static String MOCK = null;
