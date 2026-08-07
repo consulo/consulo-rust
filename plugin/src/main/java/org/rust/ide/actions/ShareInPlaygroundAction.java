@@ -41,7 +41,9 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import consulo.annotation.component.ActionImpl;
 
+@ActionImpl(id = "Rust.ShareInPlayground")
 public class ShareInPlaygroundAction extends LegacyDumbAwareAction {
 
     private static final String SHOW_SHARE_IN_PLAYGROUND_CONFIRMATION = "rs.show.share.in.playground.confirmation";

@@ -19,7 +19,19 @@ import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import org.rust.ide.icons.RsIcons;
+import consulo.annotation.component.ActionImpl;
+import consulo.annotation.component.ActionParentRef;
+import consulo.annotation.component.ActionRefAnchor;
+import consulo.annotation.component.ActionRef;
 
+@ActionImpl(
+    id = "Rust.NewRustFile",
+    parents = @ActionParentRef(
+        value = @ActionRef(id = "NewGroup"),
+        anchor = ActionRefAnchor.BEFORE,
+        relatedToAction = @ActionRef(id = "NewFile")
+    )
+)
 public class RsCreateFileAction extends CreateFileFromTemplateAction implements DumbAware {
 
     private static final String CAPTION = RsBundle.message("rust.file");

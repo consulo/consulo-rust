@@ -12,7 +12,9 @@ import consulo.project.Project;
 import consulo.ide.setting.ShowSettingsUtil;
 import consulo.ui.ex.action.LegacyAnAction;
 import org.rust.cargo.project.configurable.CargoConfigurable;
+import consulo.annotation.component.ActionImpl;
 
+@ActionImpl(id = "Cargo.ShowSettings")
 public class CargoEditSettingsAction extends LegacyAnAction implements DumbAware {
 
 

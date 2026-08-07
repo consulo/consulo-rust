@@ -23,7 +23,17 @@ import org.rust.openapiext.OpenApiUtil;
 
 import javax.swing.*;
 import java.awt.*;
+import consulo.annotation.component.ActionImpl;
+import consulo.annotation.component.ActionParentRef;
+import consulo.annotation.component.ActionRefAnchor;
+import consulo.annotation.component.ActionRef;
 
+@ActionImpl(
+    id = "Rust.RsConvertToTuple",
+    parents = @ActionParentRef(
+        value = @ActionRef(id = "RefactoringMenu")
+    )
+)
 public class RsConvertToTupleAction extends RsBaseEditorRefactoringAction {
 
     @Override

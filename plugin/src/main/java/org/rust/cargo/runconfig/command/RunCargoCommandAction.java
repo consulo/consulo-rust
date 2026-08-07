@@ -10,7 +10,9 @@ import consulo.ui.ex.action.AnActionEvent;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import org.rust.ide.actions.runAnything.cargo.CargoRunAnythingProvider;
+import consulo.annotation.component.ActionImpl;
 
+@ActionImpl(id = "Cargo.RunCargoCommand")
 public class RunCargoCommandAction extends RunCargoCommandActionBase {
     @Override
     public void actionPerformed(@Nonnull AnActionEvent e) {

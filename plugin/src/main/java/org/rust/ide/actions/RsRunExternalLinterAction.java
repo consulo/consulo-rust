@@ -17,7 +17,9 @@ import org.rust.cargo.project.model.CargoProject;
 import org.rust.cargo.runconfig.command.RunCargoCommandActionBase;
 import org.rust.cargo.runconfig.RunConfigUtil;
 import org.rust.ide.inspections.RsExternalLinterInspection;
+import consulo.annotation.component.ActionImpl;
 
+@ActionImpl(id = "Cargo.RunExternalLinter")
 public class RsRunExternalLinterAction extends RunCargoCommandActionBase {
 
     public static final Key<CargoProject> CARGO_PROJECT = Key.create("Cargo project");

@@ -21,7 +21,17 @@ import org.rust.lang.RsLanguage;
 import org.rust.lang.core.psi.RsFile;
 import org.rust.openapiext.OpenApiUtil;
 import consulo.language.psi.PsiFile;
+import consulo.annotation.component.ActionImpl;
+import consulo.annotation.component.ActionParentRef;
+import consulo.annotation.component.ActionRefAnchor;
+import consulo.annotation.component.ActionRef;
 
+@ActionImpl(
+    id = "Rust.RsDowngradeModuleToFile",
+    parents = @ActionParentRef(
+        value = @ActionRef(id = "RefactoringMenu")
+    )
+)
 public class RsDowngradeModuleToFile extends BaseRefactoringAction {
 
     @Override

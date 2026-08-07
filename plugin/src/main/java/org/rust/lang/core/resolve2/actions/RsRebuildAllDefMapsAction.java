@@ -13,7 +13,9 @@ import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.ide.notifications.NotificationUtils;
+import consulo.annotation.component.ActionImpl;
 
+@ActionImpl(id = "Rust.RebuildAllDefMaps")
 public class RsRebuildAllDefMapsAction extends AnAction {
     @Override
     public void actionPerformed(@Nonnull AnActionEvent e) {

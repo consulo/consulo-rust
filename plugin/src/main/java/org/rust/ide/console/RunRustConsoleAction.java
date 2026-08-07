@@ -15,7 +15,9 @@ import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.cargo.runconfig.RsRunConfigurationUtil;
 import org.rust.ide.notifications.NotificationUtils;
+import consulo.annotation.component.ActionImpl;
 
+@ActionImpl(id = "Rust.ConsoleREPL")
 public class RunRustConsoleAction extends LegacyDumbAwareAction {
 
 

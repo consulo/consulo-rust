@@ -34,7 +34,17 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import consulo.annotation.component.ActionImpl;
+import consulo.annotation.component.ActionParentRef;
+import consulo.annotation.component.ActionRefAnchor;
+import consulo.annotation.component.ActionRef;
 
+@ActionImpl(
+    id = "Rust.RsConvertToNamedFields",
+    parents = @ActionParentRef(
+        value = @ActionRef(id = "RefactoringMenu")
+    )
+)
 public class RsConvertToNamedFieldsAction extends RsBaseEditorRefactoringAction {
 
     @Override

@@ -11,7 +11,9 @@ import org.rust.cargo.project.model.CargoProjectActionBase;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
 import org.rust.openapiext.OpenApiUtil;
+import consulo.annotation.component.ActionImpl;
 
+@ActionImpl(id = "Cargo.RefreshCargoProject")
 public class RefreshCargoProjectsAction extends CargoProjectActionBase {
 
     @Override

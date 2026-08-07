@@ -10,7 +10,19 @@ import consulo.language.editor.refactoring.RefactoringSupportProvider;
 import com.intellij.refactoring.actions.ExtractSuperActionBase;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.RsLanguage;
+import consulo.annotation.component.ActionImpl;
+import consulo.annotation.component.ActionParentRef;
+import consulo.annotation.component.ActionRefAnchor;
+import consulo.annotation.component.ActionRef;
 
+@ActionImpl(
+    id = "Rust.RsExtractTrait",
+    parents = @ActionParentRef(
+        value = @ActionRef(id = "IntroduceActionsGroup"),
+        anchor = ActionRefAnchor.BEFORE,
+        relatedToAction = @ActionRef(id = "ExtractInterface")
+    )
+)
 public class RsExtractTraitAction extends ExtractSuperActionBase {
 
     public RsExtractTraitAction() {

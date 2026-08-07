@@ -29,7 +29,19 @@ import org.rust.openapiext.OpenApiUtil;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import consulo.annotation.component.ActionImpl;
+import consulo.annotation.component.ActionParentRef;
+import consulo.annotation.component.ActionRefAnchor;
+import consulo.annotation.component.ActionRef;
 
+@ActionImpl(
+    id = "Rust.CreateNewGithubIssue",
+    parents = @ActionParentRef(
+        value = @ActionRef(id = "HelpMenu"),
+        anchor = ActionRefAnchor.AFTER,
+        relatedToAction = @ActionRef(id = "ReportProblem")
+    )
+)
 public class CreateNewGithubIssue extends LegacyDumbAwareAction {
 
     private static final String ISSUE_TEMPLATE =

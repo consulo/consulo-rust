@@ -11,7 +11,9 @@ import consulo.project.Project;
 import org.rust.RsBundle;
 import org.rust.cargo.project.settings.RsExternalLinterProjectSettingsService;
 import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
+import consulo.annotation.component.ActionImpl;
 
+@ActionImpl(id = "Cargo.ToggleExternalLinterOnTheFlyAction")
 public class ToggleExternalLinterOnTheFlyAction extends ToggleAction {
 
     @Override

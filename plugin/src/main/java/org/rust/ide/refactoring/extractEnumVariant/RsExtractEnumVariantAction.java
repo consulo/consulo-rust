@@ -19,7 +19,19 @@ import org.rust.lang.core.FeatureAvailability;
 import org.rust.lang.core.psi.RsEnumVariant;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsEnumVariantUtil;
+import consulo.annotation.component.ActionImpl;
+import consulo.annotation.component.ActionParentRef;
+import consulo.annotation.component.ActionRefAnchor;
+import consulo.annotation.component.ActionRef;
 
+@ActionImpl(
+    id = "Rust.RsExtractEnumVariant",
+    parents = @ActionParentRef(
+        value = @ActionRef(id = "IntroduceActionsGroup"),
+        anchor = ActionRefAnchor.AFTER,
+        relatedToAction = @ActionRef(id = "ExtractMethod")
+    )
+)
 public class RsExtractEnumVariantAction extends RsBaseEditorRefactoringAction {
 
     @Override

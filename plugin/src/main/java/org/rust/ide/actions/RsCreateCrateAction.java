@@ -24,7 +24,19 @@ import org.rust.openapiext.OpenApiUtil;
 import org.rust.stdext.RsResult;
 
 import java.nio.file.Path;
+import consulo.annotation.component.ActionImpl;
+import consulo.annotation.component.ActionParentRef;
+import consulo.annotation.component.ActionRefAnchor;
+import consulo.annotation.component.ActionRef;
 
+@ActionImpl(
+    id = "Rust.NewCargoCrate",
+    parents = @ActionParentRef(
+        value = @ActionRef(id = "NewGroup"),
+        anchor = ActionRefAnchor.BEFORE,
+        relatedToAction = @ActionRef(id = "NewFile")
+    )
+)
 public class RsCreateCrateAction extends RunCargoCommandActionBase {
     @Override
     public void actionPerformed(AnActionEvent e) {

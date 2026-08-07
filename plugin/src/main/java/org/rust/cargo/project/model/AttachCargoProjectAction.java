@@ -24,12 +24,14 @@ import org.rust.ide.notifications.RsEditorNotificationPanel;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.nio.file.Path;
+import consulo.annotation.component.ActionImpl;
 
 /**
  * Adds cargo project to {@link CargoProjectsService}.
  *
  * It can be invoked from Project View, {@link CargoToolWindow} and {@link RsEditorNotificationPanel}
  */
+@ActionImpl(id = "Cargo.AttachCargoProject")
 public class AttachCargoProjectAction extends CargoProjectActionBase {
 
     

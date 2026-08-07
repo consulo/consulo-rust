@@ -17,7 +17,18 @@ import org.rust.cargo.toolchain.tools.Rustfmt;
 import org.rust.cargo.toolchain.tools.Rustup;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.stdext.RsResult;
+import consulo.annotation.component.ActionImpl;
+import consulo.annotation.component.ActionParentRef;
+import consulo.annotation.component.ActionRefAnchor;
+import consulo.annotation.component.ActionRef;
 
+@ActionImpl(
+    id = "Cargo.RustfmtCargoProject",
+    parents = @ActionParentRef(
+        value = @ActionRef(id = "CodeMenu"),
+        anchor = ActionRefAnchor.LAST
+    )
+)
 public class RustfmtCargoProjectAction extends LegacyDumbAwareAction {
 
 

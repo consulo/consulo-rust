@@ -9,7 +9,13 @@ import consulo.ui.ex.action.AnActionEvent;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import org.rust.cargo.project.toolwindow.CargoToolWindow;
+import consulo.annotation.component.ActionImpl;
+import consulo.annotation.component.ActionRef;
 
+@ActionImpl(
+    id = "Cargo.DetachCargoProject",
+    shortcutFrom = @ActionRef(id = "$Delete")
+)
 public class DetachCargoProjectAction extends CargoProjectActionBase {
 
     @Override

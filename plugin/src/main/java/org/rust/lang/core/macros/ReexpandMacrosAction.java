@@ -10,7 +10,9 @@ import consulo.ui.ex.action.AnActionEvent;
 import consulo.application.dumb.DumbAware;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
+import consulo.annotation.component.ActionImpl;
 
+@ActionImpl(id = "Rust.ReexpandMacrosAction")
 public class ReexpandMacrosAction extends AnAction implements DumbAware {
     @Override
     public void actionPerformed(@Nonnull AnActionEvent e) {

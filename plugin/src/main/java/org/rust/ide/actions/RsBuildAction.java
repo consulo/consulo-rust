@@ -14,7 +14,29 @@ import com.intellij.task.ProjectTaskManager;
 import com.intellij.util.PlatformUtils;
 import org.rust.ide.experiments.RsExperiments;
 import org.rust.openapiext.OpenApiUtil;
+import consulo.annotation.component.ActionImpl;
+import consulo.annotation.component.ActionParentRef;
+import consulo.annotation.component.ActionRefAnchor;
+import consulo.annotation.component.ActionRef;
 
+@ActionImpl(
+    id = "Rust.Build",
+    parents = {
+    // IntelliJ's "ToolbarRunGroup" has no Consulo counterpart; "RunnerActions" is the
+    // equivalent run-toolbar group here.
+    @ActionParentRef(
+        value = @ActionRef(id = "RunnerActions"),
+        anchor = ActionRefAnchor.BEFORE,
+        relatedToAction = @ActionRef(id = "RunConfiguration")
+    ),
+    @ActionParentRef(
+        value = @ActionRef(id = "TouchBarDefault"),
+        anchor = ActionRefAnchor.BEFORE,
+        relatedToAction = @ActionRef(id = "RunConfiguration")
+    )
+    },
+    shortcutFrom = @ActionRef(id = "CompileDirty")
+)
 public class RsBuildAction extends LegacyAnAction {
 
     @Override

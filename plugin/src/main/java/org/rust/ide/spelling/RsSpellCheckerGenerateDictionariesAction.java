@@ -23,7 +23,17 @@ import org.rust.cargo.project.workspace.PackageOrigin;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import consulo.annotation.component.ActionImpl;
+import consulo.annotation.component.ActionParentRef;
+import consulo.annotation.component.ActionRefAnchor;
+import consulo.annotation.component.ActionRef;
 
+@ActionImpl(
+    id = "Rust.GenerateDictionaries",
+    parents = @ActionParentRef(
+        value = @ActionRef(id = "Internal")
+    )
+)
 public class RsSpellCheckerGenerateDictionariesAction extends LegacyAnAction {
 
     private static final List<String> EXCLUDE_DIRS = Arrays.asList("tests", "benches");

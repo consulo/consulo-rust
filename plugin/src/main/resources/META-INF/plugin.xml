@@ -1,28 +1,19 @@
-<idea-plugin package="org.rust" xmlns:xi="http://www.w3.org/2001/XInclude" allow-bundled-update="true">
-    <id>org.rust.lang</id>
-    <name>[Deprecated] Rust</name>
-
+<consulo-plugin url="https://github.com/consulo/consulo-rust">
+    <id>consulo.rust</id>
+    <name>Rust</name>
+    <category>Custom Languages</category>
+    <version>SNAPSHOT</version>
     <vendor>JetBrains</vendor>
 
-    <change-notes><![CDATA[
-        <a href="https://intellij-rust.github.io/2023/07/24/changelog-200.html">
-                 https://intellij-rust.github.io/2023/07/24/changelog-200.html
-    ]]>
-    </change-notes>
+    <description><![CDATA[
+        Rust language support, ported from
+        <a href="https://github.com/intellij-rust/intellij-rust">intellij-rust</a>.
+    ]]></description>
 
-    <!-- please see https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html
-         on how to target different products -->
+    <tags>
+        <tag>custom.language</tag>
+    </tags>
 
-    <xi:include href="/META-INF/rust-core.xml" xpointer="xpointer(/idea-plugin/*)"/>
-
-    <dependencies>
-        <plugin id="org.toml.lang"/>
-    </dependencies>
-
-    <content>
-        <module name="org.rust.idea"/>
-        <module name="org.rust.copyright"/>
-        <module name="org.rust.duplicates"/>
-        <module name="org.rust.coverage"/>
-    </content>
-</idea-plugin>
+    <depends>org.toml.lang</depends>
+    <depends>com.intellij.regexp</depends>
+</consulo-plugin>

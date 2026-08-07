@@ -24,7 +24,19 @@ import org.rust.lang.core.types.TyFingerprint;
 
 import java.util.List;
 import org.rust.lang.core.types.SubstitutionUtil;
+import consulo.annotation.component.ActionImpl;
+import consulo.annotation.component.ActionParentRef;
+import consulo.annotation.component.ActionRefAnchor;
+import consulo.annotation.component.ActionRef;
 
+@ActionImpl(
+    id = "Rust.RsExtractStructFields",
+    parents = @ActionParentRef(
+        value = @ActionRef(id = "IntroduceActionsGroup"),
+        anchor = ActionRefAnchor.AFTER,
+        relatedToAction = @ActionRef(id = "Rust.RsExtractEnumVariant")
+    )
+)
 public class RsExtractStructFieldsAction extends RsBaseEditorRefactoringAction {
 
     @Override
