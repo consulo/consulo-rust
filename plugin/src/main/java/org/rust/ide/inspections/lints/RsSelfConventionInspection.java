@@ -26,7 +26,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.rust.lang.core.psi.ext.RsSelfParameterUtil;
+import consulo.localize.LocalizeValue;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsSelfConventionInspection extends RsLintInspection {
 
     private static final List<SelfConvention> SELF_CONVENTIONS = Arrays.asList(
@@ -159,5 +162,11 @@ public class RsSelfConventionInspection extends RsLintInspection {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("naming.conventions"));
+    }
+
+    @Nonnull
+    @Override
+    public LocalizeValue[] getGroupPath() {
+        return new LocalizeValue[]{LocalizeValue.of(RsBundle.message("rust")), LocalizeValue.of(RsBundle.message("lints"))};
     }
 }

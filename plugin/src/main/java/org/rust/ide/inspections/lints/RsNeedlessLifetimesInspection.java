@@ -32,11 +32,15 @@ import org.rust.lang.core.psi.ext.RsPathUtil;
 import org.rust.lang.core.psi.ext.RsRefLikeTypeUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
+import consulo.localize.LocalizeValue;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.annotation.component.ExtensionImpl;
 
 /**
  * Checks for lifetime annotations which can be removed by relying on lifetime elision.
  * Corresponds to needless_lifetimes lint from Rust Clippy.
  */
+@ExtensionImpl
 public class RsNeedlessLifetimesInspection extends RsLintInspection {
 
     @Nonnull
@@ -500,5 +504,17 @@ public class RsNeedlessLifetimesInspection extends RsLintInspection {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("lints"));
+    }
+
+    @Nonnull
+    @Override
+    public LocalizeValue[] getGroupPath() {
+        return new LocalizeValue[]{LocalizeValue.of(RsBundle.message("rust"))};
+    }
+
+    @Nonnull
+    @Override
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.WEAK_WARNING;
     }
 }

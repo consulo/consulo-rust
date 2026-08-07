@@ -27,10 +27,14 @@ import java.util.Collections;
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsStmtUtil;
 import org.rust.lang.core.resolve.ImplLookup;
+import consulo.localize.LocalizeValue;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.annotation.component.ExtensionImpl;
 
 // TODO: Future improvements: https://github.com/intellij-rust/intellij-rust/issues/9555
 //  The inspection is currently disabled by default.
 /** Analogue of https://doc.rust-lang.org/rustc/lints/listing/warn-by-default.html#path-statements */
+@ExtensionImpl
 public class RsPathStatementsInspection extends RsLintInspection {
 
     @Nonnull
@@ -90,5 +94,17 @@ public class RsPathStatementsInspection extends RsLintInspection {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("lints"));
+    }
+
+    @Nonnull
+    @Override
+    public LocalizeValue[] getGroupPath() {
+        return new LocalizeValue[]{LocalizeValue.of(RsBundle.message("rust"))};
+    }
+
+    @Nonnull
+    @Override
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.WEAK_WARNING;
     }
 }

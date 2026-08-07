@@ -11,10 +11,15 @@ import org.rust.lang.core.psi.ext.RsConstContextKind;
 import org.rust.lang.core.psi.ext.RsExprUtil;
 import org.rust.lang.core.psi.ext.RsConstantUtil;
 import org.rust.lang.utils.RsDiagnostic;
+import consulo.localize.LocalizeValue;
+import org.rust.RsBundle;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.annotation.component.ExtensionImpl;
 
 /**
  * Inspection that detects the E0013 error.
  */
+@ExtensionImpl
 public class RsConstReferStaticInspection extends RsLocalInspectionTool {
 
     @Override
@@ -55,5 +60,11 @@ public class RsConstReferStaticInspection extends RsLocalInspectionTool {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("rust"));
+    }
+
+    @Nonnull
+    @Override
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.ERROR;
     }
 }

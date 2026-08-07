@@ -22,10 +22,14 @@ import org.rust.lang.core.psi.ext.RsPsiElementUtil;
 import java.util.Collections;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsPsiElementExtUtil;
+import consulo.localize.LocalizeValue;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.annotation.component.ExtensionImpl;
 
 /**
  * Change `while true` to `loop`.
  */
+@ExtensionImpl
 public class RsWhileTrueLoopInspection extends RsLintInspection {
 
     @Nonnull
@@ -108,5 +112,17 @@ public class RsWhileTrueLoopInspection extends RsLintInspection {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("lints"));
+    }
+
+    @Nonnull
+    @Override
+    public LocalizeValue[] getGroupPath() {
+        return new LocalizeValue[]{LocalizeValue.of(RsBundle.message("rust"))};
+    }
+
+    @Nonnull
+    @Override
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.WEAK_WARNING;
     }
 }

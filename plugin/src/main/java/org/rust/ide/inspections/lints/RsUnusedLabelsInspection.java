@@ -18,8 +18,11 @@ import org.rust.lang.core.psi.RsVisitor;
 import org.rust.lang.core.psi.ext.RsLabelDeclExtUtil;
 
 import java.util.Collections;
+import consulo.localize.LocalizeValue;
+import consulo.annotation.component.ExtensionImpl;
 
 /** Analogue of rustc's unused_labels. */
+@ExtensionImpl
 public class RsUnusedLabelsInspection extends RsLintInspection {
 
     @Nonnull
@@ -59,5 +62,11 @@ public class RsUnusedLabelsInspection extends RsLintInspection {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("lints"));
+    }
+
+    @Nonnull
+    @Override
+    public LocalizeValue[] getGroupPath() {
+        return new LocalizeValue[]{LocalizeValue.of(RsBundle.message("rust"))};
     }
 }

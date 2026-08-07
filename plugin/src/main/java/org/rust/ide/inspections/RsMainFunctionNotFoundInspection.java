@@ -19,7 +19,12 @@ import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsItemsOwnerUtil;
 import org.rust.lang.utils.RsDiagnostic;
 import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import consulo.localize.LocalizeValue;
+import org.rust.RsBundle;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsMainFunctionNotFoundInspection extends RsLocalInspectionTool {
 
     @Override
@@ -57,5 +62,11 @@ public class RsMainFunctionNotFoundInspection extends RsLocalInspectionTool {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("rust"));
+    }
+
+    @Nonnull
+    @Override
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.ERROR;
     }
 }

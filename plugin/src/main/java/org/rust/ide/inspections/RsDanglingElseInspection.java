@@ -16,7 +16,9 @@ import org.rust.lang.core.psi.RsElseBranch;
 import org.rust.lang.core.psi.RsIfExpr;
 import org.rust.lang.core.psi.RsVisitor;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsDanglingElseInspection extends RsLocalInspectionTool {
 
 @Override

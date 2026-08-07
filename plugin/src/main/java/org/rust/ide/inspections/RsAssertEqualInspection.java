@@ -26,7 +26,11 @@ import org.rust.openapiext.Testmark;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import consulo.localize.LocalizeValue;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsAssertEqualInspection extends RsLocalInspectionTool {
 
     @Override
@@ -159,5 +163,11 @@ public class RsAssertEqualInspection extends RsLocalInspectionTool {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("rust"));
+    }
+
+    @Nonnull
+    @Override
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.WEAK_WARNING;
     }
 }

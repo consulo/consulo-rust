@@ -18,7 +18,12 @@ import org.rust.lang.core.types.ty.TyPointer;
 import org.rust.lang.core.types.ty.TyReference;
 import org.rust.lang.utils.RsDiagnostic;
 import org.rust.lang.core.types.ExtensionsUtil;
+import consulo.localize.LocalizeValue;
+import org.rust.RsBundle;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsAssignToImmutableInspection extends RsLocalInspectionTool {
 
     @Override
@@ -75,5 +80,11 @@ public class RsAssignToImmutableInspection extends RsLocalInspectionTool {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("rust"));
+    }
+
+    @Nonnull
+    @Override
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.ERROR;
     }
 }

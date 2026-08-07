@@ -43,7 +43,10 @@ import org.rust.lang.core.psi.ext.RsTraitItemUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsReferenceElementBase;
 import org.rust.lang.core.psi.ext.RsMod;
+import consulo.localize.LocalizeValue;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsUnusedImportInspection extends RsLintInspection {
 
     public boolean ignoreDoctest = true;
@@ -411,5 +414,11 @@ public class RsUnusedImportInspection extends RsLintInspection {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("lints"));
+    }
+
+    @Nonnull
+    @Override
+    public LocalizeValue[] getGroupPath() {
+        return new LocalizeValue[]{LocalizeValue.of(RsBundle.message("rust"))};
     }
 }

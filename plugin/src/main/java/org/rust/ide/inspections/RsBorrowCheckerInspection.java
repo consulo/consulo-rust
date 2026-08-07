@@ -31,7 +31,11 @@ import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsElementExtUtil;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
 import org.rust.lang.core.types.ExtensionsUtil;
+import consulo.localize.LocalizeValue;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsBorrowCheckerInspection extends RsLocalInspectionTool {
 
     @Override
@@ -175,5 +179,11 @@ public class RsBorrowCheckerInspection extends RsLocalInspectionTool {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("rust"));
+    }
+
+    @Nonnull
+    @Override
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.ERROR;
     }
 }

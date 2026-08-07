@@ -20,7 +20,9 @@ import org.rust.lang.core.types.ty.Ty;
 
 import java.util.List;
 import org.rust.lang.core.psi.RsLiteralKindUtil;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsApproxConstantInspection extends RsLocalInspectionTool {
 
     @Override

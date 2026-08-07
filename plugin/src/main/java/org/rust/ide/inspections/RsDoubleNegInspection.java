@@ -17,6 +17,7 @@ import consulo.language.psi.PsiElement;
 
 import java.util.ArrayList;
 import java.util.List;
+import consulo.annotation.component.ExtensionImpl;
 
 /**
  * Checks for usage of double negation, which is a no-op in Rust but might be misleading for
@@ -24,6 +25,7 @@ import java.util.List;
  *
  * Analogue of Clippy's double_neg.
  */
+@ExtensionImpl
 public class RsDoubleNegInspection extends RsLocalInspectionTool {
 
 @Override

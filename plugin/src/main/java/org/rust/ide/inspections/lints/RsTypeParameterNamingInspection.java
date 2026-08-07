@@ -10,7 +10,11 @@ import org.rust.ide.inspections.RsProblemsHolder;
 import org.rust.ide.inspections.RsWithMacrosInspectionVisitor;
 import org.rust.lang.core.psi.RsTypeParameter;
 import org.rust.lang.core.psi.RsVisitor;
+import consulo.localize.LocalizeValue;
+import org.rust.RsBundle;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsTypeParameterNamingInspection extends RsCamelCaseNamingInspection {
 
     public RsTypeParameterNamingInspection() {
@@ -38,5 +42,11 @@ public class RsTypeParameterNamingInspection extends RsCamelCaseNamingInspection
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("naming.conventions"));
+    }
+
+    @Nonnull
+    @Override
+    public LocalizeValue[] getGroupPath() {
+        return new LocalizeValue[]{LocalizeValue.of(RsBundle.message("rust")), LocalizeValue.of(RsBundle.message("lints"))};
     }
 }

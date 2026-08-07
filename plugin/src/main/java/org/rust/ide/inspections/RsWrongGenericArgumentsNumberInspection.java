@@ -22,10 +22,14 @@ import java.util.Collections;
 import java.util.List;
 
 import consulo.util.lang.Pair;
+import consulo.localize.LocalizeValue;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.annotation.component.ExtensionImpl;
 
 /**
  * Inspection that detects the E0107 error.
  */
+@ExtensionImpl
 public class RsWrongGenericArgumentsNumberInspection extends RsLocalInspectionTool {
 
     @Override
@@ -136,5 +140,11 @@ public class RsWrongGenericArgumentsNumberInspection extends RsLocalInspectionTo
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("rust"));
+    }
+
+    @Nonnull
+    @Override
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.ERROR;
     }
 }

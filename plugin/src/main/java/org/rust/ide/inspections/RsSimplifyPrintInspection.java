@@ -18,10 +18,14 @@ import org.rust.lang.core.psi.RsVisitor;
 import org.rust.lang.core.psi.ext.RsMacroCallUtil;
 
 import java.util.List;
+import consulo.localize.LocalizeValue;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.annotation.component.ExtensionImpl;
 
 /**
  * Replace {@code println!("")} with {@code println!()} available since Rust 1.14.0
  */
+@ExtensionImpl
 public class RsSimplifyPrintInspection extends RsLocalInspectionTool {
 
     @SuppressWarnings("DialogTitleCapitalization")
@@ -92,5 +96,11 @@ public class RsSimplifyPrintInspection extends RsLocalInspectionTool {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("rust"));
+    }
+
+    @Nonnull
+    @Override
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.WEAK_WARNING;
     }
 }

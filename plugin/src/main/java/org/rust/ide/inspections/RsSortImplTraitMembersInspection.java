@@ -23,7 +23,11 @@ import org.rust.openapiext.Testmark;
 import java.util.*;
 import consulo.util.lang.Pair;
 import org.rust.lang.core.psi.ext.RsTraitRefUtil;
+import consulo.localize.LocalizeValue;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsSortImplTraitMembersInspection extends RsLocalInspectionTool {
 
     @Override
@@ -134,5 +138,11 @@ public class RsSortImplTraitMembersInspection extends RsLocalInspectionTool {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("rust"));
+    }
+
+    @Nonnull
+    @Override
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.WEAK_WARNING;
     }
 }

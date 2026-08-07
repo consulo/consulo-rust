@@ -19,7 +19,12 @@ import org.rust.lang.utils.RsDiagnostic;
 import java.util.List;
 import org.rust.lang.core.psi.RsLiteralKindUtil;
 import org.rust.lang.utils.evaluation.ConstExprEvaluator;
+import consulo.localize.LocalizeValue;
+import org.rust.RsBundle;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsLiteralOutOfRangeInspection extends RsLocalInspectionTool {
 
     @Override
@@ -114,5 +119,11 @@ public class RsLiteralOutOfRangeInspection extends RsLocalInspectionTool {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("rust"));
+    }
+
+    @Nonnull
+    @Override
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.ERROR;
     }
 }

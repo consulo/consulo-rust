@@ -12,7 +12,11 @@ import org.rust.lang.core.psi.RsConstant;
 import org.rust.lang.core.psi.ext.RsConstantKind;
 import org.rust.lang.core.psi.RsVisitor;
 import org.rust.lang.core.psi.ext.RsConstantUtil;
+import consulo.localize.LocalizeValue;
+import org.rust.RsBundle;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsConstNamingInspection extends RsUpperCaseNamingInspection {
 
     public RsConstNamingInspection() {
@@ -42,5 +46,11 @@ public class RsConstNamingInspection extends RsUpperCaseNamingInspection {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("naming.conventions"));
+    }
+
+    @Nonnull
+    @Override
+    public LocalizeValue[] getGroupPath() {
+        return new LocalizeValue[]{LocalizeValue.of(RsBundle.message("rust")), LocalizeValue.of(RsBundle.message("lints"))};
     }
 }

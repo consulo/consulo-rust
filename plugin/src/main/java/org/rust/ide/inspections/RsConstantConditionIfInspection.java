@@ -22,10 +22,12 @@ import org.rust.lang.core.types.consts.CtValue;
 import org.rust.lang.utils.evaluation.ConstExprEvaluator;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
+import consulo.annotation.component.ExtensionImpl;
 
 /**
  * See also RsRedundantElseInspection.
  */
+@ExtensionImpl
 public class RsConstantConditionIfInspection extends RsLocalInspectionTool {
 
     @Override

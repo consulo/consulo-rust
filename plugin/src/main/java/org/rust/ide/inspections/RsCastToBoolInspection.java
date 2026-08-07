@@ -14,7 +14,12 @@ import org.rust.lang.core.types.ty.TyBool;
 import org.rust.lang.core.types.ty.TyPrimitive;
 import org.rust.lang.core.types.ty.TyUnit;
 import org.rust.lang.utils.RsDiagnostic;
+import consulo.localize.LocalizeValue;
+import org.rust.RsBundle;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsCastToBoolInspection extends RsLocalInspectionTool {
 
     @Override
@@ -42,5 +47,11 @@ public class RsCastToBoolInspection extends RsLocalInspectionTool {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("rust"));
+    }
+
+    @Nonnull
+    @Override
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.ERROR;
     }
 }

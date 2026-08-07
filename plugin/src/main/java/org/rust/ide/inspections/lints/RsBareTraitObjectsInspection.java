@@ -22,7 +22,11 @@ import org.rust.lang.core.resolve.ref.RsReference;
 import org.rust.lang.utils.RsDiagnostic;
 // import removed
 import org.rust.lang.core.types.RsTypesUtil;
+import consulo.localize.LocalizeValue;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsBareTraitObjectsInspection extends RsLintInspection {
 
     @Nonnull
@@ -100,5 +104,17 @@ public class RsBareTraitObjectsInspection extends RsLintInspection {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("rust"));
+    }
+
+    @Nonnull
+    @Override
+    public LocalizeValue[] getGroupPath() {
+        return new LocalizeValue[]{LocalizeValue.of(RsBundle.message("rust"))};
+    }
+
+    @Nonnull
+    @Override
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.ERROR;
     }
 }

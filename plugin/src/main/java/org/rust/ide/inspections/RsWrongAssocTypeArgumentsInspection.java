@@ -16,10 +16,15 @@ import java.util.*;
 // CompletionUtilsUtil removed
 import org.rust.lang.core.psi.ext.RsTraitItemUtil;
 import org.rust.lang.core.psi.ext.RsElement;
+import consulo.localize.LocalizeValue;
+import org.rust.RsBundle;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.annotation.component.ExtensionImpl;
 
 /**
  * Inspection that detects the E0191 and E0220 errors.
  */
+@ExtensionImpl
 public class RsWrongAssocTypeArgumentsInspection extends RsLocalInspectionTool {
 
     @Override
@@ -171,5 +176,11 @@ public class RsWrongAssocTypeArgumentsInspection extends RsLocalInspectionTool {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("rust"));
+    }
+
+    @Nonnull
+    @Override
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.ERROR;
     }
 }

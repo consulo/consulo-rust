@@ -29,7 +29,10 @@ import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsMacroCallUtil;
 import org.rust.lang.core.psi.ext.RsPatBindingUtil;
+import consulo.localize.LocalizeValue;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsLivenessInspection extends RsLintInspection {
 
     @Nonnull
@@ -156,5 +159,11 @@ public class RsLivenessInspection extends RsLintInspection {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("lints"));
+    }
+
+    @Nonnull
+    @Override
+    public LocalizeValue[] getGroupPath() {
+        return new LocalizeValue[]{LocalizeValue.of(RsBundle.message("rust"))};
     }
 }

@@ -28,7 +28,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsMatchArmUtil;
+import consulo.localize.LocalizeValue;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsUnreachablePatternsInspection extends RsLintInspection {
 
     @Nonnull
@@ -121,5 +124,11 @@ public class RsUnreachablePatternsInspection extends RsLintInspection {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("lints"));
+    }
+
+    @Nonnull
+    @Override
+    public LocalizeValue[] getGroupPath() {
+        return new LocalizeValue[]{LocalizeValue.of(RsBundle.message("rust"))};
     }
 }

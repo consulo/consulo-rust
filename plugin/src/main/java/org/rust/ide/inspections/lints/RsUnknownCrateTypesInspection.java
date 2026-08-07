@@ -20,7 +20,11 @@ import org.rust.lang.core.psi.ext.RsLitExprUtil;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import consulo.localize.LocalizeValue;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsUnknownCrateTypesInspection extends RsLintInspection {
 
     public static final List<String> KNOWN_CRATE_TYPES = Arrays.asList(
@@ -71,5 +75,17 @@ public class RsUnknownCrateTypesInspection extends RsLintInspection {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("lints"));
+    }
+
+    @Nonnull
+    @Override
+    public LocalizeValue[] getGroupPath() {
+        return new LocalizeValue[]{LocalizeValue.of(RsBundle.message("rust"))};
+    }
+
+    @Nonnull
+    @Override
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.ERROR;
     }
 }

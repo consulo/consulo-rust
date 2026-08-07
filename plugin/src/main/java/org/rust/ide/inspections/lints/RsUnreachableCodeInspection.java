@@ -24,7 +24,10 @@ import org.rust.openapiext.DocumentExtUtil;
 import java.util.*;
 import org.rust.ide.injected.RsDoctestLanguageInjector;
 import org.rust.stdext.Utils;
+import consulo.localize.LocalizeValue;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsUnreachableCodeInspection extends RsLintInspection {
 
     @Nonnull
@@ -119,5 +122,11 @@ public class RsUnreachableCodeInspection extends RsLintInspection {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("lints"));
+    }
+
+    @Nonnull
+    @Override
+    public LocalizeValue[] getGroupPath() {
+        return new LocalizeValue[]{LocalizeValue.of(RsBundle.message("rust"))};
     }
 }

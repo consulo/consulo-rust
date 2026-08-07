@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.rust.lang.core.psi.ext.RsLetExprUtil;
+import consulo.annotation.component.ExtensionImpl;
 
 /**
  * Detects redundant {@code else} statements preceded by an irrefutable pattern.
@@ -28,6 +29,7 @@ import org.rust.lang.core.psi.ext.RsLetExprUtil;
  *
  * See also {@link RsConstantConditionIfInspection}.
  */
+@ExtensionImpl
 public class RsRedundantElseInspection extends RsLocalInspectionTool {
 
 @Override

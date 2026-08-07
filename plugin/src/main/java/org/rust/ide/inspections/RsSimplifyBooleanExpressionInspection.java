@@ -13,10 +13,12 @@ import org.rust.ide.utils.PurityUtil;
 import org.rust.lang.core.psi.RsExpr;
 import org.rust.lang.core.psi.RsVisitor;
 import org.rust.ide.utils.ExprUtil;
+import consulo.annotation.component.ExtensionImpl;
 
 /**
  * Simplify pure boolean expressions
  */
+@ExtensionImpl
 public class RsSimplifyBooleanExpressionInspection extends RsLocalInspectionTool {
 
 @Override

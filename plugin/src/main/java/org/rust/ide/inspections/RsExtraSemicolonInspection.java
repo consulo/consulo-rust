@@ -14,6 +14,7 @@ import org.rust.lang.core.psi.RsTypeReference;
 import org.rust.lang.core.psi.RsVisitor;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.TyUnit;
+import consulo.annotation.component.ExtensionImpl;
 
 /**
  * Suggest to remove a semicolon in situations like
@@ -22,6 +23,7 @@ import org.rust.lang.core.types.ty.TyUnit;
  * fn foo() -> i32 { 92; }
  * </pre>
  */
+@ExtensionImpl
 public class RsExtraSemicolonInspection extends RsLocalInspectionTool {
 
 @Override

@@ -16,10 +16,14 @@ import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.utils.RsDiagnostic;
 
 import java.util.List;
+import consulo.localize.LocalizeValue;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.annotation.component.ExtensionImpl;
 
 /**
  * Inspection that detects the E0049 error.
  */
+@ExtensionImpl
 public class RsWrongGenericParametersNumberInspection extends RsLocalInspectionTool {
 
     @Override
@@ -117,5 +121,11 @@ public class RsWrongGenericParametersNumberInspection extends RsLocalInspectionT
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("rust"));
+    }
+
+    @Nonnull
+    @Override
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.ERROR;
     }
 }

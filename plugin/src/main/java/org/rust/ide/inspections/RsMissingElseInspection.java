@@ -15,12 +15,14 @@ import org.rust.RsBundle;
 import org.rust.ide.fixes.SubstituteTextFix;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.PsiElementExt;
+import consulo.annotation.component.ExtensionImpl;
 
 /**
  * Checks for potentially missing {@code else}s.
  * A partial analogue of Clippy's suspicious_else_formatting.
  * QuickFix: Change to {@code else if}
  */
+@ExtensionImpl
 public class RsMissingElseInspection extends RsLocalInspectionTool {
 
 @Override

@@ -15,7 +15,12 @@ import org.rust.lang.utils.RsDiagnostic;
 
 import java.util.Collections;
 import java.util.List;
+import consulo.localize.LocalizeValue;
+import org.rust.RsBundle;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsAsyncMainFunctionInspection extends RsLocalInspectionTool {
 
     @Override
@@ -54,5 +59,11 @@ public class RsAsyncMainFunctionInspection extends RsLocalInspectionTool {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("rust"));
+    }
+
+    @Nonnull
+    @Override
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.ERROR;
     }
 }

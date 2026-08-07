@@ -16,6 +16,7 @@ import org.rust.lang.core.psi.RsExpr;
 import org.rust.lang.core.psi.RsUnaryExpr;
 import org.rust.lang.core.psi.RsVisitor;
 import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
+import consulo.annotation.component.ExtensionImpl;
 
 /**
  * Checks for use of the non-existent =*, =! and =- operators that are probably typos but can be compiled.
@@ -23,6 +24,7 @@ import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
  * QuickFix 1: Change {@code a =? b} to {@code a ?= b}
  * QuickFix 2: Change {@code a =? b} to {@code a = ?b}
  */
+@ExtensionImpl
 public class RsSuspiciousAssignmentInspection extends RsLocalInspectionTool {
 
     private static final int LONG_TEXT_THRESHOLD = 10;

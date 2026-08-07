@@ -24,7 +24,10 @@ import org.rust.lang.core.psi.ext.*;
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsDocAndAttributeOwnerUtil;
 import org.rust.lang.core.psi.ext.RsElement;
+import consulo.localize.LocalizeValue;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsDeprecationInspection extends RsLintInspection {
 
     private static final String DEPRECATED_ATTR_NAME = "deprecated";
@@ -172,5 +175,11 @@ public class RsDeprecationInspection extends RsLintInspection {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("lints"));
+    }
+
+    @Nonnull
+    @Override
+    public LocalizeValue[] getGroupPath() {
+        return new LocalizeValue[]{LocalizeValue.of(RsBundle.message("rust"))};
     }
 }

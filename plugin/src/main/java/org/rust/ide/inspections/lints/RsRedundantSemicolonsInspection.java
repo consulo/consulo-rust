@@ -27,8 +27,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsPsiElementExtUtil;
+import consulo.localize.LocalizeValue;
+import consulo.annotation.component.ExtensionImpl;
 
 /** Analogue of https://doc.rust-lang.org/rustc/lints/listing/warn-by-default.html#redundant-semicolons */
+@ExtensionImpl
 public class RsRedundantSemicolonsInspection extends RsLintInspection {
 
     @Nonnull
@@ -128,5 +131,11 @@ public class RsRedundantSemicolonsInspection extends RsLintInspection {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("lints"));
+    }
+
+    @Nonnull
+    @Override
+    public LocalizeValue[] getGroupPath() {
+        return new LocalizeValue[]{LocalizeValue.of(RsBundle.message("rust"))};
     }
 }

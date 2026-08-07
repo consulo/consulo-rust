@@ -23,7 +23,11 @@ import org.rust.lang.core.psi.ext.RsSelfParameterUtil;
 import org.rust.lang.core.psi.ext.RsMacroCallUtil;
 import org.rust.lang.core.psi.ext.RsPatBindingUtil;
 import org.rust.ide.injected.RsDoctestLanguageInjector;
+import consulo.localize.LocalizeValue;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsUnusedMutInspection extends RsLintInspection {
 
     @Nonnull
@@ -114,5 +118,17 @@ public class RsUnusedMutInspection extends RsLintInspection {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("lints"));
+    }
+
+    @Nonnull
+    @Override
+    public LocalizeValue[] getGroupPath() {
+        return new LocalizeValue[]{LocalizeValue.of(RsBundle.message("rust"))};
+    }
+
+    @Nonnull
+    @Override
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.WEAK_WARNING;
     }
 }

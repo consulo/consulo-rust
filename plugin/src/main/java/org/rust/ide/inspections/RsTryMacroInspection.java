@@ -12,10 +12,14 @@ import org.rust.lang.core.macros.MacroExpansionContextUtil;
 import org.rust.lang.core.psi.RsMacroCall;
 import org.rust.lang.core.psi.RsVisitor;
 import org.rust.lang.core.psi.ext.RsMacroCallUtil;
+import consulo.localize.LocalizeValue;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.annotation.component.ExtensionImpl;
 
 /**
  * Change {@code try!} macro to {@code ?} operator.
  */
+@ExtensionImpl
 public class RsTryMacroInspection extends RsLocalInspectionTool {
 
     @SuppressWarnings("DialogTitleCapitalization")
@@ -46,5 +50,11 @@ public class RsTryMacroInspection extends RsLocalInspectionTool {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("rust"));
+    }
+
+    @Nonnull
+    @Override
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.WEAK_WARNING;
     }
 }

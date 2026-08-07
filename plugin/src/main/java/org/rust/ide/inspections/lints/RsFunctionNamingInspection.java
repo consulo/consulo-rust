@@ -16,7 +16,11 @@ import org.rust.lang.core.psi.ext.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsOuterAttributeOwnerUtil;
 import org.rust.lang.core.psi.ext.RsAttrOwnerExtUtil;
 import org.rust.lang.core.psi.ext.RsDocAndAttributeOwnerUtil;
+import consulo.localize.LocalizeValue;
+import org.rust.RsBundle;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsFunctionNamingInspection extends RsSnakeCaseNamingInspection {
 
     public RsFunctionNamingInspection() {
@@ -55,5 +59,11 @@ public class RsFunctionNamingInspection extends RsSnakeCaseNamingInspection {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("naming.conventions"));
+    }
+
+    @Nonnull
+    @Override
+    public LocalizeValue[] getGroupPath() {
+        return new LocalizeValue[]{LocalizeValue.of(RsBundle.message("rust")), LocalizeValue.of(RsBundle.message("lints"))};
     }
 }

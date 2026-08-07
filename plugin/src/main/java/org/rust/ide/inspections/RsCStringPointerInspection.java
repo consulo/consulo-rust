@@ -9,7 +9,9 @@ import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsMethodOrFieldUtil;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsCStringPointerInspection extends RsLocalInspectionTool {
 
 @Override

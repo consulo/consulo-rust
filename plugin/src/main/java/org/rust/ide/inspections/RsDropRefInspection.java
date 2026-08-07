@@ -20,11 +20,13 @@ import org.rust.lang.core.types.ty.TyReference;
 import consulo.language.psi.PsiElement;
 
 import java.util.List;
+import consulo.annotation.component.ExtensionImpl;
 
 /**
  * Checks for calls to std::mem::drop with a reference instead of an owned value. Analogue of Clippy's drop_ref.
  * Quick fix: Use the owned value as the argument.
  */
+@ExtensionImpl
 public class RsDropRefInspection extends RsLocalInspectionTool {
 
 @Override

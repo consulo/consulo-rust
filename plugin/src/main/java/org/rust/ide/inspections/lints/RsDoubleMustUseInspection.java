@@ -25,8 +25,12 @@ import org.rust.lang.core.types.ty.Ty;
 
 import java.util.Collections;
 import java.util.List;
+import consulo.localize.LocalizeValue;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.annotation.component.ExtensionImpl;
 
 /** Analogue of Clippy's double_must_use. */
+@ExtensionImpl
 public class RsDoubleMustUseInspection extends RsLintInspection {
 
     @Nonnull
@@ -94,5 +98,17 @@ public class RsDoubleMustUseInspection extends RsLintInspection {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("lints"));
+    }
+
+    @Nonnull
+    @Override
+    public LocalizeValue[] getGroupPath() {
+        return new LocalizeValue[]{LocalizeValue.of(RsBundle.message("rust"))};
+    }
+
+    @Nonnull
+    @Override
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.WEAK_WARNING;
     }
 }

@@ -32,7 +32,9 @@ import org.rust.lang.core.psi.RsFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsDetachedFileInspection extends RsLocalInspectionTool {
 
     private static final String NOTIFICATION_STATUS_KEY = "org.rust.disableDetachedFileInspection";
