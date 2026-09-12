@@ -13,6 +13,8 @@ import consulo.component.util.ModificationTracker;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.crate.Crate;
 import org.rust.lang.core.psi.ext.RsElement;
+import org.rust.cargo.project.workspace.PackageOrigin;
+import org.rust.lang.core.psi.RsFile;
 
 public final class RsPsiManagerUtil {
     private RsPsiManagerUtil() {
@@ -69,9 +71,9 @@ public final class RsPsiManagerUtil {
             return PsiManager.getInstance(project).getModificationTracker();
         }
 
-        if (containingFile instanceof org.rust.lang.core.psi.RsFile) {
-            org.rust.lang.core.crate.Crate crate = ((org.rust.lang.core.psi.RsFile) containingFile).getCrate();
-            if (crate != null && crate.getOrigin() == org.rust.cargo.project.workspace.PackageOrigin.WORKSPACE) {
+        if (containingFile instanceof RsFile) {
+            Crate crate = ((RsFile) containingFile).getCrate();
+            if (crate != null && crate.getOrigin() == PackageOrigin.WORKSPACE) {
                 return getRustPsiManager(project).getRustStructureModificationTracker();
             }
         }

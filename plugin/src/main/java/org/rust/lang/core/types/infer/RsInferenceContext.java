@@ -29,6 +29,7 @@ import java.util.function.Supplier;
 import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
 import consulo.util.lang.Pair;
 import org.rust.stdext.CollectionsUtil;
+import org.rust.lang.core.resolve.Selection;
 
 /**
  * A mutable object, which is filled while we walk function body top down.
@@ -187,7 +188,7 @@ public class RsInferenceContext implements RsInferenceData {
         if (parentObj instanceof RsAssocTypeBinding) {
             // Handle assoc type bindings
         } else {
-            List<?> resolved = org.rust.lang.core.resolve.ref.RsPathReferenceImpl.resolvePathRaw(element, lookup, true);
+            List<?> resolved = RsPathReferenceImpl.resolvePathRaw(element, lookup, true);
             if (resolved.size() == 1) {
                 Object first = resolved.get(0);
                 if (first instanceof ScopeEntry) {
@@ -201,7 +202,7 @@ public class RsInferenceContext implements RsInferenceData {
         if (declaration != null) {
             List<RsConstParameter> constParameters = new ArrayList<>();
             List<RsElement> constArguments = new ArrayList<>();
-            RsPsiSubstitution psiSubst = org.rust.lang.core.resolve.ref.PathPsiSubstUtil.pathPsiSubst(element, declaration);
+            RsPsiSubstitution psiSubst = PathPsiSubstUtil.pathPsiSubst(element, declaration);
             for (Map.Entry<RsConstParameter, RsPsiSubstitution.Value<RsElement, RsExpr>> entry : psiSubst.getConstSubst().entrySet()) {
                 if (entry.getValue() instanceof RsPsiSubstitution.Value.Present) {
                     constParameters.add(entry.getKey());
@@ -327,7 +328,10 @@ public class RsInferenceContext implements RsInferenceData {
             String fnName = (variant.getElement() instanceof RsFunction) ? ((RsFunction) variant.getElement()).getName() : null;
             SelectionResult<?> sel = lookup.select(resolveTypeVarsIfPossible(traitRef));
             if (!(sel instanceof SelectionResult.Ok)) continue;
-            Object impl = ((SelectionResult.Ok<?>) sel).getResult();
+            // The Ok payload is a Selection, never the impl itself; the impl has to be taken off it.
+            Object selected = ((SelectionResult.Ok<?>) sel).getResult();
+            if (!(selected instanceof Selection)) continue;
+            Object impl = ((Selection) selected).getImpl();
             if (!(impl instanceof RsImplItem)) continue;
             // find fn by name in impl
             RsFunction fn = null;
@@ -690,9 +694,9 @@ public class RsInferenceContext implements RsInferenceData {
     }
 
     @Nonnull
-    public RsResult<Object, TypeError> combineTypePairs(@Nonnull List<consulo.util.lang.Pair<Ty, Ty>> pairs) {
+    public RsResult<Object, TypeError> combineTypePairs(@Nonnull List<Pair<Ty, Ty>> pairs) {
         RsResult<Object, TypeError> result = new RsResult.Ok<>(null);
-        for (consulo.util.lang.Pair<Ty, Ty> pair : pairs) {
+        for (Pair<Ty, Ty> pair : pairs) {
             RsResult<Object, TypeError> r = combineTypes(pair.getFirst(), pair.getSecond());
             if (!r.isOk()) result = r;
         }
@@ -700,9 +704,9 @@ public class RsInferenceContext implements RsInferenceData {
     }
 
     @Nonnull
-    public RsResult<Object, TypeError> combineConstPairs(@Nonnull List<consulo.util.lang.Pair<Const, Const>> pairs) {
+    public RsResult<Object, TypeError> combineConstPairs(@Nonnull List<Pair<Const, Const>> pairs) {
         RsResult<Object, TypeError> result = new RsResult.Ok<>(null);
-        for (consulo.util.lang.Pair<Const, Const> pair : pairs) {
+        for (Pair<Const, Const> pair : pairs) {
             RsResult<Object, TypeError> r = combineConsts(pair.getFirst(), pair.getSecond());
             if (!r.isOk()) result = r;
         }
@@ -712,10 +716,10 @@ public class RsInferenceContext implements RsInferenceData {
     public boolean combineTraitRefs(@Nonnull TraitRef ref1, @Nonnull TraitRef ref2) {
         if (ref1.getTrait().getElement() != ref2.getTrait().getElement()) return false;
         if (!combineTypes(ref1.getSelfTy(), ref2.getSelfTy()).isOk()) return false;
-        for (consulo.util.lang.Pair<Ty, Ty> pair : ref1.getTrait().getSubst().zipTypeValues(ref2.getTrait().getSubst())) {
+        for (Pair<Ty, Ty> pair : ref1.getTrait().getSubst().zipTypeValues(ref2.getTrait().getSubst())) {
             if (!combineTypes(pair.getFirst(), pair.getSecond()).isOk()) return false;
         }
-        for (consulo.util.lang.Pair<Const, Const> pair : ref1.getTrait().getSubst().zipConstValues(ref2.getTrait().getSubst())) {
+        for (Pair<Const, Const> pair : ref1.getTrait().getSubst().zipConstValues(ref2.getTrait().getSubst())) {
             if (!combineConsts(pair.getFirst(), pair.getSecond()).isOk()) return false;
         }
         return true;
@@ -725,7 +729,7 @@ public class RsInferenceContext implements RsInferenceData {
         if (be1.getElement() != be2.getElement()) return false;
         if (!combineTypePairs(be1.getSubst().zipTypeValues(be2.getSubst())).isOk()) return false;
         if (!combineConstPairs(be1.getSubst().zipConstValues(be2.getSubst())).isOk()) return false;
-        return combineTypePairs(org.rust.stdext.CollectionsUtil.zipValues(be1.getAssoc(), be2.getAssoc())).isOk();
+        return combineTypePairs(CollectionsUtil.zipValues(be1.getAssoc(), be2.getAssoc())).isOk();
     }
 
     // --- Coercion ---
@@ -1337,11 +1341,11 @@ public class RsInferenceContext implements RsInferenceData {
     // --- Utility ---
 
     @Nonnull
-    private static <T> List<consulo.util.lang.Pair<T, T>> zip(@Nonnull List<T> a, @Nonnull List<T> b) {
+    private static <T> List<Pair<T, T>> zip(@Nonnull List<T> a, @Nonnull List<T> b) {
         int size = Math.min(a.size(), b.size());
-        List<consulo.util.lang.Pair<T, T>> result = new ArrayList<>(size);
+        List<Pair<T, T>> result = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            result.add(new consulo.util.lang.Pair<>(a.get(i), b.get(i)));
+            result.add(new Pair<>(a.get(i), b.get(i)));
         }
         return result;
     }

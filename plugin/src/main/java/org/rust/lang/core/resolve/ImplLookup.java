@@ -527,17 +527,133 @@ public class ImplLookup {
             return SelectionResult.ambiguous();
         }
         if (ref.getSelfTy() instanceof TyReference && ((TyReference) ref.getSelfTy()).getReferenced() instanceof TyInfer.TyVar) {
+            // TyFingerprint is never created for a type variable, and a reference is the one case
+            // that unwraps while the fingerprint is built.
             return SelectionResult.ambiguous();
         }
 
-        // Simplified candidate selection
-        return SelectionResult.err();
+        List<SelectionCandidate> assembled = assembleCandidates(ref);
+
+        List<SelectionCandidate> candidates = new ArrayList<>();
+        for (SelectionCandidate candidate : assembled) {
+            if (candidate instanceof SelectionCandidate.ImplCandidate.ExplicitImpl
+                && ((SelectionCandidate.ImplCandidate.ExplicitImpl) candidate).isNegativeImpl()) {
+                continue;
+            }
+            candidates.add(candidate);
+        }
+
+        if (candidates.isEmpty()) return SelectionResult.err();
+        if (candidates.size() == 1) return SelectionResult.ok(candidates.get(0));
+
+        // More than one impl applies: keep only those whose own bounds can actually be satisfied.
+        List<SelectionCandidate> filtered = new ArrayList<>();
+        for (SelectionCandidate candidate : candidates) {
+            if (canEvaluateObligations(ref, candidate, recursionDepth)) {
+                filtered.add(candidate);
+            }
+        }
+
+        if (filtered.isEmpty()) return SelectionResult.err();
+        if (filtered.size() == 1) return SelectionResult.ok(filtered.get(0));
+
+        int i = 0;
+        while (i < filtered.size()) {
+            boolean isDup = false;
+            for (int j = 0; j < filtered.size(); j++) {
+                if (j == i) continue;
+                if (candidateShouldBeDroppedInFavorOf(filtered.get(i), filtered.get(j))) {
+                    isDup = true;
+                    break;
+                }
+            }
+            if (isDup) {
+                filtered.set(i, filtered.get(filtered.size() - 1));
+                filtered.remove(filtered.size() - 1);
+            }
+            else {
+                i++;
+                if (i > 1) return SelectionResult.ambiguous();
+            }
+        }
+        return filtered.size() == 1 ? SelectionResult.ok(filtered.get(0)) : SelectionResult.ambiguous();
     }
 
-    @SuppressWarnings("unchecked")
+    /** An impl written for a concrete type wins over a blanket impl written for a type parameter. */
+    private boolean candidateShouldBeDroppedInFavorOf(
+        @Nonnull SelectionCandidate victim,
+        @Nonnull SelectionCandidate other
+    ) {
+        if (!(victim instanceof SelectionCandidate.ImplCandidate.ExplicitImpl)
+            || !(other instanceof SelectionCandidate.ImplCandidate.ExplicitImpl)) {
+            return false;
+        }
+        SelectionCandidate.ImplCandidate.ExplicitImpl v = (SelectionCandidate.ImplCandidate.ExplicitImpl) victim;
+        SelectionCandidate.ImplCandidate.ExplicitImpl o = (SelectionCandidate.ImplCandidate.ExplicitImpl) other;
+        if (v.getImpl() == o.getImpl()) return false;
+        return v.getFormalSelfTy() instanceof TyTypeParameter
+            && !(o.getFormalSelfTy() instanceof TyTypeParameter);
+    }
+
+    @Nonnull
+    private List<SelectionCandidate> assembleCandidates(@Nonnull TraitRef ref) {
+        List<SelectionCandidate> candidates = new ArrayList<>();
+        assembleCandidatesFromImpls(ref, candidates);
+        assembleCandidatesFromCallerBounds(ref, candidates);
+        return candidates;
+    }
+
+    private void assembleCandidatesFromImpls(@Nonnull TraitRef ref, @Nonnull List<SelectionCandidate> candidates) {
+        processTyFingerprintsWithAliases(ref.getSelfTy(), tyFingerprint -> {
+            for (RsCachedImplItem cachedImpl : findPotentialImpls(tyFingerprint)) {
+                SelectionCandidate candidate = trySelectCandidate(cachedImpl, ref);
+                if (candidate != null) candidates.add(candidate);
+            }
+            return false;
+        });
+    }
+
+    /** The impl applies if its own trait reference can be unified with the one being selected. */
+    @Nullable
+    private SelectionCandidate trySelectCandidate(@Nonnull RsCachedImplItem cachedImpl, @Nonnull TraitRef ref) {
+        BoundElement<RsTraitItem> formalTraitRef = cachedImpl.getImplementedTrait();
+        if (formalTraitRef == null) return null;
+        if (formalTraitRef.getTypedElement() != ref.getTrait().getTypedElement()) return null;
+
+        Ty formalSelfTy = cachedImpl.getType();
+        List<TyTypeParameter> generics = cachedImpl.getGenerics();
+        List<CtConstParameter> constGenerics = cachedImpl.getConstGenerics();
+        if (formalSelfTy == null || generics == null || constGenerics == null) return null;
+
+        boolean probe = getCtx().probe(() -> {
+            SelectionCandidate.Triple<Substitution, TraitRef, List<Obligation>> prepared =
+                ImplLookupUtil.prepareSubstAndTraitRefRaw(
+                    getCtx(), generics, constGenerics, formalSelfTy, formalTraitRef, 0);
+            return getCtx().combineTraitRefs(prepared.getSecond(), ref);
+        });
+        if (!probe) return null;
+
+        return new SelectionCandidate.ImplCandidate.ExplicitImpl(
+            cachedImpl.getImpl(), formalSelfTy, formalTraitRef, cachedImpl.isNegativeImpl());
+    }
+
+    private void assembleCandidatesFromCallerBounds(
+        @Nonnull TraitRef ref,
+        @Nonnull List<SelectionCandidate> candidates
+    ) {
+        for (BoundElement<RsTraitItem> bound : getEnvBoundTransitivelyFor(ref.getSelfTy())) {
+            if (getCtx().probe(() -> getCtx().combineBoundElements(bound, ref.getTrait()))) {
+                candidates.add(new SelectionCandidate.ParamCandidate(bound));
+            }
+        }
+    }
+
+    /**
+     * Canonicalises the inference variables in a cache key: two selections that differ only in which
+     * variables they mention are the same query.
+     */
     private <T extends TypeFoldable<T>> T freshen(@Nonnull T ty) {
-        // Simplified freshening for cache key purposes
-        return ty;
+        return FoldUtil.foldTyInferWithTyPlaceholder(ty);
     }
 
     private boolean canEvaluateObligations(@Nonnull TraitRef ref, @Nonnull SelectionCandidate candidate, int recursionDepth) {
@@ -584,7 +700,27 @@ public class ImplLookup {
         if (candidate instanceof SelectionCandidate.ImplCandidate.DerivedTrait) {
             return confirmDerivedCandidate(ref, (SelectionCandidate.ImplCandidate.DerivedTrait) candidate, recursionDepth);
         }
-        // Default
+        if (candidate instanceof SelectionCandidate.ImplCandidate.ExplicitImpl) {
+            SelectionCandidate.ImplCandidate.ExplicitImpl explicit =
+                (SelectionCandidate.ImplCandidate.ExplicitImpl) candidate;
+            SelectionCandidate.Triple<Substitution, TraitRef, List<Obligation>> prepared =
+                explicit.prepareSubstAndTraitRef(getCtx(), recursionDepth + 1);
+            getCtx().combineTraitRefs(ref, prepared.getSecond());
+
+            // Resolve the variables now so an already-inferred obligation caches under a stable key.
+            Map<TyTypeParameter, Ty> selfMap = new HashMap<>();
+            selfMap.put(TyTypeParameter.self(), ref.getSelfTy());
+            Substitution candidateSubst = getCtx().resolveTypeVarsIfPossible(prepared.getFirst())
+                .plus(SubstitutionUtil.toTypeSubst(selfMap));
+
+            List<Obligation> obligations = new ArrayList<>(prepared.getThird());
+            for (Obligation o : getCtx().instantiateBounds(
+                org.rust.lang.core.psi.ext.RsGenericDeclarationUtil.getPredicates(explicit.getImpl()),
+                candidateSubst, recursionDepth + 1)) {
+                obligations.add(o);
+            }
+            return new Selection(explicit.getImpl(), obligations, candidateSubst);
+        }
         return new Selection(ref.getTrait().getTypedElement(), Collections.emptyList());
     }
 

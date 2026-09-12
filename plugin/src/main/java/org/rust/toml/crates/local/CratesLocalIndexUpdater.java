@@ -39,6 +39,7 @@ import consulo.annotation.component.ServiceImpl;
 import consulo.annotation.component.ComponentScope;
 import consulo.application.ApplicationPropertiesComponent;
 import consulo.process.cmd.GeneralCommandLine;
+import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
 
 @ServiceAPI(ComponentScope.APPLICATION)
 @ServiceImpl
@@ -149,7 +150,7 @@ public final class CratesLocalIndexUpdater implements Disposable {
         Project project = openRustProject();
         RsToolchainBase toolchain = project == null
             ? null
-            : org.rust.cargo.project.settings.RsProjectSettingsServiceUtil.getToolchain(project);
+            : RsProjectSettingsServiceUtil.getToolchain(project);
         if (toolchain == null) return false;
         return triggerCratesIoGitIndexUpdate(toolchain, disposable, projectPath);
     }
@@ -180,7 +181,7 @@ public final class CratesLocalIndexUpdater implements Disposable {
         EnvironmentVariablesData envs = EnvironmentVariablesData.create(
             Map.of("CARGO_REGISTRIES_CRATES_IO_PROTOCOL", "git"), true);
 
-        consulo.process.cmd.GeneralCommandLine cmdLine = toolchain.createGeneralCommandLine(
+        GeneralCommandLine cmdLine = toolchain.createGeneralCommandLine(
             new Cargo(toolchain).getExecutable(),
             projectPath, null, BacktraceMode.FULL, envs,
             List.of("metadata", "--format-version", "1"),

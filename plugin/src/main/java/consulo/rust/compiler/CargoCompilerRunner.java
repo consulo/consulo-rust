@@ -57,6 +57,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.project.model.CargoProjectServiceUtil;
+import org.rust.cargo.runconfig.RunConfigUtil;
 
 /**
  * Builds a Rust module with cargo, driven by the platform compiler rather than by a private
@@ -338,7 +341,7 @@ public class CargoCompilerRunner implements CompilerRunner {
         List<String> arguments = new ArrayList<>(base.getAdditionalArguments());
         arguments.remove("-q");
         arguments.remove("--quiet");
-        org.rust.cargo.runconfig.RunConfigUtil.addFormatJsonOption(arguments, "--message-format", "json");
+        RunConfigUtil.addFormatJsonOption(arguments, "--message-format", "json");
 
         String command = base.getCommand();
         if (TEST_COMMANDS.contains(command)) {
@@ -404,8 +407,8 @@ public class CargoCompilerRunner implements CompilerRunner {
 
     @Nullable
     private static Path workingDirectoryOf(Project project, Module module) {
-        for (org.rust.cargo.project.model.CargoProject cargoProject :
-            org.rust.cargo.project.model.CargoProjectServiceUtil.getCargoProjects(project).getAllProjects()) {
+        for (CargoProject cargoProject :
+            CargoProjectServiceUtil.getCargoProjects(project).getAllProjects()) {
             Path manifest = cargoProject.getManifest();
             if (manifest != null && manifest.getParent() != null) {
                 return manifest.getParent();

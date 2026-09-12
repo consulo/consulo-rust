@@ -42,6 +42,8 @@ import consulo.annotation.component.ComponentScope;
 import jakarta.inject.Inject;
 import org.rust.cargo.project.model.CargoProjectsListener;
 import org.rust.lang.core.psi.RsPsiTreeChangeEvent;
+import consulo.component.messagebus.MessageBusConnection;
+import org.rust.lang.core.psi.RsPsiManagerUtil;
 
 @ServiceAPI(ComponentScope.PROJECT)
 @ServiceImpl
@@ -82,11 +84,11 @@ public final class DefMapService implements Disposable {
     private void setupListeners() {
         PsiManager.getInstance(project).addPsiTreeChangeListener(new DefMapPsiTreeChangeListener(), this);
 
-        consulo.component.messagebus.MessageBusConnection connection = project.getMessageBus().connect();
+        MessageBusConnection connection = project.getMessageBus().connect();
 
         // Without this the def map of an edited file is never marked dirty, so resolve keeps
         // answering from the map built when the file was first indexed.
-        org.rust.lang.core.psi.RsPsiManagerUtil.getRustPsiManager(project).subscribeRustPsiChange(
+        RsPsiManagerUtil.getRustPsiManager(project).subscribeRustPsiChange(
             connection,
             (file, element, isStructureModification) -> {
                 if (file instanceof RsFile) {
@@ -185,7 +187,7 @@ public final class DefMapService implements Disposable {
     }
 
     @Nonnull
-    public List<CrateDefMap> updateDefMapForAllCratesWithWriteActionPriority(@Nonnull consulo.application.progress.ProgressIndicator indicator) {
+    public List<CrateDefMap> updateDefMapForAllCratesWithWriteActionPriority(@Nonnull ProgressIndicator indicator) {
         return FacadeUpdateDefMap.updateDefMapForAllCratesWithWriteActionPriority(this, indicator, true);
     }
 

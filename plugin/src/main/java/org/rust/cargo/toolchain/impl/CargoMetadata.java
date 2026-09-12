@@ -770,6 +770,9 @@ public final class CargoMetadata {
         if (Edition.EDITION_2015.getPresentation().equals(edition)) return Edition.EDITION_2015;
         if (Edition.EDITION_2018.getPresentation().equals(edition)) return Edition.EDITION_2018;
         if (Edition.EDITION_2021.getPresentation().equals(edition)) return Edition.EDITION_2021;
+        if (Edition.EDITION_2024.getPresentation().equals(edition)) return Edition.EDITION_2024;
+        // An edition cargo knows and we do not: 2015 is the only one whose import rules are a
+        // subset of every later edition, so it is the safe reading of an unknown value.
         return Edition.EDITION_2015;
     }
 }

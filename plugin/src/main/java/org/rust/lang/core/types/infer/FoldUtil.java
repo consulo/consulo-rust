@@ -201,6 +201,29 @@ public final class FoldUtil {
 
     @SuppressWarnings("unchecked")
     @Nonnull
+    /**
+     * Replaces the type variables that name resolution creates for a type's open generics. They must
+     * not escape into a resolve result, which is cached and shared across inference runs.
+     */
+    public static <T extends TypeFoldable<T>> T foldTyInferWithTyPlaceholder(@Nonnull T foldable) {
+        if (!hasTyInfer(foldable)) return foldable;
+        return foldable.foldWith(new TypeFolder() {
+            @Nonnull
+            @Override
+            public Ty foldTy(@Nonnull Ty ty) {
+                Ty folded = ty;
+                if (ty instanceof TyInfer.TyVar) {
+                    Ty origin = ((TyInfer.TyVar) ty).getOrigin();
+                    folded = origin instanceof org.rust.lang.core.types.ty.TyPlaceholder
+                        ? origin
+                        : TyUnknown.INSTANCE;
+                }
+                if (hasTyInfer(folded)) return folded.superFoldWith(this);
+                return folded;
+            }
+        });
+    }
+
     public static <T extends TypeFoldable<T>> T foldTyPlaceholderWithTyInfer(@Nonnull T foldable) {
         if (!hasTyPlaceholder(foldable)) return foldable;
         return foldable.foldWith(new TypeFolder() {

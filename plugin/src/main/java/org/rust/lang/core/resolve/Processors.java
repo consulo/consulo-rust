@@ -551,7 +551,11 @@ public final class Processors {
 
         boolean isVisible = visibilityStatus == VisibilityStatus.Visible;
         Set<Namespace> namespaces = e.getNamespaces();
-        result.add(new RsPathResolveResult<>(element, e.getSubst(), isVisible, namespaces));
+        result.add(new RsPathResolveResult<>(
+            element,
+            org.rust.lang.core.types.infer.FoldUtil.foldTyInferWithTyPlaceholder(e.getSubst()),
+            isVisible,
+            namespaces));
     }
 
     /**

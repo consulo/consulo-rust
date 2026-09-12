@@ -28,6 +28,9 @@ import org.rust.lang.core.psi.ext.RsItemElement;
 import org.rust.lang.core.psi.ext.RsItemsOwner;
 import org.rust.lang.core.psi.ext.RsItemsOwnerUtil;
 import org.rust.lang.core.psi.ext.RsMod;
+import org.rust.lang.core.psi.RsModItem;
+import org.rust.lang.core.psi.ext.RsCachedItems;
+import org.rust.lang.core.psi.ext.RsElementUtil;
 
 /**
  * The item which can be visible in the module (either directly declared or imported).
@@ -158,18 +161,18 @@ public final class VisItem {
             return pathToRsModOrEnum(info);
         }
         // Regular item: find the containing module/enum and pick items with matching name.
-        List<org.rust.lang.core.psi.ext.RsElement> scopes = containingModToScope(info);
+        List<RsElement> scopes = containingModToScope(info);
         List<RsNamedElement> result = new java.util.ArrayList<>();
-        for (org.rust.lang.core.psi.ext.RsElement scope : scopes) {
-            if (scope instanceof org.rust.lang.core.psi.RsEnumItem) {
-                org.rust.lang.core.psi.RsEnumBody body = ((org.rust.lang.core.psi.RsEnumItem) scope).getEnumBody();
+        for (RsElement scope : scopes) {
+            if (scope instanceof RsEnumItem) {
+                RsEnumBody body = ((RsEnumItem) scope).getEnumBody();
                 if (body == null) continue;
-                for (org.rust.lang.core.psi.RsEnumVariant variant : body.getEnumVariantList()) {
+                for (RsEnumVariant variant : body.getEnumVariantList()) {
                     if (getName().equals(variant.getName())) result.add(variant);
                 }
-            } else if (scope instanceof org.rust.lang.core.psi.ext.RsItemsOwner) {
-                for (org.rust.lang.core.psi.ext.RsItemElement item :
-                    namedItems((org.rust.lang.core.psi.ext.RsItemsOwner) scope, getName())) {
+            } else if (scope instanceof RsItemsOwner) {
+                for (RsItemElement item :
+                    namedItems((RsItemsOwner) scope, getName())) {
                     if (item instanceof RsNamedElement) result.add((RsNamedElement) item);
                 }
             }
@@ -183,25 +186,64 @@ public final class VisItem {
      */
     @Nullable
     public RsNamedElement scopedMacroToPsi(@Nonnull RsModInfo info) {
-        List<org.rust.lang.core.psi.ext.RsElement> scopes = containingModToScope(info);
+        List<RsElement> scopes = containingModToScope(info);
         if (scopes.size() != 1) return null;
-        org.rust.lang.core.psi.ext.RsElement scope = scopes.get(0);
-        if (!(scope instanceof org.rust.lang.core.psi.ext.RsItemsOwner)) return null;
-        for (org.rust.lang.core.psi.ext.RsItemElement item :
-            org.rust.lang.core.psi.ext.RsItemsOwnerUtil.getExpandedItemsExceptImplsAndUses(
-                (org.rust.lang.core.psi.ext.RsItemsOwner) scope)) {
-            if (!(item instanceof RsNamedElement)) continue;
-            if (!getName().equals(((RsNamedElement) item).getName())) continue;
-            if (item instanceof org.rust.lang.core.psi.RsMacro
-                || item instanceof org.rust.lang.core.psi.RsMacro2) {
-                return (RsNamedElement) item;
-            }
-            if (item instanceof org.rust.lang.core.psi.RsFunction
-                && org.rust.lang.core.psi.ext.RsFunctionUtil.isProcMacroDef((org.rust.lang.core.psi.RsFunction) item)) {
-                return (RsNamedElement) item;
+        RsElement scope = scopes.get(0);
+        if (!(scope instanceof RsItemsOwner)) return null;
+
+        RsCachedItems items =
+            RsItemsOwnerUtil.getExpandedItemsCached(
+                (RsItemsOwner) scope);
+
+        // `macro_rules!` definitions are kept apart from the named items, so they have to be looked
+        // up in their own list - the named map only ever holds macro 2.0 and proc-macro functions.
+        List<RsMacro> legacyMacros = new java.util.ArrayList<>();
+        for (RsMacro macro : items.getLegacyMacros()) {
+            if (getName().equals(macro.getName()) && matchesIsEnabledByCfg(macro)) {
+                legacyMacros.add(macro);
             }
         }
-        return null;
+        if (!legacyMacros.isEmpty()) {
+            return PathResolution.singlePublicOrFirstMacro(legacyMacros);
+        }
+
+        List<RsItemElement> named = items.getNamed().get(getName());
+        if (named != null) {
+            RsMacro2 single = null;
+            for (RsItemElement item : named) {
+                if (item instanceof RsMacro2 && matchesIsEnabledByCfg(item)) {
+                    if (single != null) {
+                        single = null;
+                        break;
+                    }
+                    single = (RsMacro2) item;
+                }
+            }
+            if (single != null) return single;
+        }
+
+        RsFunction procMacro = null;
+        for (List<RsItemElement> group : items.getNamed().values()) {
+            for (RsItemElement item : group) {
+                if (!(item instanceof RsFunction)) continue;
+                RsFunction fn = (RsFunction) item;
+                if (!RsFunctionUtil.isProcMacroDef(fn)) continue;
+                if (!getName().equals(RsFunctionUtil.getProcMacroName(fn))) continue;
+                if (!matchesIsEnabledByCfg(fn)) continue;
+                if (procMacro != null) return null;
+                procMacro = fn;
+            }
+        }
+        return procMacro;
+    }
+
+    /**
+     * An import of a cfg-enabled item made from inside a cfg-disabled module is recorded with
+     * cfg-disabled visibility, so in that case the PSI item's own cfg state must not be re-checked.
+     */
+    private boolean matchesIsEnabledByCfg(@Nonnull RsElement itemPsi) {
+        if (visibility == Visibility.CFG_DISABLED) return true;
+        return RsElementUtil.isEnabledByCfg(itemPsi);
     }
 
     /** The module or enum this item's own path names, resolved through the def map. */
@@ -214,17 +256,17 @@ public final class VisItem {
         if (data.isEnum()) {
             ModData parent = data.getParent();
             if (parent == null) return Collections.emptyList();
-            for (org.rust.lang.core.psi.ext.RsElement parentScope : modDataToScope(info, parent)) {
-                if (!(parentScope instanceof org.rust.lang.core.psi.ext.RsItemsOwner)) continue;
-                for (org.rust.lang.core.psi.ext.RsItemElement item :
-                    namedItems((org.rust.lang.core.psi.ext.RsItemsOwner) parentScope, data.getName())) {
-                    if (item instanceof org.rust.lang.core.psi.RsEnumItem) result.add((RsNamedElement) item);
+            for (RsElement parentScope : modDataToScope(info, parent)) {
+                if (!(parentScope instanceof RsItemsOwner)) continue;
+                for (RsItemElement item :
+                    namedItems((RsItemsOwner) parentScope, data.getName())) {
+                    if (item instanceof RsEnumItem) result.add((RsNamedElement) item);
                 }
             }
             return result;
         }
 
-        for (org.rust.lang.core.psi.ext.RsElement scope : modDataToScope(info, data)) {
+        for (RsElement scope : modDataToScope(info, data)) {
             if (scope instanceof RsNamedElement) result.add((RsNamedElement) scope);
         }
         return result;
@@ -233,8 +275,8 @@ public final class VisItem {
     /**
      * Returns the list of scopes corresponding to {@link #getContainingMod}. For the crate root,
      * returns the crate-root file. For a nested {@code mod foo}, returns the
-     * {@link org.rust.lang.core.psi.RsModItem} found by walking the path. For enum variants
-     * whose containing path is an enum, returns the {@link org.rust.lang.core.psi.RsEnumItem}.
+     * {@link RsModItem} found by walking the path. For enum variants
+     * whose containing path is an enum, returns the {@link RsEnumItem}.
      */
     /**
      * The modules (or enum) that hold this item, found through the def map rather than by walking the
@@ -243,19 +285,19 @@ public final class VisItem {
      * a name walk from the crate root does not.
      */
     @Nonnull
-    private List<org.rust.lang.core.psi.ext.RsElement> containingModToScope(@Nonnull RsModInfo info) {
+    private List<RsElement> containingModToScope(@Nonnull RsModInfo info) {
         ModData containingModData = findModData(info, getContainingMod());
         if (containingModData == null) return Collections.emptyList();
 
         if (containingModData.isEnum()) {
             ModData parent = containingModData.getParent();
             if (parent == null) return Collections.emptyList();
-            List<org.rust.lang.core.psi.ext.RsElement> enums = new java.util.ArrayList<>();
-            for (org.rust.lang.core.psi.ext.RsElement parentScope : modDataToScope(info, parent)) {
-                if (!(parentScope instanceof org.rust.lang.core.psi.ext.RsItemsOwner)) continue;
-                for (org.rust.lang.core.psi.ext.RsItemElement item :
-                    namedItems((org.rust.lang.core.psi.ext.RsItemsOwner) parentScope, containingModData.getName())) {
-                    if (item instanceof org.rust.lang.core.psi.RsEnumItem) enums.add(item);
+            List<RsElement> enums = new java.util.ArrayList<>();
+            for (RsElement parentScope : modDataToScope(info, parent)) {
+                if (!(parentScope instanceof RsItemsOwner)) continue;
+                for (RsItemElement item :
+                    namedItems((RsItemsOwner) parentScope, containingModData.getName())) {
+                    if (item instanceof RsEnumItem) enums.add(item);
                 }
             }
             return enums;
@@ -270,13 +312,13 @@ public final class VisItem {
      * resolve asks for exactly one name.
      */
     @Nonnull
-    private static List<org.rust.lang.core.psi.ext.RsItemElement> namedItems(
-        @Nonnull org.rust.lang.core.psi.ext.RsItemsOwner scope,
+    private static List<RsItemElement> namedItems(
+        @Nonnull RsItemsOwner scope,
         @Nullable String name
     ) {
         if (name == null) return Collections.emptyList();
-        List<org.rust.lang.core.psi.ext.RsItemElement> named =
-            org.rust.lang.core.psi.ext.RsItemsOwnerUtil.getExpandedItemsCached(scope).getNamed().get(name);
+        List<RsItemElement> named =
+            RsItemsOwnerUtil.getExpandedItemsCached(scope).getNamed().get(name);
         return named == null ? Collections.emptyList() : named;
     }
 
@@ -291,13 +333,13 @@ public final class VisItem {
     }
 
     @Nonnull
-    private static List<org.rust.lang.core.psi.ext.RsElement> modDataToScope(
+    private static List<RsElement> modDataToScope(
         @Nonnull RsModInfo info,
         @Nonnull ModData data
     ) {
         DataPsiHelper helper = info.getDataPsiHelper();
         if (helper != null) {
-            org.rust.lang.core.psi.ext.RsMod fromHelper = helper.dataToPsi(data);
+            RsMod fromHelper = helper.dataToPsi(data);
             if (fromHelper != null) return Collections.singletonList(fromHelper);
         }
         return new java.util.ArrayList<>(data.toRsMod(info.getProject()));

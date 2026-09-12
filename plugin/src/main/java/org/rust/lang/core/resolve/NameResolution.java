@@ -49,6 +49,34 @@ import org.rust.lang.core.stubs.index.RsNamedElementIndex;
 import org.rust.lang.core.types.ExtensionsUtil;
 import org.rust.lang.core.types.infer.Autoderef;
 import org.rust.lang.core.types.ty.TyAdt;
+import org.rust.lang.core.crate.CrateGraphService;
+import org.rust.lang.core.psi.RsBinaryExpr;
+import org.rust.lang.core.psi.RsCondition;
+import org.rust.lang.core.psi.RsExpr;
+import org.rust.lang.core.psi.RsIfExpr;
+import org.rust.lang.core.psi.RsImplItem;
+import org.rust.lang.core.psi.RsLetExpr;
+import org.rust.lang.core.psi.RsTypeAlias;
+import org.rust.lang.core.psi.RsTypeReference;
+import org.rust.lang.core.psi.RsUseSpeck;
+import org.rust.lang.core.psi.RsWhileExpr;
+import org.rust.lang.core.psi.ext.RsElement;
+import org.rust.lang.core.psi.ext.RsGenericDeclaration;
+import org.rust.lang.core.psi.ext.RsMod;
+import org.rust.lang.core.psi.ext.RsPathUtil;
+import org.rust.lang.core.psi.ext.RsTypeDeclarationElement;
+import org.rust.lang.core.resolve.ImplLookup;
+import org.rust.lang.core.resolve.KnownDerivableTrait;
+import org.rust.lang.core.resolve.KnownItems;
+import org.rust.lang.core.resolve.indexes.RsMacroIndex;
+import org.rust.lang.core.resolve2.ItemProcessingMode;
+import org.rust.lang.core.types.Substitution;
+import org.rust.lang.core.types.SubstitutionUtil;
+import org.rust.lang.core.types.infer.FoldUtil;
+import org.rust.lang.core.types.infer.TypeInferenceUtil;
+import org.rust.lang.core.types.ty.TyInfer;
+import org.rust.lang.core.types.ty.TyTypeParameter;
+import org.rust.lang.core.types.ty.TyUnknown;
 
 /**
  * Rust name resolution algorithm. Top-level entry points for resolving paths, method calls,
@@ -204,10 +232,10 @@ public final class NameResolution {
         @Nonnull Ty receiverType,
         @Nonnull RsResolveProcessorBase<FieldResolveVariant> originalProcessor
     ) {
-        org.rust.lang.core.types.infer.Autoderef autoderef = lookup.coercionSequence(receiverType);
+        Autoderef autoderef = lookup.coercionSequence(receiverType);
         for (Ty ty : autoderef) {
-            if (!(ty instanceof org.rust.lang.core.types.ty.TyAdt)) continue;
-            org.rust.lang.core.psi.ext.RsStructOrEnumItemElement item = ((org.rust.lang.core.types.ty.TyAdt) ty).getItem();
+            if (!(ty instanceof TyAdt)) continue;
+            RsStructOrEnumItemElement item = ((TyAdt) ty).getItem();
             if (!(item instanceof RsStructItem)) continue;
             final Ty currentTy = ty;
             if (processStructFieldsAs(item, (RsStructItem) item, entry ->
@@ -224,7 +252,7 @@ public final class NameResolution {
     }
 
     private static boolean processStructFieldsAs(
-        @Nonnull org.rust.lang.core.psi.ext.RsStructOrEnumItemElement owner,
+        @Nonnull RsStructOrEnumItemElement owner,
         @Nonnull RsStructItem struct,
         @Nonnull java.util.function.Function<ScopeEntry, Boolean> sink
     ) {
@@ -276,8 +304,8 @@ public final class NameResolution {
     ) {
         RsStructLiteral literal = RsStructLiteralFieldUtil.getParentStructLiteral(field);
         PsiElement resolved = literal != null && literal.getPath() != null && literal.getPath().getReference() != null
-            ? org.rust.lang.core.resolve.ref.RsPathReferenceImpl.deepResolve(
-                (org.rust.lang.core.resolve.ref.RsPathReference) literal.getPath().getReference())
+            ? RsPathReferenceImpl.deepResolve(
+                (RsPathReference) literal.getPath().getReference())
             : null;
         if (resolved instanceof RsFieldsOwner
             && processFieldDeclarations((RsFieldsOwner) resolved, processor)) {
@@ -296,8 +324,8 @@ public final class NameResolution {
     ) {
         RsPatStruct pat = RsPatFieldFullUtil.getParentStructPattern(field);
         if (pat == null || pat.getPath() == null || pat.getPath().getReference() == null) return false;
-        PsiElement resolved = org.rust.lang.core.resolve.ref.RsPathReferenceImpl.deepResolve(
-            (org.rust.lang.core.resolve.ref.RsPathReference) pat.getPath().getReference());
+        PsiElement resolved = RsPathReferenceImpl.deepResolve(
+            (RsPathReference) pat.getPath().getReference());
         if (!(resolved instanceof RsFieldsOwner)) return false;
         return processFieldDeclarations((RsFieldsOwner) resolved, processor);
     }
@@ -323,13 +351,13 @@ public final class NameResolution {
         @Nonnull RsElement context,
         @Nonnull RsResolveProcessorBase<MethodResolveVariant> processor
     ) {
-        org.rust.lang.core.types.infer.Autoderef autoderef = lookup.coercionSequence(receiverType);
+        Autoderef autoderef = lookup.coercionSequence(receiverType);
         int derefIndex = 0;
         for (Ty ty : autoderef) {
             for (TraitImplSource source : lookup.findImplsAndTraits(ty)) {
-                org.rust.lang.core.psi.ext.RsTraitOrImpl implSite = source.getValue();
+                RsTraitOrImpl implSite = source.getValue();
                 if (implSite == null) continue;
-                for (org.rust.lang.core.psi.ext.RsAbstractable member :
+                for (RsAbstractable member :
                     RsTraitOrImplUtil.getExpandedMembers(implSite)) {
                     if (!(member instanceof RsFunction)) continue;
                     RsFunction fn = (RsFunction) member;
@@ -354,21 +382,21 @@ public final class NameResolution {
         @Nonnull RsModDeclItem modDecl,
         @Nonnull RsResolveProcessor processor
     ) {
-        consulo.language.psi.PsiManager psiMgr = consulo.language.psi.PsiManager.getInstance(modDecl.getProject());
+        PsiManager psiMgr = PsiManager.getInstance(modDecl.getProject());
         RsMod containingMod = modDecl.getContainingMod();
-        consulo.language.psi.PsiDirectory ownedDirectory = containingMod.getOwnedDirectory();
-        consulo.language.psi.PsiFile contextualFile = RsElementExtUtil.getContextualFile(modDecl);
-        consulo.virtualFileSystem.VirtualFile originalFile = contextualFile.getOriginalFile().getVirtualFile();
-        boolean inModRs = org.rust.lang.RsConstants.MOD_RS_FILE.equals(contextualFile.getName());
+        PsiDirectory ownedDirectory = containingMod.getOwnedDirectory();
+        PsiFile contextualFile = RsElementExtUtil.getContextualFile(modDecl);
+        VirtualFile originalFile = contextualFile.getOriginalFile().getVirtualFile();
+        boolean inModRs = RsConstants.MOD_RS_FILE.equals(contextualFile.getName());
 
         String explicitPath = RsModDeclItemUtil.getPathAttribute(modDecl);
         if (explicitPath != null) {
-            consulo.language.psi.PsiDirectory dir = containingMod instanceof RsFile
+            PsiDirectory dir = containingMod instanceof RsFile
                 ? contextualFile.getParent()
                 : ownedDirectory;
             if (dir == null) return false;
-            consulo.virtualFileSystem.VirtualFile vFile = dir.getVirtualFile().findFileByRelativePath(
-                consulo.util.io.FileUtil.toSystemIndependentName(explicitPath));
+            VirtualFile vFile = dir.getVirtualFile().findFileByRelativePath(
+                FileUtil.toSystemIndependentName(explicitPath));
             if (vFile == null) return false;
             RsFile mod = RsFileUtil.getRustFile(psiMgr.findFile(vFile));
             if (mod == null) return false;
@@ -379,25 +407,25 @@ public final class NameResolution {
         if (ownedDirectory == null) return false;
         if (RsModDeclItemUtil.isLocal(modDecl)) return false;
 
-        String modDeclName = ((org.rust.lang.core.psi.ext.RsMandatoryReferenceElement) modDecl).getReferenceName();
+        String modDeclName = ((RsMandatoryReferenceElement) modDecl).getReferenceName();
         if (modDeclName == null) return false;
 
-        java.util.List<consulo.virtualFileSystem.VirtualFile> dirs = new java.util.ArrayList<>();
-        java.util.List<consulo.virtualFileSystem.VirtualFile> files = new java.util.ArrayList<>();
-        for (consulo.virtualFileSystem.VirtualFile child : ownedDirectory.getVirtualFile().getChildren()) {
+        java.util.List<VirtualFile> dirs = new java.util.ArrayList<>();
+        java.util.List<VirtualFile> files = new java.util.ArrayList<>();
+        for (VirtualFile child : ownedDirectory.getVirtualFile().getChildren()) {
             if (child.isDirectory()) dirs.add(child); else files.add(child);
         }
 
-        for (consulo.virtualFileSystem.VirtualFile vFile : files) {
+        for (VirtualFile vFile : files) {
             String rawFileName = vFile.getName();
-            if (vFile.equals(originalFile) || org.rust.lang.RsConstants.MOD_RS_FILE.equals(rawFileName)) continue;
+            if (vFile.equals(originalFile) || RsConstants.MOD_RS_FILE.equals(rawFileName)) continue;
             String fileName = modDeclFileName(rawFileName, modDeclName);
             RsFile rf = RsFileUtil.getRustFile(psiMgr.findFile(vFile));
             if (rf != null && Processors.processEntry(processor, fileName, Namespace.TYPES, rf)) return true;
         }
 
-        for (consulo.virtualFileSystem.VirtualFile vDir : dirs) {
-            consulo.virtualFileSystem.VirtualFile modFile = vDir.findChild(org.rust.lang.RsConstants.MOD_RS_FILE);
+        for (VirtualFile vDir : dirs) {
+            VirtualFile modFile = vDir.findChild(RsConstants.MOD_RS_FILE);
             if (modFile != null) {
                 RsFile rf = RsFileUtil.getRustFile(psiMgr.findFile(modFile));
                 if (rf != null && Processors.processEntry(processor, vDir.getName(), Namespace.TYPES, rf)) return true;
@@ -408,10 +436,10 @@ public final class NameResolution {
             if (containingMod.isCrateRoot()) continue;
 
             if (vDir.getName().equals(containingMod.getModName())) {
-                for (consulo.virtualFileSystem.VirtualFile vFile : vDir.getChildren()) {
+                for (VirtualFile vFile : vDir.getChildren()) {
                     if (vFile.isDirectory()) continue;
                     String rawFileName = vFile.getName();
-                    if (org.rust.lang.RsConstants.MOD_RS_FILE.equals(rawFileName)) continue;
+                    if (RsConstants.MOD_RS_FILE.equals(rawFileName)) continue;
                     String fileName = modDeclFileName(rawFileName, modDeclName);
                     RsFile rf = RsFileUtil.getRustFile(psiMgr.findFile(vFile));
                     if (rf != null && Processors.processEntry(processor, fileName, Namespace.TYPES, rf)) return true;
@@ -422,7 +450,7 @@ public final class NameResolution {
     }
 
     private static String modDeclFileName(@Nonnull String rawName, @Nonnull String modDeclName) {
-        String fileName = consulo.util.io.FileUtil.getNameWithoutExtension(rawName);
+        String fileName = FileUtil.getNameWithoutExtension(rawName);
         return modDeclName.equalsIgnoreCase(fileName) ? modDeclName : fileName;
     }
 
@@ -494,7 +522,7 @@ public final class NameResolution {
         }
         if (pathKind instanceof RsPathResolveKind.QualifiedPath) {
             RsPathResolveKind.QualifiedPath q = (RsPathResolveKind.QualifiedPath) pathKind;
-            return processQualifiedPathResolveVariants(ctx, q.getNs(), q.getQualifier(), q.getPath(), processor);
+            return processQualifiedPathResolveVariants(ctx, q.getNs(), q.getQualifier(), q.getPath(), q.getParent(), processor);
         }
         if (pathKind instanceof RsPathResolveKind.ExplicitTypeQualifiedPath) {
             RsPathResolveKind.ExplicitTypeQualifiedPath e = (RsPathResolveKind.ExplicitTypeQualifiedPath) pathKind;
@@ -543,11 +571,12 @@ public final class NameResolution {
         @Nonnull Set<Namespace> ns,
         @Nonnull RsPath qualifier,
         @Nonnull RsPath path,
+        @Nullable PsiElement parent,
         @Nonnull RsResolveProcessor processor
     ) {
         if (qualifier.getReference() == null) return false;
-        PsiElement resolved = org.rust.lang.core.resolve.ref.RsPathReferenceImpl.deepResolve(
-            (org.rust.lang.core.resolve.ref.RsPathReference) qualifier.getReference());
+        PsiElement resolved = RsPathReferenceImpl.deepResolve(
+            (RsPathReference) qualifier.getReference());
         if (resolved instanceof RsMod) {
             return processModScope((RsMod) resolved, ns, new java.util.HashSet<>(), processor);
         }
@@ -564,7 +593,108 @@ public final class NameResolution {
         if (resolved instanceof RsTraitItem) {
             return processAssocTypeVariants((RsTraitItem) resolved, processor);
         }
+        // `Foo::bar` where Foo names a type: the associated item lives in a detached `impl` block,
+        // so the qualifier has to be lowered to a type and the impls looked up through it.
+        if (resolved instanceof RsTypeDeclarationElement
+            && !(parent instanceof RsUseSpeck)
+            && ctx.isProcessAssocItems()) {
+            Ty rawBaseTy;
+            if (RsPathUtil.getHasCself(qualifier)) {
+                // `Self::bar()` inside an impl or trait names the implementing type.
+                if (resolved instanceof RsImplItem) {
+                    RsTypeReference typeRef =
+                        ((RsImplItem) resolved).getTypeReference();
+                    rawBaseTy = typeRef != null
+                        ? ExtensionsUtil.getRawType(typeRef)
+                        : TyUnknown.INSTANCE;
+                }
+                else if (resolved instanceof RsTraitItem) {
+                    rawBaseTy = TyTypeParameter.self((RsTraitItem) resolved);
+                }
+                else {
+                    rawBaseTy = TyUnknown.INSTANCE;
+                }
+            }
+            else {
+                Substitution subst = SubstitutionUtil.EMPTY;
+                // Without explicit type arguments the generics stay open, so they become inference
+                // variables - otherwise a generic type never matches its own impl.
+                if (qualifier.getTypeArgumentList() == null
+                    && resolved instanceof RsGenericDeclaration) {
+                    java.util.Map<TyTypeParameter, Ty> typeSubst =
+                        new java.util.HashMap<>();
+                    for (TyTypeParameter gen
+                        : TypeInferenceUtil.getGenerics(
+                            (RsGenericDeclaration) resolved)) {
+                        typeSubst.put(gen, new TyInfer.TyVar(gen));
+                    }
+                    subst = new Substitution(typeSubst);
+                }
+                rawBaseTy = FoldUtil.substituteOrUnknown(
+                    ((RsTypeDeclarationElement) resolved).getDeclaredType(), subst);
+            }
+            Ty baseTy =
+                ctx.getImplLookup().getCtx().normalizeAssociatedTypesIn(rawBaseTy).getValue();
+            return processAssociatedItems(ctx.getImplLookup(), baseTy, ns, ctx.getContext(), processor);
+        }
         return false;
+    }
+
+    /**
+     * Emits the associated items reachable through {@code type} - the members of its inherent impls
+     * first, then of the traits it implements, an inherent member hiding a trait member of the
+     * same name.
+     */
+    private static boolean processAssociatedItems(
+        @Nonnull ImplLookup lookup,
+        @Nonnull Ty type,
+        @Nonnull Set<Namespace> ns,
+        @Nonnull RsElement context,
+        @Nonnull RsResolveProcessor processor
+    ) {
+        java.util.function.Predicate<RsAbstractable> nsFilter = assocMembersNsFilter(ns);
+        if (nsFilter == null) return false;
+
+        Substitution selfSubst = SubstitutionUtil.toTypeSubst(
+            java.util.Collections.singletonMap(TyTypeParameter.self(), type));
+
+        java.util.Map<String, RsAbstractable> visitedInherent = new java.util.HashMap<>();
+        for (TraitImplSource source : lookup.findImplsAndTraits(type)) {
+            boolean isInherent = source.isInherent();
+            for (java.util.Map.Entry<String, java.util.List<RsAbstractable>> entry
+                : source.getImplAndTraitExpandedMembers().entrySet()) {
+                String name = entry.getKey();
+                for (RsAbstractable member : entry.getValue()) {
+                    if (!nsFilter.test(member)) continue;
+                    if (isInherent) {
+                        visitedInherent.put(name, member);
+                    }
+                    else if (visitedInherent.containsKey(name)) {
+                        continue;
+                    }
+                    Set<Namespace> namespaces = member instanceof RsTypeAlias
+                        ? Namespace.TYPES : Namespace.VALUES;
+                    if (processor.process(new AssocItemScopeEntry(
+                        name, member, namespaces, selfSubst, type, source))) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /** Associated types live in the type namespace, everything else in the value namespace. */
+    @Nullable
+    private static java.util.function.Predicate<RsAbstractable> assocMembersNsFilter(
+        @Nonnull Set<Namespace> ns
+    ) {
+        boolean types = ns.contains(Namespace.Types);
+        boolean values = ns.contains(Namespace.Values);
+        if (types && values) return m -> true;
+        if (types) return m -> m instanceof RsTypeAlias;
+        if (values) return m -> !(m instanceof RsTypeAlias);
+        return null;
     }
 
     private static boolean processExplicitTypeQualifiedPathResolveVariants(
@@ -608,8 +738,8 @@ public final class NameResolution {
             if (pp instanceof RsPatStruct) {
                 RsPath path = ((RsPatStruct) pp).getPath();
                 PsiElement resolved = path != null && path.getReference() != null
-                    ? org.rust.lang.core.resolve.ref.RsPathReferenceImpl.deepResolve(
-                        (org.rust.lang.core.resolve.ref.RsPathReference) path.getReference())
+                    ? RsPathReferenceImpl.deepResolve(
+                        (RsPathReference) path.getReference())
                     : null;
                 if (resolved instanceof RsFieldsOwner) {
                     if (processFieldDeclarations((RsFieldsOwner) resolved, originalProcessor)) return true;
@@ -815,16 +945,16 @@ public final class NameResolution {
         @Nonnull RsResolveProcessor processor
     ) {
         if (processNestedScopesUpwards(element, Namespace.MACROS, processor)) return true;
-        org.rust.lang.core.resolve.KnownDerivableTrait known =
-            org.rust.lang.core.resolve.KnownItems.getKNOWN_DERIVABLE_TRAITS().get(traitName);
+        KnownDerivableTrait known =
+            KnownItems.getKNOWN_DERIVABLE_TRAITS().get(traitName);
         if (known != null) {
-            RsTraitItem hardcoded = known.findTrait(org.rust.lang.core.resolve.KnownItems.getKnownItems(element));
+            RsTraitItem hardcoded = known.findTrait(KnownItems.getKnownItems(element));
             if (hardcoded != null) {
                 return Processors.processEntry(processor, traitName, Namespace.TYPES, hardcoded);
             }
         }
         java.util.Collection<RsNamedElement> found =
-            org.rust.lang.core.stubs.index.RsNamedElementIndex.findElementsByName(element.getProject(), traitName);
+            RsNamedElementIndex.findElementsByName(element.getProject(), traitName);
         return Processors.processAll(processor,
             new java.util.ArrayList<>(filterTraits(found)), Namespace.TYPES);
     }
@@ -851,12 +981,12 @@ public final class NameResolution {
         if (binaryExpr == null) return false;
         RsExpr right = binaryExpr.getRight();
         if (right == null) return false;
-        Ty rhsType = org.rust.lang.core.types.ExtensionsUtil.getType(right);
-        Ty lhsType = org.rust.lang.core.types.ExtensionsUtil.getType(binaryExpr.getLeft());
+        Ty rhsType = ExtensionsUtil.getType(right);
+        Ty lhsType = ExtensionsUtil.getType(binaryExpr.getLeft());
         ImplLookup lookup = ImplLookup.relativeTo(element);
-        org.rust.lang.core.psi.ext.RsTraitOrImpl impl = lookup.findOverloadedOpImpl(lhsType, rhsType, operator);
+        RsTraitOrImpl impl = lookup.findOverloadedOpImpl(lhsType, rhsType, operator);
         if (impl == null) return false;
-        for (org.rust.lang.core.psi.ext.RsAbstractable m : RsTraitOrImplUtil.getExpandedMembers(impl)) {
+        for (RsAbstractable m : RsTraitOrImplUtil.getExpandedMembers(impl)) {
             if (m instanceof RsFunction && operator.getFnName().equals(((RsFunction) m).getName())) {
                 return Processors.processEntry(processor, operator.getFnName(), Namespace.VALUES, m);
             }
@@ -929,7 +1059,7 @@ public final class NameResolution {
                 // The def map knows the macros a scope can see, including those a `use` brought in and
                 // the standard library macro prelude. A module's answer is final; an inner scope that
                 // finds nothing just keeps the walk going outward.
-                boolean fromDefMap = org.rust.lang.core.resolve2.FacadeResolve.processMacros(
+                boolean fromDefMap = FacadeResolve.processMacros(
                     (RsItemsOwner) scope, processor, path);
                 if (fromDefMap) return true;
                 // A module ends the lexical walk, but the injected standard library macros below are
@@ -981,8 +1111,8 @@ public final class NameResolution {
         @Nonnull RsFile crateRoot,
         @Nonnull RsResolveProcessor processor
     ) {
-        java.util.Map<org.rust.lang.core.psi.ext.RsMod, java.util.List<RsMacro>> exported =
-            org.rust.lang.core.resolve.indexes.RsMacroIndex.allExportedMacros(crateRoot.getProject());
+        java.util.Map<RsMod, java.util.List<RsMacro>> exported =
+            RsMacroIndex.allExportedMacros(crateRoot.getProject());
         java.util.List<RsMacro> macros = exported.get(crateRoot);
         if (macros == null) return false;
         for (RsMacro macro : macros) {
@@ -1038,23 +1168,23 @@ public final class NameResolution {
             } else if (scope instanceof RsMatchArm) {
                 RsPat pat = ((RsMatchArm) scope).getPat();
                 if (pat != null && processPatternBindings(pat, ns, seen, processor)) return true;
-            } else if (scope instanceof org.rust.lang.core.psi.RsIfExpr) {
+            } else if (scope instanceof RsIfExpr) {
                 // `if let Some(x) = e { .. }` binds x for the body only. A scope that binds nothing here
                 // is simply skipped - the walk must carry on outward, not stop.
-                org.rust.lang.core.psi.RsIfExpr ifExpr = (org.rust.lang.core.psi.RsIfExpr) scope;
+                RsIfExpr ifExpr = (RsIfExpr) scope;
                 if (ifExpr.getBlock() == cameFrom
                     && processLetExprs(conditionExpr(ifExpr.getCondition()), cameFrom, ns, seen, processor)) {
                     return true;
                 }
-            } else if (scope instanceof org.rust.lang.core.psi.RsWhileExpr) {
-                org.rust.lang.core.psi.RsWhileExpr whileExpr = (org.rust.lang.core.psi.RsWhileExpr) scope;
+            } else if (scope instanceof RsWhileExpr) {
+                RsWhileExpr whileExpr = (RsWhileExpr) scope;
                 if (whileExpr.getBlock() == cameFrom
                     && processLetExprs(conditionExpr(whileExpr.getCondition()), cameFrom, ns, seen, processor)) {
                     return true;
                 }
-            } else if (scope instanceof org.rust.lang.core.psi.RsBinaryExpr) {
+            } else if (scope instanceof RsBinaryExpr) {
                 // A let-chain: `if let A = a && let B = b`, where the left operand binds for the right.
-                org.rust.lang.core.psi.RsBinaryExpr binary = (org.rust.lang.core.psi.RsBinaryExpr) scope;
+                RsBinaryExpr binary = (RsBinaryExpr) scope;
                 if (binary.getRight() == cameFrom
                     && processLetExprs(binary.getLeft(), cameFrom, ns, seen, processor)) {
                     return true;
@@ -1073,8 +1203,8 @@ public final class NameResolution {
      * walk sees neither imports nor either prelude.
      */
     @Nullable
-    private static org.rust.lang.core.psi.RsExpr conditionExpr(
-        @Nullable org.rust.lang.core.psi.RsCondition condition
+    private static RsExpr conditionExpr(
+        @Nullable RsCondition condition
     ) {
         return condition == null ? null : condition.getExpr();
     }
@@ -1085,7 +1215,7 @@ public final class NameResolution {
      * scope, which is what {@code cameFrom} settles.
      */
     private static boolean processLetExprs(
-        @Nullable org.rust.lang.core.psi.RsExpr expr,
+        @Nullable RsExpr expr,
         @Nullable PsiElement cameFrom,
         @Nonnull Set<Namespace> ns,
         @Nonnull java.util.Set<String> seen,
@@ -1093,13 +1223,13 @@ public final class NameResolution {
     ) {
         if (expr == null || expr == cameFrom) return false;
 
-        if (expr instanceof org.rust.lang.core.psi.RsLetExpr) {
-            RsPat pat = ((org.rust.lang.core.psi.RsLetExpr) expr).getPat();
+        if (expr instanceof RsLetExpr) {
+            RsPat pat = ((RsLetExpr) expr).getPat();
             return pat != null && processPatternBindings(pat, ns, seen, processor);
         }
 
-        if (expr instanceof org.rust.lang.core.psi.RsBinaryExpr) {
-            org.rust.lang.core.psi.RsBinaryExpr binary = (org.rust.lang.core.psi.RsBinaryExpr) expr;
+        if (expr instanceof RsBinaryExpr) {
+            RsBinaryExpr binary = (RsBinaryExpr) expr;
             if (processLetExprs(binary.getRight(), cameFrom, ns, seen, processor)) return true;
             return processLetExprs(binary.getLeft(), cameFrom, ns, seen, processor);
         }
@@ -1113,7 +1243,7 @@ public final class NameResolution {
         @Nonnull java.util.Set<String> seen,
         @Nonnull RsResolveProcessor processor
     ) {
-        org.rust.lang.core.resolve2.RsModInfo modInfo = org.rust.lang.core.resolve2.FacadeResolve.getModInfo(mod);
+        RsModInfo modInfo = FacadeResolve.getModInfo(mod);
         if (processor.getNames() != null && processor.getNames().contains("std")) {
         }
         if (modInfo == null) {
@@ -1121,17 +1251,17 @@ public final class NameResolution {
         }
 
         RsResolveProcessor shadowing = shadowingProcessor(processor, seen);
-        if (org.rust.lang.core.resolve2.FacadeResolve.processItemDeclarationsUsingModInfo(
+        if (FacadeResolve.processItemDeclarationsUsingModInfo(
             true, modInfo, ns, shadowing,
-            org.rust.lang.core.resolve2.ItemProcessingMode.WITH_PRIVATE_IMPORTS_N_EXTERN_CRATES)) {
+            ItemProcessingMode.WITH_PRIVATE_IMPORTS_N_EXTERN_CRATES)) {
             return true;
         }
 
-        org.rust.lang.core.resolve2.RsModInfo preludeInfo = findPreludeUsingModInfo(modInfo);
+        RsModInfo preludeInfo = findPreludeUsingModInfo(modInfo);
         if (preludeInfo == null) return false;
-        return org.rust.lang.core.resolve2.FacadeResolve.processItemDeclarationsUsingModInfo(
+        return FacadeResolve.processItemDeclarationsUsingModInfo(
             true, preludeInfo, ns, shadowingProcessor(processor, seen),
-            org.rust.lang.core.resolve2.ItemProcessingMode.WITHOUT_PRIVATE_IMPORTS);
+            ItemProcessingMode.WITHOUT_PRIVATE_IMPORTS);
     }
 
     /** Used for a module the def map does not cover, such as one inside a code fragment. */
@@ -1165,19 +1295,19 @@ public final class NameResolution {
      * The standard library prelude of the crate {@code info} belongs to, as a module info of its own.
      */
     @Nullable
-    private static org.rust.lang.core.resolve2.RsModInfo findPreludeUsingModInfo(
-        @Nonnull org.rust.lang.core.resolve2.RsModInfo info
+    private static RsModInfo findPreludeUsingModInfo(
+        @Nonnull RsModInfo info
     ) {
-        org.rust.lang.core.resolve2.ModData preludeModData = info.getDefMap().getPrelude();
+        ModData preludeModData = info.getDefMap().getPrelude();
         if (preludeModData == null) return null;
-        org.rust.lang.core.crate.Crate preludeCrate =
-            org.rust.lang.core.crate.CrateGraphService.crateGraph(info.getProject())
+        Crate preludeCrate =
+            CrateGraphService.crateGraph(info.getProject())
                 .findCrateById(preludeModData.getCrate());
         if (preludeCrate == null) return null;
-        org.rust.lang.core.resolve2.CrateDefMap preludeDefMap =
+        CrateDefMap preludeDefMap =
             info.getDefMap().getDefMap(preludeModData.getCrate());
         if (preludeDefMap == null) return null;
-        return new org.rust.lang.core.resolve2.RsModInfo(
+        return new RsModInfo(
             info.getProject(), preludeDefMap, preludeModData, preludeCrate, null);
     }
 
@@ -1207,7 +1337,12 @@ public final class NameResolution {
                 }
             }
         }
-        return false;
+
+        // A block can hold `use` items, which are not named elements and so contribute nothing to the
+        // loop above; their imports only exist in the def map built for the block.
+        return FacadeResolve.processItemDeclarations(
+            block, ns, shadowingProcessor(processor, seen),
+            ItemProcessingMode.WITH_PRIVATE_IMPORTS);
     }
 
     private static boolean processFunctionScope(
@@ -1312,16 +1447,16 @@ public final class NameResolution {
 
     /**
      * Returns the prelude module for the enclosing mod. Uses the resolve2
-     * {@link org.rust.lang.core.resolve2.FacadeResolve#getModInfo} + {@code defMap.prelude}
+     * {@link FacadeResolve#getModInfo} + {@code defMap.prelude}
      * where available; returns {@code null} otherwise.
      */
     @Nullable
     public static RsMod findPrelude(@Nonnull RsElement element) {
         RsMod containing = element.getContainingMod();
         if (containing == null) return null;
-        org.rust.lang.core.resolve2.RsModInfo info = org.rust.lang.core.resolve2.FacadeResolve.getModInfo(containing);
+        RsModInfo info = FacadeResolve.getModInfo(containing);
         if (info == null) return null;
-        org.rust.lang.core.resolve2.ModData prelude = info.getDefMap().getPrelude();
+        ModData prelude = info.getDefMap().getPrelude();
         if (prelude == null) return null;
         List<RsMod> resolved = prelude.toRsMod(info.getProject());
         return resolved.size() == 1 ? resolved.get(0) : null;
@@ -1365,10 +1500,10 @@ public final class NameResolution {
         @Nonnull PathResolutionContext ctx,
         @Nonnull RsResolveProcessor processor
     ) {
-        org.rust.lang.core.resolve2.RsModInfo info = ctx.getContainingModInfo();
+        RsModInfo info = ctx.getContainingModInfo();
         if (info == null) return false;
         Set<String> wantedNames = processor.getNames();
-        for (Map.Entry<String, org.rust.lang.core.resolve2.CrateDefMap> entry :
+        for (Map.Entry<String, CrateDefMap> entry :
             info.getDefMap().getExternPrelude().entrySet()) {
             if (wantedNames != null && !wantedNames.contains(entry.getKey())) continue;
             RsMod externCrateRoot = entry.getValue().rootAsRsMod(info.getProject());

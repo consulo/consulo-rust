@@ -23,10 +23,14 @@ import consulo.util.lang.StringUtil;
 import java.nio.file.Path;
 import java.util.Collection;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
+import consulo.execution.configuration.RunProfileWithCompileBeforeLaunchOption;
+import consulo.module.Module;
+import consulo.module.ModuleManager;
+import consulo.rust.module.extension.RustModuleExtension;
 
 public abstract class RsCommandConfiguration extends LocatableConfigurationBase
     implements RunConfigurationWithSuppressedDefaultDebugAction,
-    consulo.execution.configuration.RunProfileWithCompileBeforeLaunchOption {
+    RunProfileWithCompileBeforeLaunchOption {
 
     /**
      * The Rust modules of the project. The platform builds the compile scope from these before
@@ -34,14 +38,14 @@ public abstract class RsCommandConfiguration extends LocatableConfigurationBase
      */
     @Nonnull
     @Override
-    public consulo.module.Module[] getModules() {
-        java.util.List<consulo.module.Module> modules = new java.util.ArrayList<>();
-        for (consulo.module.Module module : consulo.module.ModuleManager.getInstance(getProject()).getModules()) {
-            if (consulo.rust.module.extension.RustModuleExtension.findExtension(module) != null) {
+    public Module[] getModules() {
+        java.util.List<Module> modules = new java.util.ArrayList<>();
+        for (Module module : ModuleManager.getInstance(getProject()).getModules()) {
+            if (RustModuleExtension.findExtension(module) != null) {
                 modules.add(module);
             }
         }
-        return modules.toArray(consulo.module.Module.EMPTY_ARRAY);
+        return modules.toArray(Module.EMPTY_ARRAY);
     }
 
     /**
@@ -65,7 +69,7 @@ public abstract class RsCommandConfiguration extends LocatableConfigurationBase
             CargoProjectsService cargoProjects = CargoProjectServiceUtil.getCargoProjects(project);
             Collection<CargoProject> allProjects = cargoProjects.getAllProjects();
             if (!allProjects.isEmpty()) {
-                myWorkingDirectory = org.rust.cargo.runconfig.command.CargoCommandConfiguration.getWorkingDirectory(allProjects.iterator().next());
+                myWorkingDirectory = CargoCommandConfiguration.getWorkingDirectory(allProjects.iterator().next());
             }
         }
     }
@@ -120,7 +124,7 @@ public abstract class RsCommandConfiguration extends LocatableConfigurationBase
     }
 
     public static boolean getEmulateTerminalDefault() {
-        return org.rust.openapiext.OpenApiUtil.isFeatureEnabled(RsExperiments.EMULATE_TERMINAL) &&
-            !org.rust.openapiext.OpenApiUtil.isUnitTestMode();
+        return OpenApiUtil.isFeatureEnabled(RsExperiments.EMULATE_TERMINAL) &&
+            !OpenApiUtil.isUnitTestMode();
     }
 }
