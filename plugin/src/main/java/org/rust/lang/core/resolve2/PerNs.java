@@ -142,16 +142,15 @@ public class PerNs {
     }
 
     /**
-     * Returns a map from VisItem arrays to their corresponding Namespace.
-     * Used by FacadeResolve to iterate over namespace entries.
+     * The namespaces an item can occupy, in the order resolution visits them. Iterate these and ask
+     * {@link #getVisItems(Namespace)}: one item often sits in several namespaces and shares a single
+     * array between them, so the arrays cannot be used to tell the namespaces apart.
      */
+    private static final Namespace[] ITEM_NAMESPACES = {Namespace.Types, Namespace.Values, Namespace.Macros};
+
     @Nonnull
-    public Map<VisItem[], Namespace> getVisItemsByNamespace() {
-        Map<VisItem[], Namespace> result = new LinkedHashMap<>();
-        if (types.length > 0) result.put(types, Namespace.Types);
-        if (values.length > 0) result.put(values, Namespace.Values);
-        if (macros.length > 0) result.put(macros, Namespace.Macros);
-        return result;
+    public static Namespace[] itemNamespaces() {
+        return ITEM_NAMESPACES;
     }
 
     @Nonnull

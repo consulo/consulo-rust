@@ -65,6 +65,8 @@ public class RsAnnotationHolder {
         if (!RsElementUtil.existsAfterExpansion(element, AnnotationSessionEx.currentCrate(myCurrentAnnotationSession))) {
             return null;
         }
+        if (severity == HighlightSeverity.ERROR) {
+        }
         AnnotationBuilder builder;
         if (message == null) {
             builder = myHolder.newSilentAnnotation(severity);

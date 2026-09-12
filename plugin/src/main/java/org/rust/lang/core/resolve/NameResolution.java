@@ -485,6 +485,8 @@ public final class NameResolution {
         @Nonnull RsPathResolveKind pathKind,
         @Nonnull RsResolveProcessor processor
     ) {
+        if (processor.getNames() != null && processor.getNames().contains("std")) {
+        }
         if (pathKind instanceof RsPathResolveKind.UnqualifiedPath) {
             Set<Namespace> ns = ((RsPathResolveKind.UnqualifiedPath) pathKind).getNs();
             if (processSelfSuperCrate(ns, ctx, processor)) return true;
@@ -924,6 +926,16 @@ public final class NameResolution {
         PsiElement scope = path.getContext();
         while (scope != null) {
             if (scope instanceof RsItemsOwner) {
+                // The def map knows the macros a scope can see, including those a `use` brought in and
+                // the standard library macro prelude. A module's answer is final; an inner scope that
+                // finds nothing just keeps the walk going outward.
+                boolean fromDefMap = org.rust.lang.core.resolve2.FacadeResolve.processMacros(
+                    (RsItemsOwner) scope, processor, path);
+                if (fromDefMap) return true;
+                // A module ends the lexical walk, but the injected standard library macros below are
+                // still in scope, so fall out of the loop rather than out of the method.
+                if (scope instanceof RsMod) break;
+
                 for (RsItemElement item : RsItemsOwnerUtil.getExpandedItemsExceptImplsAndUses((RsItemsOwner) scope)) {
                     if (item instanceof RsMacro || item instanceof RsMacro2) {
                         String name = ((RsNamedElement) item).getName();
@@ -939,20 +951,44 @@ public final class NameResolution {
             }
             scope = scope.getContext();
         }
-        return false;
+
+        // `println!` and friends are not declared anywhere in this crate: the standard library is
+        // injected as if by `#[macro_use] extern crate std`, so its exported macros are the last
+        // place an unqualified macro name can come from.
+        RsFile crateRoot = path.getCrateRoot() instanceof RsFile ? (RsFile) path.getCrateRoot() : null;
+        if (crateRoot == null) return false;
+        RsFile stdlibCrateRoot = implicitStdlibCrateRoot(crateRoot);
+        if (stdlibCrateRoot == null) return false;
+        return processExportedMacros(stdlibCrateRoot, processor);
     }
 
+    /**
+     * The crate root of the standard library crate injected into {@code scope} - {@code std}, or
+     * {@code core} under {@code #![no_std]}, or nothing under {@code #![no_core]}.
+     */
+    @Nullable
+    private static RsFile implicitStdlibCrateRoot(@Nonnull RsFile scope) {
+        String name = scope.getStdlibAttributes().getAutoInjectedCrate();
+        return name == null ? null : findDependencyCrateByName(scope, name);
+    }
+
+    /**
+     * The {@code #[macro_export]} macros of a crate. They are taken from the stub index rather than
+     * from the crate root's own items: an exported macro is callable by the crate's name wherever in
+     * the crate it happens to be declared, and in the standard library they are not in the root file.
+     */
     private static boolean processExportedMacros(
         @Nonnull RsFile crateRoot,
         @Nonnull RsResolveProcessor processor
     ) {
-        for (RsItemElement item : RsItemsOwnerUtil.getExpandedItemsExceptImplsAndUses(crateRoot)) {
-            if (item instanceof RsMacro
-                && org.rust.lang.core.psi.ext.RsMacroUtil.getHasMacroExport((RsMacro) item)) {
-                String name = ((RsNamedElement) item).getName();
-                if (name == null) continue;
-                if (Processors.processEntry(processor, name, Namespace.MACROS, item)) return true;
-            }
+        java.util.Map<org.rust.lang.core.psi.ext.RsMod, java.util.List<RsMacro>> exported =
+            org.rust.lang.core.resolve.indexes.RsMacroIndex.allExportedMacros(crateRoot.getProject());
+        java.util.List<RsMacro> macros = exported.get(crateRoot);
+        if (macros == null) return false;
+        for (RsMacro macro : macros) {
+            String name = macro.getName();
+            if (name == null) continue;
+            if (Processors.processEntry(processor, name, Namespace.MACROS, macro)) return true;
         }
         return false;
     }
@@ -984,12 +1020,10 @@ public final class NameResolution {
         PsiElement scope = scopeStart.getContext();
         while (scope != null) {
             if (scope instanceof RsMod) {
-                if (processModScope((RsMod) scope, ns, seen, processor)) return true;
-                // Also walk the `super` chain — RsMod's getContext stops at the file boundary.
-                if (scope instanceof RsFile) {
-                    RsMod superMod = ((RsFile) scope).getSuper();
-                    if (superMod != null && processNestedScopesUpwards(superMod, ns, ctx, processor)) return true;
-                }
+                // A module is the end of the walk: Rust does not make the items of an enclosing
+                // module visible unqualified, and everything that *is* visible here - own items,
+                // imports, extern crates and the prelude - comes from the crate's def map.
+                return processModScope((RsMod) scope, ns, seen, processor);
             } else if (scope instanceof RsBlock) {
                 if (processBlockScope((RsBlock) scope, cameFrom, ns, seen, processor)) return true;
             } else if (scope instanceof RsFunction) {
@@ -1004,10 +1038,27 @@ public final class NameResolution {
             } else if (scope instanceof RsMatchArm) {
                 RsPat pat = ((RsMatchArm) scope).getPat();
                 if (pat != null && processPatternBindings(pat, ns, seen, processor)) return true;
-            } else if (scope instanceof RsLetDecl) {
-                // Let pattern bindings are in scope for the initializer only when `let-chain`.
-                RsPat pat = ((RsLetDecl) scope).getPat();
-                if (pat != null && processPatternBindings(pat, ns, seen, processor)) return true;
+            } else if (scope instanceof org.rust.lang.core.psi.RsIfExpr) {
+                // `if let Some(x) = e { .. }` binds x for the body only. A scope that binds nothing here
+                // is simply skipped - the walk must carry on outward, not stop.
+                org.rust.lang.core.psi.RsIfExpr ifExpr = (org.rust.lang.core.psi.RsIfExpr) scope;
+                if (ifExpr.getBlock() == cameFrom
+                    && processLetExprs(conditionExpr(ifExpr.getCondition()), cameFrom, ns, seen, processor)) {
+                    return true;
+                }
+            } else if (scope instanceof org.rust.lang.core.psi.RsWhileExpr) {
+                org.rust.lang.core.psi.RsWhileExpr whileExpr = (org.rust.lang.core.psi.RsWhileExpr) scope;
+                if (whileExpr.getBlock() == cameFrom
+                    && processLetExprs(conditionExpr(whileExpr.getCondition()), cameFrom, ns, seen, processor)) {
+                    return true;
+                }
+            } else if (scope instanceof org.rust.lang.core.psi.RsBinaryExpr) {
+                // A let-chain: `if let A = a && let B = b`, where the left operand binds for the right.
+                org.rust.lang.core.psi.RsBinaryExpr binary = (org.rust.lang.core.psi.RsBinaryExpr) scope;
+                if (binary.getRight() == cameFrom
+                    && processLetExprs(binary.getLeft(), cameFrom, ns, seen, processor)) {
+                    return true;
+                }
             }
             cameFrom = scope;
             scope = scope.getContext();
@@ -1015,7 +1066,76 @@ public final class NameResolution {
         return false;
     }
 
+    /**
+     * Names visible in a module: its own items, whatever its {@code use} declarations bring in, the
+     * extern prelude and finally the standard library prelude. All of it is held by the crate's def
+     * map, so the module is asked through {@code resolve2} rather than by walking its items - a PSI
+     * walk sees neither imports nor either prelude.
+     */
+    @Nullable
+    private static org.rust.lang.core.psi.RsExpr conditionExpr(
+        @Nullable org.rust.lang.core.psi.RsCondition condition
+    ) {
+        return condition == null ? null : condition.getExpr();
+    }
+
+    /**
+     * The bindings introduced by the {@code let} expressions of a condition, including a let-chain
+     * joined by {@code &&}. Only the {@code let}s to the left of where the walk came from are in
+     * scope, which is what {@code cameFrom} settles.
+     */
+    private static boolean processLetExprs(
+        @Nullable org.rust.lang.core.psi.RsExpr expr,
+        @Nullable PsiElement cameFrom,
+        @Nonnull Set<Namespace> ns,
+        @Nonnull java.util.Set<String> seen,
+        @Nonnull RsResolveProcessor processor
+    ) {
+        if (expr == null || expr == cameFrom) return false;
+
+        if (expr instanceof org.rust.lang.core.psi.RsLetExpr) {
+            RsPat pat = ((org.rust.lang.core.psi.RsLetExpr) expr).getPat();
+            return pat != null && processPatternBindings(pat, ns, seen, processor);
+        }
+
+        if (expr instanceof org.rust.lang.core.psi.RsBinaryExpr) {
+            org.rust.lang.core.psi.RsBinaryExpr binary = (org.rust.lang.core.psi.RsBinaryExpr) expr;
+            if (processLetExprs(binary.getRight(), cameFrom, ns, seen, processor)) return true;
+            return processLetExprs(binary.getLeft(), cameFrom, ns, seen, processor);
+        }
+
+        return false;
+    }
+
     private static boolean processModScope(
+        @Nonnull RsMod mod,
+        @Nonnull Set<Namespace> ns,
+        @Nonnull java.util.Set<String> seen,
+        @Nonnull RsResolveProcessor processor
+    ) {
+        org.rust.lang.core.resolve2.RsModInfo modInfo = org.rust.lang.core.resolve2.FacadeResolve.getModInfo(mod);
+        if (processor.getNames() != null && processor.getNames().contains("std")) {
+        }
+        if (modInfo == null) {
+            return processModScopeFromPsi(mod, ns, seen, processor);
+        }
+
+        RsResolveProcessor shadowing = shadowingProcessor(processor, seen);
+        if (org.rust.lang.core.resolve2.FacadeResolve.processItemDeclarationsUsingModInfo(
+            true, modInfo, ns, shadowing,
+            org.rust.lang.core.resolve2.ItemProcessingMode.WITH_PRIVATE_IMPORTS_N_EXTERN_CRATES)) {
+            return true;
+        }
+
+        org.rust.lang.core.resolve2.RsModInfo preludeInfo = findPreludeUsingModInfo(modInfo);
+        if (preludeInfo == null) return false;
+        return org.rust.lang.core.resolve2.FacadeResolve.processItemDeclarationsUsingModInfo(
+            true, preludeInfo, ns, shadowingProcessor(processor, seen),
+            org.rust.lang.core.resolve2.ItemProcessingMode.WITHOUT_PRIVATE_IMPORTS);
+    }
+
+    /** Used for a module the def map does not cover, such as one inside a code fragment. */
+    private static boolean processModScopeFromPsi(
         @Nonnull RsMod mod,
         @Nonnull Set<Namespace> ns,
         @Nonnull java.util.Set<String> seen,
@@ -1029,6 +1149,36 @@ public final class NameResolution {
             if (Processors.processEntry(processor, name, elementNamespaces(item), item)) return true;
         }
         return false;
+    }
+
+    /** Drops names an inner scope already bound, so that a local shadows an item of the same name. */
+    @Nonnull
+    private static RsResolveProcessor shadowingProcessor(
+        @Nonnull RsResolveProcessor processor,
+        @Nonnull java.util.Set<String> seen
+    ) {
+        return Processors.asResolveProcessor(
+            Processors.wrapWithFilter(processor, entry -> seen.add(entry.getName())));
+    }
+
+    /**
+     * The standard library prelude of the crate {@code info} belongs to, as a module info of its own.
+     */
+    @Nullable
+    private static org.rust.lang.core.resolve2.RsModInfo findPreludeUsingModInfo(
+        @Nonnull org.rust.lang.core.resolve2.RsModInfo info
+    ) {
+        org.rust.lang.core.resolve2.ModData preludeModData = info.getDefMap().getPrelude();
+        if (preludeModData == null) return null;
+        org.rust.lang.core.crate.Crate preludeCrate =
+            org.rust.lang.core.crate.CrateGraphService.crateGraph(info.getProject())
+                .findCrateById(preludeModData.getCrate());
+        if (preludeCrate == null) return null;
+        org.rust.lang.core.resolve2.CrateDefMap preludeDefMap =
+            info.getDefMap().getDefMap(preludeModData.getCrate());
+        if (preludeDefMap == null) return null;
+        return new org.rust.lang.core.resolve2.RsModInfo(
+            info.getProject(), preludeDefMap, preludeModData, preludeCrate, null);
     }
 
     private static boolean processBlockScope(

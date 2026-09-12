@@ -190,7 +190,9 @@ public interface Crate extends UserDataHolderEx {
     }
 
     static boolean hasTransitiveDependencyOrSelf(@Nonnull Crate self, @Nonnull Crate other) {
-        return other == self || self.getFlatDependencies().contains(other);
+        // By value, not identity: the crate graph is a cached value and is rebuilt on every structure
+        // change, so the same logical crate arrives as a different instance.
+        return self.equals(other) || self.getFlatDependencies().contains(other);
     }
 
     @Nullable

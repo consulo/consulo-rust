@@ -64,7 +64,9 @@ public final class FacadeResolve {
         @Nonnull ItemProcessingMode ipm
     ) {
         RsModInfo info = getModInfo(scope);
-        if (info == null) return false;
+        if (info == null) {
+            return false;
+        }
         return processItemDeclarationsUsingModInfo(scope instanceof RsMod, info, ns, processor, ipm);
     }
 
@@ -81,10 +83,9 @@ public final class FacadeResolve {
         for (Map.Entry<String, PerNs> entry : entriesWithNames(modData.getVisibleItems(), processor.getNames()).entrySet()) {
             String name = entry.getKey();
             PerNs perNs = entry.getValue();
-            for (Map.Entry<VisItem[], Namespace> nsEntry : perNs.getVisItemsByNamespace().entrySet()) {
-                VisItem[] visItems = nsEntry.getKey();
-                Namespace namespace = nsEntry.getValue();
+            for (Namespace namespace : PerNs.itemNamespaces()) {
                 if (!ns.contains(namespace)) continue;
+                VisItem[] visItems = perNs.getVisItems(namespace);
                 for (VisItem visItem : visItems) {
                     if (ipm == ItemProcessingMode.WITHOUT_PRIVATE_IMPORTS && visItem.getVisibility() == Visibility.INVISIBLE) continue;
                     if (namespace == Namespace.Types && visItem.getVisibility().isInvisible() && defMap.getExternPrelude().containsKey(name)) continue;
@@ -101,7 +102,9 @@ public final class FacadeResolve {
             for (Map.Entry<RsNamedElement, Set<Namespace>> elementEntry : elements.entrySet()) {
                 RsNamedElement element = elementEntry.getKey();
                 Set<Namespace> namespaces = elementEntry.getValue();
-                if (processor.process(element.getName() != null ? element.getName() : name, namespaces, element)) return true;
+                // The name the item is bound to in this scope, not the element's own name: a crate root
+                // is an RsFile whose name is "lib.rs", while it is reachable here as e.g. "std".
+                if (processor.process(name, namespaces, element)) return true;
             }
             elements.clear();
         }
@@ -117,6 +120,9 @@ public final class FacadeResolve {
             }
         }
 
+        java.util.Set<String> wanted = processor.getNames();
+        if (wanted != null && wanted.contains("std")) {
+        }
         if (ipm.isWithExternCrates() && ns.contains(Namespace.Types) && scopeIsMod) {
             for (Map.Entry<String, CrateDefMap> entry : entriesWithNames(defMap.getExternPrelude(), processor.getNames()).entrySet()) {
                 String name = entry.getKey();
@@ -385,11 +391,16 @@ public final class FacadeResolve {
         }
 
         Collection<Integer> crateIds = defMapService.findCrates(file);
+        boolean trace = file.getName().equals("main.rs");
+        if (trace) {
+        }
         List<FileInclusionPoint> rawList = new ArrayList<>();
         for (int crateId : crateIds) {
             CrateDefMap defMap = FacadeUpdateDefMapUtil.getOrUpdateIfNeeded(defMapService, crateId);
             if (defMap == null) continue;
             FileInfo fileInfo = defMap.getFileInfos().get(VirtualFileExtUtil.getFileId(virtualFile));
+            if (trace) {
+            }
             if (fileInfo == null) continue;
             rawList.add(new FileInclusionPoint(defMap, fileInfo.getModData(), fileInfo.getIncludeMacroIndex()));
         }

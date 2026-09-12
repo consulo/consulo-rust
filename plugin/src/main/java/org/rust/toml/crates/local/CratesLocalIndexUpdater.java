@@ -117,13 +117,18 @@ public final class CratesLocalIndexUpdater implements Disposable {
     }
 
     private static boolean hasOpenRustProject() {
+        return openRustProject() != null;
+    }
+
+    @jakarta.annotation.Nullable
+    private static Project openRustProject() {
         for (Project project : ProjectManager.getInstance().getOpenProjects()) {
             CargoProjectsService service = project.getInstance(CargoProjectsService.class);
             if (service != null && !service.getAllProjects().isEmpty()) {
-                return true;
+                return project;
             }
         }
-        return false;
+        return null;
     }
 
     private static int getUpdateIntervalMillis() {
@@ -139,7 +144,12 @@ public final class CratesLocalIndexUpdater implements Disposable {
         boolean projectCreated = createUpdateProjectIfNeeded(projectPath);
         if (!projectCreated) return false;
 
-        RsToolchainBase toolchain = RsToolchainBase.suggest(projectPath);
+        // The index refresh runs against a throwaway project of our own, but it must still use the
+        // toolchain the user configured on their Rust module rather than whichever cargo is on PATH.
+        Project project = openRustProject();
+        RsToolchainBase toolchain = project == null
+            ? null
+            : org.rust.cargo.project.settings.RsProjectSettingsServiceUtil.getToolchain(project);
         if (toolchain == null) return false;
         return triggerCratesIoGitIndexUpdate(toolchain, disposable, projectPath);
     }

@@ -609,6 +609,12 @@ public class Cargo extends RustupComponent {
         return RsProcessResultUtil.ignoreExitCode(result);
     }
 
+    /** True when the cargo this tool runs is the rustup shim, which is what understands {@code +toolchain}. */
+    private boolean supportsToolchainOverride() {
+        return org.rust.cargo.util.ToolchainUtil.hasLocalExecutable(
+            getToolchain().pathToExecutable(NAME).getParent(), Rustup.NAME);
+    }
+
     public GeneralCommandLine toColoredCommandLine(Project project, CargoCommandLine commandLine) {
         return toGeneralCommandLine(project, commandLine, true);
     }
@@ -621,10 +627,14 @@ public class Cargo extends RustupComponent {
         CargoCommandLine patched = patchArgs(commandLine, project, colors);
 
         List<String> parameters = new ArrayList<>();
-        if (patched.getChannel() != RustChannel.DEFAULT) {
-            parameters.add("+" + patched.getChannel());
-        } else if (patched.getToolchain() != null) {
-            parameters.add("+" + patched.getToolchain());
+        // `+toolchain` is a rustup shim directive. A cargo that belongs to one toolchain rejects it, and
+        // does not need it either - running that executable already selects the toolchain.
+        if (supportsToolchainOverride()) {
+            if (patched.getChannel() != RustChannel.DEFAULT) {
+                parameters.add("+" + patched.getChannel());
+            } else if (patched.getToolchain() != null) {
+                parameters.add("+" + patched.getToolchain());
+            }
         }
         if (RsProjectSettingsServiceUtil.getRustSettings(project).getUseOffline()) {
             CargoProject cargoProject = CargoCommandConfiguration.findCargoProject(project, patched.getAdditionalArguments(), patched.getWorkingDirectory());

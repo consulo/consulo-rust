@@ -5,31 +5,37 @@
 
 package org.rust.cargo.project.toolwindow;
 
-import consulo.application.ApplicationManager;
+import consulo.dataContext.DataSink;
+import consulo.dataContext.UiDataProvider;
+import consulo.language.editor.PlatformDataKeys;
 import consulo.logging.Logger;
 import consulo.project.Project;
+import consulo.ui.Component;
+import consulo.ui.Tree;
+import consulo.ui.TreeNode;
 import consulo.ui.ex.TreeExpander;
 import consulo.ui.ex.action.ActionGroup;
 import consulo.ui.ex.action.ActionManager;
 import consulo.ui.ex.action.ActionToolbar;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.DefaultActionGroup;
-import consulo.ui.ex.awt.ScrollPaneFactory;
-import consulo.ui.ex.awt.tree.DefaultTreeExpander;
+import consulo.ui.layout.DockLayout;
+import consulo.ui.layout.ScrollableLayout;
 import consulo.util.dataholder.Key;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.project.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
+import org.rust.cargo.project.model.CargoProjectsListener;
 import org.rust.cargo.project.model.CargoProjectsService;
 import org.rust.cargo.runconfig.RunConfigUtil;
 
-import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
- * Content of the Cargo tool window: a toolbar plus a tree of Cargo projects,
- * their workspace members and their targets.
+ * Content of the Cargo tool window: a toolbar above a tree of Cargo projects, their workspace members
+ * and their targets.
  */
 public class CargoToolWindow {
 
@@ -41,47 +47,87 @@ public class CargoToolWindow {
 
     @Nonnull
     public final ActionToolbar toolbar;
-    private final CargoProjectsTree projectTree;
-    private final CargoProjectTreeStructure projectStructure;
     @Nonnull
     public final TreeExpander treeExpander;
-    @Nonnull
-    public final JComponent content;
+
+    private final Tree<CargoTreeNode> myTree;
+    private final CargoTreeModel myModel;
+    private final DockLayout myRoot;
 
     public CargoToolWindow(@Nonnull Project project) {
         ActionManager actionManager = ActionManager.getInstance();
-        this.toolbar = actionManager.createActionToolbar(CARGO_TOOLBAR_PLACE, toolbarActions(actionManager), true);
+        toolbar = actionManager.createActionToolbar(CARGO_TOOLBAR_PLACE, toolbarActions(actionManager), true);
 
-        this.projectTree = new CargoProjectsTree();
-        this.projectStructure = new CargoProjectTreeStructure(projectTree, project);
+        myModel = new CargoTreeModel();
+        myTree = Tree.create(myModel);
 
-        this.treeExpander = new DefaultTreeExpander(projectTree) {
+        treeExpander = new TreeExpander() {
             @Override
-            public boolean isCollapseAllVisible() {
-                return RunConfigUtil.hasCargoProject(project);
+            public void expandAll() {
+                myTree.expandAll();
+            }
+
+            @Override
+            public boolean canExpand() {
+                return myTree.isExpandCollapseAllSupported() && RunConfigUtil.hasCargoProject(project);
+            }
+
+            @Override
+            public void collapseAll() {
+                myTree.collapseAll();
+            }
+
+            @Override
+            public boolean canCollapse() {
+                return myTree.isExpandCollapseAllSupported() && RunConfigUtil.hasCargoProject(project);
             }
 
             @Override
             public boolean isExpandAllVisible() {
                 return RunConfigUtil.hasCargoProject(project);
             }
+
+            @Override
+            public boolean isCollapseAllVisible() {
+                return RunConfigUtil.hasCargoProject(project);
+            }
         };
 
-        this.content = ScrollPaneFactory.createScrollPane(projectTree, 0);
+        myRoot = DockLayout.create();
+        myRoot.top(toolbar.getUIComponent());
+        myRoot.center(ScrollableLayout.create(myTree));
+        myRoot.putUserData(UiDataProvider.KEY, (UiDataProvider) this::uiDataSnapshot);
+
+        toolbar.setTargetUIComponent(myRoot);
 
         project.getMessageBus().connect().subscribe(
             CargoProjectsService.CARGO_PROJECTS_TOPIC,
-            (service, projects) -> ApplicationManager.getApplication().invokeLater(
-                () -> projectStructure.updateCargoProjects(new ArrayList<>(projects))
-            )
+            (CargoProjectsListener) (service, projects) -> setCargoProjects(projects)
         );
 
-        ApplicationManager.getApplication().invokeLater(() -> {
-            if (project.isDisposed()) return;
-            projectStructure.updateCargoProjects(
-                new ArrayList<>(CargoProjectServiceUtil.getCargoProjects(project).getAllProjects())
-            );
-        });
+        setCargoProjects(CargoProjectServiceUtil.getCargoProjects(project).getAllProjects());
+    }
+
+    private void uiDataSnapshot(@Nonnull DataSink sink) {
+        sink.set(SELECTED_CARGO_PROJECT, getSelectedProject());
+        sink.set(PlatformDataKeys.TREE_EXPANDER, treeExpander);
+    }
+
+    private void setCargoProjects(@Nonnull Collection<CargoProject> cargoProjects) {
+        myModel.setCargoProjects(new ArrayList<>(cargoProjects));
+        myTree.refreshAll();
+    }
+
+    @Nonnull
+    public Component getComponent() {
+        return myRoot;
+    }
+
+    @Nullable
+    public CargoProject getSelectedProject() {
+        TreeNode<CargoTreeNode> node = myTree.getSelectedNode();
+        CargoTreeNode value = node == null ? null : node.getValue();
+        return value == null ? null : value.cargoProject();
     }
 
     @Nonnull
@@ -92,10 +138,5 @@ public class CargoToolWindow {
         }
         LOG.warn("Action group " + CargoToolWindowActionGroup.ID + " is not registered, Cargo toolbar will be empty");
         return new DefaultActionGroup();
-    }
-
-    @Nullable
-    public CargoProject getSelectedProject() {
-        return projectTree.getSelectedProject();
     }
 }

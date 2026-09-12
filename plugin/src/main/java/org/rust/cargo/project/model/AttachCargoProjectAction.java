@@ -9,7 +9,7 @@ import consulo.ui.ex.action.AnActionEvent;
 import consulo.util.dataholder.Key;
 import consulo.language.editor.PlatformDataKeys;
 import consulo.fileChooser.FileChooserDescriptor;
-import consulo.fileChooser.FileChooserFactory;
+import consulo.fileChooser.FileChooser;
 import consulo.project.DumbService;
 import consulo.project.Project;
 import consulo.module.content.ProjectFileIndex;
@@ -25,6 +25,10 @@ import org.rust.openapiext.OpenApiUtil;
 
 import java.nio.file.Path;
 import consulo.annotation.component.ActionImpl;
+import java.util.concurrent.CompletableFuture;
+import consulo.rust.localize.RustLocalize;
+import consulo.localize.LocalizeValue;
+import consulo.platform.base.icon.PlatformIconGroup;
 
 /**
  * Adds cargo project to {@link CargoProjectsService}.
@@ -33,6 +37,10 @@ import consulo.annotation.component.ActionImpl;
  */
 @ActionImpl(id = "Cargo.AttachCargoProject")
 public class AttachCargoProjectAction extends CargoProjectActionBase {
+
+    public AttachCargoProjectAction() {
+        super(RustLocalize.actionCargoAttachcargoprojectText(), LocalizeValue.empty(), PlatformIconGroup.generalAdd());
+    }
 
     
     public static final Key<VirtualFile> MOCK_CHOSEN_FILE_KEY = Key.create("MOCK_CHOSEN_FILE_KEY");
@@ -43,21 +51,27 @@ public class AttachCargoProjectAction extends CargoProjectActionBase {
         if (project == null) return;
         OpenApiUtil.saveAllDocuments();
 
-        VirtualFile file;
         switch (e.getPlace()) {
             case CargoToolWindow.CARGO_TOOLBAR_PLACE:
-                file = chooseFile(project, e);
+                chooseFile(project, e).thenAccept(file -> attach(project, file));
                 break;
             case RsEditorNotificationPanel.NOTIFICATION_PANEL_PLACE: {
                 VirtualFile dataFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
-                file = (dataFile != null && isCargoToml(dataFile)) ? dataFile : chooseFile(project, e);
+                if (dataFile != null && isCargoToml(dataFile)) {
+                    attach(project, dataFile);
+                }
+                else {
+                    chooseFile(project, e).thenAccept(file -> attach(project, file));
+                }
                 break;
             }
             default:
-                file = e.getData(PlatformDataKeys.VIRTUAL_FILE);
+                attach(project, e.getData(PlatformDataKeys.VIRTUAL_FILE));
                 break;
         }
+    }
 
+    private void attach(@Nonnull Project project, @Nullable VirtualFile file) {
         if (file == null) return;
 
         VirtualFile cargoToml = findCargoToml(file);
@@ -72,15 +86,16 @@ public class AttachCargoProjectAction extends CargoProjectActionBase {
         }
     }
 
-    @Nullable
-    private VirtualFile chooseFile(@Nonnull Project project, @Nonnull AnActionEvent event) {
+    /**
+     * Asks for a Cargo.toml. The chooser is opened asynchronously so the action works in every
+     * frontend rather than only where a modal dialog can block the calling thread.
+     */
+    @Nonnull
+    private CompletableFuture<VirtualFile> chooseFile(@Nonnull Project project, @Nonnull AnActionEvent event) {
         if (OpenApiUtil.isUnitTestMode()) {
-            return event.getData(MOCK_CHOSEN_FILE_KEY);
-        } else {
-            var chooser = FileChooserFactory.getInstance().createFileChooser(CargoProjectChooserDescriptor.INSTANCE, project, null);
-            VirtualFile[] chosen = chooser.choose(project);
-            return chosen.length == 1 ? chosen[0] : null;
+            return CompletableFuture.completedFuture(event.getData(MOCK_CHOSEN_FILE_KEY));
         }
+        return FileChooser.chooseFile(CargoProjectChooserDescriptor.INSTANCE, project, null);
     }
 
     @Override

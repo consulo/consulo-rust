@@ -27,8 +27,14 @@ public final class CompletableFutureUtil {
             return future.get();
         } catch (ExecutionException e) {
             Throwable cause = e.getCause();
-            if (cause instanceof Exception) {
-                throw (Exception) cause;
+            if (cause instanceof RuntimeException runtime) {
+                throw runtime;
+            }
+            if (cause instanceof Error error) {
+                throw error;
+            }
+            if (cause instanceof Exception checked) {
+                throw checked;
             }
             throw e;
         }

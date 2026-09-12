@@ -1,0 +1,2946 @@
+action.Cargo.AttachCargoProject.text:
+    text: 'Attach Cargo Project'
+action.Cargo.DetachCargoProject.text:
+    text: 'Detach Cargo Project'
+action.Cargo.RefreshCargoProject.description:
+    text: 'Update Cargo project information and download new dependencies'
+action.Cargo.RefreshCargoProject.text:
+    text: 'Refresh Cargo Projects'
+action.Cargo.RunCargoCommand.text:
+    text: 'Run Cargo Command'
+action.Cargo.RunExternalLinter.text:
+    text: 'Run External Linter'
+action.Cargo.RustfmtCargoProject.description:
+    text: 'Reformat cargo project with rustfmt'
+action.Cargo.RustfmtCargoProject.text:
+    text: 'Reformat Cargo Project with Rustfmt'
+action.Cargo.RustfmtFile.description:
+    text: 'Reformat current file with rustfmt'
+action.Cargo.RustfmtFile.text:
+    text: 'Reformat File with Rustfmt'
+action.Cargo.RustfmtFile.progress.default.text:
+    text: 'Reformatting file with rustfmt...'
+action.Cargo.RustfmtFile.progress.file.text:
+    text: 'Reformatting {0} with rustfmt...'
+action.Cargo.RustfmtFile.file.text:
+    text: 'Reformat {0} With Rustfmt'
+action.Cargo.RustfmtFile.default.text:
+    text: 'Reformat File With Rustfmt'
+action.Cargo.ShowSettings.description:
+    text: 'Edit Cargo settings for the current project'
+action.Cargo.ShowSettings.text:
+    text: 'Cargo Settings'
+action.Cargo.ToggleExternalLinterOnTheFlyAction.text:
+    text: 'Run External Linter (Cargo Check / Clippy) on the Fly'
+action.Rust.Build.description:
+    text: 'Build project'
+action.Rust.Build.text:
+    text: 'Build'
+action.Rust.ConsoleREPL.text:
+    text: 'Rust REPL'
+action.Rust.CreateNewGithubIssue.description:
+    text: 'Creates new issue in https://github.com/intellij-rust/intellij-rust repo'
+action.Rust.CreateNewGithubIssue.text:
+    text: 'Create New Issue'
+action.Rust.GenerateConstructor.text:
+    text: 'Constructor'
+action.Rust.GenerateDictionaries.text:
+    text: 'Generate Rust Spellchecker Dictionaries'
+action.Rust.GenerateGetter.text:
+    text: 'Getter'
+action.Rust.GenerateSetter.text:
+    text: 'Setter'
+action.Rust.NewCargoCrate.description:
+    text: 'Create new Cargo crate'
+action.Rust.NewCargoCrate.text:
+    text: 'Cargo Crate'
+action.Rust.NewRustFile.description:
+    text: 'Create new Rust file'
+action.Rust.NewRustFile.text:
+    text: 'Rust File'
+action.Rust.RebuildAllDefMaps.text:
+    text: 'Rust: Rebuild DefMap for all crates'
+action.Rust.RebuildCurrentDefMap.text:
+    text: 'Rust: Rebuild DefMap for current file'
+action.Rust.ReexpandMacrosAction.text:
+    text: 'Re-Expand All Rust Macros'
+action.Rust.RsConvertToNamedFields.description:
+    text: 'Converts tuple struct to named fields'
+action.Rust.RsConvertToNamedFields.text:
+    text: 'Convert to Named Fields'
+action.Rust.RsConvertToTuple.description:
+    text: 'Converts struct to tuple representation'
+action.Rust.RsConvertToTuple.text:
+    text: 'Convert to Tuple'
+action.Rust.RsDowngradeModuleToFile.description:
+    text: 'Move this module to a single file'
+action.Rust.RsDowngradeModuleToFile.text:
+    text: 'Downgrade Module to File'
+action.Rust.RsExtractEnumVariant.description:
+    text: 'Extract a single enum variant into a separate struct'
+action.Rust.RsExtractEnumVariant.text:
+    text: 'Extract Enum Variant'
+action.Rust.RsPromoteModuleToDirectoryAction.description:
+    text: 'Move this module to a dedicated directory'
+action.Rust.RsPromoteModuleToDirectoryAction.text:
+    text: 'Promote Module to Directory'
+action.Rust.ShareInPlayground.confirmation.selected.text:
+    text: 'Do you want to upload selected text to the Rust Playground and make it public?'
+action.Rust.ShareInPlayground.confirmation:
+    text: 'Do you want to upload {0} to the Rust Playground and make it public?'
+action.Rust.ShareInPlayground.description:
+    text: 'Share code in Rust Playground (https://play.rust-lang.org/)'
+action.Rust.ShareInPlayground.notification.copy.url.text:
+    text: 'Copy URL to clipboard'
+action.Rust.ShareInPlayground.notification.error:
+    text: 'Failed to share the code in the Rust Playground'
+action.Rust.ShareInPlayground.notification.text:
+    text: 'File shared in the Rust Playground: <a href="{0}">{0}</a>'
+action.Rust.ShareInPlayground.notification.title:
+    text: 'Share in Rust Playground'
+action.Rust.ShareInPlayground.progress.title:
+    text: 'Posting code to Rust Playground'
+action.Rust.ShareInPlayground.text:
+    text: 'Share in Playground'
+action.Rust.RsExtractStructFields.description:
+    text: 'Extract selected struct fields into a separate struct'
+action.Rust.RsExtractStructFields.text:
+    text: 'Extract Struct Fields...'
+action.Rust.RsExtractStructFields.intention.text:
+    text: 'Extract struct fields'
+action.Rust.RsExtractStructFields.choose.fields.title:
+    text: 'Choose Fields to Extract'
+action.Rust.RsExtractStructFields.choose.name.dialog.title:
+    text: 'Enter Name For the New Struct'
+action.Rust.RsExtractStructFields.choose.name.dialog.invalid.name:
+    text: 'Invalid struct name'
+action.Rust.RsExtractStructFields.command.name:
+    text: 'Extracting Struct Fields'
+action.Rust.RsExtractTrait.text:
+    text: 'Extract Trait...'
+action.Rust.RsExtractTrait.description:
+    text: 'Extract trait from the selected impl'
+action.Rust.RsExtractTrait.dialog.title:
+    text: 'Extract Trait'
+action.Rust.ShowRecursiveMacroExpansionAction.text:
+    text: 'Show Recursively Expanded Macro'
+action.Rust.ShowSingleStepMacroExpansionAction.text:
+    text: 'Show Expanded Macro'
+action.Rust.ToggleNewResolve.text:
+    text: 'Rust: Toggle new name resolution engine'
+cargo:
+    text: 'Cargo'
+cargo.commandline.description:
+    text: 'Configures Cargo projects under the given folder'
+group.Rust.MacroExpansionActions.text:
+    text: 'Show Macro Expansion'
+group.Rust.Tools.text:
+    text: 'Rust'
+gutter.rust.generated.typescript.declarations.name:
+    text: 'Generated TypeScript declarations'
+gutter.rust.generated.typescript.declarations.popup.title:
+    text: 'Generated Declarations'
+gutter.rust.generated.typescript.declarations.tooltip:
+    text: 'Go to generated declaration'
+gutter.rust.implemented.item.name:
+    text: 'Implemented item'
+gutter.rust.implemented.item.tooltip:
+    text: 'Has implementations'
+gutter.rust.implementing.item:
+    text: 'Implementing item'
+gutter.rust.open.documentation.for:
+    text: 'Open documentation for `{0}`'
+gutter.rust.open.documentation.name:
+    text: 'Open documentation'
+gutter.rust.open.documentation.toml.name:
+    text: 'Open documentation (TOML)'
+gutter.rust.overriding.item:
+    text: 'Overriding item'
+gutter.rust.recursive.call.name:
+    text: 'Recursive call'
+dialog.create.project.custom.add.template.action.add:
+    text: 'Add'
+dialog.create.project.custom.add.template.name:
+    text: 'Name:'
+dialog.create.project.custom.add.template.title:
+    text: 'Add Custom Template'
+dialog.create.project.custom.add.template.url.description:
+    text: 'cargo-generate supported template. <a href="https://github.com/cargo-generate/cargo-generate/blob/master/TEMPLATES.md">Available templates</a>'
+dialog.create.project.custom.add.template.url:
+    text: 'Template URL:'
+dialog.message.rust.toolchain.is.not.set:
+    text: 'The Rust toolchain is not set'
+notification.0.action.is.not.available.for.1.command:
+    text: '{0} action is not available for `{1}` command'
+notification.action.attach.manually.text:
+    text: 'Attach manually'
+notification.action.attach.text:
+    text: 'Attach'
+notification.action.do.not.show.again.text:
+    text: 'Do not show again'
+notification.action.set.up.toolchain.text:
+    text: 'Set up toolchain'
+notification.can.not.attach.stdlib.sources:
+    text: 'Can not attach stdlib sources automatically without rustup'
+notification.file.not.belong.to.cargo.project:
+    text: 'File does not belong to any known Cargo project'
+notification.invalid.stdlib.source.path:
+    text: '"Invalid Rust standard library source path: `{0}`'
+notification.no.cargo.projects.found:
+    text: 'No Cargo projects found'
+notification.no.toolchain.configured:
+    text: 'No Rust toolchain configured'
+notification.run.tests.as.root.windows:
+    text: 'Running tests with Administrator privileges is not yet supported'
+notification.run.tests.as.root.unix:
+    text: 'Running tests with root privileges is not yet supported'
+refactoring.change.signature.error.cfg.disabled.parameters:
+    text: 'Cannot change signature of function with cfg-disabled parameters'
+refactoring.change.signature.name.conflict:
+    text: 'The name {0} conflicts with an existing item in {1}'
+refactoring.change.signature.name:
+    text: 'Change Signature'
+refactoring.change.signature.refactor.super.function:
+    text: 'Method {0} implements base method of trait {1}.\nDo you want to refactor the base method?'
+refactoring.change.signature.visibility.conflict:
+    text: 'The function will not be visible from {0} after the refactoring'
+rust.external.linter.cargo.check.item:
+    text: 'Cargo Check'
+rust.external.linter.clippy.item:
+    text: 'Clippy'
+run.target.build.arguments.comment:
+    text: 'Additional arguments to pass to <b>cargo build</b> command in case of <b>Build on target</b> option is disabled'
+run.target.build.arguments.label:
+    text: 'Additional build arguments:'
+run.target.cargo.executable.path.label:
+    text: 'Cargo executable:'
+run.target.cargo.executable.version.label:
+    text: 'Cargo version:'
+run.target.rustc.executable.path.label:
+    text: 'Rustc executable:'
+run.target.rustc.executable.version.label:
+    text: 'Rustc version:'
+settings.rust.auto.import.on.completion:
+    text: 'Import out-of-scope items on completion'
+settings.rust.auto.import.show.popup:
+    text: 'Show import popup'
+settings.rust.auto.import.on.paste:
+    text: 'Insert imports on paste'
+settings.rust.auto.import.exclude.label:
+    text: 'Exclude from auto-import and completion:'
+settings.rust.auto.import.exclude.comment:
+    text: 'Specify each path just as you would in a <code>use</code> declaration. Add <code>::*</code> to a path if you want to disable auto-import for all items whose paths include the given prefix. When excluding traits, specify whether you want to disable auto-import only for trait methods or for the trait name too. Note that a <code>use</code> declaration overwrites these settings.'
+settings.rust.auto.import.title:
+    text: 'Rust'
+settings.rust.cargo.auto.update.project.label:
+    text: 'Update project automatically when Cargo.toml changes'
+settings.rust.cargo.compile.all.targets.comment:
+    text: 'Pass the <b>--target-all</b> option to Cargo <b>build</b>/<b>check</b> command'
+settings.rust.cargo.compile.all.targets.label:
+    text: 'Compile all project targets if possible'
+settings.rust.cargo.moved.label:
+    text: 'Cargo settings were moved to ''Build, Execution, Deployment | Build Tools | Cargo'''
+settings.rust.cargo.name:
+    text: 'Cargo'
+settings.rust.cargo.offline.mode.comment:
+    text: 'Pass the <b>--offline</b> option to Cargo to avoid network requests'
+settings.rust.cargo.offline.mode.label:
+    text: 'Offline mode'
+settings.rust.cargo.show.first.error.label:
+    text: 'Show the first error in the editor after a build failure automatically'
+settings.rust.code.style.align.return.type:
+    text: 'Align return type to function parameters'
+settings.rust.code.style.align.where.clause.bounds:
+    text: 'Align ''where'' clause bounds'
+settings.rust.code.style.align.where.clause:
+    text: 'Align ''where'' clause to function parameters'
+settings.rust.code.style.around.associated.type.bindings:
+    text: 'Around associated type bindings'
+settings.rust.code.style.between.declarations:
+    text: 'Between declarations:'
+settings.rust.code.style.indent.where.clause:
+    text: 'Indent ''where'' clause'
+settings.rust.code.style.match.expressions.in.one.line:
+    text: 'Match expressions in one line'
+settings.rust.code.style.name:
+    text: 'Rust'
+settings.rust.code.style.punctuation:
+    text: 'Punctuation'
+settings.rust.color.associated.function.call:
+    text: 'Functions//Associated function call'
+settings.rust.color.associated.function.declaration:
+    text: 'Functions//Associated function declaration'
+settings.rust.color.attribute:
+    text: 'Attribute'
+settings.rust.color.char:
+    text: 'Literals//Char'
+settings.rust.color.conditionally.disabled.code:
+    text: 'Conditionally disabled code'
+settings.rust.color.const.parameter:
+    text: 'Parameters//Const parameter'
+settings.rust.color.constant:
+    text: 'Variables//Constant'
+settings.rust.color.crate:
+    text: 'Types//Crate'
+settings.rust.color.enum.variant:
+    text: 'Types//Enum variant'
+settings.rust.color.enum:
+    text: 'Types//Enum'
+settings.rust.color.field:
+    text: 'Variables//Field'
+settings.rust.color.format.parameter:
+    text: 'Literals//Strings//Format parameter'
+settings.rust.color.format.specifier:
+    text: 'Literals//Strings//Format specifier inside format parameter'
+settings.rust.color.function.call:
+    text: 'Functions//Function call'
+settings.rust.color.function.declaration:
+    text: 'Functions//Function declaration'
+settings.rust.color.generated.items:
+    text: 'Items generated by macros'
+settings.rust.color.invalid.escape.sequence:
+    text: 'Literals//Strings//Escape sequence//Invalid'
+settings.rust.color.keyword.unsafe:
+    text: 'Keywords//Unsafe'
+settings.rust.color.keyword:
+    text: 'Keywords//Keyword'
+settings.rust.color.lifetime:
+    text: 'Parameters//Lifetime'
+settings.rust.color.macro:
+    text: 'Functions//Macro'
+settings.rust.color.method.call:
+    text: 'Functions//Method call'
+settings.rust.color.method.declaration:
+    text: 'Functions//Method declaration'
+settings.rust.color.module:
+    text: 'Types//Module'
+settings.rust.color.mutable.binding:
+    text: 'Variables//Mutable binding'
+settings.rust.color.mutable.parameter:
+    text: 'Parameters//Mutable parameter'
+settings.rust.color.number:
+    text: 'Literals//Number'
+settings.rust.color.operation.sign:
+    text: 'Braces and Operators//Operation sign'
+settings.rust.color.parameter:
+    text: 'Parameters//Parameter'
+settings.rust.color.primitive:
+    text: 'Types//Primitive'
+settings.rust.color.question.mark:
+    text: 'Braces and Operators//? operator'
+settings.rust.color.rustdoc.bold:
+    text: 'Rustdoc//Bold text'
+settings.rust.color.rustdoc.code:
+    text: 'Rustdoc//Code'
+settings.rust.color.rustdoc.comment:
+    text: 'Rustdoc//Comment'
+settings.rust.color.rustdoc.heading:
+    text: 'Rustdoc//Heading'
+settings.rust.color.rustdoc.italic:
+    text: 'Rustdoc//Italic text'
+settings.rust.color.rustdoc.link:
+    text: 'Rustdoc//Link'
+settings.rust.color.scheme.title:
+    text: 'Rust'
+settings.rust.color.self.parameter:
+    text: 'Parameters//Self parameter'
+settings.rust.color.static.mutable:
+    text: 'Variables//Mutable static'
+settings.rust.color.static:
+    text: 'Variables//Static'
+settings.rust.color.string:
+    text: 'Literals//Strings//String'
+settings.rust.color.struct:
+    text: 'Types//Struct'
+settings.rust.color.trait:
+    text: 'Types//Trait'
+settings.rust.color.type.alias:
+    text: 'Types//Type alias'
+settings.rust.color.type.parameter:
+    text: 'Parameters//Type parameter'
+settings.rust.color.union:
+    text: 'Types//Union'
+settings.rust.color.unsafe.code:
+    text: 'Unsafe code'
+settings.rust.color.valid.escape.sequence:
+    text: 'Literals//Strings//Escape sequence//Valid'
+settings.rust.color.variables.default:
+    text: 'Variables//Default'
+settings.rust.completion.suggest.out.of.scope.items:
+    text: 'Suggest out-of-scope items'
+settings.rust.completion.title:
+    text: 'Rust'
+settings.rust.external.linters.additional.arguments.comment:
+    text: 'Additional arguments to pass to <b>cargo check</b> or <b>cargo clippy</b> command'
+settings.rust.external.linters.additional.arguments.label:
+    text: 'Additional arguments:'
+settings.rust.external.linters.channel.label:
+    text: 'Channel:'
+settings.rust.external.linters.name:
+    text: 'External Linters'
+settings.rust.external.linters.on.the.fly.comment:
+    text: 'Adds code highlighting based on the external linter results. May affect the IDE performance'
+settings.rust.external.linters.on.the.fly.label:
+    text: 'Run external linter to analyze code on the fly'
+settings.rust.external.linters.tool.comment:
+    text: 'External tool for additional code analysis'
+settings.rust.external.linters.tool.label:
+    text: 'External tool:'
+settings.rust.folding.title:
+    text: 'Rust'
+settings.rust.folding.one.line.methods.checkbox:
+    text: 'One-line methods'
+settings.rust.inlay.hints.for.closures:
+    text: 'Closures'
+settings.rust.inlay.hints.for.exclusive.range.expressions:
+    text: 'Exclusive range expressions'
+settings.rust.inlay.hints.for.exclusive.range.patterns:
+    text: 'Exclusive range patterns'
+settings.rust.inlay.hints.for.iterators:
+    text: 'Iterators as `impl Iterator<...>`'
+settings.rust.inlay.hints.for.loop.variables:
+    text: 'Loop variables'
+settings.rust.inlay.hints.for.obvious.types:
+    text: 'Obvious types'
+settings.rust.inlay.hints.for.same.consecutive.types:
+    text: 'Same consecutive types'
+settings.rust.inlay.hints.for.type.placeholders:
+    text: 'Type placeholders'
+settings.rust.inlay.hints.for.variables:
+    text: 'Variables'
+settings.rust.inlay.hints.for:
+    text: 'Show hints for:'
+settings.rust.inlay.hints.title.method.chains:
+    text: 'Method chains'
+settings.rust.inlay.hints.title.types:
+    text: 'Types'
+settings.rust.inlay.hints.title.values:
+    text: 'Values'
+settings.rust.inlay.parameter.hints.only.smart:
+    text: 'Only smart hints'
+settings.rust.rustfmt.additional.arguments.comment:
+    text: 'Additional arguments to pass to <b>rustfmt</b> or <b>cargo fmt</b> command'
+settings.rust.rustfmt.additional.arguments.label:
+    text: 'Additional arguments:'
+settings.rust.rustfmt.builtin.formatter.label:
+    text: 'Use rustfmt instead of the built-in formatter'
+settings.rust.rustfmt.channel.label:
+    text: 'Channel:'
+settings.rust.rustfmt.name:
+    text: 'Rustfmt'
+settings.rust.rustfmt.run.on.save.label:
+    text: 'Run rustfmt on Save'
+settings.rust.toolchain.download.rustup.dialog.title:
+    text: 'Downloading Rust Standard Library'
+settings.rust.toolchain.download.rustup.link:
+    text: 'Download via Rustup'
+settings.rust.toolchain.download.rustup.progress.text:
+    text: 'Installing using Rustup...'
+settings.rust.toolchain.expand.macros.checkbox:
+    text: 'Expand macros'
+settings.rust.toolchain.expand.macros.comment:
+    text: 'Allow the plugin to process macro invocations to extract information for name resolution and type inference'
+settings.rust.toolchain.inject.rust.in.doc.comments.checkbox:
+    text: 'Inject Rust language into documentation comments'
+settings.rust.toolchain.invalid.toolchain.error:
+    text: 'Invalid toolchain location: can''''t find Cargo in {0}'
+settings.rust.toolchain.location.label:
+    text: 'Toolchain location:'
+settings.rust.toolchain.name:
+    text: 'Rust'
+settings.rust.toolchain.not.applicable.version.text:
+    text: 'N/A'
+settings.rust.toolchain.select.standard.library.dialog.title:
+    text: 'Select the location of the standard library sources'
+settings.rust.toolchain.standard.library.label:
+    text: 'Standard library:'
+settings.rust.toolchain.version.label:
+    text: 'Toolchain version:'
+ssr.unsupported.search.template:
+    text: 'The search template contains unsupported elements.'
+ssr.unsupported.replace.template:
+    text: 'Replacement is not supported yet.'
+structure.view.show.macro.expanded:
+    text: 'Show Items from Macro Expansions'
+structure.view.sort.visibility:
+    text: 'Sort by Visibility'
+intention.Rust.ToggleFeatureIntention.enable:
+    text: 'Enable feature `{0}`'
+intention.Rust.ToggleFeatureIntention.disable:
+    text: 'Disable feature `{0}`'
+intention.Rust.ToggleFeatureIntention.family.name:
+    text: 'Toggle feature state'
+untrusted.project.notification.execution.error:
+    text: 'Cargo project is untrusted, so its task cannot be executed.'
+copy.paste.convert.json.to.struct.dialog.title:
+    text: 'Generate Rust Struct from JSON'
+copy.paste.convert.json.to.struct.dialog.text:
+    text: 'The inserted text seems to be a JSON object. Do you want to generate a Rust struct from it?'
+advanced.setting.rust.group:
+    text: 'Rust'
+advanced.setting.org.rust.cargo.test.tool.window:
+    text: 'Show test results in Test Tool Window'
+advanced.setting.org.rust.cargo.test.tool.window.description:
+    text: 'Displays structured test results. Not recommended when using the Rust 1.70.0+ stable toolchain due to possible inconsistencies.'
+advanced.setting.org.rust.convert.json.to.struct:
+    text: 'Enable JSON to Rust conversion on paste'
+advanced.setting.org.rust.external.doc.url:
+    text: 'Base URL for external documentation'
+advanced.setting.org.rust.macros.maximum.recursion.limit:
+    text: 'Maximum recursion limit for macro expansion'
+advanced.setting.org.rust.macros.maximum.recursion.limit.description:
+    text: 'Change it only if you experience performance problems'
+inspection.UnusedMustUse.description.type.attribute:
+    text: 'Unused {0} that must be used'
+inspection.UnusedMustUse.description.function.attribute:
+    text: 'Unused return value of {0} that must be used'
+inspection.UnusedMustUse.FixAddLetUnderscore.name:
+    text: 'Add `let _ =`'
+inspection.UnusedMustUse.FixAddUnwrap.name:
+    text: 'Add `.unwrap()`'
+inspection.UnusedMustUse.FixAddExpect.family.name:
+    text: 'Add `.expect("")`'
+inspection.UnusedMustUse.AddAwaitFix.name:
+    text: 'Add `.await`'
+inspection.RedundantSemicolons.description.single:
+    text: 'Unnecessary trailing semicolon'
+inspection.RedundantSemicolons.description.multiple:
+    text: 'Unnecessary trailing semicolons'
+inspection.RedundantSemicolons.fix.name:
+    text: 'Remove unnecessary trailing semicolons'
+inspection.DoubleMustUse.description:
+    text: 'This function has a `#[must_use]` attribute, but returns a type already marked as `#[must_use]`'
+inspection.DoubleMustUse.FixRemoveMustUseAttr.name:
+    text: 'Remove `#[must_use]` from the function'
+inspection.UnusedLabels.description:
+    text: 'Unused label'
+inspection.PathStatementsInspection.description.no.effect:
+    text: 'Path statement with no effect'
+inspection.PathStatementsInspection.description.drops.value:
+    text: 'Path statement drops value'
+rust.code.vision.usage.hint:
+    text: '{0,choice, 0#no usages|1#1 usage|2#{0,number} usages}'
+rust.code.vision.implementation.hint:
+    text: '{0,choice, 1#1 implementation|2#{0,number} implementations}'
+rust.code.vision.overrides.hint:
+    text: '{0,choice, 1#1 override|2#{0,number} overrides}'
+rust.checkin.factory.fmt.commit.anyway.question:
+    text: 'Would you like to commit anyway?'
+rust.checkin.factory.fmt.failed.message:
+    text: 'Failed to run rusfmt.'
+rust.checkin.factory.fmt.header.message:
+    text: 'Rustfmt failed to format {0}'
+rust.checkin.factory.fmt.rustfmt.not.installed.message:
+    text: 'Rustfmt is not installed.'
+macro.expansion.error.start:
+    text: 'Failed to expand the macro: {0}'
+macro.expansion.error.MacroExpansionIsDisabled.message:
+    text: 'macro expansion is disabled in project settings'
+macro.expansion.error.MacroExpansionEngineIsNotReady.message:
+    text: 'macro expansion engine is not ready'
+macro.expansion.error.IncludingFileNotFound.message:
+    text: 'including file is not found'
+macro.expansion.error.FileIncludedIntoMultiplePlaces.message:
+    text: 'including file included in multiple places; IntelliJ-Rust supports only inclusion into one place'
+macro.expansion.error.OldEngineStd.message:
+    text: 'the old macro expansion engine can''t expand macros in Rust stdlib'
+macro.expansion.error.MemExpAttrMacro.message:
+    text: 'the old macro expansion engine can''t expand an attribute or derive macro'
+macro.expansion.error.MemExpParsingError.message:
+    text: 'can''''t parse `{0}` as `{1}`'
+macro.expansion.error.CfgDisabled.message:
+    text: 'the macro call is conditionally disabled with a `#[cfg()]` attribute'
+macro.expansion.error.MacroCallSyntax.message:
+    text: 'there is an error in the macro call syntax'
+macro.expansion.error.MacroDefSyntax.message:
+    text: 'there is an error in the macro definition syntax'
+macro.expansion.error.Skipped.message:
+    text: 'expansion of this procedural macro is skipped by IntelliJ-Rust'
+macro.expansion.error.Unresolved.message:
+    text: 'the macro is not resolved'
+macro.expansion.error.NoProcMacroArtifact.message:
+    text: 'the procedural macro is not compiled successfully'
+macro.expansion.error.UnmatchedProcMacroKind.message:
+    text: '`{0}` proc macro can''''t be called as `{1}`'
+macro.expansion.error.BuiltinMacroExpansionError.message:
+    text: 'built-in macro expansion is not supported'
+macro.expansion.error.DeclMacroExpansionError.DefSyntax.message:
+    text: 'there is an error in the macro definition syntax'
+macro.expansion.error.DeclMacroExpansionError.TooLargeExpansion.message:
+    text: 'the macro expansion is too large'
+macro.expansion.error.DeclMacroExpansionError.Matching.message:
+    text: 'can''t match the macro call body against the macro definition pattern(s)'
+macro.expansion.error.ProcMacroExpansionError.ServerSideError.message:
+    text: 'a procedural macro error occurred:\n{0}'
+macro.expansion.error.ProcMacroExpansionError.Timeout.message:
+    text: 'procedural macro expansion timeout exceeded ({0} ms)'
+macro.expansion.error.ProcMacroExpansionError.UnsupportedExpanderVersion.message:
+    text: 'IntelliJ Rust can''''t expand procedural macros using your Rust toolchain version. It looks like the version is too recent. Consider downgrading your Rust toolchain to a previous version or try to update IntelliJ Rust plugin. (unsupported macro expander version {0})'
+macro.expansion.error.ProcMacroExpansionError.ProcessAborted.message:
+    text: 'the procedural macro expander process unexpectedly exited with code {0}'
+macro.expansion.error.ProcMacroExpansionError.IOExceptionThrown.message:
+    text: 'an exception thrown during communicating with proc macro expansion server; see logs for more details'
+macro.expansion.error.ProcMacroExpansionError.CantRunExpander.message:
+    text: 'error occurred during `{0}` process creation; see logs for more details'
+macro.expansion.error.ProcMacroExpansionError.ExecutableNotFound.message:
+    text: '`{0}` executable is not found; (maybe it''''s not provided for your platform by IntelliJ-Rust)'
+macro.expansion.error.ProcMacroExpansionError.ProcMacroExpansionIsDisabled.message:
+    text: 'procedural macro expansion is not enabled'
+macro.expansion.error.ModDataNotFound.message:
+    text: 'internal error: can''t find ModData for containing mod of the macro call'
+macro.expansion.error.InconsistentExpansionExpandedFrom.message:
+    text: 'internal error: `macro.expansion.expandedFrom != macro`; maybe the macro invocation is inside a module that conflicts with another module name?'
+macro.expansion.error.TooDeepExpansion.message:
+    text: 'recursion limit reached'
+macro.expansion.error.NoMacroIndex.message:
+    text: 'can''t find macro index of the macro call'
+macro.expansion.error.ExpansionNameNotFound.message:
+    text: 'internal error: expansion name not found'
+macro.expansion.error.ExpansionFileNotFound.message:
+    text: 'the macro is not yet expanded'
+macro.expansion.error.InconsistentExpansionCacheAndVfs.message:
+    text: 'internal error: expansion file not found, but cache has valid expansion'
+macro.expansion.error.VirtualFileFoundButPsiIsNull.message:
+    text: 'internal error: expansion file is found, but PSI file is not'
+macro.expansion.error.VirtualFileFoundButPsiIsUnknown.message:
+    text: 'internal error: expansion file is found, but PSI file is unknown'
+macro.expansion.error.TooLargeExpansion.message:
+    text: 'the macro expansion is too large'
+action.all.features.description:
+    text: '{0} all features'
+action.all.features.text:
+    text: '{0} All Features'
+action.enable.text:
+    text: 'Enable'
+action.enter.type.name.text:
+    text: 'Enter Type Name...'
+action.expr.text:
+    text: '(expr)'
+action.for.text:
+    text: 'for ''{'' ''}'''
+action.if.expr.text:
+    text: 'if expr'
+action.if.text:
+    text: 'if ''{'' ''}'''
+action.install.text:
+    text: 'Install'
+action.loop.text:
+    text: 'loop ''{'' ''}'''
+action.rerun.text:
+    text: 'Rerun ''''{0}'''''
+action.run.on.fly.text:
+    text: 'Run {0} on the Fly'
+action.rust.coverage.text:
+    text: 'Rust Coverage'
+action.show.variables.text:
+    text: 'Show Variables'
+action.shows.active.console.variables.description:
+    text: 'Shows active console variables'
+action.stop.console.text:
+    text: 'Stop Console'
+action.stop.rust.console.description:
+    text: 'Stop Rust console'
+action.while.expr.text:
+    text: 'while expr'
+action.while.text:
+    text: 'while ''{'' ''}'''
+and.impls:
+    text: '\ and impls'
+backtrace:
+    text: 'Back&trace:'
+border.title.inline:
+    text: 'Inline {0}'
+border.title.inline.type.alias:
+    text: 'Inline Type Alias'
+border.title.project.template:
+    text: 'Project Template'
+build:
+    text: 'Build'
+build.event.message.:
+    text: '{0} {1}'
+build.event.message.build.scripts.evaluation.failed.features.based.on.generated.info.by.build.scripts.may.not.work.in.your.ide:
+    text: 'Build scripts evaluation failed. Features based on generated info by build scripts may not work in your IDE'
+build.event.message.cargo.project.update.failed.no.rust.toolchain:
+    text: 'Cargo project update failed:\nNo Rust toolchain'
+build.event.message.compiling:
+    text: 'Compiling'
+build.event.message.fetching.cargo.config.failed:
+    text: 'Fetching Cargo Config failed.\n\n{0}'
+build.event.message.fetching.target.specific.cfg.options.failed.fallback.to.host.options:
+    text: 'Fetching target specific `cfg` options failed. Fallback to host options.\n\n{0}'
+build.event.message.fresh:
+    text: 'Fresh'
+build.event.message.project.directory.does.not.exist.consider.detaching.project.from.cargo.tool.window:
+    text: 'Project directory `{0}` does not exist.\nConsider detaching the project `{1}` from the Cargo tool window'
+build.event.message.running:
+    text: '{0} running...'
+build.event.title.build.scripts.evaluation:
+    text: 'Build scripts evaluation'
+build.event.title.build.scripts.evaluation.failed:
+    text: 'Build scripts evaluation failed'
+build.event.title.cargo:
+    text: 'Cargo'
+build.event.title.failed.to.fetch.rustc.version:
+    text: 'Failed to fetch rustc version'
+build.event.title.failed.to.fetch.stdlib.package.info:
+    text: 'Failed to fetch stdlib package info'
+build.event.title.failed.to.load.stdlib.dependencies:
+    text: 'Failed to load stdlib dependencies'
+build.event.title.fetching.cargo.config:
+    text: 'Fetching Cargo Config'
+build.event.title.fetching.target.specific.cfg.options:
+    text: 'Fetching target specific `cfg` options'
+build.event.title.run.cargo.command:
+    text: 'Run Cargo Command'
+cargo.command.run.configuration:
+    text: 'Cargo command run configuration'
+cargo.commands:
+    text: 'Cargo Commands'
+cargo.test:
+    text: 'cargo test'
+cargo.toml.schema:
+    text: 'Cargo.toml schema'
+checkbox.async:
+    text: 'Async'
+checkbox.build.on.remote.target:
+    text: 'Build on remote target'
+checkbox.convert.all.usages:
+    text: 'Convert all usages'
+checkbox.emulate.terminal.in.output.console:
+    text: 'Emulate terminal in output console'
+checkbox.enable.inspection.only.if.procedural.macros.are.enabled:
+    text: 'Enable inspection only if procedural macros are enabled'
+checkbox.ignore.unresolved.references.with.possibly.high.false.positive.rate:
+    text: 'Ignore unresolved references with a possibly high false positive rate'
+checkbox.ignore.unused.imports.in.doctests:
+    text: 'Ignore unused imports in doctests'
+checkbox.implicitly.add.required.features.if.possible:
+    text: 'Implicitly add required features if possible'
+checkbox.run.with.administrator.privileges:
+    text: 'Run with Administrator privileges'
+checkbox.run.with.root.privileges:
+    text: 'Run with root privileges'
+checkbox.unsafe:
+    text: 'Unsafe'
+checkbox.use.all.features.in.tests:
+    text: 'Use all features in tests'
+column.name.covered:
+    text: 'Covered, %'
+column.name.file:
+    text: 'File'
+column.name.item.or.module:
+    text: 'Item or module'
+column.name.mutable:
+    text: 'Mutable'
+column.name.pattern:
+    text: 'Pattern:'
+command:
+    text: '&Command:'
+command.name.choose.constant.name:
+    text: 'Choose a constant name'
+command.name.choose.field.name:
+    text: 'choose field name'
+command.name.choose.parameter:
+    text: 'choose a parameter'
+command.name.choose.struct.name:
+    text: 'choose struct name'
+command.name.choose.variable:
+    text: 'choose a variable'
+command.name.converting.to.named.fields:
+    text: 'Converting {0} to named fields'
+command.name.converting.to.tuple:
+    text: 'Converting {0} to tuple'
+command.name.extract.trait:
+    text: 'Extract Trait'
+command.name.extracting.variant:
+    text: 'Extracting variant {0}'
+command.name.inline:
+    text: 'Inline {0} {1}'
+command.name.inline.function:
+    text: 'Inline function {0}'
+command.name.inline.type.alias:
+    text: 'Inline Type Alias {0}'
+command.name.introduce.local.variable:
+    text: 'Introduce Local Variable'
+command.name.move.items:
+    text: 'Move Items'
+command.name.postfix.let.template:
+    text: 'Postfix `let` Template'
+command2:
+    text: 'Command:'
+configurable.name.rust.external.linter:
+    text: 'Rust External Linter'
+configure:
+    text: 'Configure...'
+constants.equal.to.1:
+    text: 'Constants equal to 1'
+dangling.else:
+    text: 'Dangling else'
+deprecated.item:
+    text: 'Deprecated item'
+dialog.message.can.not.generate.coverage.report:
+    text: 'Can not generate coverage report: {0}'
+dialog.message.can.t.create.new.rust.file.or.attach.it.to.module.tree:
+    text: 'Can''t create new Rust file or attach it to module tree'
+dialog.message.can.t.detect.target.process.id:
+    text: 'Can''t detect target process id'
+dialog.message.can.t.find.binary:
+    text: 'Can''t find a binary'
+dialog.message.can.t.get.output.perf.data.file:
+    text: 'Can''t get output perf data file'
+dialog.message.cannot.change.signature.function.in.foreign.crate:
+    text: 'Cannot change signature of function in a foreign crate'
+dialog.message.cannot.inline.constant.without.expression:
+    text: 'cannot inline constant without an expression'
+dialog.message.cannot.inline.empty.function:
+    text: 'Cannot inline an empty function'
+dialog.message.cannot.inline.function.with.more.than.one.exit.points:
+    text: 'Cannot inline function with more than one exit points'
+dialog.message.cannot.inline.function.with.recursive.calls:
+    text: 'Cannot inline function with recursive calls'
+dialog.message.cannot.inline.multiline.function.into.while.loop.condition:
+    text: 'Cannot inline multiline function into "while" loop condition'
+dialog.message.cannot.inline.variable.without.expression:
+    text: 'cannot inline variable without an expression'
+dialog.message.cannot.inline.variable.without.identifier:
+    text: 'cannot inline variable without an identifier'
+dialog.message.caret.should.be.positioned.at.function.or.method:
+    text: 'The caret should be positioned at a function or method'
+dialog.message.cargo.generate.needed.to.create.project.from.custom.template:
+    text: 'cargo-generate is needed to create a project from a custom template'
+dialog.message.channel.cannot.be.set.explicitly.because.rustup.not.available:
+    text: 'Channel cannot be set explicitly because rustup is not available'
+dialog.message.channel.set.explicitly.with.no.rustup.available:
+    text: 'Channel ''''{0}'''' is set explicitly with no rustup available'
+dialog.message.default.value.entered.for.parameter.invalid:
+    text: 'Default value entered for parameter {0} is invalid'
+dialog.message.directory.already.exists:
+    text: 'Directory {0} already exists.'
+dialog.message.do.you.want.to.find.usages.base.declaration:
+    text: 'Do you want to find usages of the base declaration?'
+dialog.message.enter.custom.type.name.type.parameters.are.not.supported:
+    text: 'Enter custom type name. Type parameters are not supported.'
+dialog.message.error.during.creating.new.rust.file:
+    text: 'Error during creating new Rust file: {0}'
+dialog.message.failed.to.prepare.remote.environment:
+    text: 'Failed to prepare remote environment: {0}'
+dialog.message.file.not.found:
+    text: 'File not found: {0}'
+dialog.message.file.will.not.be.included.in.module.tree.after.move.continue:
+    text: 'File will not be included in module tree after move. Continue?'
+dialog.message.function.name.must.be.valid.rust.identifier:
+    text: 'Function name must be a valid Rust identifier'
+dialog.message.function.return.type.must.be.valid.rust.type:
+    text: 'Function return type must be a valid Rust type'
+dialog.message.function.visibility.must.be.valid.visibility.specifier:
+    text: 'Function visibility must be a valid visibility specifier'
+dialog.message.gnu.debugger.cannot.be.used.with.msvc.rust.toolchain:
+    text: 'GNU debugger cannot be used with MSVC Rust toolchain.'
+dialog.message.gnu.toolchain.not.supported.please.use.msvc.toolchain:
+    text: 'GNU toolchain is not supported. Please use MSVC toolchain.'
+dialog.message.html.body.br.b.b.body.html:
+    text: '<html><body>{0}{1}<br/><b>{2}</b> {3}</body></html>\n'
+dialog.message.html.coverage.report.has.been.successfully.saved.as.file.br.use.instruction.in.href.to.generate.html.output.html:
+    text: '<html>Coverage report has been successfully saved as ''''{0}'''' file.<br>Use instruction in <a href=''''{1}''''>{2}</a> to generate HTML output.</html>'
+dialog.message.html.local.debugger.cannot.be.used.with.wsl.br.use.href.https.www.jetbrains.com.help.clion.how.to.use.wsl.development.environment.in.product.html.instructions.to.configure.wsl.toolchain.html:
+    text: '<html>The local debugger cannot be used with WSL.<br>Use the <a href=''https://www.jetbrains.com/help/clion/how-to-use-wsl-development-environment-in-product.html''>instructions</a> to configure WSL toolchain.</html>'
+dialog.message.illegal.path:
+    text: 'Illegal path: {0}'
+dialog.message.input.file.doesn.t.exist:
+    text: 'Input file doesn''t exist'
+dialog.message.input.file.not.valid:
+    text: 'Input file is not valid'
+dialog.message.internal.error.can.t.find.process.starter:
+    text: 'Internal error: Can''t find process starter'
+dialog.message.invalid.identifier:
+    text: 'Invalid identifier'
+dialog.message.invalid.toolchain:
+    text: 'Invalid toolchain: {0}'
+dialog.message.more.than.one.binary.was.produced.please.specify.bin.lib.test.or.example.flag.explicitly:
+    text: 'More than one binary was produced. Please specify `--bin`, `--lib`, `--test` or `--example` flag explicitly.'
+dialog.message.msvc.debugger.cannot.be.used.with.gnu.rust.toolchain:
+    text: 'MSVC debugger cannot be used with GNU Rust toolchain.'
+dialog.message.msvc.toolchain.not.supported.please.use.gnu.toolchain:
+    text: 'MSVC toolchain is not supported. Please use GNU toolchain.'
+dialog.message.name.cannot.be.used.as.crate.name:
+    text: 'The name `{0}` cannot be used as a crate name'
+dialog.message.name.cannot.be.used.as.crate.name2:
+    text: 'The name `{0}` cannot be used as a crate name'
+dialog.message.name.reserved.windows.filename:
+    text: 'The name `{0}` is a reserved Windows filename'
+dialog.message.no.command.specified:
+    text: 'No command specified'
+dialog.message.no.rust.toolchain.specified:
+    text: 'No Rust toolchain specified'
+dialog.message.no.suitable.function.to.extract.parameter.found:
+    text: 'No suitable function to extract parameter found.'
+dialog.message.no.working.directory.specified:
+    text: 'No working directory specified'
+dialog.message.package.name.can.t.be.empty:
+    text: 'Package name can''t be empty'
+dialog.message.package.names.should.contain.only.letters.digits:
+    text: 'Package names should contain only letters, digits, `-` and `_`'
+dialog.message.package.names.starting.with.digit.cannot.be.used.as.crate.name:
+    text: 'Package names starting with a digit cannot be used as a crate name'
+dialog.message.parameter.has.invalid.pattern:
+    text: 'Parameter {0} has invalid pattern'
+dialog.message.perf.profiler.not.available.for.selected.toolchain:
+    text: 'Perf profiler is not available for selected toolchain'
+dialog.message.perf.profiler.not.available.for.selected.wsl.distribution.try.updating.wsl.to.newer.one:
+    text: 'Perf profiler is not available for selected WSL distribution\nTry updating WSL to the newer one'
+dialog.message.please.choose.target.directory.different.from.current:
+    text: 'Please choose target directory different from current'
+dialog.message.please.enter.type.for.parameter:
+    text: 'Please enter type for parameter {0}'
+dialog.message.profiler.connection.error.can.t.detect.target.process.id:
+    text: 'Profiler connection error: can''t detect target process id'
+dialog.message.run.targets.cannot.be.used.alongside.with.wsl.toolchain:
+    text: 'Run targets cannot be used alongside with WSL toolchain'
+dialog.message.target.file.must.be.rust.file:
+    text: 'Target file must be a Rust file'
+dialog.message.this.cargo.package.already.part.attached.workspace:
+    text: 'This Cargo package is already a part of an attached workspace.'
+dialog.message.type.entered.for.parameter.invalid:
+    text: 'Type entered for parameter {0} is invalid'
+dialog.message.wsl.debugger.cannot.be.used.with.non.wsl.rust.toolchain:
+    text: 'WSL debugger cannot be used with non-WSL Rust toolchain.'
+dialog.message.wsl.toolchain.not.supported:
+    text: 'WSL toolchain is not supported.'
+dialog.title.choose.destination.file:
+    text: 'Choose Destination File'
+dialog.title.convert.to.named.fields.settings:
+    text: 'Convert to Named Fields Settings'
+dialog.title.convert.to.tuple:
+    text: 'Convert to Tuple'
+dialog.title.coverage.report.generation:
+    text: 'Coverage Report Generation'
+dialog.title.download.debugger:
+    text: 'Download debugger'
+dialog.title.enter.type.name:
+    text: 'Enter Type Name'
+dialog.title.extract.function:
+    text: 'Extract Function'
+dialog.title.find.usages:
+    text: 'Find Usages'
+dialog.title.implement.members:
+    text: 'Implement Members'
+dialog.title.installing.cargo.generate:
+    text: 'Installing cargo-generate'
+dialog.title.move:
+    text: 'Move'
+dialog.title.move.module.items:
+    text: 'Move Module Items'
+dialog.title.move.rust:
+    text: 'Move (Rust)'
+dialog.title.new.cargo.crate:
+    text: 'New Cargo Crate'
+dialog.title.select.cargo.toml:
+    text: 'Select Cargo.toml'
+dialog.title.select.module:
+    text: 'Select a Module'
+dialog.title.unable.to.attach.cargo.project:
+    text: 'Unable to Attach Cargo Project'
+dialog.title.unable.to.run.debugger:
+    text: 'Unable to Run Debugger'
+disable:
+    text: 'Disable'
+disabling.the.test.tool.window:
+    text: 'disabling the Test tool window'
+don.t.show.again:
+    text: 'Don''t show again'
+double.negation:
+    text: 'Double negation'
+drop.reference:
+    text: 'Drop reference'
+duplicated.trait.method.parameter.binding:
+    text: 'Duplicated trait method parameter binding'
+external.linter:
+    text: 'External Linter'
+extra.semicolon:
+    text: 'Extra semicolon'
+from:
+    text: 'From:'
+profiler.attach.default.group.title:
+    text: 'Native'
+hint.text.html.table.tr.td.style.color.type.td.td.style.font.family.monospace.td.tr.tr.td.style.color.coerced.type.td.td.style.font.family.monospace.td.tr.table.html:
+    text: '\n                <html>\n                    <table>\n                        <tr>\n                            <td style="color: #909090">Type:</td>\n                            <td style="font-family: monospace;">{0}</td>\n                        </tr>\n                        <tr>\n                            <td style="color: #909090">Coerced type:</td>\n                            <td style="font-family: monospace;">{1}</td>\n                        </tr>\n                    </table>\n                </html>\n'
+hint.text.no.members.to.implement.have.been.found:
+    text: 'No members to implement have been found'
+hint.text.please.convert.innermost.impl.trait.first:
+    text: 'Please convert innermost `impl Trait` first'
+hint.text.select.expression:
+    text: 'Select an expression!'
+hint.text.some.elements.that.action.going.to.change.exist.only.in.macro.expansion.so.cannot.be.changed.by.action:
+    text: 'Some of the elements that the action is going to change exist only in the macro expansion and so cannot be changed by the action'
+inspection.message.all.versions.matching.for.crate.are.yanked:
+    text: 'All versions matching {0} for crate {1} are yanked'
+inspection.message.anonymous.functions.parameters.are.deprecated.rfc:
+    text: 'Anonymous functions parameters are deprecated (RFC 1685)'
+inspection.message.approximate.value.found.consider.using.it.directly:
+    text: 'Approximate value of `{0}` found. Consider using it directly.'
+inspection.message.are.not.allowed.inside:
+    text: '{0} are not allowed inside {1} {2}'
+inspection.message.argument.never.used:
+    text: 'Argument never used'
+inspection.message.array.size.cannot.refer.to.static:
+    text: 'Array size cannot refer to static `{0}`'
+inspection.message.assert.b.can.be.b:
+    text: 'assert!(a {0} b) can be {1}!(a, b)'
+inspection.message.associated.type.not.found.for:
+    text: 'Associated type `{0}` not found for `{1}`'
+inspection.message.async.non.move.closures.with.parameters.are.currently.not.supported:
+    text: 'async non-move closures with parameters are currently not supported'
+inspection.message.at.least.one.trait.required.for.object.type:
+    text: 'At least one trait is required for an object type'
+inspection.message.attribute.should.be.applied.to.function.or.closure:
+    text: 'Attribute should be applied to function or closure'
+inspection.message.await.only.allowed.inside.async.functions.blocks:
+    text: '`await` is only allowed inside `async` functions and blocks'
+inspection.message.binding.never.used:
+    text: 'Binding `{0}` is never used'
+inspection.message.boolean.expression.can.be.simplified:
+    text: 'Boolean expression can be simplified'
+inspection.message.bounds.on.have.no.effect:
+    text: 'Bounds on {0} have no effect'
+inspection.message.bounds.on.have.no.effect2:
+    text: 'Bounds on {0} have no effect'
+inspection.message.bounds.on.have.no.effect3:
+    text: 'Bounds on {0} have no effect'
+inspection.message.break.with.value.from.loop:
+    text: '`break` with value from a `{0}` loop'
+inspection.message.c.variadic.function.must.have.compatible.calling.convention.like.c.or.cdecl:
+    text: 'C-variadic function must have a compatible calling convention, like `C` or `cdecl`'
+inspection.message.call.to.std.mem.drop.with.reference.argument.dropping.reference.does.nothing:
+    text: 'Call to std::mem::drop with a reference argument. Dropping a reference does nothing'
+inspection.message.call.to.unsafe.function:
+    text: 'Call to unsafe function'
+inspection.message.calls.in.constants.are.limited.to.constant.functions.tuple.structs.tuple.variants:
+    text: 'Calls in constants are limited to constant functions, tuple structs and tuple variants'
+inspection.message.can.be.replaced.with.literal.suffix:
+    text: 'Can be replaced with literal suffix'
+inspection.message.can.impl.only.struct.s.enum.s.union.s.trait.objects:
+    text: 'Can impl only `struct`s, `enum`s, `union`s and trait objects'
+inspection.message.can.t.capture.dynamic.environment.in.fn.item:
+    text: 'Can''t capture dynamic environment in a fn item'
+inspection.message.cannot.assign.to:
+    text: 'Cannot assign to {0}'
+inspection.message.cannot.assign.twice.to.immutable.variable:
+    text: 'Cannot assign twice to immutable variable'
+inspection.message.cannot.be.declared.unsafe:
+    text: '{0} cannot be declared unsafe'
+inspection.message.cannot.be.used.in.closures.only.inside.loop.while.blocks:
+    text: '`{0}` cannot be used in closures, only inside `loop` and `while` blocks'
+inspection.message.cannot.be.variadic:
+    text: '{0} cannot be variadic'
+inspection.message.cannot.be.variadic2:
+    text: '{0} cannot be variadic'
+inspection.message.cannot.borrow.immutable.local.variable.as.mutable:
+    text: 'Cannot borrow immutable local variable `{0}` as mutable'
+inspection.message.cannot.declare.non.inline.module.inside.block.unless.it.has.path.attribute:
+    text: 'Cannot declare a non-inline module inside a block unless it has a path attribute'
+inspection.message.cannot.define.inherent.impl.for.dyn.auto.trait:
+    text: 'Cannot define inherent `impl` for a dyn auto trait'
+inspection.message.cannot.define.inherent.impl.for.type.outside.crate.where.type.defined:
+    text: 'Cannot define inherent `impl` for a type outside of the crate where the type is defined'
+inspection.message.cannot.have.body:
+    text: '{0} cannot have a body'
+inspection.message.cannot.have.body2:
+    text: '{0} cannot have a body'
+inspection.message.cannot.have.const.qualifier:
+    text: '{0} cannot have the `const` qualifier'
+inspection.message.cannot.have.default.qualifier:
+    text: '{0} cannot have the `default` qualifier'
+inspection.message.cannot.have.default.qualifier10:
+    text: '{0} cannot have the `default` qualifier'
+inspection.message.cannot.have.default.qualifier11:
+    text: '{0} cannot have the `default` qualifier'
+inspection.message.cannot.have.default.qualifier2:
+    text: '{0} cannot have the `default` qualifier'
+inspection.message.cannot.have.default.qualifier3:
+    text: '{0} cannot have the `default` qualifier'
+inspection.message.cannot.have.default.qualifier4:
+    text: '{0} cannot have the `default` qualifier'
+inspection.message.cannot.have.default.qualifier5:
+    text: '{0} cannot have the `default` qualifier'
+inspection.message.cannot.have.default.qualifier6:
+    text: '{0} cannot have the `default` qualifier'
+inspection.message.cannot.have.default.qualifier7:
+    text: '{0} cannot have the `default` qualifier'
+inspection.message.cannot.have.default.qualifier8:
+    text: '{0} cannot have the `default` qualifier'
+inspection.message.cannot.have.default.qualifier9:
+    text: '{0} cannot have the `default` qualifier'
+inspection.message.cannot.have.extern.abi:
+    text: '{0} cannot have an extern ABI'
+inspection.message.cannot.have.generic.parameters:
+    text: '{0} cannot have generic parameters'
+inspection.message.cannot.have.pub.qualifier:
+    text: '{0} cannot have the `pub` qualifier'
+inspection.message.cannot.have.pub.qualifier2:
+    text: '{0} cannot have the `pub` qualifier'
+inspection.message.cannot.have.self.parameter:
+    text: '{0} cannot have `self` parameter'
+inspection.message.cannot.have.self.parameter2:
+    text: '{0} cannot have `self` parameter'
+inspection.message.cannot.have.unsafe.qualifier:
+    text: '{0} cannot have the `unsafe` qualifier'
+inspection.message.cannot.have.where.clause:
+    text: '{0} cannot have `where` clause'
+inspection.message.cannot.have.where.clause.after.type:
+    text: '{0} cannot have `where` clause after the type'
+inspection.message.cannot.have.where.clause.before.type:
+    text: '{0} cannot have `where` clause before the type'
+inspection.message.cannot.implement.both.copy.drop:
+    text: 'Cannot implement both Copy and Drop'
+inspection.message.cannot.move:
+    text: 'Cannot move'
+inspection.message.chained.comparison.operator.require.parentheses:
+    text: 'Chained comparison operator require parentheses'
+inspection.message.condition.always:
+    text: 'Condition is always ''''''''{0}'''''''''
+inspection.message.const.cannot.refer.to.static:
+    text: 'Const `{0}` cannot refer to static `{1}`'
+inspection.message.const.generic.argument.cannot.refer.to.static:
+    text: 'Const generic argument cannot refer to static `{0}`'
+inspection.message.constant:
+    text: 'Constant `{0}`'
+inspection.message.constant.function.cannot.refer.to.static:
+    text: 'Constant function `{0}` cannot refer to static `{1}`'
+inspection.message.consts:
+    text: '{0}::{1}::consts::{2}'
+inspection.message.continue.pointing.to.labeled.block:
+    text: '`continue` pointing to a labeled block'
+inspection.message.crate.not.found:
+    text: 'Crate {0} not found'
+inspection.message.cyclic.feature.dependency.feature.depends.on.itself:
+    text: 'Cyclic feature dependency: feature `{0}` depends on itself'
+inspection.message.default.cannot.have.pub.qualifier:
+    text: 'Default {0} cannot have the `pub` qualifier'
+inspection.message.default.parameter.values.are.not.supported.in.rust:
+    text: 'Default parameter values are not supported in Rust'
+inspection.message.defaults.for.const.parameters.are.only.allowed.in.struct.enum.type.or.trait.definitions:
+    text: 'Defaults for const parameters are only allowed in `struct`, `enum`, `type`, or `trait` definitions'
+inspection.message.defaults.for.type.parameters.are.only.allowed.in.struct.enum.type.or.trait.definitions:
+    text: 'Defaults for type parameters are only allowed in `struct`, `enum`, `type`, or `trait` definitions'
+inspection.message.denote.infinite.loops.with.loop:
+    text: 'Denote infinite loops with `loop ''{'' ... ''}''`'
+inspection.message.derive.may.only.be.applied.to.structs.enums.unions:
+    text: '`derive` may only be applied to structs, enums and unions'
+inspection.message.different.impl.member.order.from.trait:
+    text: 'Different impl member order from the trait'
+inspection.message.discriminant.value.already.exists:
+    text: 'Discriminant value `{0}` already exists'
+inspection.message.doesn.t.derive.both.partialeq.eq:
+    text: '{0} doesn''''t derive both `PartialEq` and `Eq`'
+inspection.message.doesn.t.implement.required.by:
+    text: '`{0}` doesn''''t implement `{1}` (required by {2})'
+inspection.message.drop.can.be.only.implemented.by.structs.enums:
+    text: 'Drop can be only implemented by structs and enums'
+inspection.message.duplicate.field:
+    text: 'Duplicate field'
+inspection.message.duplicated.parameter.name.consider.renaming.it:
+    text: 'Duplicated parameter name `{0}`. Consider renaming it'
+inspection.message.enum.variant:
+    text: 'Enum variant'
+inspection.message.enum.variant.s.discriminant.value.cannot.refer.to.static:
+    text: 'Enum variant `{0}`''''s discriminant value cannot refer to static `{1}`'
+inspection.message.enum.with.no.variants.can.t.have.repr.attribute:
+    text: 'Enum with no variants can''t have `repr` attribute'
+inspection.message.expected.cfg.pattern:
+    text: 'Expected 1 cfg-pattern'
+inspection.message.expected.function.found:
+    text: 'Expected function, found `{0}`'
+inspection.message.expected.path.to.trait.found.literal:
+    text: 'Expected path to a trait, found literal'
+inspection.message.experimental:
+    text: '{0} is experimental'
+inspection.message.explicit.impls.for.sized.trait.are.not.permitted:
+    text: 'Explicit impls for the `Sized` trait are not permitted'
+inspection.message.explicit.impls.for.unsize.trait.are.not.permitted:
+    text: 'Explicit impls for the `Unsize` trait are not permitted'
+inspection.message.explicit.lifetimes.given.in.parameter.types.where.they.could.be.elided:
+    text: 'Explicit lifetimes given in parameter types where they could be elided'
+inspection.message.expression.can.be.simplified:
+    text: 'Expression can be simplified'
+inspection.message.expressions.must.be.enclosed.in.braces.to.be.used.as.const.generic.arguments:
+    text: 'Expressions must be enclosed in braces to be used as const generic arguments'
+inspection.message.extern:
+    text: 'extern'
+inspection.message.extern.crate.self.requires.as.name:
+    text: '`extern crate self` requires `as name`'
+inspection.message.extra.field.found.in.pattern:
+    text: 'Extra field found in the {0} pattern: `{1}`'
+inspection.message.extra.fields.found.in.tuple.struct.pattern.expected.found:
+    text: 'Extra fields found in the tuple struct pattern: expected {0}, found {1}'
+inspection.message.feature.has.been.removed:
+    text: 'Feature `{0}` has been removed'
+inspection.message.feature.may.not.be.used.on.release.channel:
+    text: '`#![feature]` may not be used on the {0} release channel'
+inspection.message.field.bound.multiple.times.in.pattern:
+    text: 'Field `{0}` bound multiple times in the pattern'
+inspection.message.field.struct.private:
+    text: 'Field `{0}` of struct `{1}` is private'
+inspection.message.file.not.found.for.module:
+    text: 'File not found for module `{0}`'
+inspection.message.file.not.included.in.module.tree.analysis.not.available:
+    text: 'File is not included in module tree, analysis is not available'
+inspection.message.for.loop.expression.has.unnecessary.parentheses:
+    text: 'For loop expression has unnecessary parentheses'
+inspection.message.foreign.items.may.not.have.parameters:
+    text: 'Foreign items may not have {0} parameters'
+inspection.message.function.returns.instead:
+    text: 'Function returns () instead of {0}'
+inspection.message.functions.with.start.attribute.must.have:
+    text: 'Functions with a `start` attribute must have {0}'
+inspection.message.functions.with.start.attribute.must.return.isize:
+    text: 'Functions with a `start` attribute must return `isize`'
+inspection.message.generic.arguments.must.come.before.first.constraint:
+    text: 'Generic arguments must come before the first constraint'
+inspection.message.has.been.removed:
+    text: '`{0}` has been removed'
+inspection.message.has.been.removed2:
+    text: '{0} has been removed'
+inspection.message.identifier.bound.more.than.once.in.same.pattern:
+    text: 'Identifier `{0}` is bound more than once in the same pattern'
+inspection.message.impl.trait.not.allowed.in.path.parameters:
+    text: '`impl Trait` is not allowed in path parameters'
+inspection.message.impl.trait.not.allowed.outside.function.inherent.method.return.types:
+    text: '`impl Trait` not allowed outside of function and inherent method return types'
+inspection.message.in.expressions.can.only.be.used.on.left.hand.side.assignment:
+    text: 'In expressions, `_` can only be used on the left-hand side of an assignment'
+inspection.message.in.this.pattern.redundant:
+    text: 'The `{0}:` in this pattern is redundant'
+inspection.message.inclusive.ranges.must.be.bounded.at.end.b.or.b:
+    text: 'inclusive ranges must be bounded at the end (`..=b` or `a..=b`)'
+inspection.message.incorrect.meta.item:
+    text: 'Incorrect meta item'
+inspection.message.incorrect.visibility.restriction:
+    text: 'Incorrect visibility restriction'
+inspection.message.inherent.impls.cannot.be.unsafe:
+    text: 'Inherent impls cannot be unsafe'
+inspection.message.invalid.abi.found:
+    text: 'Invalid ABI: found {0}'
+inspection.message.invalid.crate.type.value:
+    text: 'Invalid `crate_type` value'
+inspection.message.invalid.format.string:
+    text: 'Invalid format string'
+inspection.message.invalid.format.string.expected.if.you.intended.to.print.symbol.you.can.escape.it.using:
+    text: 'Invalid format string: ''}'' expected.\nIf you intended to print `''{''` symbol, you can escape it using `''{''''{''`'
+inspection.message.invalid.format.string.unmatched:
+    text: 'Invalid format string: unmatched ''}'''
+inspection.message.invalid.label.name:
+    text: 'Invalid label name `{0}`'
+inspection.message.invalid.path.self.super.are.allowed.only.at.beginning:
+    text: 'Invalid path: self and super are allowed only at the beginning'
+inspection.message.invalid.predicate:
+    text: 'Invalid predicate `{0}`'
+inspection.message.invalid.reference.to.positional.argument:
+    text: 'Invalid reference to positional argument {0} ({1})'
+inspection.message.invalid.suffix.for.suffix.must.be.one:
+    text: 'invalid suffix ''''{0}'''' for {1}; the suffix must be one of: {2}'
+inspection.message.invalid.version.requirement:
+    text: 'Invalid version requirement {0}'
+inspection.message.it.not.allowed.to.cast.to.bool:
+    text: 'It is not allowed to cast to a bool.'
+inspection.message.let.expressions.are.not.supported.here:
+    text: '`let` expressions are not supported here'
+inspection.message.let.expressions.in.this.position.are.unstable:
+    text: '`let` expressions in this position are unstable'
+inspection.message.lifetimes.cannot.use.keyword.names:
+    text: 'Lifetimes cannot use keyword names'
+inspection.message.main.function.not.allowed.to.have.generic.parameters:
+    text: '`main` function is not allowed to have generic parameters'
+inspection.message.main.function.not.found.in.crate:
+    text: '`main` function not found in crate `{0}`'
+inspection.message.malformed.attribute.input:
+    text: 'Malformed `{0}` attribute input'
+inspection.message.malformed.attribute.input.missing.parentheses:
+    text: 'Malformed `{0}` attribute input: missing parentheses'
+inspection.message.manual.implementations.are.experimental:
+    text: 'Manual implementations of `{0}` are experimental'
+inspection.message.match.expression.has.unnecessary.parentheses:
+    text: 'Match expression has unnecessary parentheses'
+inspection.message.match.must.be.exhaustive:
+    text: 'Match must be exhaustive'
+inspection.message.may.only.be.used.inside.loop.while.blocks:
+    text: '`{0}` may only be used inside `loop` and `while` blocks'
+inspection.message.methods.called.usually.take.consider.choosing.less.ambiguous.name:
+    text: 'methods called `{0}*{1}` usually take {2}; consider choosing a less ambiguous name'
+inspection.message.mismatched.types:
+    text: 'mismatched types'
+inspection.message.missing.features:
+    text: 'Missing features: {0}'
+inspection.message.missing.lifetime.specifier:
+    text: 'Missing lifetime specifier'
+inspection.message.missing.type.for.item:
+    text: 'Missing type for `{0}` item'
+inspection.message.multiple.attributes:
+    text: 'Multiple ''''{0}'''' attributes'
+inspection.message.multiple.items:
+    text: 'Multiple ''''{0}'''' items'
+inspection.message.multiple.patterns.in.if.let.while.let.are.unstable:
+    text: 'multiple patterns in `if let` and `while let` are unstable'
+inspection.message.must.be.declared.prior.to:
+    text: '{0} {1} must be declared prior to {2} {3}'
+inspection.message.must.be.last.in.argument.list.for.variadic.function:
+    text: '`...` must be last in argument list for variadic function'
+inspection.message.mutable:
+    text: 'mutable'
+inspection.message.name.defined.multiple.times:
+    text: 'The name `{0}` is defined multiple times'
+inspection.message.named.argument.never.used:
+    text: 'Named argument never used'
+inspection.message.negative.implementations.are.not.unsafe:
+    text: 'Negative implementations are not unsafe'
+inspection.message.nested.impl.trait.not.allowed:
+    text: 'nested `impl Trait` is not allowed'
+inspection.message.nested.quantification.lifetimes:
+    text: 'Nested quantification of lifetimes'
+inspection.message.newer.version.available.for.crate:
+    text: 'A newer version is available for crate {0}: {1}'
+inspection.message.no.arguments.were.given:
+    text: 'no arguments were given'
+inspection.message.no.such.field:
+    text: 'No such field'
+inspection.message.no.version.matching.found.for.crate:
+    text: 'No version matching {0} found for crate {1}'
+inspection.message.non.constant.value.was.used.in.constant.expression:
+    text: 'A non-constant value was used in a constant expression'
+inspection.message.non.string.abi.literal:
+    text: 'Non-string ABI literal'
+inspection.message.only.auto.traits.can.be.used.as.additional.traits.in.trait.object:
+    text: 'Only auto traits can be used as additional traits in a trait object'
+inspection.message.only.single.explicit.lifetime.bound.permitted:
+    text: 'Only a single explicit lifetime bound is permitted'
+inspection.message.only.traits.defined.in.current.crate.can.be.implemented.for.arbitrary.types:
+    text: 'Only traits defined in the current crate can be implemented for arbitrary types'
+inspection.message.parameter.never.used:
+    text: 'Parameter `{0}` is never used'
+inspection.message.parenthesized.lifetime.bounds.are.not.supported:
+    text: 'Parenthesized lifetime bounds are not supported'
+inspection.message.parenthetical.notation.only.stable.when.used.with.fn.family.traits:
+    text: 'Parenthetical notation is only stable when used with `Fn`-family traits'
+inspection.message.pattern.does.not.correspond.to.its.declaration.expected.found:
+    text: '{0} pattern does not correspond to its declaration: expected {1} {2}, found {3}'
+inspection.message.pattern.does.not.mention:
+    text: '{0} pattern does not mention {1} {2}'
+inspection.message.patterns.aren.t.allowed.in.foreign.function.declarations:
+    text: 'Patterns aren''t allowed in foreign function declarations'
+inspection.message.patterns.aren.t.allowed.in.function.pointer.types:
+    text: 'Patterns aren''t allowed in function pointer types'
+inspection.message.patterns.aren.t.allowed.in.functions.without.bodies:
+    text: 'Patterns aren''t allowed in functions without bodies'
+inspection.message.positional.arguments.cannot.follow.named.arguments:
+    text: 'Positional arguments cannot follow named arguments'
+inspection.message.precise.format.fn.family.traits.type.parameters.subject.to.change:
+    text: 'The precise format of `Fn`-family traits'' type parameters is subject to change'
+inspection.message.predicate.expression.has.unnecessary.parentheses:
+    text: 'Predicate expression has unnecessary parentheses'
+inspection.message.println.macro.invocation.can.be.simplified:
+    text: 'println! macro invocation can be simplified'
+inspection.message.private:
+    text: '{0} `{1}` is private'
+inspection.message.private.cannot.be.re.exported:
+    text: '`{0}` is private, and cannot be re-exported'
+inspection.message.range.to.patterns.with.are.not.allowed:
+    text: 'Range-to patterns with `...` are not allowed'
+inspection.message.recursion.in.async.fn.requires.boxing:
+    text: 'Recursion in an `async fn` requires boxing'
+inspection.message.redundant:
+    text: 'Redundant `::`'
+inspection.message.redundant.else:
+    text: 'Redundant `else`'
+inspection.message.redundant.parentheses.in.expression:
+    text: 'Redundant parentheses in expression'
+inspection.message.repr.inttype.must.be.specified:
+    text: '`#[repr(inttype)]` must be specified'
+inspection.message.reserved.keyword:
+    text: '`{0}` is reserved keyword'
+inspection.message.reserved.keyword.in.edition:
+    text: '`{0}` is reserved keyword in Edition 2018'
+inspection.message.return.can.be.lifted.out:
+    text: 'Return can be lifted out of ''''{0}'''''
+inspection.message.return.expression.has.unnecessary.parentheses:
+    text: 'Return expression has unnecessary parentheses'
+inspection.message.return.in.function.whose.return.type.not:
+    text: '`return;` in a function whose return type is not `()`'
+inspection.message.rust.has.no.incdec.operator:
+    text: 'Rust has no {0} operator'
+inspection.message.self.import.appears.more.than.once.in.list:
+    text: 'The `self` import appears more than once in the list'
+inspection.message.self.import.can.only.appear.in.import.list.with.non.empty.prefix:
+    text: '`self` import can only appear in an import list with a non-empty prefix'
+inspection.message.self.imports.are.only.allowed.within.list:
+    text: '`self` imports are only allowed within a ''{'' ''}'' list'
+inspection.message.self.keyword.was.used.in.static.method:
+    text: 'The self keyword was used in a static method'
+inspection.message.self.value.not.available.in.this.context:
+    text: 'self value is not available in this context'
+inspection.message.should.have.case.name.such.as:
+    text: '{0} `{1}` should have {2} case name such as `{3}`'
+inspection.message.some.fields.are.missing:
+    text: 'Some fields are missing'
+inspection.message.specifier.must.be.type.usize:
+    text: '{0} specifier must be of type `usize`'
+inspection.message.start.attribute.can.be.placed.only.on.functions:
+    text: 'Start attribute can be placed only on functions'
+inspection.message.static.constant:
+    text: 'Static constant `{0}`'
+inspection.message.static.constants.are.not.allowed.in.impl.blocks:
+    text: 'Static constants are not allowed in impl blocks'
+inspection.message.static.constants.are.not.allowed.in.traits:
+    text: 'Static constants are not allowed in traits'
+inspection.message.static.constants.in.extern.blocks.cannot.have.values:
+    text: 'Static constants in extern blocks cannot have values'
+inspection.message.struct:
+    text: 'Struct'
+inspection.message.suffixed.literals.are.not.allowed.in.attributes:
+    text: 'Suffixed literals are not allowed in attributes'
+inspection.message.suspicious.assignment.did.you.mean.or:
+    text: 'Suspicious assignment. Did you mean `{0}` or `{1}`?'
+inspection.message.suspicious.else.if.formatting:
+    text: 'Suspicious `else if` formatting'
+inspection.message.suspicious.if.did.you.mean.else.if:
+    text: 'Suspicious if. Did you mean `else if`?'
+inspection.message.syntax.deprecated.use.for.exclusive.range.or.for.inclusive.range:
+    text: '`...` syntax is deprecated. Use `..` for an exclusive range or `..=` for an inclusive range'
+inspection.message.there.are.arguments:
+    text: 'there are {0} arguments'
+inspection.message.there.argument:
+    text: 'there is 1 argument'
+inspection.message.there.no.argument.named:
+    text: 'There is no argument named `{0}`'
+inspection.message.this.feature.only.available.in.edition:
+    text: 'This feature is only available in Edition 2018'
+inspection.message.trait.bound.not.satisfied:
+    text: 'the trait bound `{0}: {1}` is not satisfied'
+inspection.message.trait.bound.std.marker.sized.not.satisfied:
+    text: 'the trait bound `{0}: std::marker::Sized` is not satisfied'
+inspection.message.trait.copy.may.not.be.implemented.for.this.type:
+    text: 'The trait `Copy` may not be implemented for this type'
+inspection.message.trait.functions.cannot.be.declared.const:
+    text: 'Trait functions cannot be declared const'
+inspection.message.trait.objects.without.explicit.dyn.are.deprecated:
+    text: 'Trait objects without an explicit ''dyn'' are deprecated'
+inspection.message.try.macro.can.be.replaced.with.operator:
+    text: 'try! macro can be replaced with ? operator'
+inspection.message.tuple.struct:
+    text: 'Tuple struct'
+inspection.message.type.0:
+    text: 'Type `{0}`'
+inspection.message.type.cannot.be.dereferenced:
+    text: 'type {0} cannot be dereferenced'
+inspection.message.type.parameter.has.more.than.one.relaxed.default.bound.only.one.supported:
+    text: 'Type parameter has more than one relaxed default bound, only one is supported'
+inspection.message.type.parameters.with.default.must.be.trailing:
+    text: 'Type parameters with a default must be trailing'
+inspection.message.type.placeholder.not.allowed.within.types.on.item.signatures:
+    text: 'The type placeholder `_` is not allowed within types on item signatures'
+inspection.message.unclosed:
+    text: 'unclosed {0}'
+inspection.message.unexpected:
+    text: 'Unexpected `...`'
+inspection.message.unexpected2:
+    text: 'Unexpected `..=`'
+inspection.message.unexpected3:
+    text: 'Unexpected `..`'
+inspection.message.union.cannot.be.tuple.like:
+    text: 'Union cannot be tuple-like'
+inspection.message.union.expressions.should.have.exactly.one.field:
+    text: 'Union expressions should have exactly one field'
+inspection.message.union.patterns.requires.field:
+    text: 'Union patterns requires a field'
+inspection.message.union.patterns.should.have.exactly.one.field:
+    text: 'Union patterns should have exactly one field'
+inspection.message.unknown.format.trait:
+    text: 'Unknown format trait `{0}`'
+inspection.message.unknown.meta.item:
+    text: 'Unknown meta item ''''{0}'''''
+inspection.message.unlabeled.inside.labeled.block:
+    text: 'Unlabeled `{0}` inside of a labeled block'
+inspection.message.unnecessary.cast:
+    text: 'Unnecessary cast'
+inspection.message.unnecessary.qualification:
+    text: 'Unnecessary qualification'
+inspection.message.unnecessary.visibility.qualifier:
+    text: 'Unnecessary visibility qualifier'
+inspection.message.unreachable.code:
+    text: 'Unreachable code'
+inspection.message.unreachable.pattern:
+    text: 'Unreachable pattern'
+inspection.message.unrecognized.representation:
+    text: 'Unrecognized representation {0}'
+inspection.message.unresolved.reference:
+    text: 'Unresolved reference: `{0}`'
+inspection.message.unresolved.reference2:
+    text: 'Unresolved reference'
+inspection.message.unsafe.dereference.raw.pointer:
+    text: 'Unsafe dereference of raw pointer'
+inspection.message.unstable:
+    text: '`{0}` is unstable{1}'
+inspection.message.unused.attribute:
+    text: 'Unused attribute'
+inspection.message.unused.import:
+    text: 'Unused import: `{0}`'
+inspection.message.unused.mut:
+    text: 'Unused `mut`'
+inspection.message.use.moved.value:
+    text: 'Use of moved value'
+inspection.message.use.possibly.uninitialized.variable:
+    text: 'Use of possibly uninitialized variable'
+inspection.message.use.unsafe.static:
+    text: 'Use of unsafe {0} static'
+inspection.message.value.was.moved.out.while.it.was.still.borrowed:
+    text: 'A value was moved out while it was still borrowed'
+inspection.message.variable.never.used:
+    text: 'Variable `{0}` is never used'
+inspection.message.visibilities.can.only.be.restricted.to.ancestor.modules:
+    text: 'Visibilities can only be restricted to ancestor modules'
+inspection.message.with.no.label.in.condition.while.loop:
+    text: '`{0}` with no label in the condition of a `while` loop'
+inspection.message.with.suffix.invalid:
+    text: '{0} with a suffix is invalid'
+inspection.message.wrong.meta.list.delimiters:
+    text: 'Wrong meta list delimiters'
+inspection.message.x.could.be.misinterpreted.as.pre.decrement.but.effectively.no.op:
+    text: '--x could be misinterpreted as a pre-decrement, but effectively is a no-op'
+intention.family.name.add.feature.attribute:
+    text: 'Add feature attribute'
+intention.family.name.add.fn.main:
+    text: 'Add `fn main()`'
+intention.family.name.add.import:
+    text: 'Add import'
+intention.family.name.add.import.for.path.in.pattern:
+    text: 'Add import for path in pattern'
+intention.family.name.add.label:
+    text: 'Add label'
+intention.family.name.add.missing.generic.arguments:
+    text: 'Add missing generic arguments'
+intention.family.name.add.parentheses:
+    text: 'Add parentheses'
+intention.family.name.add.safe.cast:
+    text: 'Add safe cast'
+intention.family.name.add.type:
+    text: 'Add type'
+intention.family.name.apply.suggested.replacement.made.by.external.linter:
+    text: 'Apply the suggested replacement made by external linter'
+intention.family.name.change.function.signature:
+    text: 'Change function signature'
+intention.family.name.change.item.visibility:
+    text: 'Change item visibility'
+intention.family.name.change.name.element:
+    text: 'Change name of element'
+intention.family.name.change.repr.attribute:
+    text: 'Change `repr` attribute'
+intention.family.name.change.return.type:
+    text: 'Change return type'
+intention.family.name.compare.with.zero:
+    text: 'Compare with zero'
+intention.family.name.convert.not.b.cfg.pattern.to.all.not.not.b:
+    text: 'Convert `not(a, b)` cfg-pattern to `all(not(a), not(b))`'
+intention.family.name.convert.to.loop:
+    text: 'Convert to loop'
+intention.family.name.convert.to.type:
+    text: 'Convert to type'
+intention.family.name.convert.to.unsuffixed.integer:
+    text: 'Convert to unsuffixed integer'
+intention.family.name.convert.type.local.variable:
+    text: 'Convert type of local variable'
+intention.family.name.create.enum.variant:
+    text: 'Create enum variant'
+intention.family.name.create.function:
+    text: 'Create function'
+intention.family.name.create.lifetime.parameter:
+    text: 'Create lifetime parameter'
+intention.family.name.create.module.file:
+    text: 'Create module file'
+intention.family.name.create.struct:
+    text: 'Create struct'
+intention.family.name.create.tuple.struct:
+    text: 'Create tuple struct'
+intention.family.name.demorgan.s.law:
+    text: 'DeMorgan''s law'
+intention.family.name.derive.trait:
+    text: 'Derive trait'
+intention.family.name.do.not.show.again:
+    text: 'Do not show again'
+intention.family.name.enable.features:
+    text: 'Enable features'
+intention.family.name.extract.inline.module.structure:
+    text: 'Extract inline module structure'
+intention.family.name.lift.return:
+    text: 'Lift return'
+intention.family.name.make.async:
+    text: 'Make async'
+intention.family.name.make.mutable:
+    text: 'Make mutable'
+intention.family.name.make.public:
+    text: 'Make public'
+intention.family.name.qualify.path:
+    text: 'Qualify path'
+intention.family.name.reload.project:
+    text: 'Reload project'
+intention.family.name.remove:
+    text: 'Remove'
+intention.family.name.remove.bound:
+    text: 'Remove bound'
+intention.family.name.remove.parameter:
+    text: 'Remove parameter'
+intention.family.name.remove.reference:
+    text: 'Remove reference'
+intention.family.name.remove.struct.literal.field:
+    text: 'Remove struct literal field'
+intention.family.name.remove.unnecessary.cast:
+    text: 'Remove unnecessary cast'
+intention.family.name.remove.variable:
+    text: 'Remove variable'
+intention.family.name.rename.element:
+    text: 'Rename element'
+intention.family.name.replace.box.with.box.new:
+    text: 'Replace `box` with `Box::new`'
+intention.family.name.replace.cast.with.literal.suffix:
+    text: 'Replace cast with literal suffix'
+intention.family.name.replace.successive.with:
+    text: 'Replace successive `_` with `..`'
+intention.family.name.replace.with.block.comment:
+    text: 'Replace with block comment'
+intention.family.name.replace.with.end.line.comment:
+    text: 'Replace with end of line comment'
+intention.family.name.replace.with.predefined.constant:
+    text: 'Replace with predefined constant'
+intention.family.name.simplify.boolean.expression:
+    text: 'Simplify boolean expression'
+intention.family.name.split.if:
+    text: 'Split if'
+intention.family.name.substitute.one.text.to.another:
+    text: 'Substitute one text to another'
+intention.family.name.suppress.warnings:
+    text: 'Suppress warnings'
+intention.family.name.unwrap.enum.or.tuple.struct.constructor.from.expression:
+    text: 'Unwrap enum or tuple struct constructor from an expression'
+intention.family.name.update.dependency.version:
+    text: 'Update dependency version'
+intention.family.name.use.loop:
+    text: 'Use `loop`'
+intention.family.name.use.shorthand.field.pattern:
+    text: 'Use shorthand field pattern'
+intention.name.add:
+    text: 'Add ''..'''
+intention.name.add.async.recursion.attribute:
+    text: 'Add `async_recursion` attribute'
+intention.name.add.braces.to.lambda.expression:
+    text: 'Add braces to lambda expression'
+intention.name.add.curly.braces:
+    text: 'Add curly braces'
+intention.name.add.definition.to.trait:
+    text: 'Add definition to trait'
+intention.name.add.derive.clause:
+    text: 'Add derive clause'
+intention.name.add.derive.to:
+    text: 'Add #[derive({0})] to `{1}`'
+intention.name.add.dummy.parameter.name:
+    text: 'Add dummy parameter name'
+intention.name.add.dyn.keyword.to.trait.object:
+    text: 'Add ''dyn'' keyword to trait object'
+intention.name.add.else.branch.to.this.if.statement:
+    text: 'Add else branch to this if statement'
+intention.name.add.feature:
+    text: 'Add `{0}` feature'
+intention.name.add.format.string:
+    text: 'Add format string'
+intention.name.add.format.string.argument:
+    text: 'Add format string argument'
+intention.name.add.impl.block:
+    text: 'Add impl block'
+intention.name.add.import.for:
+    text: 'Add import for `{0}`'
+intention.name.add.missing:
+    text: 'Add missing {0}'
+intention.name.add.missing.associated.types:
+    text: 'Add missing associated types'
+intention.name.add.missing.fields:
+    text: 'Add missing fields'
+intention.name.add.parentheses.to:
+    text: 'Add parentheses to `{0}`'
+intention.name.add.safe.cast.to:
+    text: 'Add safe cast to {0}'
+intention.name.add.self.to.function:
+    text: 'Add self to function'
+intention.name.add.turbofish.operator:
+    text: 'Add turbofish operator'
+intention.name.add.type:
+    text: 'Add type {0}'
+intention.name.apply.same.member.order:
+    text: 'Apply same member order'
+intention.name.attach.file.to:
+    text: 'Attach file to {0}'
+intention.name.change.format.parameter.to:
+    text: 'Change format parameter to `''{'':?''}''`'
+intention.name.change.reference.to.mutable:
+    text: 'Change reference to mutable'
+intention.name.change.to:
+    text: 'Change to `{0}`'
+intention.name.change.to.else.if:
+    text: 'Change to `else if`'
+intention.name.change.to2:
+    text: 'Change to `{0}`'
+intention.name.change.to3:
+    text: 'Change to `{0}`'
+intention.name.change.try.to:
+    text: 'Change try! to ?'
+intention.name.convert.closure.to.function:
+    text: 'Convert closure to function'
+intention.name.convert.function.to.closure:
+    text: 'Convert function to closure'
+intention.name.convert.if.let.statement.to.match:
+    text: 'Convert if let statement to match'
+intention.name.convert.impl.trait.to.type.parameter:
+    text: 'Convert `impl Trait` to type parameter'
+intention.name.convert.match.statement.to.if.let:
+    text: 'Convert match statement to if let'
+intention.name.convert.to.macro:
+    text: 'Convert to {0}!'
+intention.name.convert.to.box:
+    text: 'Convert to Box'
+intention.name.convert.to.method.call:
+    text: 'Convert to method call'
+intention.name.convert.to.reference:
+    text: 'Convert to reference'
+intention.name.convert.to.struct:
+    text: 'Convert to struct'
+intention.name.convert.to.tuple:
+    text: 'Convert to tuple'
+intention.name.convert.to.ufcs:
+    text: 'Convert to UFCS'
+intention.name.convert.to.using:
+    text: 'Convert to {0} using {1}'
+intention.name.create.associated.function:
+    text: 'Create associated function `{0}::{1}`'
+intention.name.create.associated.function.self:
+    text: 'Create associated function `Self::{0}`'
+intention.name.create.enum.variant:
+    text: 'Create enum variant `{0}`'
+intention.name.create.field:
+    text: 'Create field'
+intention.name.create.function:
+    text: 'Create function `{0}`'
+intention.name.create.method:
+    text: 'Create method `{0}`'
+intention.name.create.struct:
+    text: 'Create struct `{0}`'
+intention.name.create.tuple.struct:
+    text: 'Create tuple struct `{0}`'
+intention.name.delete.expression:
+    text: 'Delete expression'
+intention.name.derive.debug.and.replace.display.to.debug:
+    text: 'Derive `Debug` for `{0}` and replace `''{}''` with `''{:?}''`'
+intention.name.demorgan.s.law.replace.with:
+    text: 'DeMorgan''s law, replace ''||'' with ''&&'''
+intention.name.demorgan.s.law.replace.with2:
+    text: 'DeMorgan''s law, replace ''&&'' with ''||'''
+intention.name.derive.copy.trait:
+    text: 'Derive Copy trait'
+intention.name.elide.lifetimes:
+    text: 'Elide lifetimes'
+intention.name.enclose.expression.in.braces:
+    text: 'Enclose the expression in braces'
+intention.name.escape.keyword:
+    text: 'Escape keyword'
+intention.name.escape.reserved.keyword:
+    text: 'Escape reserved keyword'
+intention.name.expand.dependency.specification:
+    text: 'Expand dependency specification'
+intention.name.external.linter:
+    text: 'External Linter: {0}'
+intention.name.extract.enum.variant:
+    text: 'Extract enum variant'
+intention.name.extract.inline.module:
+    text: 'Extract inline module'
+intention.name.fill.missing.arguments:
+    text: 'Fill missing arguments'
+intention.name.fix.visibility.restriction:
+    text: 'Fix visibility restriction'
+intention.name.flatten.use.statements:
+    text: 'Flatten use statements'
+intention.name.flip:
+    text: 'Flip ''''{0}'''''
+intention.name.flip.binary.expression:
+    text: 'Flip binary expression'
+intention.name.flip.changes.semantics:
+    text: 'Flip ''''{0}'''' (changes semantics)'
+intention.name.flip.to:
+    text: 'Flip ''''{0}'''' to ''''{1}'''''
+intention.name.function:
+    text: 'function'
+intention.name.generate.documentation.stub:
+    text: 'Generate documentation stub'
+intention.name.implement.display.trait.for:
+    text: 'Implement `Display` trait for `{0}`'
+intention.name.implement.members:
+    text: 'Implement members'
+intention.name.implement.missing.supertrait.s:
+    text: 'Implement missing supertrait(s)'
+intention.name.implement.trait:
+    text: 'Implement trait'
+intention.name.import:
+    text: 'Import'
+intention.name.initialize.with.default.value:
+    text: 'Initialize with a default value'
+intention.name.introduce.local.variable:
+    text: 'Introduce local variable'
+intention.name.invert.if.condition:
+    text: 'Invert if condition'
+intention.name.join.else.if:
+    text: 'Join `else if`'
+intention.name.lambda:
+    text: 'lambda'
+intention.name.lift.return.out:
+    text: 'Lift return out of ''''{0}'''''
+intention.name.make:
+    text: 'Make{0} {1}'
+intention.name.make.async:
+    text: 'Make {0} async'
+intention.name.merge.with.nested.if.expression:
+    text: 'Merge with the nested ''if'' expression'
+intention.name.move.guard.inside.match.arm:
+    text: 'Move guard inside the match arm'
+intention.name.move.type.constraint.to.parameter.list:
+    text: 'Move type constraint to parameter list'
+intention.name.move.type.constraint.to.where.clause:
+    text: 'Move type constraint to where clause'
+intention.name.nest.use.statements:
+    text: 'Nest use statements'
+intention.name.put.arguments.on.one.line:
+    text: 'Put arguments on one line'
+intention.name.put.arguments.on.separate.lines:
+    text: 'Put arguments on separate lines'
+intention.name.put.fields.on.one.line:
+    text: 'Put fields on one line'
+intention.name.put.fields.on.separate.lines:
+    text: 'Put fields on separate lines'
+intention.name.put.parameters.on.one.line:
+    text: 'Put parameters on one line'
+intention.name.put.parameters.on.separate.lines:
+    text: 'Put parameters on separate lines'
+intention.name.put.variants.on.one.line:
+    text: 'Put variants on one line'
+intention.name.put.variants.on.separate.lines:
+    text: 'Put variants on separate lines'
+intention.name.qualify.path.to:
+    text: 'Qualify path to `{0}`'
+intention.name.recursively.add.missing.fields:
+    text: 'Recursively add missing fields'
+intention.name.recursively.replace.with.actual.fields:
+    text: 'Recursively replace .. with actual fields'
+intention.name.remove:
+    text: 'Remove {0}'
+intention.name.remove.bound:
+    text: 'Remove {0} bound'
+intention.name.remove.braces.from.single.expression:
+    text: 'Remove braces from single expression'
+intention.name.remove.braces.from.single.expression.statement:
+    text: 'Remove braces from single expression statement'
+intention.name.remove.curly.braces:
+    text: 'Remove curly braces'
+intention.name.remove.dbg:
+    text: 'Remove dbg!'
+intention.name.remove.else:
+    text: 'Remove `else`'
+intention.name.remove.parameter:
+    text: 'Remove parameter `{0}`'
+intention.name.remove.parentheses.from.expression:
+    text: 'Remove parentheses from expression'
+intention.name.remove.quotes:
+    text: 'Remove quotes'
+intention.name.remove.redundant.arguments:
+    text: 'Remove redundant arguments'
+intention.name.remove.redundant.associated.type:
+    text: 'Remove redundant associated type'
+intention.name.remove.redundant.generic.arguments:
+    text: 'Remove redundant generic arguments'
+intention.name.remove.semicolon:
+    text: 'Remove semicolon'
+intention.name.remove.suffix:
+    text: 'Remove suffix'
+intention.name.remove.unnecessary.argument:
+    text: 'Remove unnecessary argument'
+intention.name.remove.unnecessary.path.prefix:
+    text: 'Remove unnecessary path prefix'
+intention.name.remove.unreachable.code:
+    text: 'Remove unreachable code'
+intention.name.remove.unreachable.match.arm:
+    text: 'Remove unreachable match arm'
+intention.name.remove.unreachable.pattern:
+    text: 'Remove unreachable pattern'
+intention.name.remove.unused.import:
+    text: 'Remove unused import'
+intention.name.remove.variable:
+    text: 'Remove variable `{0}`'
+intention.name.remove2:
+    text: 'Remove {0}'
+intention.name.replace.brackets:
+    text: 'Replace brackets'
+intention.name.replace.unwrap.with.match:
+    text: 'Replace .unwrap() with match'
+intention.name.replace.unwrap.with.try:
+    text: 'Replace .unwrap() with try'
+intention.name.replace.with:
+    text: 'Replace `_` with `..`'
+intention.name.replace.with.actual.fields:
+    text: 'Replace .. with actual fields'
+intention.name.replace.with.std.mem.drop:
+    text: 'Replace with `std::mem::drop`'
+intention.name.replace.inc.dec.operator:
+    text: 'Replace with `{0}`'
+intention.name.replace.with2:
+    text: 'Replace with `{0}`'
+intention.name.set.reference.immutable:
+    text: 'Set reference immutable'
+intention.name.set.reference.mutable:
+    text: 'Set reference mutable'
+intention.name.show.recursive.macro.expansion:
+    text: 'Show recursive macro expansion'
+intention.name.show.result.macro.expansion.cargo.expand:
+    text: 'Show the result of macro expansion (cargo expand)'
+intention.name.show.single.step.macro.expansion:
+    text: 'Show single step macro expansion'
+intention.name.simplify.boolean.expression:
+    text: 'Simplify boolean expression'
+intention.name.simplify.dependency.specification:
+    text: 'Simplify dependency specification'
+intention.name.simplify.expression:
+    text: 'Simplify expression'
+intention.name.specify.type.explicitly:
+    text: 'Specify type explicitly'
+intention.name.split.into.if.s:
+    text: 'Split into 2 if''s'
+intention.name.substitute:
+    text: 'Substitute'
+intention.name.substitute.type.alias:
+    text: 'Substitute type alias'
+intention.name.suppress.all.inspections.for.item:
+    text: 'Suppress all inspections for item'
+intention.name.suppress.for:
+    text: 'Suppress `{0}` for {1}'
+intention.name.suppress.for.item.with.comment:
+    text: 'Suppress for item with comment'
+intention.name.surround.with.unsafe.block:
+    text: 'Surround with unsafe block'
+intention.name.toggle.ignore.for.tests:
+    text: 'Toggle ignore for tests'
+intention.name.un.elide.lifetimes:
+    text: 'Un-elide lifetimes'
+intention.name.unwrap.from.expression:
+    text: 'Unwrap `{0}` from the expression'
+intention.name.update.version.to:
+    text: 'Update version to {0}'
+intention.name.use.destructuring.declaration:
+    text: 'Use destructuring declaration'
+intention.name.use.drop.to.clarify.intent.drop:
+    text: 'Use `drop` to clarify the intent: `drop({0});`'
+intention.name.use.initialization.shorthand:
+    text: 'Use initialization shorthand'
+intention.name.use.shorthand.field.pattern:
+    text: 'Use shorthand field pattern: `{0}`'
+introduce.parameter.to.method:
+    text: 'Introduce Parameter to Method'
+item.and.impls:
+    text: 'item and impls'
+label.:
+    text: '{0} {1} {2}'
+label.2:
+    text: '{0} {1} {2}'
+label.channel:
+    text: 'C&hannel:'
+label.install.cargo.generate.using.cargo:
+    text: 'Install cargo-generate using Cargo'
+label.rust.files:
+    text: 'Rust files'
+label.struct:
+    text: 'struct {0}''{'''
+label.trait.name:
+    text: 'Trait name:'
+label.type.alias:
+    text: 'Type alias {0}'
+list.item.binary.application:
+    text: 'Binary (application)'
+list.item.empty.file:
+    text: 'Empty file'
+list.item.function.to.inline:
+    text: 'Function to inline'
+list.item.library:
+    text: 'Library'
+list.item.procedural.macro:
+    text: 'Procedural Macro'
+list.item.to.inline:
+    text: '{0} to inline'
+list.item.type.alias.to.inline:
+    text: 'Type Alias to inline'
+list.item.webassembly.lib:
+    text: 'WebAssembly Lib'
+missing.else:
+    text: 'Missing else'
+mod.0:
+    text: 'mod {0}'
+name:
+    text: 'Name'
+name2:
+    text: 'Name:'
+no.lines.covered:
+    text: 'no lines covered'
+no.mutable.required:
+    text: 'No mutable required'
+non.exhaustive.match:
+    text: 'Non-exhaustive match'
+notification.content.bad.answer.from.crates.io:
+    text: 'Bad answer from crates.io'
+notification.content.cannot.load.rustc.renderers:
+    text: 'Cannot load rustc renderers'
+notification.content.cannot.load.rustc.sources:
+    text: 'Cannot load rustc sources'
+notification.content.cargo.at:
+    text: 'Cargo at {0}'
+notification.content.could.not.create.mod:
+    text: 'Could not create `mod {0}`'
+notification.content.could.not.reach.crates.io:
+    text: 'Could not reach crates.io'
+notification.content.debugger.downloading.failed:
+    text: 'Debugger downloading failed'
+notification.content.debugger.successfully.downloaded:
+    text: 'Debugger successfully downloaded'
+notification.content.failed.to.install.cargo.generate:
+    text: 'Failed to install cargo-generate'
+notification.content.incompatible.toml.plugin.version.code.completion.for.cargo.toml.not.available:
+    text: 'Incompatible TOML plugin version, code completion for Cargo.toml is not available.'
+notification.content.not.installed:
+    text: '{0} is not installed'
+notification.content.project.not.found:
+    text: 'Project not found'
+notification.content.rebuilt.defmap.for.all.crates.in.ms:
+    text: 'Rebuilt DefMap for all crates in {0} ms'
+notification.content.rust.toolchain.no.longer.supported:
+    text: 'Rust <b>{0}</b> is no longer supported. It may lead to unexpected errors. Consider upgrading your toolchain to at least <b>{1}</b>'
+notification.content.rustup:
+    text: 'rustup'
+notification.content.target.not.installed:
+    text: '{0} target is not installed'
+notification.content.using:
+    text: 'Using {0}'
+notification.title.code.code.not.installed:
+    text: '<code>{0}</code> is not installed'
+notification.title.debugger:
+    text: 'Debugger'
+notification.title.potentially.inconsistent.build.test.results:
+    text: 'Potentially inconsistent build/test results'
+notification.title.rustfmt:
+    text: 'Rustfmt'
+"off":
+    text: 'OFF'
+"on":
+    text: 'ON'
+parameters:
+    text: 'Parameters:'
+parsing.error.expected:
+    text: '''''{0}'''' expected'
+parsing.error.expected.got:
+    text: '`;` expected, got ''''{0}'''''
+parsing.error.expected.got2:
+    text: '`;` expected, got ''''{0}'''''
+parsing.error.expected2:
+    text: '''''{0}'''' expected'
+parsing.error.macro.argument.expected.got:
+    text: '<macro argument> expected, got ''''{0}'''''
+popup.title.choose.module.declaration:
+    text: 'Choose Module Declaration'
+popup.title.choose.scope.to.introduce.constant:
+    text: 'Choose scope to introduce constant {0}'
+popup.title.first.level.expansion:
+    text: 'First level expansion of {0}'
+popup.title.item.to.import:
+    text: 'Item to Import'
+popup.title.macro:
+    text: '{0}! macro'
+popup.title.recursive.expansion:
+    text: 'Recursive expansion of {0}'
+println.usage:
+    text: 'println!("") usage'
+progress.text.connecting.to.console:
+    text: 'Connecting to console...'
+progress.text.installing.using.cargo:
+    text: 'Installing using Cargo...'
+progress.text.preparing.resolve.data:
+    text: 'Preparing resolve data'
+progress.text.save.macro.expansions:
+    text: 'Save macro expansions'
+progress.text.waiting.for.current.build.to.finish:
+    text: 'Waiting for the current build to finish...'
+progress.title.analyzing.project.with:
+    text: 'Analyzing project with {0}...'
+progress.title.building:
+    text: 'Building...'
+progress.title.building.cargo.project:
+    text: 'Building Cargo project'
+progress.title.checking.if.installed:
+    text: 'Checking if {0} is installed...'
+progress.title.checking.if.toolchain.supported:
+    text: 'Checking if toolchain is supported...'
+progress.title.choice.recursive.single.step.expansion.progress:
+    text: '{0, choice, 0#Recursive|1#Single step} expansion progress...'
+progress.title.cleaning.outdated.macros:
+    text: 'Cleaning outdated macros'
+progress.title.connecting.to.console:
+    text: 'Connecting to Console'
+progress.title.expanding.rust.macros:
+    text: 'Expanding Rust macros'
+progress.title.generating.cargo.project:
+    text: 'Generating Cargo project...'
+progress.title.getting.environment.variables:
+    text: 'Getting environment variables...'
+progress.title.getting.installed.distributions:
+    text: 'Getting installed distributions...'
+progress.title.installing:
+    text: 'Installing {0}...'
+progress.title.installing2:
+    text: 'Installing {0}...'
+progress.title.loading.cargo.registry.index:
+    text: 'Loading cargo registry index'
+progress.title.loading.coverage.data:
+    text: 'Loading Coverage Data...'
+progress.title.preparing.remote.environment:
+    text: 'Preparing remote environment...'
+progress.title.reformatting.cargo.project.with.rustfmt:
+    text: 'Reformatting Cargo Project with Rustfmt...'
+progress.title.reloading.cargo.projects:
+    text: 'Reloading Cargo projects'
+progress.title.restarting.console:
+    text: 'Restarting console'
+radio.inline.all.keep.method:
+    text: 'Inline all and keep the method'
+radio.inline.all.references.keep:
+    text: 'Inline all references and keep the {0}'
+radio.inline.all.remove.type.alias:
+    text: 'Inline all and remove the type alias'
+radio.inline.this.only.keep:
+    text: 'Inline this only and keep the {0}'
+radio.inline.this.only.keep.type.alias:
+    text: 'Inline this only and keep the type alias'
+redundant.else:
+    text: 'Redundant else'
+revert:
+    text: 'Revert'
+run.rustfmt:
+    text: 'Run rustfmt'
+runs.cargo.command:
+    text: 'Runs Cargo command'
+runs.wasm.pack.command:
+    text: 'Runs wasm-pack command'
+rust:
+    text: 'Rust'
+rust.1.70.0.stable:
+    text: 'Rust 1.70.0 stable'
+rust.consoles:
+    text: 'Rust Consoles'
+rust.debugger.renderers.bundled.item:
+    text: 'Bundled renderers'
+rust.debugger.renderers.compiler.item:
+    text: 'Rust compiler''s renderers'
+rust.debugger.renderers.none.item:
+    text: 'No renderers'
+rust.external.linter:
+    text: 'Rust external linter'
+rust.module:
+    text: 'Rust module'
+signature:
+    text: 'Signature:'
+status.bar.text.rebuilt.defmap.for.in.ms:
+    text: 'Rebuilt DefMap for {0} in {1} ms'
+struct:
+    text: 'struct'
+structs.deriving.default:
+    text: 'Structs deriving Default'
+structs.with.a.u8.field:
+    text: 'Structs with a u8 field'
+suspicious.assignment:
+    text: 'Suspicious assignment'
+tab.title.error.running.console:
+    text: 'Error Running Console'
+test:
+    text: 'Test'
+text.conditionally.disabled.code:
+    text: 'Conditionally disabled code'
+external.linter.tooltip:
+    text: 'The analysis shows all problems reported by {0}, but consumes more system resources. When turned off, only the limited set of problems supported by IntelliJ Rust engine are shown.'
+to:
+    text: 'To:'
+code.vision.disable.hints.message:
+    text: '\n            To disable hints for a function use the appropriate pattern:<br />\n            <b>std::*</b> - functions from the standard library<br />\n            <b>std::fs::*(*, *)</b> - functions from the <i>std::fs</i> module with two parameters<br />\n            <b>(*_)</b> - single parameter function where the parameter name ends with <i>_</i><br />\n            <b>(key, value)</b> - functions with parameters <i>key</i> and <i>value</i><br />\n            <b>*.put(key, value)</b> - <i>put</i> functions with <i>key</i> and <i>value</i> parameters\n'
+tooltip.delimiters.should.be:
+    text: 'The delimiters should be `(` and `)`'
+tooltip.does.not.have.constant.size.known.at.compile.time:
+    text: '`{0}` does not have a constant size known at compile-time'
+tooltip.implements:
+    text: 'Implements'
+tooltip.in:
+    text: '{0} {1} in `{2}`'
+tooltip.instead.using.suffixed.literal.1u8.0f32.etc.use.unsuffixed.version.etc:
+    text: 'Instead of using a suffixed literal (`1u8`, `1.0f32`, etc.), use an unsuffixed version (`1`, `\n1.0`, etc.)'
+tooltip.must.be.defined.only.once.in.namespace.this:
+    text: '`{0}` must be defined only once in the {1} namespace of this {2}'
+tooltip.overrides:
+    text: 'Overrides'
+tooltip.project.directory.does.not.exist:
+    text: 'Project directory does not exist'
+tooltip.project.needs.update:
+    text: 'Project needs update'
+tooltip.project.up.to.date:
+    text: 'Project is up-to-date'
+tooltip.target:
+    text: '{0} target `{1}`'
+tooltip.this.was.previously.accepted.by.compiler.but.being.phased.out.it.will.become.hard.error.in.future.release:
+    text: 'This was previously accepted by the compiler but is being phased out; it will become a hard error in a future release!'
+tooltip.trait.not.implemented.for:
+    text: 'the trait `{0}` is not implemented for `{1}`'
+tooltip.valid.abis:
+    text: 'valid ABIs: {0}'
+tooltip.visibility.restriction.with.module.path.should.start.with.in.keyword:
+    text: 'Visibility restriction with module path should start with `in` keyword'
+trait:
+    text: 'trait'
+try.macro.usage:
+    text: 'try! macro usage'
+type:
+    text: 'Type'
+type.0:
+    text: 'Type: {0}'
+type2:
+    text: 'type'
+unreachable.patterns:
+    text: 'Unreachable patterns'
+unsafe.cstring.pointer:
+    text: 'Unsafe CString pointer'
+visibility:
+    text: 'Visibility:'
+wasm.pack:
+    text: 'wasm-pack'
+wasm.pack.command.run.configuration:
+    text: 'wasm-pack command run configuration'
+wasm.pack.commands:
+    text: 'wasm-pack commands'
+while.true.loop:
+    text: 'While true loop'
+details:
+    text: 'Details:'
+inspection.missing.features.display.name:
+    text: 'Missing features'
+inspection.rs.async.main.function.display.name:
+    text: 'The entry point is async'
+inspection.toml.invalid.keyword.segment.display.name:
+    text: 'Invalid keywords section'
+inspection.new.crate.version.available.display.name:
+    text: 'New crate version available'
+inspection.crate.version.invalid.display.name:
+    text: 'Invalid crate version'
+inspection.crate.not.found.display.name:
+    text: 'Crate not found'
+inspection.cargo.toml.cyclic.feature.display.name:
+    text: 'Cyclic feature dependency'
+cargo.toml:
+    text: 'Cargo.toml'
+inspection.rs.compile.error.macro.display.name:
+    text: 'Compile Error macro'
+inspection.rs.unused.labels.display.name:
+    text: 'Unused labels'
+inspection.rs.wrong.assoc.type.arguments.display.name:
+    text: 'Wrong associated type arguments'
+inspection.rs.unnecessary.qualifications.display.name:
+    text: 'Unnecessarily qualified path'
+inspection.rs.unused.import.display.name:
+    text: 'Unused import'
+inspection.rs.unknown.crate.types.display.name:
+    text: 'Unknown crate types'
+inspection.rs.unreachable.code.display.name:
+    text: 'Unreachable code'
+inspection.rs.duplicated.trait.method.binding.display.name:
+    text: 'Duplicate trait method parameter name'
+inspection.rs.detached.file.display.name:
+    text: 'Detached file'
+inspection.rs.main.function.not.found.display.name:
+    text: 'Main function not found'
+inspection.rs.liveness.display.name:
+    text: 'Liveness analysis'
+inspection.rs.external.linter.display.name:
+    text: 'External Linter'
+inspection.rs.lift.display.name:
+    text: 'Return can be lifted out'
+inspection.rs.non.exhaustive.match.display.name:
+    text: 'Non-exhaustive match'
+inspection.rs.unreachable.patterns.display.name:
+    text: 'Unreachable patterns'
+inspection.rs.attr.without.parentheses.display.name:
+    text: 'Attribute without parentheses'
+inspection.rs.const.refer.static.display.name:
+    text: 'Constant refers to statics'
+inspection.rs.cast.to.bool.display.name:
+    text: 'Cast to bool'
+inspection.rs.trait.implementation.display.name:
+    text: 'Trait implementation'
+inspection.rs.assign.to.immutable.display.name:
+    text: 'Assign to immutable'
+inspection.rs.needless.lifetimes.display.name:
+    text: 'Needless lifetimes'
+inspection.rs.sort.impl.trait.members.display.name:
+    text: 'Different impl member order from the trait'
+inspection.rs.type.check.display.name:
+    text: 'Type checker'
+inspection.rs.experimental.checks.display.name:
+    text: 'Experimental checks'
+inspection.rs.assert.equal.display.name:
+    text: 'Assert Equal'
+inspection.rs.path.statements.display.name:
+    text: 'Path statements'
+inspection.rs.redundant.semicolons.display.name:
+    text: 'Redundant semicolons'
+inspection.rs.double.must.use.display.name:
+    text: 'Double must_use'
+inspection.rs.unused.must.use.display.name:
+    text: 'Unused must_use'
+inspection.rs.non.shorthand.field.patterns.display.name:
+    text: 'Non-shorthand field patterns'
+inspection.rs.field.init.shorthand.display.name:
+    text: 'Field initialization shorthand'
+inspection.rs.borrow.checker.display.name:
+    text: 'Borrow checker'
+inspection.rs.reassign.immutable.display.name:
+    text: 'Re-assign immutable variable'
+inspection.rs.wrong.generic.parameters.number.display.name:
+    text: 'Wrong type or const parameters number'
+inspection.rs.wrong.lifetime.parameters.number.display.name:
+    text: 'Wrong lifetime parameters number'
+inspection.rs.wrong.generic.arguments.order.display.name:
+    text: 'Wrong generic arguments order'
+inspection.rs.wrong.generic.arguments.number.display.name:
+    text: 'Wrong generic arguments number'
+inspection.rs.unused.mut.display.name:
+    text: 'Unused mut modifier'
+inspection.rs.constant.condition.if.display.name:
+    text: 'Condition of ''if'' expression is constant'
+inspection.rs.simplify.boolean.expression.display.name:
+    text: 'Simplify boolean expression'
+inspection.rs.simplify.print.display.name:
+    text: 'println!("") usage'
+inspection.rs.while.true.loop.display.name:
+    text: 'While true loop'
+inspection.rs.replace.cast.with.suffix.display.name:
+    text: 'Cast can be replaced with literal suffix'
+inspection.rs.unnecessary.cast.display.name:
+    text: 'Unnecessary cast'
+inspection.rs.try.macro.display.name:
+    text: 'try! macro usage'
+inspection.rs.extra.semicolon.display.name:
+    text: 'Extra semicolon'
+inspection.rs.variable.naming.display.name:
+    text: 'Variable naming convention'
+inspection.rs.thread.rng.gen.can.be.replaced.with.random:
+    text: '`thread_rng().gen()` can be replaced with `random()`'
+inspection.rs.type.parameter.naming.display.name:
+    text: 'Type parameter naming convention'
+inspection.rs.type.alias.naming.display.name:
+    text: 'Type alias naming convention'
+inspection.rs.trait.naming.display.name:
+    text: 'Trait naming convention'
+inspection.rs.field.naming.display.name:
+    text: 'Field naming convention'
+inspection.rs.struct.naming.display.name:
+    text: 'Struct naming convention'
+inspection.rs.self.convention.display.name:
+    text: 'Self convention'
+inspection.rs.static.const.naming.display.name:
+    text: 'Static constant naming convention'
+inspection.rs.module.naming.display.name:
+    text: 'Module naming convention'
+inspection.rs.method.naming.display.name:
+    text: 'Method naming convention'
+inspection.rs.macro.naming.display.name:
+    text: 'Macro naming convention'
+inspection.rs.lifetime.naming.display.name:
+    text: 'Lifetime naming convention'
+inspection.rs.function.naming.display.name:
+    text: 'Function naming convention'
+inspection.rs.enum.variant.naming.display.name:
+    text: 'Enum variant naming convention'
+inspection.rs.enum.naming.display.name:
+    text: 'Enum naming convention'
+inspection.rs.const.naming.display.name:
+    text: 'Constant naming convention'
+inspection.rs.assoc.type.naming.display.name:
+    text: 'Associated type naming convention'
+inspection.rs.argument.naming.display.name:
+    text: 'Argument naming convention'
+inspection.rs.drop.ref.display.name:
+    text: 'Dropping reference'
+inspection.rs.redundant.else.display.name:
+    text: 'Redundant else'
+inspection.rs.missing.else.display.name:
+    text: 'Missing else'
+inspection.rs.dangling.else.display.name:
+    text: 'Dangling else'
+inspection.rs.suspicious.assignment.display.name:
+    text: 'Suspicious assignment'
+inspection.rs.double.neg.display.name:
+    text: 'Double negation'
+inspection.rs.unresolved.reference.display.name:
+    text: 'Unresolved reference'
+inspection.rs.c.string.pointer.display.name:
+    text: 'Unsafe CString pointer'
+inspection.rs.approx.constant.display.name:
+    text: 'Approximate constants'
+inspection.rs.deprecation.display.name:
+    text: 'Deprecated element'
+inspection.rs.bare.trait.objects.display.name:
+    text: 'Trait objects must include the dyn keyword'
+inspection.rs.literal.out.of.range.display.name:
+    text: 'Literal out of range'
+lints:
+    text: 'Lints'
+rust.cargo.toml:
+    text: 'Rust/Cargo.toml'
+naming.conventions:
+    text: 'Naming conventions'
+notification.group.rust.plugin:
+    text: ''
+action.show.settings.text:
+    text: 'Show settings...'
+build.event.message.compiling.0:
+    text: 'Compiling {0}'
+build.event.message.internal.compiler.error:
+    text: '\ internal compiler error:'
+build.event.title.sync.project:
+    text: 'Sync {0} project'
+column.name.apply.to:
+    text: 'Apply to'
+column.name.scope:
+    text: 'Scope'
+console.is.not.enabled:
+    text: 'Console is not enabled.'
+corrupted.standard.library.0:
+    text: 'Corrupted standard library: {0}'
+dialog.message.debug.toolchain.not.configured:
+    text: 'Debug toolchain is not configured.'
+dialog.title.unable.to.build:
+    text: 'Unable to build'
+dialog.title.unable.to.run.profiler:
+    text: 'Unable to run profiler'
+dialog.title.unable.to.run.valgrind:
+    text: 'Unable to run Valgrind'
+download.failed.0:
+    text: 'Download failed: {0}'
+failed.to.get.project.sysroot:
+    text: 'failed to get project sysroot'
+failed.to.run.cargo:
+    text: 'Failed to run Cargo'
+file:
+    text: 'file'
+fn.0:
+    text: 'fn {0}'
+html.head.0.style.body.background.1.text.align.center.style.head.body.2.body.html:
+    text: '\n        <html>\n        <head>\n            {0}\n            <style>body ''{''background: #{1}; text-align: center; ''}''</style>\n        </head>\n        <body>\n            {2}\n        </body>\n        </html>\n'
+inspection.message.:
+    text: '{0} [{1}]'
+inspection.message.access.to.union.field.unsafe.requires.unsafe.function.or.block:
+    text: 'Access to union field is unsafe and requires unsafe function or block'
+inspection.message.align.argument.must.be.power.two:
+    text: '`align` argument must be a power of two'
+inspection.message.align.argument.must.be.unsuffixed.integer:
+    text: '`align` argument must be an unsuffixed integer'
+inspection.message.align.argument.must.not.be.larger.than:
+    text: '`align` argument must not be larger than 2^29'
+inspection.message.align.needs.argument:
+    text: '`align` needs an argument'
+inspection.message.align.takes.exactly.one.argument.in.parentheses:
+    text: '`align` takes exactly one argument in parentheses'
+inspection.message.attribute.should.be.applied.to.enum:
+    text: '{0} attribute should be applied to enum'
+inspection.message.attribute.should.be.applied.to.struct.enum.or.union:
+    text: '{0} attribute should be applied to struct, enum, or union'
+inspection.message.attribute.should.be.applied.to.struct.or.union:
+    text: '{0} attribute should be applied to struct or union'
+inspection.message.attributes.on.function.parameters.experimental:
+    text: 'attributes on function parameters is experimental'
+inspection.message.call.to.unsafe.function.requires.unsafe.function.or.block:
+    text: 'Call to unsafe function requires unsafe function or block'
+inspection.message.can.t.find.crate.for:
+    text: 'Can''''t find crate for `{0}`'
+inspection.message.cannot.have.anonymous.parameters:
+    text: '{0} cannot have anonymous parameters'
+inspection.message.cannot.have.anonymous.parameters2:
+    text: '{0} cannot have anonymous parameters'
+inspection.message.const:
+    text: 'const'
+inspection.message.const2:
+    text: 'Const'
+inspection.message.crate.in.paths.can.only.be.used.in.start.position:
+    text: '`crate` in paths can only be used in start position'
+inspection.message.dereference.raw.pointer.requires.unsafe.function.or.block:
+    text: 'Dereference of raw pointer requires unsafe function or block'
+inspection.message.duplicate.definitions.with.name:
+    text: 'Duplicate definitions with name `{0}`'
+inspection.message.expected.trait.found:
+    text: 'Expected trait, found {0} `{1}`'
+inspection.message.explicit.calls.to.drop.are.forbidden.use.std.mem.drop.instead:
+    text: 'Explicit calls to `drop` are forbidden. Use `std::mem::drop` instead'
+inspection.message.field.already.declared:
+    text: 'Field `{0}` is already declared'
+inspection.message.from.trait:
+    text: '`{0}` (from trait `{1}`)'
+inspection.message.has.but.its.trait.declaration.has:
+    text: '{0} `{1}` has {2} {3} but its trait declaration has {4} {5}'
+inspection.message.identifier.bound.more.than.once.in.this.parameter.list:
+    text: 'Identifier `{0}` is bound more than once in this parameter list'
+inspection.message.implementing.trait.not.unsafe:
+    text: 'Implementing the trait `{0}` is not unsafe'
+inspection.message.incorrect.repr.align.attribute.format:
+    text: 'Incorrect `repr(align)` attribute format'
+inspection.message.item.associated.which.doesn.t.match.its.trait:
+    text: 'item `{0}` is an associated {1}, which doesn''''t match its trait `{2}`'
+inspection.message.lifetime.name.declared.twice.in.same.scope:
+    text: 'Lifetime name `{0}` declared twice in the same scope'
+inspection.message.method:
+    text: 'Method'
+inspection.message.method.has.but.declaration.in.trait.has:
+    text: 'Method `{0}` has {1} {2} but the declaration in trait `{3}` has {4}'
+inspection.message.method.has.declaration.in.impl.but.not.in.trait:
+    text: 'Method `{0}` has a `{1}` declaration in the impl, but not in the trait'
+inspection.message.method.has.declaration.in.trait.but.not.in.impl:
+    text: 'Method `{0}` has a `{1}` declaration in the trait, but not in the impl'
+inspection.message.must.have.body:
+    text: '{0} must have a body'
+inspection.message.must.have.body2:
+    text: '{0} must have a body'
+inspection.message.must.have.value:
+    text: '{0} must have a value'
+inspection.message.must.have.value2:
+    text: '{0} must have a value'
+inspection.message.name.already.used.for.generic.parameter.in.this.item.s.generic.parameters:
+    text: 'The name `{0}` is already used for a generic parameter in this item''''s generic parameters'
+inspection.message.not.all.trait.items.implemented.missing:
+    text: 'Not all trait items implemented, missing: {0}'
+inspection.message.not.member.trait:
+    text: '{0} `{1}` is not a member of trait `{2}`'
+inspection.message.only.static.constants.are.allowed.in.extern.blocks:
+    text: 'Only static constants are allowed in extern blocks'
+inspection.message.provided.when.constant.was.expected:
+    text: '{0} provided when a constant was expected'
+inspection.message.provided.when.lifetime.was.expected:
+    text: '{0} provided when a lifetime was expected'
+inspection.message.provided.when.type.was.expected:
+    text: '{0} provided when a type was expected'
+inspection.message.requires.unsafe.impl.declaration.due.to.attribute:
+    text: 'Requires an `unsafe impl` declaration due to `#[{0}]` attribute'
+inspection.message.reserved.lifetime.name:
+    text: '`{0}` is a reserved lifetime name'
+inspection.message.should.have.body:
+    text: '{0} should have a body'
+inspection.message.should.have.body2:
+    text: '{0} should have a body`'
+inspection.message.this.function.takes.choice.at.least.but.choice.was.were.supplied:
+    text: 'This function takes{0, choice, 0# at least|1#} {1} {2} but {3} {4} {5, choice, 0#was|1#were} supplied'
+inspection.message.trait.requires.unsafe.impl.declaration:
+    text: 'The trait `{0}` requires an `unsafe impl` declaration'
+inspection.message.type:
+    text: 'type'
+inspection.message.type2:
+    text: 'Type'
+inspection.message.use.static.unsafe.requires.unsafe.function.or.block:
+    text: 'Use of {0} static is unsafe and requires unsafe function or block'
+inspection.message.use.undeclared.label:
+    text: 'Use of undeclared label `{0}`'
+inspection.message.use.undeclared.lifetime.name:
+    text: 'Use of undeclared lifetime name `{0}`'
+inspection.message.use.unreachable.label:
+    text: 'Use of unreachable label `{0}`'
+inspection.message.use.unsafe.requires.unsafe.function.or.block:
+    text: 'use of `{0}!()` is unsafe and requires unsafe function or block'
+inspection.message.value.associated.must.be.specified:
+    text: 'The value of the associated {0} {1} must be specified'
+inspection.message.wrong.number.arguments.expected.found:
+    text: 'Wrong number of {0} arguments: expected {1}, found {2}'
+inspection.message.wrong.number.lifetime.arguments.expected.found:
+    text: 'Wrong number of lifetime arguments: expected {0}, found {1}'
+intention.family.name.convert.to.sized.type:
+    text: 'Convert to Sized type'
+intention.family.name.import:
+    text: 'Import'
+intention.name.:
+    text: '{0}{1}'
+intention.name.add.as.parameter.to:
+    text: 'Add `{0}` as `{1}` parameter to {2} `{3}`'
+intention.name.add.pattern:
+    text: 'Add _ pattern'
+intention.name.add.remaining.patterns:
+    text: 'Add remaining patterns'
+intention.name.add.unsafe.to:
+    text: 'Add unsafe to {0}'
+intention.name.b.b:
+    text: '<b>{0}</b>'
+intention.name.b.b2:
+    text: '<b>{0}</b>'
+intention.name.block:
+    text: 'block'
+intention.name.change.representation.enum.to.repr:
+    text: 'Change representation of enum `{0}` to `#[repr({1})]`'
+intention.name.change.return.type.to:
+    text: 'Change return type{0}{1} to ''''{2}'''''
+intention.name.change.type.to:
+    text: 'Change type of {0} of {1} `{2}` to `{3}`'
+intention.name.change.type.to2:
+    text: 'Change type of `{0}` to `{1}`'
+intention.name.convert.to:
+    text: 'Convert to `{0}`'
+intention.name.create.module.file:
+    text: 'Create module file `{0}`'
+intention.name.html.change.signature.to.html:
+    text: '<html>Change signature to {0}({1})</html>'
+intention.name.impl:
+    text: 'impl'
+intention.name.make.mutable:
+    text: 'Make `{0}` mutable'
+intention.name.make.public:
+    text: 'Make `{0}` public'
+intention.name.method:
+    text: 'method'
+intention.name.remove.as:
+    text: 'Remove `as {0}`'
+intention.name.remove.from:
+    text: 'Remove {0} from {1} `{2}`'
+intention.name.rename.to:
+    text: 'Rename to `{0}`'
+intention.name.replace.with.0.1:
+    text: 'Replace with `{0}{1}`'
+invalid.rust.toolchain.0:
+    text: 'Invalid Rust toolchain {0}'
+invalid.rust.toolchain.02:
+    text: 'Invalid Rust toolchain {0}'
+invalid.standard.library.0:
+    text: 'invalid standard library: {0}'
+label.attribute:
+    text: 'Attribute'
+label.everything:
+    text: 'Everything'
+label.expression:
+    text: 'Expression'
+label.item:
+    text: 'Item'
+label.methods.only:
+    text: 'Methods only'
+label.module:
+    text: 'Module'
+label.rust:
+    text: 'Rust'
+label.statement:
+    text: 'Statement'
+label.structure:
+    text: 'Structure'
+no.explicit.stdlib.or.rustup.found:
+    text: 'no explicit stdlib or rustup found'
+notification.content.cargo.expand:
+    text: 'cargo-expand'
+notification.content.choice.with:
+    text: '{0}{2, choice, 0#|1# with {1}}'
+notification.content.failed.to.find.stdlib.in.sysroot:
+    text: 'Failed to find stdlib in sysroot'
+notification.content.grcov:
+    text: 'grcov'
+notification.content.in:
+    text: '\ in {0}'
+notification.content.need.at.least:
+    text: 'Need at least {0} {1}'
+notification.content.need.at.least2:
+    text: 'Need at least {0} {1}'
+notification.content.need.at.least3:
+    text: 'Need at least {0} {1}'
+notification.content.need.at.least4:
+    text: 'Need at least {0} {1}'
+notification.content.rustup.failed:
+    text: 'rustup failed: `{0}`'
+notification.content.rustup.failed2:
+    text: 'rustup failed: `{0}`'
+notification.content.wasm.pack:
+    text: 'wasm-pack'
+previous.command.is.still.running.please.wait.or.press.ctrl.c.in.console.to.interrupt:
+    text: 'Previous command is still running. Please wait or press Ctrl+C in console to interrupt.'
+progress.text.building:
+    text: 'Building...'
+progress.text.getting.rust.stdlib:
+    text: 'Getting Rust stdlib'
+progress.text.getting.toolchain.version:
+    text: 'Getting toolchain version'
+progress.text.info:
+    text: 'info:'
+progress.text.updating.workspace.info:
+    text: 'Updating workspace info'
+progress.title.build:
+    text: 'Build'
+rust.compiler:
+    text: 'Rust compiler'
+system.notification.text.:
+    text: '{0} {1} and {2} {3}'
+system.notification.title.canceled:
+    text: '{0} canceled'
+system.notification.title.failed:
+    text: '{0} failed'
+system.notification.title.finished:
+    text: '{0} finished'
+tooltip.following.are.possible.correct.uses:
+    text: 'The following are the possible correct uses'
+tooltip.must.be.form:
+    text: 'Must be of the form'
+unable.to.run.debugger:
+    text: 'Unable to run debugger'
+rust.file:
+    text: 'Rust File'
+rust.repl:
+    text: 'Rust REPL'
+separator.items.to.move:
+    text: 'Items to move'
+separator.members.to.form.trait:
+    text: 'Members to form trait'
+progress.text.building1:
+    text: 'Building...'
+intention.name.change.to1:
+    text: 'Change to {0}'
+expected.0.found.1:
+    text: 'expected `{0}`, found `{1}`'
+notification.content.low.performance.due.to.rust.external.linter.nbsp.nbsp.nbsp.nbsp:
+    text: 'Low performance due to Rust external linter{0}{1}&nbsp;&nbsp;&nbsp;&nbsp;{2}'
+empty.0:
+    text: 'empty {0}'
+too.many.characters.in.0:
+    text: 'too many characters in {0}'
+toolchain.version.is.unknown.hardcoded.stdlib.structure.will.be.used:
+    text: 'Toolchain version is unknown. Hardcoded stdlib structure will be used'
+fetching.actual.stdlib.info.failed.hardcoded.stdlib.structure.will.be.used:
+    text: 'Fetching actual stdlib info failed. Hardcoded stdlib structure will be used'
+rustc.bootstrap.warning:
+    text: 'To support {0} , the IDE runs {1} with the {2} environment variable, which may rarely cause inconsistent build/test results. {3} You can avoid potential inconsistencies by {4}.'
+the.0.tool.window.was.disabled.1.2:
+    text: 'The {0} tool window was disabled.{1}{2}'
+intention.family.name.add.self.to:
+    text: 'Add self to {0}'
+intention.family.name.remove.self.from:
+    text: 'Remove self from {0}'
+inspection.message.trait.objects.must.include.dyn.keyword:
+    text: 'Trait objects must include the `dyn` keyword'
+tooltip.this.accepted.in.current.edition.rust.but.hard.error.in.rust:
+    text: 'This is accepted in the current edition (Rust 2018) but is a hard error in Rust 2021!'
+inspection.message.can.be.replaced.with.random:
+    text: 'Can be replaced with ''''random{0}()'''''
+inspection.message.expected.trait.bound.found.impl.trait.type:
+    text: 'Expected trait bound, found `impl Trait` type'
+inspection.message.invalid.dyn.keyword:
+    text: 'Invalid `dyn` keyword'
+inspection.duplicated.key.display.name:
+    text: 'Duplicated key'
+intention.name.add.tokio.main:
+    text: 'Add `#[tokio::main]`'
+intention.name.install.tokio.and.add.main:
+    text: 'Add tokio to dependencies and add `#[tokio::main]`'
+dbg.usage:
+    text: '#[dbg] usage'
+const.generics.defaults:
+    text: 'const generics defaults'
+adt.const.params:
+    text: 'adt const params'
+min.const.generics:
+    text: 'min const generics'
+c.str.literals:
+    text: '`c".."` literals'
+const.closures:
+    text: 'const closures'
+inline.const:
+    text: 'inline const'
+inline.const.pat:
+    text: 'inline const pat'
+label.on.block:
+    text: 'label on block'
+const.fn.trait.bound:
+    text: 'const fn trait bound'
+const.trait.impls:
+    text: 'const trait impls'
+extern.crate.self:
+    text: '`extern crate self`'
+start.function:
+    text: '#[start] function'
+irrefutable.let.pattern:
+    text: 'irrefutable let pattern'
+raw.address.of.syntax:
+    text: '`raw address of` syntax'
+box.expression.syntax:
+    text: '`box` expression syntax'
+extern.types:
+    text: 'extern types'
+where.clauses.on.associated.types:
+    text: 'where clauses on associated types'
+generic.associated.types:
+    text: 'generic associated types'
+inherent.associated.types:
+    text: 'inherent associated types'
+associated.type.defaults:
+    text: 'associated type defaults'
+mod.statements.in.non.mod.rs.files:
+    text: 'mod statements in non-mod.rs files'
+if.let.guard:
+    text: 'if let guard'
+let.else:
+    text: 'let else'
+crate.in.paths:
+    text: '`crate` in paths'
+half.open.range.patterns:
+    text: 'half-open range patterns'
+exclusive.range.patterns:
+    text: 'exclusive range patterns'
+subslice.patterns:
+    text: 'subslice patterns'
+box.pattern.syntax:
+    text: '`box` pattern syntax'
+yield.syntax:
+    text: '`yield` syntax'
+discriminant.on.a.non.unit.variant:
+    text: 'discriminant on a non-unit variant'
+or.patterns.syntax:
+    text: 'or-patterns syntax'
+macro:
+    text: '`macro`'
+error.message.struct.inheritance.is.not.supported:
+    text: 'Struct inheritance is not supported in Rust'
+inspection.message.main.is.async:
+    text: '`{0}` function is not allowed to be `async`'
+intention.family.name.replace.with.inclusive.range:
+    text: 'Replace with inclusive range'
+inspection.message.literal.out.of.range:
+    text: 'The literal `{0}` does not fit into the type `{1}`'
+intention.family.name.convert.type:
+    text: 'Convert type of declaration'
+literal.percent.sign:
+    text: 'Literal percent sign'
+literal.newline.n:
+    text: 'Literal newline (\\n)'
+literal.tab.t:
+    text: 'Literal tab (\\t)'
+unix.timestamp.the.number.of.seconds.since.1970.01.01.00.00.utc.994518299:
+    text: '(994518299) UNIX timestamp, the number of seconds since 1970-01-01 00:00 UTC'
+iso.8601.rfc.3339.date.time.format.2001.07.08t00.34.60.026490.09.30:
+    text: '(2001-07-08T00:34:60.026490+09:30) ISO 8601 / RFC 3339 date & time format'
+locale.s.date.and.time.thu.mar.3.23.05.25.2005:
+    text: '(Thu Mar 3 23:05:25 2005) Locale''s date and time'
+parsing.only.same.as.z.but.allows.minutes.to.be.missing.or.present:
+    text: 'Parsing only: Same as %z but allows minutes to be missing or present'
+offset.from.the.local.time.to.utc.without.minutes.09:
+    text: '(+09) Offset from the local time to UTC without minutes'
+offset.from.the.local.time.to.utc.with.seconds.09.30.00:
+    text: '(+09:30:00) Offset from the local time to UTC with seconds'
+same.as.z.but.with.a.colon:
+    text: 'Same as %z but with a colon'
+offset.from.the.local.time.to.utc.with.utc.being.0000:
+    text: '(+0000) Offset from the local time to UTC'
+local.time.zone.name.skips.all.non.whitespace.characters.during.parsing.acst:
+    text: '(ACST) Local time zone name. Skips all non-whitespace characters during parsing'
+hour.minute.second.format.in.12.hour.clocks.same.as.i.m.s.p:
+    text: '(12:34:60 AM) Hour-minute-second format in 12-hour clocks. Same as %I:%M:%S %p'
+locale.s.time.representation.23.13.48:
+    text: '(23:13:48) Locale''s time representation'
+hour.minute.second.format.same.as.h.m.s:
+    text: '(00:34:60) Hour-minute-second format. Same as %H:%M:%S'
+hour.minute.format.same.as.h.m:
+    text: '(00:34) Hour-minute format. Same as %H:%M'
+similar.to.9f.but.without.the.leading.dot.026490000:
+    text: '(026490000) Similar to %.9f but without the leading dot'
+similar.to.6f.but.without.the.leading.dot.026490:
+    text: '(026490) Similar to %.6f but without the leading dot'
+similar.to.3f.but.without.the.leading.dot.026:
+    text: '(026) Similar to %.3f but without the leading dot'
+similar.to.f.but.left.aligned.but.fixed.to.a.length.of.9.026490000:
+    text: '(.026490000) Similar to .%f but left-aligned but fixed to a length of 9'
+similar.to.f.but.left.aligned.but.fixed.to.a.length.of.6.026490:
+    text: '(.026490) Similar to .%f but left-aligned but fixed to a length of 6'
+similar.to.f.but.left.aligned.but.fixed.to.a.length.of.3.026:
+    text: '(.026) Similar to .%f but left-aligned but fixed to a length of 3'
+similar.to.f.but.left.aligned.these.all.consume.the.leading.dot.026490:
+    text: '(.026490) Similar to .%f but left-aligned. These all consume the leading dot'
+the.fractional.seconds.in.nanoseconds.since.last.whole.second.026490000:
+    text: '(026490000) The fractional seconds (in nanoseconds) since last whole second'
+second.number.00.60.zero.padded.to.2.digits:
+    text: '(00-60) Second number, zero-padded to 2 digits'
+minute.number.00.59.zero.padded.to.2.digits:
+    text: '(00-59) Minute number, zero-padded to 2 digits'
+am.or.pm.in.12.hour.clocks:
+    text: 'AM or PM in 12-hour clocks'
+am.or.pm.in.12.hour.clocks2:
+    text: 'am or pm in 12-hour clocks'
+same.as.i.but.space.padded.same.as.i:
+    text: '(12) Same as %I but space-padded. Same as %_I'
+hour.number.in.12.hour.clocks.01.12.zero.padded.to.2.digits:
+    text: '(01-12) Hour number in 12-hour clocks, zero-padded to 2 digits'
+same.as.h.but.space.padded.same.as.h:
+    text: '( 0) Same as %H but space-padded. Same as %_H'
+hour.number.00.23.zero.padded.to.2.digits:
+    text: '(00-23) Hour number, zero-padded to 2 digits'
+day.month.year.format.same.as.e.b.y:
+    text: '(8-Jul-2001) Day-month-year format. Same as %e-%b-%Y'
+year.month.day.format.iso.8601.same.as.y.m.d:
+    text: '(2001-07-08) Year-month-day format (ISO 8601). Same as %Y-%m-%d'
+locale.s.date.representation.12.31.99:
+    text: '(12/31/99) Locale''s date representation'
+month.day.year.format.same.as.m.d.y:
+    text: '(07/08/01) Month-day-year format. Same as %m/%d/%y'
+day.of.the.year.001.366.zero.padded.to.3.digits:
+    text: '(189) Day of the year, zero-padded to 3 digits'
+same.as.u.but.uses.the.week.number.in.iso.8601.week.date.01.53:
+    text: '(27) Same as %U but uses the week number in ISO 8601 week date'
+same.as.y.but.uses.the.year.number.in.iso.8601.week.date:
+    text: '(01) Same as %y but uses the year number in ISO 8601 week date'
+same.as.y.but.uses.the.year.number.in.iso.8601.week.date.2001:
+    text: '(2001) Same as %Y but uses the year number in ISO 8601 week date'
+same.as.u.but.week.1.starts.with.the.first.monday.in.that.year.instead:
+    text: '(27) Same as %U, but week 1 starts with the first Monday in that year instead'
+week.number.starting.with.sunday.00.53.zero.padded.to.2.digits:
+    text: '(28) Week number starting with Sunday, zero-padded to 2 digits'
+monday.1.tuesday.2.sunday.7.iso.8601:
+    text: '(1) Monday = 1, Tuesday = 2, ?, Sunday = 7. (ISO 8601)'
+sunday.0.monday.1.saturday.6:
+    text: '(0) Sunday = 0, Monday = 1, ?, Saturday = 6'
+full.weekday.name.sunday:
+    text: '(Sunday) Full weekday name'
+abbreviated.weekday.name.always.3.letters.sun:
+    text: '(Sun) Abbreviated weekday name. Always 3 letters'
+same.as.d.but.space.padded.8:
+    text: '( 8) Same as %d but space-padded'
+day.number.01.31.zero.padded.to.2.digits:
+    text: 'Day number (01?31), zero-padded to 2 digits'
+abbreviated.month.name.always.3.letters.jul:
+    text: '(Jul) Abbreviated month name. Always 3 letters'
+full.month.name.july:
+    text: '(July) Full month name'
+month.number.01.12.zero.padded.to.2.digits.07:
+    text: '(07) Month number (01-12), zero-padded to 2 digits'
+the.proleptic.gregorian.year.modulo.100.zero.padded.to.2.digits.01:
+    text: '(01) The proleptic Gregorian year modulo 100, zero-padded to 2 digits'
+the.proleptic.gregorian.year.divided.by.100.zero.padded.to.2.digits.20:
+    text: '(20) The proleptic Gregorian year divided by 100, zero-padded to 2 digits'
+the.full.proleptic.gregorian.year.zero.padded.to.4.digits.2021:
+    text: '(2021) The full proleptic Gregorian year, zero-padded to 4 digits'
+notification.group.rust.promotion.plugin:
+    text: 'Rust promotion'
+action.download.rustrover.text:
+    text: 'Download RustRover'
+notification.content.rust.plugin.no.longer.officialy.supporter:
+    text: 'Installed Rust plugin is no longer maintained. Please consider using the dedicated IDE.'
+notification.title.introducing.rustrover.dedicated.rust.ide.by.jetbrains:
+    text: 'RustRover - The dedicated Rust IDE by JetBrains'
+rust.update.crates.index.progress.title:
+    text: 'Updating crates.io index'
+rust.too.many.keywords:
+    text: 'There can be maximum 5 keywords in the section'
+rust.invalid.keyword:
+    text: 'Keyword must be ASCII text, start with a letter, and only contain letters, numbers, _ or -, and have at most 20 characters.'
+inspection.duplicated.key.problem:
+    text: 'Property redefinition is not allowed'

@@ -73,9 +73,10 @@ public abstract class RsLocalInspectionTool extends LocalInspectionTool {
 
         if (OpenApiUtil.isUnitTestMode()) return true;
 
-        return file.getCargoWorkspace() != null
-            && file.getCrateRoot() != null
-            && RsProjectSettingsServiceUtil.getToolchain(file.getProject()) != null;
+        boolean w = file.getCargoWorkspace() != null;
+        boolean c = file.getCrateRoot() != null;
+        boolean t = RsProjectSettingsServiceUtil.getToolchain(file.getProject()) != null;
+        return w && c && t;
     }
 
     @Override

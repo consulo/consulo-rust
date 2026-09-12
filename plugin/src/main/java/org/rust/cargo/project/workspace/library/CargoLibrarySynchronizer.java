@@ -5,9 +5,12 @@
 
 package org.rust.cargo.project.workspace.library;
 
+import consulo.util.concurrent.coroutine.step.CodeExecution;
+import consulo.util.concurrent.coroutine.CoroutineScope;
+import consulo.util.concurrent.coroutine.Coroutine;
+import consulo.application.concurrent.coroutine.WriteLock;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.TopicImpl;
-import consulo.application.WriteAction;
 import consulo.content.base.BinariesOrderRootType;
 import consulo.content.base.SourcesOrderRootType;
 import consulo.content.library.Library;
@@ -80,13 +83,33 @@ public class CargoLibrarySynchronizer implements CargoProjectsListener {
      * Rewrites the Cargo libraries of {@code project} and the module entries pointing at them from the
      * current workspace.
      */
+    /**
+     * Rewrites the Cargo libraries asynchronously. This is reached from {@code cargoProjectsUpdated},
+     * which already runs under a write action, so the work is queued rather than nested: the services
+     * it needs are resolved outside any lock, and the model is committed in a write step of its own.
+     * Committing those root models is also what tells the platform the roots changed.
+     */
     public static void sync(@Nonnull Project project) {
         if (project.isDisposed()) return;
 
-        WriteAction.run(() -> doSync(project));
+        CoroutineScope.launchAsync(project.coroutineContext(), () -> Coroutine
+            .first(CodeExecution.<Void, Services>apply(input -> new Services(
+                ProjectLibraryTable.getInstance(project),
+                ModuleManager.getInstance(project))))
+            .then(WriteLock.<Services, Void>apply(services -> {
+                if (project.isDisposed()) return null;
+                doSync(project, services.libraryTable(), services.moduleManager());
+                return null;
+            })));
     }
 
-    private static void doSync(@Nonnull Project project) {
+    /** The services the sync needs, resolved before any lock is taken. */
+    private record Services(@Nonnull LibraryTable libraryTable, @Nonnull ModuleManager moduleManager) {
+    }
+
+    private static void doSync(@Nonnull Project project,
+                               @Nonnull LibraryTable libraryTable,
+                               @Nonnull ModuleManager moduleManager) {
         Map<Module, List<CargoLibrary>> librariesByModule = groupByModule(project);
 
         Map<String, Roots> wanted = new LinkedHashMap<>();
@@ -96,7 +119,7 @@ public class CargoLibrarySynchronizer implements CargoProjectsListener {
             }
         }
 
-        LibraryTable.ModifiableModel tableModel = ProjectLibraryTable.getInstance(project).getModifiableModel();
+        LibraryTable.ModifiableModel tableModel = libraryTable.getModifiableModel();
 
         Map<String, Library> libraries = new LinkedHashMap<>();
         List<Library.ModifiableModel> libraryModels = new ArrayList<>();
@@ -123,7 +146,7 @@ public class CargoLibrarySynchronizer implements CargoProjectsListener {
                 tableModel.removeLibrary(library);
             }
 
-            for (Module module : ModuleManager.getInstance(project).getModules()) {
+            for (Module module : moduleManager.getModules()) {
                 if (module.isDisposed()) continue;
                 List<CargoLibrary> moduleLibraries = librariesByModule.get(module);
                 if (moduleLibraries == null && !hasCargoLibraryEntry(module)) continue;

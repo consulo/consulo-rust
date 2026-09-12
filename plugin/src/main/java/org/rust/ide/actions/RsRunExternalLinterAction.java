@@ -18,9 +18,16 @@ import org.rust.cargo.runconfig.command.RunCargoCommandActionBase;
 import org.rust.cargo.runconfig.RunConfigUtil;
 import org.rust.ide.inspections.RsExternalLinterInspection;
 import consulo.annotation.component.ActionImpl;
+import consulo.rust.localize.RustLocalize;
+import consulo.localize.LocalizeValue;
+import consulo.platform.base.icon.PlatformIconGroup;
 
 @ActionImpl(id = "Cargo.RunExternalLinter")
 public class RsRunExternalLinterAction extends RunCargoCommandActionBase {
+
+    public RsRunExternalLinterAction() {
+        super(RustLocalize.actionCargoRunexternallinterText(), LocalizeValue.empty(), PlatformIconGroup.actionsLightning());
+    }
 
     public static final Key<CargoProject> CARGO_PROJECT = Key.create("Cargo project");
 

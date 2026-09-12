@@ -19,6 +19,7 @@ import org.rust.lang.RsConstants;
 import org.rust.lang.core.psi.RsFile;
 
 import java.util.Set;
+import consulo.application.ReadAction;
 
 @ExtensionImpl
 public class RsFileTabTitleProvider implements EditorTabTitleProvider {
@@ -41,7 +42,9 @@ public class RsFileTabTitleProvider implements EditorTabTitleProvider {
             return null;
         }
 
-        String uniqueName = UniqueVFilePathBuilder.getInstance().getUniqueVirtualFilePath(project, file);
+        // the builder queries the filename index, which may only be read under a read action
+        String uniqueName = ReadAction.compute(
+            () -> UniqueVFilePathBuilder.getInstance().getUniqueVirtualFilePath(project, file));
         if (uniqueName.equals(file.getName())) {
             return null;
         }

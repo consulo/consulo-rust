@@ -105,6 +105,7 @@ open module consulo.rust {
 
     // Higher-level services
     requires consulo.build.ui.api;
+    requires consulo.compiler.api;
     requires consulo.find.api;
     requires consulo.navigation.api;
     requires consulo.usage.api;

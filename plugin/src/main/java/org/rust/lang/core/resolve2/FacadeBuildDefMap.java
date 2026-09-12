@@ -54,6 +54,8 @@ public final class FacadeBuildDefMap {
             OpenApiUtil.testAssert(() -> !FacadeMetaInfo.isCrateChanged(crate, defMap),
                 () -> "DefMap " + defMap + " should be up-to-date just after built");
         }
+        if (defMap != null) {
+        }
         return defMap;
     }
 
@@ -73,13 +75,21 @@ public final class FacadeBuildDefMap {
             if (crateId < 0) throw new IllegalStateException("crateId must be >= 0");
             consulo.virtualFileSystem.VirtualFile crateRootFile = crate.getRootModFile();
             if (crateRootFile == null) return null;
-            if (!RsFile.shouldIndexFile(context.getProject(), crateRootFile)) return null;
+            if (!RsFile.shouldIndexFile(context.getProject(), crateRootFile)) {
+                return null;
+            }
         }
 
         RsFile.Attributes stdlibAttributes = crateRoot.getStdlibAttributes(crate);
         DependenciesDefMaps dependenciesInfo = getDependenciesDefMaps(crate, allDependenciesDefMaps, stdlibAttributes);
 
         String crateDescription = crate.toString();
+        if (crate.getOrigin() == org.rust.cargo.project.workspace.PackageOrigin.WORKSPACE) {
+            StringBuilder deps = new StringBuilder();
+            for (Crate.Dependency d : crate.getDependencies()) {
+                deps.append(d.getNormName()).append('/').append(d.getCrate().getOrigin()).append(' ');
+            }
+        }
         int rootModMacroIndex = 0;
         for (CrateDefMap depMap : allDependenciesDefMaps.values()) {
             rootModMacroIndex = Math.max(rootModMacroIndex, depMap.getRootModMacroIndex() + 1);

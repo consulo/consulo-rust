@@ -19,6 +19,7 @@ import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.rust.lang.core.psi.RsPsiManagerUtil;
 import org.rust.cargo.project.workspace.CargoWorkspace;
 import org.rust.lang.core.RsPsiPattern;
 import org.rust.lang.core.psi.RsMetaItem;
@@ -62,7 +63,8 @@ public class RsCfgNotTestIndex extends StringStubIndexExtension<RsMetaItem> {
             if (contentRoot != null) {
                 result = hasCfgNotTestInScope(project, GlobalSearchScopesCore.directoryScope(project, contentRoot, true));
             }
-            return CachedValueProvider.Result.create(result, project);
+            return CachedValueProvider.Result.create(
+                result, RsPsiManagerUtil.getRustStructureModificationTracker(project));
         });
     }
 

@@ -11,12 +11,19 @@ import jakarta.annotation.Nonnull;
 import org.rust.cargo.project.toolwindow.CargoToolWindow;
 import consulo.annotation.component.ActionImpl;
 import consulo.annotation.component.ActionRef;
+import consulo.rust.localize.RustLocalize;
+import consulo.localize.LocalizeValue;
+import consulo.platform.base.icon.PlatformIconGroup;
 
 @ActionImpl(
     id = "Cargo.DetachCargoProject",
     shortcutFrom = @ActionRef(id = "$Delete")
 )
 public class DetachCargoProjectAction extends CargoProjectActionBase {
+
+    public DetachCargoProjectAction() {
+        super(RustLocalize.actionCargoDetachcargoprojectText(), LocalizeValue.empty(), PlatformIconGroup.generalRemove());
+    }
 
     @Override
     public void update(@Nonnull AnActionEvent e) {

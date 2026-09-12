@@ -32,6 +32,8 @@ public class RsSensitiveProgressWrapper implements WrappedProgressIndicator, Sta
 
     private volatile boolean myCanceled;
 
+    private volatile boolean myRunning;
+
     public RsSensitiveProgressWrapper(@Nonnull ProgressIndicator original) {
         myOriginal = original;
     }
@@ -60,22 +62,26 @@ public class RsSensitiveProgressWrapper implements WrappedProgressIndicator, Sta
         }
     }
 
-    // Everything below is plain delegation.
-
+    /**
+     * The running state is the wrapper's own. The wrapped indicator is already running by the time it
+     * is wrapped, and starting it a second time is an error once it has been cancelled.
+     */
     @Override
     public void start() {
-        myOriginal.start();
+        myRunning = true;
     }
 
     @Override
     public void stop() {
-        myOriginal.stop();
+        myRunning = false;
     }
 
     @Override
     public boolean isRunning() {
-        return myOriginal.isRunning();
+        return myRunning;
     }
+
+    // Everything below is plain delegation.
 
     @Override
     public void setText(LocalizeValue text) {

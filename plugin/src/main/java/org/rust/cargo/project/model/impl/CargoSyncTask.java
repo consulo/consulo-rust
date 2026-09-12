@@ -114,7 +114,7 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
         long start = System.currentTimeMillis();
 
         BuildProgress<BuildProgressDescriptor> syncProgress =
-            SyncViewManager.getInstance(rsProject).createBuildProgress();
+            faultTolerant(SyncViewManager.getInstance(rsProject).createBuildProgress());
 
         List<CargoProjectImpl> refreshedProjects;
         try {
@@ -147,6 +147,33 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
         LOG.debug("Finished Cargo sync task in " + elapsed + " ms");
     }
 
+    /**
+     * The sync reports into a build view that not every frontend can show. A view that fails to open or
+     * to take an event must not take the sync down with it, so every call is allowed to fail and the
+     * chain carries on; only cancellation still propagates.
+     */
+    @SuppressWarnings("unchecked")
+    @Nonnull
+    private static BuildProgress<BuildProgressDescriptor> faultTolerant(
+        @Nonnull BuildProgress<BuildProgressDescriptor> delegate
+    ) {
+        return (BuildProgress<BuildProgressDescriptor>) java.lang.reflect.Proxy.newProxyInstance(
+            CargoSyncTask.class.getClassLoader(),
+            new Class<?>[]{BuildProgress.class},
+            (proxy, method, args) -> {
+                try {
+                    Object value = method.invoke(delegate, args);
+                    return value == delegate ? proxy : value;
+                }
+                catch (java.lang.reflect.InvocationTargetException e) {
+                    Throwable cause = e.getCause();
+                    if (cause instanceof ProcessCanceledException) throw cause;
+                    LOG.warn("Cargo sync view rejected " + method.getName(), cause);
+                    return BuildProgress.class.isAssignableFrom(method.getReturnType()) ? proxy : null;
+                }
+            });
+    }
+
     @Nonnull
     private List<CargoProjectImpl> doRun(
         @Nonnull ProgressIndicator indicator,
@@ -154,6 +181,9 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
     ) {
         RsToolchainBase toolchain = RsProjectSettingsServiceUtil.getToolchain(rsProject);
         if (toolchain == null) {
+            // Worth saying out loud: without this the sync simply produces nothing and the editor shows
+            // every reference unresolved with no explanation.
+            LOG.warn("Cargo sync stopped: no module carries a Rust toolchain bundle");
             syncProgress.fail(
                 System.currentTimeMillis(),
                 LocalizeValue.of(RsBundle.message("build.event.message.cargo.project.update.failed.no.rust.toolchain"))

@@ -120,7 +120,7 @@ public final class OpenApiUtil {
     }
 
     @Nonnull
-    public static final String PLUGIN_ID = "org.rust.lang";
+    public static final String PLUGIN_ID = "consulo.rust";
 
     // --- Property-style accessors ---
 

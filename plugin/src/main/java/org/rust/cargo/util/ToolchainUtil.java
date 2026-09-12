@@ -26,11 +26,44 @@ public final class ToolchainUtil {
     }
 
     public static boolean hasExecutable(Path path, String toolName) {
-        return org.rust.stdext.PathUtil.isExecutable(pathToExecutable(path, toolName));
+        return PathUtil.isExecutable(pathToExecutable(path, toolName));
     }
 
+    /** The tool inside {@code path} itself, with no fall back to {@code PATH}. */
+    public static boolean hasLocalExecutable(@jakarta.annotation.Nullable Path path, String toolName) {
+        if (path == null) return false;
+        String exeName = Platform.current().os().isWindows() ? toolName + ".exe" : toolName;
+        return PathUtil.isExecutable(path.resolve(exeName).toAbsolutePath());
+    }
+
+    /**
+     * The tool inside {@code path}, or the one on {@code PATH} when the toolchain does not carry it.
+     * A toolchain directory holds what belongs to that toolchain - cargo, rustc, rustdoc - while
+     * {@code rustup} manages all of them and is installed once, somewhere else entirely.
+     */
     public static Path pathToExecutable(Path path, String toolName) {
-        String exeName = consulo.platform.Platform.current().os().isWindows() ? toolName + ".exe" : toolName;
-        return path.resolve(exeName).toAbsolutePath();
+        String exeName = Platform.current().os().isWindows() ? toolName + ".exe" : toolName;
+        Path inToolchain = path.resolve(exeName).toAbsolutePath();
+        if (PathUtil.isExecutable(inToolchain)) {
+            return inToolchain;
+        }
+        Path onPath = findOnPath(exeName);
+        return onPath != null ? onPath : inToolchain;
+    }
+
+    @jakarta.annotation.Nullable
+    private static Path findOnPath(String exeName) {
+        String pathEnv = Platform.current().os().getEnvironmentVariable("PATH");
+        if (pathEnv == null || pathEnv.isEmpty()) return null;
+        for (String entry : pathEnv.split(java.io.File.pathSeparator)) {
+            if (entry.isEmpty()) continue;
+            try {
+                Path candidate = Path.of(entry).resolve(exeName);
+                if (PathUtil.isExecutable(candidate)) return candidate.toAbsolutePath();
+            }
+            catch (java.nio.file.InvalidPathException ignored) {
+            }
+        }
+        return null;
     }
 }

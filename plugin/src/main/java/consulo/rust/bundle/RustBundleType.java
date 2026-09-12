@@ -58,6 +58,9 @@ public class RustBundleType extends PlatformAwareSdkType {
 
     private static final int SYSROOT_TIMEOUT_MS = 10_000;
 
+    /** Where the rust-src component puts the standard library, relative to a toolchain root. */
+    private static final String STDLIB_SOURCES_RELATIVE = "lib/rustlib/src/rust";
+
     @Nonnull
     public static RustBundleType getInstance() {
         return Application.get().getExtensionPoint(SdkType.class).findExtensionOrFail(RustBundleType.class);
@@ -76,13 +79,18 @@ public class RustBundleType extends PlatformAwareSdkType {
         if (homePath == null || homePath.isEmpty()) {
             return null;
         }
-        return RsToolchainProvider.getToolchainStatic(Paths.get(homePath));
+        return RsToolchainProvider.getToolchainStatic(binDirectory(Paths.get(homePath)));
     }
 
     public RustBundleType() {
         super(ID, LocalizeValue.localizeTODO("Rust"), RustIconGroup.rust());
     }
 
+    /**
+     * Candidates are toolchain roots - the directory holding both {@code bin} and the
+     * {@code lib/rustlib/src/rust} sources - never a directory of executables such as {@code /usr/bin},
+     * which the bundle would then have to watch in its entirety.
+     */
     @Override
     public void collectHomePaths(@Nonnull Platform platform, @Nonnull Consumer<Path> consumer) {
         if (!Platform.LOCAL.equals(platform.getId())) {
@@ -90,10 +98,48 @@ public class RustBundleType extends PlatformAwareSdkType {
         }
 
         Set<Path> paths = new LinkedHashSet<>();
-        for (RsToolchainFlavor flavor : RsToolchainFlavor.getApplicableFlavors()) {
-            flavor.suggestHomePaths().forEach(paths::add);
+        for (Path toolchainsDir : rustupToolchainsDirs(platform)) {
+            try (java.util.stream.Stream<Path> children = Files.list(toolchainsDir)) {
+                children.filter(Files::isDirectory).forEach(paths::add);
+            }
+            catch (java.io.IOException ignored) {
+            }
         }
+
+        // Whatever `rustc` is on the path answers with the toolchain it belongs to, which covers both a
+        // rustup shim and a toolchain installed outside rustup.
+        for (RsToolchainFlavor flavor : RsToolchainFlavor.getApplicableFlavors()) {
+            flavor.suggestHomePaths().forEach(binDir -> {
+                // Ask only a directory that actually holds a rustc - the flavors offer every PATH entry,
+                // and running a program that is not there just fails once per directory.
+                if (!hasExecutable(platform, binDir, Rustc.NAME)) return;
+                String sysroot = querySysroot(platform, binDir);
+                if (sysroot != null) {
+                    paths.add(platform.fs().getPath(sysroot));
+                }
+            });
+        }
+
         paths.forEach(consumer);
+    }
+
+    @Nonnull
+    private static java.util.List<Path> rustupToolchainsDirs(@Nonnull Platform platform) {
+        java.util.List<Path> result = new java.util.ArrayList<>();
+        String rustupHome = platform.os().getEnvironmentVariable("RUSTUP_HOME");
+        if (rustupHome != null && !rustupHome.isBlank()) {
+            result.add(platform.fs().getPath(rustupHome).resolve("toolchains"));
+        }
+        String userHome = platform.user().homePath().toString();
+        if (!userHome.isBlank()) {
+            result.add(platform.fs().getPath(userHome).resolve(".rustup").resolve("toolchains"));
+        }
+        return result;
+    }
+
+    @Nonnull
+    private static Path binDirectory(@Nonnull Path toolchainRoot) {
+        return toolchainRoot.resolve("bin");
     }
 
     /**
@@ -104,7 +150,9 @@ public class RustBundleType extends PlatformAwareSdkType {
     @Nonnull
     @Override
     public Set<String> getEnvironmentVariables(@Nonnull Platform platform) {
-        return Set.of("CARGO_HOME");
+        // No variable names a toolchain root: CARGO_HOME points at the package cache and RUSTUP_HOME at
+        // the directory of all toolchains, both of which collectHomePaths expands itself.
+        return Set.of();
     }
 
     @Override
@@ -114,9 +162,11 @@ public class RustBundleType extends PlatformAwareSdkType {
 
     @Override
     public boolean isValidSdkHome(@Nonnull Platform platform, @Nonnull Path path) {
-        return Files.isDirectory(path)
-            && hasExecutable(platform, path, Rustc.NAME)
-            && hasExecutable(platform, path, Cargo.NAME);
+        if (!Files.isDirectory(path)) return false;
+        Path bin = binDirectory(path);
+        return hasExecutable(platform, bin, Rustc.NAME)
+            && hasExecutable(platform, bin, Cargo.NAME)
+            && Files.isDirectory(path.resolve(STDLIB_SOURCES_RELATIVE));
     }
 
     /**
@@ -128,14 +178,24 @@ public class RustBundleType extends PlatformAwareSdkType {
         if (isValidSdkHome(platform, homePath)) {
             return homePath;
         }
-        Path binPath = homePath.resolve("bin");
-        return isValidSdkHome(platform, binPath) ? binPath : homePath;
+        // A directory of executables was chosen - the toolchain it belongs to is its parent.
+        Path parent = homePath.getParent();
+        if (parent != null && isValidSdkHome(platform, parent)) {
+            return parent;
+        }
+        // Or a directory holding a toolchain, in which case ask it where its own root is.
+        String sysroot = querySysroot(platform, homePath);
+        if (sysroot != null) {
+            Path root = platform.fs().getPath(sysroot);
+            if (isValidSdkHome(platform, root)) return root;
+        }
+        return homePath;
     }
 
     @Nullable
     @Override
     public String getVersionString(@Nonnull Platform platform, @Nonnull Path path) {
-        Path rustcPath = pathToExecutable(platform, path, Rustc.NAME);
+        Path rustcPath = pathToExecutable(platform, binDirectory(path), Rustc.NAME);
 
         try {
             GeneralCommandLine commandLine = new GeneralCommandLine();
@@ -182,38 +242,33 @@ public class RustBundleType extends PlatformAwareSdkType {
             Platform platform = sdk.getPlatform();
             Path home = platform.fs().getPath(homePath);
 
-            String sysroot = querySysroot(platform, home);
-            if (sysroot == null) {
-                // The toolchain could not be asked - a timeout, a cancellation, or a home directory
-                // that no longer holds one. Roots the bundle already carries are kept rather than
-                // dropped on a transient failure; the next setup replaces them once an answer arrives.
+            // The standard library sources are what the bundle exists to carry. The executables are not
+            // rooted: their directory would then be watched and indexed in full, and on a system install
+            // that is the whole of /usr/bin.
+            Path stdlibSources = home.resolve(STDLIB_SOURCES_RELATIVE);
+            Path stdlibCrates = stdlibSources.resolve("library");
+            if (Files.isDirectory(stdlibCrates)) {
+                stdlibSources = stdlibCrates;
+            }
+            if (!Files.isDirectory(stdlibSources)) {
+                // rust-src is not installed. Roots the bundle already carries are kept rather than
+                // dropped, so that adding the component later is all that is needed.
                 return;
             }
 
-            String stdlibPath = stdlibSourcePath(platform, sysroot);
-            String url = null;
-            if (stdlibPath != null) {
-                // The path is converted to system independent form before the url is built: pathToUrl
-                // does not touch what it is handed, while a bundle stores its roots normalized, so a
-                // url carrying native separators could never compare equal to a stored root and the
-                // whole root set would be rewritten on every setup.
-                url = VirtualFileUtil.pathToUrl(FileUtil.toSystemIndependentName(stdlibPath));
-            }
-            if (hasExactly(sdk.getRootProvider(), url)) {
+            String sourcesUrl = VirtualFileUtil.pathToUrl(
+                FileUtil.toSystemIndependentName(stdlibSources.toString()));
+
+            if (hasExactly(sdk.getRootProvider(), sourcesUrl)) {
                 return;
             }
 
             SdkModificator modificator = sdk.getSdkModificator();
             modificator.removeRoots(SourcesOrderRootType.ID);
             modificator.removeRoots(BinariesOrderRootType.ID);
-            if (url != null) {
-                // The url form is used rather than the VirtualFile one so that the directory does not
-                // have to be in the virtual file system yet. The same directory is registered under both
-                // root types: the source root is what gets indexed, while the search scope a module
-                // builds out of its order entries is assembled from binaries roots only.
-                modificator.addRoot(url, SourcesOrderRootType.ID);
-                modificator.addRoot(url, BinariesOrderRootType.ID);
-            }
+            // The url form is used rather than the VirtualFile one so that a directory does not have to
+            // be in the virtual file system yet.
+            modificator.addRoot(sourcesUrl, SourcesOrderRootType.ID);
             modificator.commitChanges();
         }
         catch (Exception e) {
@@ -224,10 +279,9 @@ public class RustBundleType extends PlatformAwareSdkType {
     /**
      * Whether {@code rootProvider} already carries {@code url}, and nothing else, under both root types.
      */
-    private static boolean hasExactly(@Nonnull RootProvider rootProvider, @Nullable String url) {
-        String[] expected = url == null ? ArrayUtil.EMPTY_STRING_ARRAY : new String[]{url};
-        return Arrays.equals(rootProvider.getUrls(SourcesOrderRootType.ID), expected)
-            && Arrays.equals(rootProvider.getUrls(BinariesOrderRootType.ID), expected);
+    private static boolean hasExactly(@Nonnull RootProvider rootProvider, @Nonnull String sourcesUrl) {
+        return Arrays.equals(rootProvider.getUrls(SourcesOrderRootType.ID), new String[]{sourcesUrl})
+            && rootProvider.getUrls(BinariesOrderRootType.ID).length == 0;
     }
 
     /**
@@ -269,11 +323,6 @@ public class RustBundleType extends PlatformAwareSdkType {
      * Standard library source directory inside {@code sysroot}, or {@code null} when the
      * {@code rust-src} component is not installed and the directory therefore does not exist.
      */
-    @Nullable
-    private static String stdlibSourcePath(@Nonnull Platform platform, @Nonnull String sysroot) {
-        String stdlibPath = Rustc.stdlibPathFromSysroot(sysroot);
-        return Files.isDirectory(platform.fs().getPath(stdlibPath)) ? stdlibPath : null;
-    }
 
     @Override
     public boolean isRootTypeApplicable(@Nonnull String type) {

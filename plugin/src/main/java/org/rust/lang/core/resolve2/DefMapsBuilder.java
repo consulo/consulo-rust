@@ -5,6 +5,7 @@
 
 package org.rust.lang.core.resolve2;
 
+import org.rust.stdext.CompletableFutureUtil;
 import com.google.common.util.concurrent.SettableFuture;
 import org.rust.openapiext.RsSensitiveProgressWrapper;
 import consulo.application.progress.ProgressIndicator;
@@ -97,8 +98,12 @@ public class DefMapsBuilder {
             }
         }
         try {
-            future.get();
-        } catch (Exception e) {
+            CompletableFutureUtil.getWithRethrow(future);
+        }
+        catch (RuntimeException | Error e) {
+            throw e;
+        }
+        catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

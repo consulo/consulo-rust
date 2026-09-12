@@ -11,9 +11,16 @@ import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import org.rust.ide.actions.runAnything.cargo.CargoRunAnythingProvider;
 import consulo.annotation.component.ActionImpl;
+import consulo.rust.localize.RustLocalize;
+import consulo.localize.LocalizeValue;
+import consulo.platform.base.icon.PlatformIconGroup;
 
 @ActionImpl(id = "Cargo.RunCargoCommand")
 public class RunCargoCommandAction extends RunCargoCommandActionBase {
+
+    public RunCargoCommandAction() {
+        super(RustLocalize.actionCargoRuncargocommandText(), LocalizeValue.empty(), PlatformIconGroup.actionsExecute());
+    }
     @Override
     public void actionPerformed(@Nonnull AnActionEvent e) {
         Project project = e.getData(Project.KEY);

@@ -427,10 +427,10 @@ public class RustParserUtil extends GeneratedParserUtilBase {
 
         IElementType collapsedType = null;
         int collapsedSize = 0;
-        Object collapsed = collapsedTokenType(b);
+        Object[] collapsed = collapsedTokenType(b);
         if (collapsed != null) {
-            collapsedType = ((IElementType[]) collapsed)[0];
-            collapsedSize = ((int[]) ((Object[]) collapsed)[1])[0];
+            collapsedType = (IElementType) collapsed[0];
+            collapsedSize = (Integer) collapsed[1];
         }
 
         if (collapsedType != null && collapsedSize > 0) {
@@ -447,11 +447,6 @@ public class RustParserUtil extends GeneratedParserUtilBase {
      * Returns collapsed token type and size as a 2-element array [IElementType, Integer], or null.
      */
     @Nullable
-    private static Object[] collapsedTokenTypeResult(@Nonnull PsiBuilder b) {
-        // Re-use the public collapsedTokenType method logic
-        // but return as array for internal use
-        return null; // handled by the public method below
-    }
 
     @SuppressWarnings("unused")
     public static boolean macroBindingGroupSeparatorToken(@Nonnull PsiBuilder b, int level) {

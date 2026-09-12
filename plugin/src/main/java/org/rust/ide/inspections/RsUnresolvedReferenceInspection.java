@@ -45,6 +45,10 @@ public class RsUnresolvedReferenceInspection extends RsLocalInspectionTool {
                 PathInfo pathInfo = processPath(path);
                 if (pathInfo == null) return;
                 if (pathInfo.myIsPathUnresolved || pathInfo.myContext != null) {
+                    if (pathInfo.myIsPathUnresolved) {
+                        consulo.logging.Logger.getInstance("UNRES").warn("UNRES path " + path.getText()
+                            + " @ " + path.getContainingFile().getName());
+                    }
                     registerProblem(holder, path, pathInfo.myContext);
                 }
             }
@@ -55,6 +59,10 @@ public class RsUnresolvedReferenceInspection extends RsLocalInspectionTool {
                 AutoImportFix.Context context = AutoImportFix.findApplicableContext(methodCall);
 
                 if (!isMethodResolved || context != null) {
+                    if (!isMethodResolved) {
+                        consulo.logging.Logger.getInstance("UNRES").warn("UNRES method " + methodCall.getText()
+                            + " @ " + methodCall.getContainingFile().getName());
+                    }
                     registerProblem(holder, methodCall, context);
                 }
             }

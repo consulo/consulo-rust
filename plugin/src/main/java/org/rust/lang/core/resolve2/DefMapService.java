@@ -82,7 +82,20 @@ public final class DefMapService implements Disposable {
     private void setupListeners() {
         PsiManager.getInstance(project).addPsiTreeChangeListener(new DefMapPsiTreeChangeListener(), this);
 
-        project.getMessageBus().connect().subscribe(
+        consulo.component.messagebus.MessageBusConnection connection = project.getMessageBus().connect();
+
+        // Without this the def map of an edited file is never marked dirty, so resolve keeps
+        // answering from the map built when the file was first indexed.
+        org.rust.lang.core.psi.RsPsiManagerUtil.getRustPsiManager(project).subscribeRustPsiChange(
+            connection,
+            (file, element, isStructureModification) -> {
+                if (file instanceof RsFile) {
+                    onFileChanged((RsFile) file);
+                }
+            }
+        );
+
+        connection.subscribe(
             CargoProjectsService.CARGO_PROJECTS_TOPIC,
             (CargoProjectsListener) (oldProjects, newProjects) -> scheduleRecheckAllDefMaps()
         );

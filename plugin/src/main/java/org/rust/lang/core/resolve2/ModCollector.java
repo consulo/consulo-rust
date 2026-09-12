@@ -445,8 +445,10 @@ public final class ModCollector {
                 ? dollarCrateHelper.getDollarCrateMap(call.getBodyStartOffsetInExpansion(), call.getBodyEndOffsetInExpansion())
                 : DollarCrateMap.EMPTY;
             MacroIndex macroIndex = parentMacroIndex.append(call.getMacroIndexInParent());
+            // Boxed on both branches: a hanging mod has no file of its own, and letting the ternary
+            // unbox would turn that null into an NPE.
             Integer containingFileId = includeMacroFile != null
-                ? VirtualFileExtUtil.getFileId(includeMacroFile)
+                ? Integer.valueOf(VirtualFileExtUtil.getFileId(includeMacroFile))
                 : modData.getFileId();
             context.getContext().getMacroCalls().add(new MacroCallInfo(
                 modData,
@@ -465,7 +467,9 @@ public final class ModCollector {
             if (!modData.isDeeplyEnabledByCfg()) {
                 throw new IllegalStateException("for performance reasons cfg-disabled macros should not be collected");
             }
-            // Simplified: proc macro call collection
+            // Nothing to record: ProcMacroCallLight carries only the item text, not the attribute
+            // paths and offsets an expansion would need, so attribute and derive macros are left
+            // unexpanded and the item they decorate is resolved as written.
         }
 
         @Override

@@ -22,6 +22,9 @@ import consulo.annotation.component.ActionParentRef;
 import consulo.annotation.component.ActionRefAnchor;
 import consulo.annotation.component.ActionRef;
 import org.rust.cargo.runconfig.RunConfigUtil;
+import consulo.rust.localize.RustLocalize;
+import consulo.localize.LocalizeValue;
+import consulo.rust.icon.RustIconGroup;
 
 @ActionImpl(
     id = "Cargo.RustfmtCargoProject",
@@ -31,6 +34,10 @@ import org.rust.cargo.runconfig.RunConfigUtil;
     )
 )
 public class RustfmtCargoProjectAction extends LegacyDumbAwareAction {
+
+    public RustfmtCargoProjectAction() {
+        super(RustLocalize.actionCargoRustfmtcargoprojectText(), RustLocalize.actionCargoRustfmtcargoprojectDescription(), RustIconGroup.rust());
+    }
 
 
     @Override

@@ -5,6 +5,7 @@
 
 package org.rust.cargo.project.model.impl;
 
+import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import consulo.annotation.component.ServiceImpl;
 import consulo.application.Application;
 import consulo.application.ApplicationManager;
@@ -387,6 +388,11 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
                 project.getMessageBus().syncPublisher(CargoProjectsService.CARGO_PROJECTS_TOPIC)
                     .cargoProjectsUpdated(this, Collections.unmodifiableList(new ArrayList<>(newProjects)));
                 initialized = true;
+                // A refreshed workspace changes which crate every file belongs to, and that is held in
+                // caches keyed on PSI. Without dropping them and restarting the daemon the editor keeps
+                // answering from the state it had before the sync - every file detached, nothing resolved.
+                PsiManager.getInstance(project).dropPsiCaches();
+                DaemonCodeAnalyzer.getInstance(project).restart();
             }));
             return newProjects;
         }).handle((newProjects, err) -> {
@@ -515,17 +521,13 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
             loaded.add(new CargoProjectImpl(manifest, this, userDisabledFeatures));
         }
 
-        // Refresh projects later to avoid model modifications while the project is being opened.
-        // Use `updateSync` directly instead of `modifyProjects` for the same reason.
-        projects.updateSync(ignored -> loaded).whenComplete((ignored, error) -> {
-            String disableRefresh = System.getProperty(CARGO_DISABLE_PROJECT_REFRESH_ON_CREATION, "false");
-            if (!"true".equalsIgnoreCase(disableRefresh)) {
-                ApplicationManager.getApplication().invokeLater(() -> {
-                    if (project.isDisposed()) return;
-                    refreshAllProjects();
-                });
-            }
-        });
+        // Registering the restored projects is all that happens here. Refreshing them needs a toolchain,
+        // which comes from the module extension, so the refresh is left to the startup setup that binds
+        // the modules first.
+        // Only registration happens here. Refreshing needs a toolchain, which is read off the module
+        // extensions - and the module model is not loaded yet at this point, so the refresh is left to
+        // the startup activity that runs once the project is open.
+        projects.updateSync(ignored -> loaded);
         initialized = true;
     }
 

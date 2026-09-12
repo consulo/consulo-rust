@@ -289,8 +289,9 @@ public class RsFile extends RsFileBase implements RsMod {
         if (!getName().equals(RsConstants.MOD_RS_FILE)) {
             return FileUtil.getNameWithoutExtension(getName());
         }
-        PsiElement parent = getParent();
-        return parent != null ? parent.toString() : null;
+        // For mod.rs the module is named after the directory holding it.
+        consulo.language.psi.PsiDirectory parent = getParent();
+        return parent != null ? parent.getName() : null;
     }
 
     @Nullable

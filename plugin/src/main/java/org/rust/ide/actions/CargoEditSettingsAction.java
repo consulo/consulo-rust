@@ -13,9 +13,16 @@ import consulo.ide.setting.ShowSettingsUtil;
 import consulo.ui.ex.action.LegacyAnAction;
 import org.rust.cargo.project.configurable.CargoConfigurable;
 import consulo.annotation.component.ActionImpl;
+import consulo.rust.localize.RustLocalize;
+import consulo.localize.LocalizeValue;
+import consulo.platform.base.icon.PlatformIconGroup;
 
 @ActionImpl(id = "Cargo.ShowSettings")
 public class CargoEditSettingsAction extends LegacyAnAction implements DumbAware {
+
+    public CargoEditSettingsAction() {
+        super(RustLocalize.actionCargoShowsettingsText(), LocalizeValue.empty(), PlatformIconGroup.generalSettings());
+    }
 
 
     @Override

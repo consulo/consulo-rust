@@ -169,11 +169,8 @@ public final class VisItem {
                 }
             } else if (scope instanceof org.rust.lang.core.psi.ext.RsItemsOwner) {
                 for (org.rust.lang.core.psi.ext.RsItemElement item :
-                    org.rust.lang.core.psi.ext.RsItemsOwnerUtil.getExpandedItemsExceptImplsAndUses(
-                        (org.rust.lang.core.psi.ext.RsItemsOwner) scope)) {
-                    if (!(item instanceof RsNamedElement)) continue;
-                    if (!getName().equals(((RsNamedElement) item).getName())) continue;
-                    result.add((RsNamedElement) item);
+                    namedItems((org.rust.lang.core.psi.ext.RsItemsOwner) scope, getName())) {
+                    if (item instanceof RsNamedElement) result.add((RsNamedElement) item);
                 }
             }
         }
@@ -207,41 +204,30 @@ public final class VisItem {
         return null;
     }
 
-    /** Walk from the crate root down the path, returning any {@link org.rust.lang.core.psi.ext.RsMod} or {@link org.rust.lang.core.psi.RsEnumItem}. */
+    /** The module or enum this item's own path names, resolved through the def map. */
     @Nonnull
     private List<RsNamedElement> pathToRsModOrEnum(@Nonnull RsModInfo info) {
-        org.rust.lang.core.crate.CrateGraphService graph =
-            org.rust.lang.core.crate.CrateGraphService.crateGraph(info.getProject());
-        org.rust.lang.core.crate.Crate target = graph.findCrateById(path.getCrate());
-        if (target == null) return Collections.emptyList();
-        org.rust.lang.core.psi.RsFile crateRoot = target.getRootMod();
-        if (crateRoot == null) return Collections.emptyList();
-        org.rust.lang.core.psi.ext.RsItemsOwner current = crateRoot;
-        String[] segments = path.getSegments();
-        if (segments.length == 0) {
-            return Collections.singletonList(crateRoot);
-        }
-        for (int i = 0; i < segments.length; i++) {
-            String segment = segments[i];
-            boolean isLast = i == segments.length - 1;
-            org.rust.lang.core.psi.ext.RsItemsOwner next = null;
-            for (org.rust.lang.core.psi.ext.RsItemElement item :
-                org.rust.lang.core.psi.ext.RsItemsOwnerUtil.getExpandedItemsExceptImplsAndUses(current)) {
-                if (!(item instanceof RsNamedElement) || !segment.equals(((RsNamedElement) item).getName())) continue;
-                if (item instanceof org.rust.lang.core.psi.ext.RsMod) {
-                    next = (org.rust.lang.core.psi.ext.RsMod) item;
-                    break;
-                }
-                if (isLast && item instanceof org.rust.lang.core.psi.RsEnumItem) {
-                    return Collections.singletonList((RsNamedElement) item);
+        ModData data = findModData(info, path);
+        if (data == null) return Collections.emptyList();
+
+        List<RsNamedElement> result = new java.util.ArrayList<>();
+        if (data.isEnum()) {
+            ModData parent = data.getParent();
+            if (parent == null) return Collections.emptyList();
+            for (org.rust.lang.core.psi.ext.RsElement parentScope : modDataToScope(info, parent)) {
+                if (!(parentScope instanceof org.rust.lang.core.psi.ext.RsItemsOwner)) continue;
+                for (org.rust.lang.core.psi.ext.RsItemElement item :
+                    namedItems((org.rust.lang.core.psi.ext.RsItemsOwner) parentScope, data.getName())) {
+                    if (item instanceof org.rust.lang.core.psi.RsEnumItem) result.add((RsNamedElement) item);
                 }
             }
-            if (next == null) return Collections.emptyList();
-            current = next;
+            return result;
         }
-        return current instanceof RsNamedElement
-            ? Collections.singletonList((RsNamedElement) current)
-            : Collections.emptyList();
+
+        for (org.rust.lang.core.psi.ext.RsElement scope : modDataToScope(info, data)) {
+            if (scope instanceof RsNamedElement) result.add((RsNamedElement) scope);
+        }
+        return result;
     }
 
     /**
@@ -250,33 +236,71 @@ public final class VisItem {
      * {@link org.rust.lang.core.psi.RsModItem} found by walking the path. For enum variants
      * whose containing path is an enum, returns the {@link org.rust.lang.core.psi.RsEnumItem}.
      */
+    /**
+     * The modules (or enum) that hold this item, found through the def map rather than by walking the
+     * PSI tree by name. The def map records the file each module lives in, so a module reached through
+     * a {@code #[path]} attribute, a macro, or a deeply nested standard library layout still resolves -
+     * a name walk from the crate root does not.
+     */
     @Nonnull
     private List<org.rust.lang.core.psi.ext.RsElement> containingModToScope(@Nonnull RsModInfo info) {
-        ModPath containingPath = getContainingMod();
-        org.rust.lang.core.crate.CrateGraphService graph =
-            org.rust.lang.core.crate.CrateGraphService.crateGraph(info.getProject());
-        org.rust.lang.core.crate.Crate target = graph.findCrateById(containingPath.getCrate());
-        if (target == null) return Collections.emptyList();
-        org.rust.lang.core.psi.RsFile crateRoot = target.getRootMod();
-        if (crateRoot == null) return Collections.emptyList();
-        org.rust.lang.core.psi.ext.RsElement current = crateRoot;
-        for (String segment : containingPath.getSegments()) {
-            if (!(current instanceof org.rust.lang.core.psi.ext.RsItemsOwner)) return Collections.emptyList();
-            org.rust.lang.core.psi.ext.RsElement next = null;
-            for (org.rust.lang.core.psi.ext.RsItemElement item :
-                org.rust.lang.core.psi.ext.RsItemsOwnerUtil.getExpandedItemsExceptImplsAndUses(
-                    (org.rust.lang.core.psi.ext.RsItemsOwner) current)) {
-                if (!(item instanceof RsNamedElement) || !segment.equals(((RsNamedElement) item).getName())) continue;
-                if (item instanceof org.rust.lang.core.psi.ext.RsMod
-                    || item instanceof org.rust.lang.core.psi.RsEnumItem) {
-                    next = item;
-                    break;
+        ModData containingModData = findModData(info, getContainingMod());
+        if (containingModData == null) return Collections.emptyList();
+
+        if (containingModData.isEnum()) {
+            ModData parent = containingModData.getParent();
+            if (parent == null) return Collections.emptyList();
+            List<org.rust.lang.core.psi.ext.RsElement> enums = new java.util.ArrayList<>();
+            for (org.rust.lang.core.psi.ext.RsElement parentScope : modDataToScope(info, parent)) {
+                if (!(parentScope instanceof org.rust.lang.core.psi.ext.RsItemsOwner)) continue;
+                for (org.rust.lang.core.psi.ext.RsItemElement item :
+                    namedItems((org.rust.lang.core.psi.ext.RsItemsOwner) parentScope, containingModData.getName())) {
+                    if (item instanceof org.rust.lang.core.psi.RsEnumItem) enums.add(item);
                 }
             }
-            if (next == null) return Collections.emptyList();
-            current = next;
+            return enums;
         }
-        return Collections.singletonList(current);
+
+        return modDataToScope(info, containingModData);
+    }
+
+    /**
+     * The items of {@code scope} carrying {@code name}, taken from the cached name map rather than by
+     * walking every item in the scope. The standard library modules hold thousands of items, and a
+     * resolve asks for exactly one name.
+     */
+    @Nonnull
+    private static List<org.rust.lang.core.psi.ext.RsItemElement> namedItems(
+        @Nonnull org.rust.lang.core.psi.ext.RsItemsOwner scope,
+        @Nullable String name
+    ) {
+        if (name == null) return Collections.emptyList();
+        List<org.rust.lang.core.psi.ext.RsItemElement> named =
+            org.rust.lang.core.psi.ext.RsItemsOwnerUtil.getExpandedItemsCached(scope).getNamed().get(name);
+        return named == null ? Collections.emptyList() : named;
+    }
+
+    @Nullable
+    private static ModData findModData(@Nonnull RsModInfo info, @Nonnull ModPath path) {
+        DataPsiHelper helper = info.getDataPsiHelper();
+        if (helper != null) {
+            ModData fromHelper = helper.findModData(path);
+            if (fromHelper != null) return fromHelper;
+        }
+        return info.getDefMap().getModData(path);
+    }
+
+    @Nonnull
+    private static List<org.rust.lang.core.psi.ext.RsElement> modDataToScope(
+        @Nonnull RsModInfo info,
+        @Nonnull ModData data
+    ) {
+        DataPsiHelper helper = info.getDataPsiHelper();
+        if (helper != null) {
+            org.rust.lang.core.psi.ext.RsMod fromHelper = helper.dataToPsi(data);
+            if (fromHelper != null) return Collections.singletonList(fromHelper);
+        }
+        return new java.util.ArrayList<>(data.toRsMod(info.getProject()));
     }
 
     @Override

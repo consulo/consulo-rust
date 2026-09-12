@@ -25,7 +25,33 @@ import java.util.Collection;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 
 public abstract class RsCommandConfiguration extends LocatableConfigurationBase
-    implements RunConfigurationWithSuppressedDefaultDebugAction {
+    implements RunConfigurationWithSuppressedDefaultDebugAction,
+    consulo.execution.configuration.RunProfileWithCompileBeforeLaunchOption {
+
+    /**
+     * The Rust modules of the project. The platform builds the compile scope from these before
+     * launching, which is what routes the build through the toolchain on the module's Rust extension.
+     */
+    @Nonnull
+    @Override
+    public consulo.module.Module[] getModules() {
+        java.util.List<consulo.module.Module> modules = new java.util.ArrayList<>();
+        for (consulo.module.Module module : consulo.module.ModuleManager.getInstance(getProject()).getModules()) {
+            if (consulo.rust.module.extension.RustModuleExtension.findExtension(module) != null) {
+                modules.add(module);
+            }
+        }
+        return modules.toArray(consulo.module.Module.EMPTY_ARRAY);
+    }
+
+    /**
+     * Without a Rust module there is nothing cargo could build, so an empty module list must not
+     * fall back to compiling the whole project.
+     */
+    @Override
+    public boolean isBuildProjectOnEmptyModuleList() {
+        return false;
+    }
 
     private String myCommand;
     private boolean myEmulateTerminal;

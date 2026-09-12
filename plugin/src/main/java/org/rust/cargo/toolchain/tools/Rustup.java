@@ -15,7 +15,6 @@ import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
-import org.rust.cargo.runconfig.wasmpack.WasmPackBuildTaskProvider;
 import org.rust.cargo.toolchain.RsToolchainBase;
 import org.rust.cargo.util.DownloadResult;
 import org.rust.ide.actions.InstallComponentAction;
@@ -291,8 +290,10 @@ public class Rustup extends RsTool {
         return checkNeedInstallComponent(project, cargoProjectDirectory, "llvm-tools-preview", "llvm-tools");
     }
 
+    public static final String WASM_TARGET = "wasm32-unknown-unknown";
+
     public static boolean checkNeedInstallWasmTarget(Project project, Path cargoProjectDirectory) {
-        return checkNeedInstallTarget(project, cargoProjectDirectory, WasmPackBuildTaskProvider.WASM_TARGET);
+        return checkNeedInstallTarget(project, cargoProjectDirectory, WASM_TARGET);
     }
 
     private static boolean checkNeedInstallComponent(

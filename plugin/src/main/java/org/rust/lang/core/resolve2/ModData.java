@@ -447,13 +447,91 @@ public class ModData {
      * Not implemented: returns {@code false}, meaning "no macros found" — callers
      * gracefully fall back to other resolution strategies.
      */
+    /**
+     * The macros callable from this module, in Rust's resolve order for an unqualified call:
+     * textual macros declared in this same module first, then macros brought in by {@code use},
+     * then the remaining textual ones, and finally the standard library macro prelude.
+     */
     public boolean processMacros(
         @Nullable org.rust.lang.core.psi.RsPath macroPath,
         @Nonnull org.rust.lang.core.resolve.RsResolveProcessor processor,
         @Nonnull RsModInfo info
     ) {
+        boolean isQualified = macroPath != null && macroPath.getPath() != null;
+        boolean isAttrOrDerive = macroPath != null
+            && macroPath.getParent() instanceof org.rust.lang.core.psi.RsMetaItem;
+
+        if (processScopedMacros(processor, info, name -> {
+            if (isQualified) return true;
+            // A textual macro declared in this very module wins over an imported one, so it is left
+            // for the legacy pass below rather than being offered here.
+            for (MacroDefInfo def : legacyMacros.getOrDefault(name, java.util.Collections.emptyList())) {
+                if ((!isAttrOrDerive || def instanceof ProcMacroDefInfo) && def.getPath().getParent().equals(path)) {
+                    return false;
+                }
+            }
+            return true;
+        })) {
+            return true;
+        }
+
+        if (isQualified) return false;
+
+        org.rust.lang.core.psi.ext.RsPossibleMacroCall macroCall =
+            macroPath == null ? null : org.rust.lang.core.psi.ext.RsPossibleMacroCallUtil.getContextMacroCall(macroPath);
+        MacroIndex macroIndex = macroCall == null ? null : info.getMacroIndex(macroCall, info.getCrate());
+        for (Map.Entry<String, List<MacroDefInfo>> entry
+            : FacadeResolve.entriesWithNames(legacyMacros, processor.getNames()).entrySet()) {
+            List<MacroDefInfo> defs = entry.getValue();
+            if (defs.isEmpty()) continue;
+
+            MacroDefInfo def;
+            if (!isAttrOrDerive) {
+                def = macroIndex != null
+                    ? PathResolution.getLastBefore(defs, macroIndex)
+                    : defs.get(defs.size() - 1);
+            }
+            else {
+                def = null;
+                for (MacroDefInfo candidate : defs) {
+                    if (candidate instanceof ProcMacroDefInfo) def = candidate;
+                }
+            }
+            if (def == null) continue;
+
+            VisItem visItem = new VisItem(def.getPath(), Visibility.PUBLIC);
+            org.rust.lang.core.psi.ext.RsNamedElement macro = visItem.scopedMacroToPsi(info);
+            if (macro == null) continue;
+            if (processor.process(entry.getKey(), org.rust.lang.core.resolve.Namespace.MACROS, macro)) return true;
+        }
+
+        if (!isHanging()) {
+            ModData prelude = info.getDefMap().getPrelude();
+            if (prelude != null && prelude.processScopedMacros(processor, info, name -> true)) return true;
+        }
+
         return false;
     }
+
+    /** Macros visible here by name - those declared here and those imported by {@code use}. */
+    private boolean processScopedMacros(
+        @Nonnull org.rust.lang.core.resolve.RsResolveProcessor processor,
+        @Nonnull RsModInfo info,
+        @Nonnull java.util.function.Predicate<String> filter
+    ) {
+        for (Map.Entry<String, PerNs> entry
+            : FacadeResolve.entriesWithNames(getVisibleItems(), processor.getNames()).entrySet()) {
+            String name = entry.getKey();
+            if (!filter.test(name)) continue;
+            for (VisItem visItem : entry.getValue().getMacros()) {
+                org.rust.lang.core.psi.ext.RsNamedElement macro = visItem.scopedMacroToPsi(info);
+                if (macro == null) continue;
+                if (processor.process(name, org.rust.lang.core.resolve.Namespace.MACROS, macro)) return true;
+            }
+        }
+        return false;
+    }
+
 
     @Override
     @Nonnull

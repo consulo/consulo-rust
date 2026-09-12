@@ -236,9 +236,11 @@ public final class FacadeUpdateDefMap {
                 this.crates = topSortedCrates;
             } else {
                 List<Crate> rootCrates = new ArrayList<>();
-                for (int id : rootCrateIds) {
+                for (Integer id : rootCrateIds) {
                     for (Crate c : topSortedCrates) {
-                        if (id == c.getId()) {
+                        // Compared as boxed values: a crate whose target has no root has a null id, and
+                        // unboxing it here would throw rather than skip the crate.
+                        if (id != null && id.equals(c.getId())) {
                             rootCrates.add(c);
                             break;
                         }

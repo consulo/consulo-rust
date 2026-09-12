@@ -14,9 +14,16 @@ import org.rust.openapiext.OpenApiUtil;
 import consulo.annotation.component.ActionImpl;
 import org.rust.cargo.runconfig.RunConfigUtil;
 import org.rust.ide.notifications.NotificationUtils;
+import consulo.rust.localize.RustLocalize;
+import consulo.localize.LocalizeValue;
+import consulo.rust.icon.RustIconGroup;
 
 @ActionImpl(id = "Cargo.RefreshCargoProject")
 public class RefreshCargoProjectsAction extends CargoProjectActionBase {
+
+    public RefreshCargoProjectsAction() {
+        super(RustLocalize.actionCargoRefreshcargoprojectText(), RustLocalize.actionCargoRefreshcargoprojectDescription(), RustIconGroup.rustreload());
+    }
 
     @Override
     public void update(AnActionEvent e) {

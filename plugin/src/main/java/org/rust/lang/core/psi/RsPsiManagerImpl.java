@@ -132,7 +132,8 @@ public class RsPsiManagerImpl implements RsPsiManager, Disposable {
         org.rust.lang.core.crate.CrateGraphService crateGraph = CrateGraphService.crateGraph(myProject);
         for (Object crateId : crates) {
             org.rust.lang.core.crate.Crate crate = crateGraph.findCrateById(((Number) crateId).intValue());
-            if (crate != null && crate.getOrigin() != PackageOrigin.WORKSPACE) return false;
+            // A crate id the graph does not know is not a workspace crate either.
+            if (crate == null || crate.getOrigin() != PackageOrigin.WORKSPACE) return false;
         }
         return true;
     }
