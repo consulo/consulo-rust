@@ -1,3 +1,0 @@
-fn foo(xs: Vec<i32>) {
-    assert!(<spot>xs.is_empty()</spot>.not);
-}

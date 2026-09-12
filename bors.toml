@@ -1,5 +1,0 @@
-status = [
-  "check",
-]
-delete_merged_branches = true
-timeout_sec = 14400

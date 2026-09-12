@@ -1,4 +1,0 @@
-trait Trait {
-    fun foo(&self) {}
-}
-struct <spot>MyStruct</spot>;

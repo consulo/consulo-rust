@@ -1,3 +1,0 @@
-fn test(x: i32, y: i32) {
-    let foo = <spot>x + y</spot>;
-}

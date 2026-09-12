@@ -1,3 +1,0 @@
-fn foo(slice: &[i32]) {
-    let first = <spot>slice[0]</spot>.dbg
-}

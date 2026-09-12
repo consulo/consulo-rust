@@ -1,4 +1,0 @@
-struct A {
-    <spot>a</spot>: u32,
-    b: u32
-}

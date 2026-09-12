@@ -1,3 +1,0 @@
-mod m {
-   #    !    [ cfg ( test ) ]
-}

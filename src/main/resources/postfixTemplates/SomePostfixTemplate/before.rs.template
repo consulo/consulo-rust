@@ -1,3 +1,0 @@
-fn foo(number: i32) -> Option<i32> {
-    <spot>number</spot>.some
-}

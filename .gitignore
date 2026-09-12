@@ -1,19 +1,16 @@
 .idea
 .fleet
 *.iml
-.gradle
-out/
-bin/
-build/
-gen/
-deps/
-exampleProject
-testData
 .DS_Store
-/pretty_printers_tests/target
-/native-helper/target
-/attributes-info/target
+
+# Build output. Anchored, so a source package that happens to be called
+# `target` or `build` is not swallowed along with it.
+/target/
+/plugin/target/
+/plugin/build/
+/legacy/*/build/
+/legacy/*/.idea/
 
 .claude/
 .consulo
-target/
+plugin/sandbox/

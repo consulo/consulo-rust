@@ -1,6 +1,0 @@
-fn foo(x: Option<i32>) {
-    match x {
-        Some(x) => x,
-        None => todo!(),
-    };
-}

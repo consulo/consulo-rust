@@ -1,5 +1,0 @@
-enum E {
-    <spot>A,
-    B,
-    C</spot>
-}

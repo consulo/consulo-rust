@@ -1,4 +1,0 @@
-struct S {
-    <spot>x: i32,
-    y: i32</spot>
-}

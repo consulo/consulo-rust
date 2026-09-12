@@ -1,0 +1,1 @@
+Old dirs from project, which we not supported, and maybe will be moved to project later (from old intellij-rust)

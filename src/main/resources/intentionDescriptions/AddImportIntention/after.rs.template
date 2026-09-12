@@ -1,5 +1,0 @@
-use std::sync::Arc;
-
-fn main() {
-    <spot>Arc::new</spot>(1);
-}

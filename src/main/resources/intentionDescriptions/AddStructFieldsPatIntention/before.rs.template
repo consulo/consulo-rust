@@ -1,4 +1,0 @@
-struct Bar { baz: i32, quux: i32, eggs:i32 }
-fn foo(bar: Bar) {
-    let Bar { baz, .. } = bar;
-}

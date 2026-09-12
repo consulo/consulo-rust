@@ -1,9 +1,0 @@
-struct S;
-impl S {
-    fn foo(&self) {}
-}
-
-fn bar() {
-    let s = S;
-    s.<spot>foo</spot>();
-}

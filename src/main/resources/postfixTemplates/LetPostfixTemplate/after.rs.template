@@ -1,3 +1,0 @@
-pub fn main() {
-    let <spot>vec</spot> = vec![1, 2, 3];
-}

@@ -1,3 +1,0 @@
-fn foo(number: i32) -> Result<i32, ()> {
-    <spot>number</spot>.ok
-}

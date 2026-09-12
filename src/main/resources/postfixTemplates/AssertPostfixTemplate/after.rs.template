@@ -1,6 +1,0 @@
-#[test]
-fn foo() {
-    let foo = 2;
-    let bar = 4;
-    assert_eq!(foo, bar);
-}

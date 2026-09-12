@@ -1,3 +1,0 @@
-fn test(x: Option<i32>) {
-    x.unwrap();
-}

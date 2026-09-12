@@ -1,3 +1,0 @@
-fn foo(xs: Vec<i32>) {
-    assert!(!xs.is_empty());
-}

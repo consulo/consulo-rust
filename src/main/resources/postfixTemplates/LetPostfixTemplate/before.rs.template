@@ -1,3 +1,0 @@
-pub fn main() {
-    <spot>vec![1, 2, 3]</spot>.let
-}
