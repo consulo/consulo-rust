@@ -5,14 +5,18 @@
 
 package org.rust.openapiext;
 
+import consulo.container.plugin.PluginManager;
 import consulo.ide.impl.idea.openapi.application.PathManager;
 import com.intellij.util.system.CpuArch;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
+
 import consulo.container.boot.ContainerPathManager;
 import consulo.platform.Platform;
 
@@ -30,7 +34,8 @@ public final class RsPathManager {
 
     @Nonnull
     private static Path pluginDir() {
-        return OpenApiUtil.plugin().getPath().toPath();
+        File path = PluginManager.getPluginPath(RsPathManager.class);
+        return Objects.requireNonNull(path, "Plugin must be never null").toPath();
     }
 
     @Nullable

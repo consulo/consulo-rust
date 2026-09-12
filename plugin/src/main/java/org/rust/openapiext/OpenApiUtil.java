@@ -119,9 +119,6 @@ public final class OpenApiUtil {
     private OpenApiUtil() {
     }
 
-    @Nonnull
-    public static final String PLUGIN_ID = "consulo.rust";
-
     // --- Property-style accessors ---
 
     public static boolean isUnitTestMode() {
@@ -457,15 +454,6 @@ public final class OpenApiUtil {
         T value = defaultValue.get();
         holder.putUserData(key, value);
         return value;
-    }
-
-    // --- Plugin utilities ---
-
-    @Nonnull
-    public static PluginDescriptor plugin() {
-        PluginDescriptor descriptor = consulo.container.plugin.PluginManager.findPlugin(PluginId.getId(PLUGIN_ID));
-        assert descriptor != null : "Plugin descriptor not found for " + PLUGIN_ID;
-        return descriptor;
     }
 
     // --- String utilities ---
