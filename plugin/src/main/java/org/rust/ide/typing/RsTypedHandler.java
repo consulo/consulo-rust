@@ -5,6 +5,7 @@
 
 package org.rust.ide.typing;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.AutoPopupController;
 import consulo.language.editor.completion.CompletionType;
 import consulo.language.editor.action.TypedHandlerDelegate;
@@ -21,7 +22,11 @@ import org.rust.lang.core.psi.RsDotExpr;
 import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.RsFile;
 import org.rust.lang.core.psi.RsPat;
+import consulo.language.ast.IElementType;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiUtilCore;
 
+@ExtensionImpl(id = "RsTypedHandler")
 public class RsTypedHandler extends TypedHandlerDelegate {
 
     @Override

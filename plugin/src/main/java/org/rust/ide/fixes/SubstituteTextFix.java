@@ -19,6 +19,8 @@ import org.rust.RsBundle;
 import org.rust.openapiext.DocumentExtUtil;
 
 import consulo.document.Document;
+import consulo.document.util.Segment;
+import consulo.localize.LocalizeValue;
 
 /**
  * Fix that removes the given range from the document and places a text onto its place.

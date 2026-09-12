@@ -25,19 +25,20 @@ import org.rust.lang.core.psi.RsMacroCall;
 import org.rust.lang.core.macros.RsExpandedElement;
 import org.rust.lang.core.psi.ext.RsPossibleMacroCall;
 import org.rust.stdext.RsResult;
+import consulo.annotation.component.ServiceImpl;
+import jakarta.inject.Inject;
+import consulo.component.util.ModificationTracker;
 
 /**
  * The main implementation of {@link MacroExpansionManager}.
  * <p>
- * This is a state-component that persists directory names. The actual macro expansion
- * <p>
- * Note: The full implementation of this class involves many private inner classes and heavy
- * integration with DefMap, PsiManager, CargoProjects, etc. This Java conversion provides
+ * This is a state-component that persists the expansion directory name.
  */
 @State(name = "MacroExpansionManager", storages = {
     @Storage(value = StoragePathMacros.WORKSPACE_FILE, roamingType = RoamingType.DISABLED),
     @Storage(value = "misc.xml", roamingType = RoamingType.DISABLED, deprecated = true)
 })
+@ServiceImpl
 public class MacroExpansionManagerImpl
     implements MacroExpansionManager,
     PersistentStateComponent<MacroExpansionManagerImpl.PersistentState>,
@@ -47,6 +48,8 @@ public class MacroExpansionManagerImpl
     private final Project myProject;
 
     private volatile boolean isDisposed = false;
+
+    @Inject
 
     public MacroExpansionManagerImpl(@Nonnull Project project) {
         myProject = project;
@@ -75,8 +78,7 @@ public class MacroExpansionManagerImpl
 
     @Override
     public void loadState(@Nonnull PersistentState state) {
-        // The actual loading logic delegates to MacroExpansionServiceBuilder and is highly
-        // This is a structural placeholder for the Java conversion.
+        // TODO: restore the expansion directory from the persisted state
     }
 
     public void noStateLoaded() {

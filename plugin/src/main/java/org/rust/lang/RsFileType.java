@@ -12,6 +12,7 @@ import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
+import org.rust.ide.icons.RsIcons;
 
 public final class RsFileType extends LanguageFileType {
     public static final RsFileType INSTANCE = new RsFileType();
@@ -29,9 +30,7 @@ public final class RsFileType extends LanguageFileType {
     @Nonnull
     @Override
     public Image getIcon() {
-        // TODO: wire to RsIcons.RUST_FILE once org.rust.ide.icons.RsIcons compiles on
-        // Consulo (needs IconLoader + LayeredIcon + AnimatedIcon replacements).
-        return Image.empty(Image.DEFAULT_ICON_SIZE);
+        return RsIcons.RUST_FILE;
     }
 
     @Nonnull

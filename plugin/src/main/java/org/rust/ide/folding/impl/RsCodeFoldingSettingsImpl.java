@@ -11,8 +11,10 @@ import consulo.component.persist.Storage;
 import consulo.util.xml.serializer.XmlSerializerUtil;
 import jakarta.annotation.Nonnull;
 import org.rust.ide.folding.RsCodeFoldingSettings;
+import consulo.annotation.component.ServiceImpl;
 
-@State(name = "RsCodeFoldingSettings", storages = @Storage("editor.codeinsight.xml"))
+@State(name = "RsCodeFoldingSettings", storages = @Storage("editor.codeinsight"))
+@ServiceImpl
 public class RsCodeFoldingSettingsImpl extends RsCodeFoldingSettings implements PersistentStateComponent<RsCodeFoldingSettingsImpl> {
 
     private boolean collapsibleOneLineMethods = true;

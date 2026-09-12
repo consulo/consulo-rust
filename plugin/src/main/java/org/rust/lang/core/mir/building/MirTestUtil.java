@@ -28,6 +28,7 @@ import org.rust.openapiext.TestAssertUtil;
 
 import java.util.*;
 import java.util.function.Supplier;
+import consulo.util.lang.Pair;
 
 public final class MirTestUtil {
     private MirTestUtil() {

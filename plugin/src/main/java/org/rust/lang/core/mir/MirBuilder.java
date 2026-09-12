@@ -29,11 +29,6 @@ import consulo.util.lang.Pair;
 import java.util.*;
 import java.util.function.Supplier;
 
-/**
- *
- * instance methods that take a BlockAnd as the first parameter. The inline functions
- * patterns have been converted to explicit static method calls.
- */
 public class MirBuilder {
     @Nonnull
     private final RsElement element;

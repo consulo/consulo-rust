@@ -5,7 +5,8 @@
 
 package org.rust.cargo.runconfig.filters;
 
-import consulo.execution.ui.console.Filter;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.execution.ui.console.AnalyzeStackTraceFilter;
 import consulo.execution.ui.console.OpenFileHyperlinkInfo;
 import consulo.colorScheme.EditorColorsManager;
 import consulo.colorScheme.TextAttributesKey;
@@ -15,9 +16,9 @@ import consulo.virtualFileSystem.VirtualFile;
 import consulo.language.psi.PsiDocumentManager;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
-import com.intellij.serviceContainer.NonInjectable;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import jakarta.inject.Inject;
 import org.rust.cargo.project.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import org.rust.cargo.project.workspace.CargoWorkspace;
@@ -37,7 +38,8 @@ import java.util.stream.Collectors;
  * - Turn source code links into hyperlinks.
  * - Dims function hash codes to reduce noise.
  */
-public class RsBacktraceFilter implements Filter {
+@ExtensionImpl
+public class RsBacktraceFilter implements AnalyzeStackTraceFilter {
 
     public static final String LINE_REGEX = "\\s+at " + RegexpFileLinkFilter.FILE_POSITION_RE;
 
@@ -45,7 +47,6 @@ public class RsBacktraceFilter implements Filter {
     private final VirtualFile myCargoProjectDir;
     private final CargoWorkspace myWorkspace;
 
-    @NonInjectable
     public RsBacktraceFilter(@Nonnull Project project,
                              @Nullable VirtualFile cargoProjectDir,
                              @Nullable CargoWorkspace workspace) {
@@ -54,6 +55,7 @@ public class RsBacktraceFilter implements Filter {
         myWorkspace = workspace;
     }
 
+    @Inject
     public RsBacktraceFilter(@Nonnull Project project) {
         this(project, null, null);
     }

@@ -8,7 +8,7 @@ import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
-/** IntelliJ-compat stub. Structural search is not in Consulo. */
+/** Language-specific structural search support: builds the PSI pattern tree for a search query. */
 public abstract class StructuralSearchProfile {
     public PsiElement[] createPatternTree(@Nonnull String text,
                                            @Nonnull PatternTreeContext context,

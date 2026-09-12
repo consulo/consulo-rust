@@ -11,7 +11,6 @@ import org.rust.lang.core.psi.RsEnumVariant;
 import org.rust.lang.core.psi.RsStructItem;
 import org.rust.lang.core.psi.ext.RsFieldsOwner;
 import org.rust.lang.core.psi.ext.RsFieldsOwnerUtil;
-import org.rust.lang.core.psi.ext.RsStubbedElementKindUtil;
 import org.rust.lang.core.types.infer.TypeInference;
 import org.rust.lang.core.types.ty.*;
 import org.rust.lang.utils.evaluation.ConstExpr;

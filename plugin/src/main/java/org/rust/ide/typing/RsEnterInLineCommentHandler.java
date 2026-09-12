@@ -6,30 +6,35 @@
 package org.rust.ide.typing;
 
 import org.rust.lang.core.psi.ext.RsElementUtil;
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.action.EnterHandlerDelegate;
 import consulo.language.editor.action.EnterHandlerDelegateAdapter;
 import consulo.dataContext.DataContext;
 import consulo.codeEditor.Editor;
 import consulo.codeEditor.action.EditorActionHandler;
-import consulo.util.lang.ref.Ref;
+import consulo.util.lang.ref.SimpleReference;
 import consulo.language.psi.PsiDocumentManager;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import consulo.language.ast.TokenType;
 import consulo.util.lang.CharArrayUtil;
-import org.rust.lang.core.parser.RustParserDefinition;
 import org.rust.lang.core.psi.RsFile;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.doc.psi.RsDocKind;
 import org.rust.lang.doc.psi.ext.RsDocCommentUtil;
+import org.rust.lang.core.psi.RsTokenType;
+import consulo.document.Document;
+import consulo.language.ast.IElementType;
 
+@ExtensionImpl(id = "RustEnterInLineComments")
 public class RsEnterInLineCommentHandler extends EnterHandlerDelegateAdapter {
 
+    @Override
     public Result preprocessEnter(
         PsiFile file,
         Editor editor,
-        Ref<Integer> caretOffsetRef,
-        Ref<Integer> caretAdvanceRef,
+        SimpleReference<Integer> caretOffsetRef,
+        SimpleReference<Integer> caretAdvanceRef,
         DataContext dataContext,
         EditorActionHandler originalHandler
     ) {
@@ -69,11 +74,11 @@ public class RsEnterInLineCommentHandler extends EnterHandlerDelegateAdapter {
         // and extract the comment token (//, /// or //!) from the comment text
         consulo.language.ast.IElementType elementType = RsElementUtil.getElementType(elementAtCaret);
         String prefix;
-        if (elementType == RustParserDefinition.OUTER_EOL_DOC_COMMENT) {
+        if (elementType == RsTokenType.OUTER_EOL_DOC_COMMENT) {
             prefix = RsDocKind.OuterEol.getPrefix();
-        } else if (elementType == RustParserDefinition.INNER_EOL_DOC_COMMENT) {
+        } else if (elementType == RsTokenType.INNER_EOL_DOC_COMMENT) {
             prefix = RsDocKind.InnerEol.getPrefix();
-        } else if (elementType == RustParserDefinition.EOL_COMMENT) {
+        } else if (elementType == RsTokenType.EOL_COMMENT) {
             // return if caret is at end of line for a non-documentation comment
             if (isEOL) {
                 return Result.Continue;

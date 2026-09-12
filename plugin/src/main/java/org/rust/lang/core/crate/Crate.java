@@ -178,7 +178,6 @@ public interface Crate extends UserDataHolderEx {
         }
     }
 
-    // Extension functions converted to static methods
 
     @Nullable
     static Crate findDependency(@Nonnull Crate self, @Nonnull String normName) {

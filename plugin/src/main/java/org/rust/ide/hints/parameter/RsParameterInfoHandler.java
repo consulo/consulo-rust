@@ -19,10 +19,16 @@ import org.rust.lang.core.psi.ext.RsElementUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.Language;
+import consulo.language.editor.completion.lookup.LookupElement;
+import consulo.language.editor.parameterInfo.ParameterInfoContext;
+import org.rust.lang.RsLanguage;
 
 /**
  * Provides functions/methods arguments hint.
  */
+@ExtensionImpl
 public class RsParameterInfoHandler extends RsAsyncParameterInfoHandler<RsValueArgumentList, RsArgumentsDescription> {
 
     @Nullable

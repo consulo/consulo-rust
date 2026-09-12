@@ -25,7 +25,6 @@ import org.rust.lang.core.resolve.KnownItems;
 import org.rust.lang.core.resolve.ref.RsPathReferenceImpl;
 import org.rust.lang.core.types.BoundElement;
 import org.rust.lang.core.types.RsTypesUtil;
-import org.rust.lang.core.types.infer.SubstituteUtil;
 import org.rust.lang.core.types.ty.TyUnknown;
 import org.rust.openapiext.OpenApiUtil;
 

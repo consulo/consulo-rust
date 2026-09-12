@@ -11,7 +11,6 @@ import org.rust.ide.formatter.settings.RsCodeStyleSettings;
 import org.rust.openapiext.Testmark;
 
 /**
- * <p>
  * Contains formatting utility methods and testmarks.
  */
 public final class Util {

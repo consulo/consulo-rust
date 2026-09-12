@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.rust.lang.core.psi.ext.RsTypeParameterUtil;
 import org.rust.lang.core.psi.ext.RsLifetimeParameterUtil;
+import consulo.localize.LocalizeValue;
 
 public class MoveTypeConstraintToParameterListIntention extends RsElementBaseIntentionAction<RsWhereClause> {
     @Nonnull

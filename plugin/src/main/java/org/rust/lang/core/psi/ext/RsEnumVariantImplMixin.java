@@ -16,6 +16,7 @@ import org.rust.lang.core.psi.RsPsiImplUtil;
 import org.rust.lang.core.stubs.RsEnumVariantStub;
 
 import javax.swing.*;
+import consulo.ui.image.Image;
 
 public abstract class RsEnumVariantImplMixin extends RsStubbedNamedElementImpl<RsEnumVariantStub>
     implements RsEnumVariant {

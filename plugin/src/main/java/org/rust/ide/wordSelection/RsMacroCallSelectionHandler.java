@@ -4,6 +4,8 @@
  */
 
 package org.rust.ide.wordSelection;
+
+import consulo.annotation.component.ExtensionImpl;
 import consulo.codeEditor.EditorPopupHandler;
 import consulo.codeEditor.event.FocusChangeListener;
 import consulo.codeEditor.markup.MarkupModelEx;
@@ -28,14 +30,13 @@ import consulo.codeEditor.EditorEx;
 import consulo.language.editor.highlight.LexerEditorHighlighter;
 import consulo.codeEditor.EditorHighlighter;
 import consulo.codeEditor.EditorFactory;
-import com.intellij.openapi.editor.impl.ImaginaryEditor;
+import consulo.codeEditor.imaginary.ImaginaryEditor;
 import consulo.codeEditor.TextDrawingCallback;
 import consulo.colorScheme.TextAttributes;
 import consulo.project.Project;
 import consulo.document.util.TextRange;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.language.psi.PsiElement;
-import com.intellij.util.ui.ButtonlessScrollBarUI;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.ide.highlight.RsHighlighter;
@@ -55,7 +56,12 @@ import java.util.List;
 import java.util.function.IntFunction;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
+import consulo.codeEditor.IndentsModel;
+import consulo.codeEditor.InlayModel;
+import consulo.ui.color.ColorValue;
+import consulo.ui.cursor.Cursor;
 
+@ExtensionImpl
 public class RsMacroCallSelectionHandler extends ExtendWordSelectionHandlerBase {
     @Override
     public boolean canSelect(@Nonnull PsiElement e) {

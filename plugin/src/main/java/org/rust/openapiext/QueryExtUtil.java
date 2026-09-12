@@ -7,6 +7,7 @@ package org.rust.openapiext;
 
 import consulo.util.lang.function.Condition;
 import jakarta.annotation.Nonnull;
+import consulo.application.util.query.Query;
 
 /**
  * Bridge class delegating to {@link QueryExt}.

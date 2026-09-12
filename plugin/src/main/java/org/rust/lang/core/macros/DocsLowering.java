@@ -13,12 +13,12 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.macros.decl.MacroExpansionMarks;
 import org.rust.lang.core.parser.ParserUtil;
-import org.rust.lang.core.psi.RsTokenType;
 import org.rust.lang.doc.psi.RsDocKind;
 import consulo.util.lang.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.rust.lang.core.psi.RsTokenSets;
 
 public final class DocsLowering {
     private DocsLowering() {}
@@ -83,7 +83,7 @@ public final class DocsLowering {
             int start = builder.rawTokenTypeStart(i);
             i++;
 
-            if (RsTokenType.RS_DOC_COMMENTS.contains(token)) {
+            if (RsTokenSets.RS_DOC_COMMENTS.contains(token)) {
                 RsDocKind kind = RsDocKind.of(token);
                 String attrPrefix = (kind == RsDocKind.InnerBlock || kind == RsDocKind.InnerEol) ? "#!" : "#";
                 if (kind.isBlock()) {
@@ -140,7 +140,7 @@ public final class DocsLowering {
         while (true) {
             IElementType token = builder.rawLookup(i++);
             if (token == null) break;
-            if (RsTokenType.RS_DOC_COMMENTS.contains(token)) return true;
+            if (RsTokenSets.RS_DOC_COMMENTS.contains(token)) return true;
         }
         return false;
     }

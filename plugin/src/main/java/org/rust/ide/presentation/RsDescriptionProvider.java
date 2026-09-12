@@ -5,6 +5,7 @@
 
 package org.rust.ide.presentation;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.highlight.HighlightUsagesDescriptionLocation;
 import consulo.language.psi.ElementDescriptionLocation;
 import consulo.language.psi.ElementDescriptionProvider;
@@ -25,6 +26,7 @@ import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.psi.ext.RsNamedElement;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
 
+@ExtensionImpl
 public class RsDescriptionProvider implements ElementDescriptionProvider {
 
     @Nullable

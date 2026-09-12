@@ -21,7 +21,7 @@ public class RsImplItemStub extends RsAttrProcMacroOwnerStubBase<RsImplItem> {
 
     private static final int NEGATIVE_IMPL_MASK;
     static {
-        BitFlagsBuilder b = new BitFlagsBuilder(new RsAttributeOwnerStub.ImplStubAttrFlags(), BitFlagsBuilder.Limit.BYTE);
+        BitFlagsBuilder b = new BitFlagsBuilder(RsAttributeOwnerStub.ImplStubAttrFlags.INSTANCE, BitFlagsBuilder.Limit.BYTE);
         NEGATIVE_IMPL_MASK = b.nextBitMask();
     }
 

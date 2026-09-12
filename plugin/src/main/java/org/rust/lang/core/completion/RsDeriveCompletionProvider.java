@@ -32,6 +32,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.rust.lang.core.PsiElementPatternExtUtil.psiElement;
+import consulo.language.pattern.PatternCondition;
+import org.rust.lang.core.psi.RsTraitItem;
+import org.rust.lang.core.types.BoundElement;
+import org.rust.lang.core.types.ty.Ty;
 
 public class RsDeriveCompletionProvider extends RsCompletionProvider {
     public static final RsDeriveCompletionProvider INSTANCE = new RsDeriveCompletionProvider();

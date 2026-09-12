@@ -21,6 +21,7 @@ import org.rust.stdext.HashCode;
 
 import javax.swing.*;
 import org.rust.lang.core.psi.ext.RsVisibilityUtil;
+import consulo.ui.image.Image;
 
 public abstract class RsMacro2ImplMixin extends RsStubbedNamedElementImpl<RsMacro2Stub>
     implements RsMacro2 {

@@ -31,6 +31,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.rust.lang.core.psi.ext.RsElementExtUtil;
+import consulo.localize.LocalizeValue;
+import org.rust.cargo.project.model.CargoProject;
+import org.rust.lang.core.psi.ext.RsLitExprUtil;
 
 public class ToggleFeatureIntention extends RsElementBaseIntentionAction<ToggleFeatureIntention.Context> implements HighPriorityAction {
     @Nonnull

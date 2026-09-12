@@ -5,6 +5,7 @@
 
 package org.rust.ide.actions.mover;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiWhiteSpace;
 import consulo.language.ast.TokenSet;
@@ -12,6 +13,7 @@ import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
 
+@ExtensionImpl(id = "rsStatement", order = "after rsMatchArm")
 public class RsStatementUpDownMover extends RsLineMover {
 
     private static final TokenSet movableItems = TokenSet.create(
@@ -26,7 +28,7 @@ public class RsStatementUpDownMover extends RsLineMover {
     }
 
     private static boolean isComment(PsiElement element) {
-        return RsTokenType.RS_COMMENTS.contains(PsiElementUtil.getElementType(element));
+        return RsTokenSets.RS_COMMENTS.contains(PsiElementUtil.getElementType(element));
     }
 
     public static boolean isMovableElement(PsiElement element) {

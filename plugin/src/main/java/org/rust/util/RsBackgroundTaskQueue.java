@@ -24,6 +24,7 @@ import consulo.util.lang.function.PairConsumer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import consulo.project.Project;
 
 public class RsBackgroundTaskQueue {
     private static final Logger LOG = Logger.getInstance(RsBackgroundTaskQueue.class);

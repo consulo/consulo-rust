@@ -30,6 +30,9 @@ import java.util.List;
 import org.rust.lang.core.psi.ext.RsMatchArmUtil;
 import consulo.localize.LocalizeValue;
 import consulo.annotation.component.ExtensionImpl;
+import consulo.language.editor.inspection.LocalQuickFix;
+import org.rust.ide.utils.checkMatch.CheckMatchUtils;
+import org.rust.ide.utils.checkMatch.UsefulnessResult;
 
 @ExtensionImpl
 public class RsUnreachablePatternsInspection extends RsLintInspection {

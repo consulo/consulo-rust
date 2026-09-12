@@ -12,6 +12,17 @@ import org.rust.lang.core.psi.ext.RsDocAndAttributeOwner;
 import org.rust.lang.core.stubs.common.RsAttributeOwnerPsiOrStub;
 import org.rust.stdext.BitFlagsBuilder;
 import org.rust.stdext.HashCode;
+import org.rust.lang.core.psi.BuiltinAttributes;
+import org.rust.lang.core.psi.RsMetaItem;
+import org.rust.lang.core.psi.RsMetaItemArgs;
+import org.rust.lang.core.psi.RsPath;
+import org.rust.lang.core.psi.ext.QueryAttributes;
+import org.rust.lang.core.psi.ext.RsDocAndAttributeOwnerUtil;
+import org.rust.lang.core.psi.ext.RsMetaItemUtil;
+import org.rust.lang.core.psi.ext.RsPathUtil;
+import org.rust.lang.core.resolve.KnownDerivableTrait;
+import org.rust.lang.core.resolve.KnownItems;
+import org.rust.lang.core.stubs.common.RsMetaItemPsiOrStub;
 
 public interface RsAttributeOwnerStub extends RsAttributeOwnerPsiOrStub<RsMetaItemStub> {
     boolean getHasAttrs();
@@ -169,129 +180,87 @@ public interface RsAttributeOwnerStub extends RsAttributeOwnerPsiOrStub<RsMetaIt
     final class CommonStubAttrFlags extends BitFlagsBuilder {
         public static final CommonStubAttrFlags INSTANCE = new CommonStubAttrFlags();
 
-        public static final int HAS_ATTRS;
-        public static final int MAY_HAVE_CFG;
-        public static final int HAS_CFG_ATTR;
-        public static final int MAY_HAVE_CUSTOM_DERIVE;
-        public static final int MAY_HAVE_CUSTOM_ATTRS;
+        public static final int HAS_ATTRS = INSTANCE.nextBitMask();
+        public static final int MAY_HAVE_CFG = INSTANCE.nextBitMask();
+        public static final int HAS_CFG_ATTR = INSTANCE.nextBitMask();
+        public static final int MAY_HAVE_CUSTOM_DERIVE = INSTANCE.nextBitMask();
+        public static final int MAY_HAVE_CUSTOM_ATTRS = INSTANCE.nextBitMask();
 
-        private CommonStubAttrFlags() {
+        public CommonStubAttrFlags() {
             super(Limit.BYTE);
-        }
-
-        static {
-            CommonStubAttrFlags instance = new CommonStubAttrFlags();
-            HAS_ATTRS = instance.nextBitMask();
-            MAY_HAVE_CFG = instance.nextBitMask();
-            HAS_CFG_ATTR = instance.nextBitMask();
-            MAY_HAVE_CUSTOM_DERIVE = instance.nextBitMask();
-            MAY_HAVE_CUSTOM_ATTRS = instance.nextBitMask();
         }
     }
 
     final class ModStubAttrFlags extends BitFlagsBuilder {
-        public static final int MAY_HAVE_MACRO_USE;
+        public static final ModStubAttrFlags INSTANCE = new ModStubAttrFlags();
 
-        static {
-            ModStubAttrFlags instance = new ModStubAttrFlags();
-            // skip common flags
-            instance.nextBitMask(); instance.nextBitMask(); instance.nextBitMask(); instance.nextBitMask(); instance.nextBitMask();
-            MAY_HAVE_MACRO_USE = instance.nextBitMask();
-        }
+        public static final int MAY_HAVE_MACRO_USE = INSTANCE.nextBitMask();
 
         public ModStubAttrFlags() {
-            super(Limit.BYTE);
+            super(CommonStubAttrFlags.INSTANCE, Limit.BYTE);
         }
     }
 
     final class FileStubAttrFlags extends BitFlagsBuilder {
-        public static final int MAY_HAVE_STDLIB_ATTRIBUTES;
-        public static final int MAY_HAVE_RECURSION_LIMIT;
+        public static final FileStubAttrFlags INSTANCE = new FileStubAttrFlags();
 
-        static {
-            FileStubAttrFlags instance = new FileStubAttrFlags();
-            // skip common + mod flags
-            for (int i = 0; i < 6; i++) instance.nextBitMask();
-            MAY_HAVE_STDLIB_ATTRIBUTES = instance.nextBitMask();
-            MAY_HAVE_RECURSION_LIMIT = instance.nextBitMask();
-        }
+        public static final int MAY_HAVE_STDLIB_ATTRIBUTES = INSTANCE.nextBitMask();
+        public static final int MAY_HAVE_RECURSION_LIMIT = INSTANCE.nextBitMask();
 
         public FileStubAttrFlags() {
-            super(Limit.BYTE);
+            super(ModStubAttrFlags.INSTANCE, Limit.BYTE);
         }
     }
 
     final class FunctionStubAttrFlags extends BitFlagsBuilder {
-        public static final int MAY_BE_PROC_MACRO_DEF;
+        public static final FunctionStubAttrFlags INSTANCE = new FunctionStubAttrFlags();
 
-        static {
-            FunctionStubAttrFlags instance = new FunctionStubAttrFlags();
-            for (int i = 0; i < 5; i++) instance.nextBitMask();
-            MAY_BE_PROC_MACRO_DEF = instance.nextBitMask();
-        }
+        public static final int MAY_BE_PROC_MACRO_DEF = INSTANCE.nextBitMask();
 
         public FunctionStubAttrFlags() {
-            super(Limit.BYTE);
+            super(CommonStubAttrFlags.INSTANCE, Limit.BYTE);
         }
     }
 
     final class UseItemStubAttrFlags extends BitFlagsBuilder {
-        public static final int MAY_HAVE_PRELUDE_IMPORT;
+        public static final UseItemStubAttrFlags INSTANCE = new UseItemStubAttrFlags();
 
-        static {
-            UseItemStubAttrFlags instance = new UseItemStubAttrFlags();
-            for (int i = 0; i < 5; i++) instance.nextBitMask();
-            MAY_HAVE_PRELUDE_IMPORT = instance.nextBitMask();
-        }
+        public static final int MAY_HAVE_PRELUDE_IMPORT = INSTANCE.nextBitMask();
 
         public UseItemStubAttrFlags() {
-            super(Limit.BYTE);
+            super(CommonStubAttrFlags.INSTANCE, Limit.BYTE);
         }
     }
 
     final class MacroStubAttrFlags extends BitFlagsBuilder {
-        public static final int MAY_HAVE_MACRO_EXPORT;
-        public static final int MAY_HAVE_MACRO_EXPORT_LOCAL_INNER_MACROS;
-        public static final int MAY_HAVE_RUSTC_BUILTIN_MACRO;
+        public static final MacroStubAttrFlags INSTANCE = new MacroStubAttrFlags();
 
-        static {
-            MacroStubAttrFlags instance = new MacroStubAttrFlags();
-            for (int i = 0; i < 5; i++) instance.nextBitMask();
-            MAY_HAVE_MACRO_EXPORT = instance.nextBitMask();
-            MAY_HAVE_MACRO_EXPORT_LOCAL_INNER_MACROS = instance.nextBitMask();
-            MAY_HAVE_RUSTC_BUILTIN_MACRO = instance.nextBitMask();
-        }
+        public static final int MAY_HAVE_MACRO_EXPORT = INSTANCE.nextBitMask();
+        public static final int MAY_HAVE_MACRO_EXPORT_LOCAL_INNER_MACROS = INSTANCE.nextBitMask();
+        public static final int MAY_HAVE_RUSTC_BUILTIN_MACRO = INSTANCE.nextBitMask();
 
         public MacroStubAttrFlags() {
-            super(Limit.BYTE);
+            super(CommonStubAttrFlags.INSTANCE, Limit.BYTE);
         }
     }
 
     final class Macro2StubAttrFlags extends BitFlagsBuilder {
-        public static final int MAY_HAVE_RUSTC_BUILTIN_MACRO;
+        public static final Macro2StubAttrFlags INSTANCE = new Macro2StubAttrFlags();
 
-        static {
-            Macro2StubAttrFlags instance = new Macro2StubAttrFlags();
-            for (int i = 0; i < 5; i++) instance.nextBitMask();
-            MAY_HAVE_RUSTC_BUILTIN_MACRO = instance.nextBitMask();
-        }
+        public static final int MAY_HAVE_RUSTC_BUILTIN_MACRO = INSTANCE.nextBitMask();
 
         public Macro2StubAttrFlags() {
-            super(Limit.BYTE);
+            super(CommonStubAttrFlags.INSTANCE, Limit.BYTE);
         }
     }
 
     final class ImplStubAttrFlags extends BitFlagsBuilder {
-        public static final int MAY_BE_RESERVATION_IMPL;
+        public static final ImplStubAttrFlags INSTANCE = new ImplStubAttrFlags();
 
-        static {
-            ImplStubAttrFlags instance = new ImplStubAttrFlags();
-            for (int i = 0; i < 5; i++) instance.nextBitMask();
-            MAY_BE_RESERVATION_IMPL = instance.nextBitMask();
-        }
+        public static final int MAY_BE_RESERVATION_IMPL = INSTANCE.nextBitMask();
 
         public ImplStubAttrFlags() {
-            super(Limit.BYTE);
+            super(CommonStubAttrFlags.INSTANCE, Limit.BYTE);
         }
     }
 }

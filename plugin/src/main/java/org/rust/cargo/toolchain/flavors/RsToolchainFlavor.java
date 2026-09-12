@@ -5,6 +5,8 @@
 
 package org.rust.cargo.toolchain.flavors;
 
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ExtensionAPI;
 import consulo.component.extension.ExtensionPointName;
 import java.nio.file.Files;
 import jakarta.annotation.Nullable;
@@ -17,6 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@ExtensionAPI(ComponentScope.APPLICATION)
 public abstract class RsToolchainFlavor {
 
     public Stream<Path> suggestHomePaths() {

@@ -182,7 +182,6 @@ public class RsEscapesLexer extends LexerBaseEx {
         return true;
     }
 
-    // Companion object members as static
 
     /**
      * Create an instance of {@link RsEscapesLexer} suitable for given {@link IElementType}.

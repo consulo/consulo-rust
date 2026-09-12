@@ -15,6 +15,7 @@ import org.rust.RsBundle;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.psi.ext.RsSelfParameterUtil;
+import consulo.localize.LocalizeValue;
 
 public class AddSelfFix extends RsQuickFixBase<RsFunction> {
 

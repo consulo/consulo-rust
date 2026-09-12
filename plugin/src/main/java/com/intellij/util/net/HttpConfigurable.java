@@ -8,13 +8,12 @@ package com.intellij.util.net;
 import java.net.URLConnection;
 
 /**
- * IntelliJ-compat stub. Consulo's networking uses Java's system-wide proxy
- * selection; plugins don't typically manage it themselves.
+ * Proxy configuration holder: no proxy is ever reported, and connections are opened
+ * directly.
  */
 public final class HttpConfigurable {
     private static final HttpConfigurable INSTANCE = new HttpConfigurable();
 
-    /** Legacy IntelliJ public-field API — kept as plain fields on stub for source compat. */
     public boolean USE_HTTP_PROXY = false;
     public boolean USE_PROXY_PAC = false;
     public boolean PROXY_AUTHENTICATION = false;

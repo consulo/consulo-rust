@@ -18,6 +18,11 @@ import org.rust.cargo.project.model.RustcInfo;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.*;
+import consulo.util.lang.SemVer;
+import org.rust.cargo.toolchain.impl.RustcVersion;
+import org.rust.cargo.util.AutoInjectedCrates;
+import org.rust.cargo.util.StdLibInfo;
+import org.rust.ide.experiments.RsExperiments;
 
 public final class StandardLibrary {
 

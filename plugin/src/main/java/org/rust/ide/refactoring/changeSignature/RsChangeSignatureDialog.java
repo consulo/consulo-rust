@@ -50,6 +50,7 @@ import java.awt.*;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import org.rust.lang.core.psi.ext.RsValueParameterUtil;
+import consulo.document.Document;
 
 public final class RsChangeSignatureDialog {
 

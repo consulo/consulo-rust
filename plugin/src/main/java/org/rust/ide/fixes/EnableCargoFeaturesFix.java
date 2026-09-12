@@ -16,6 +16,7 @@ import org.rust.cargo.project.workspace.FeatureState;
 import org.rust.cargo.project.workspace.PackageFeature;
 
 import java.util.Set;
+import consulo.localize.LocalizeValue;
 
 public class EnableCargoFeaturesFix implements LocalQuickFix {
 

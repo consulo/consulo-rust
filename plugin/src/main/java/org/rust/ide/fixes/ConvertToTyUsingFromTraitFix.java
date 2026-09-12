@@ -16,6 +16,7 @@ import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.types.ty.Ty;
 
 import java.util.Collections;
+import consulo.language.editor.inspection.FileModifier;
 
 /**
  * For the given {@code expr} converts it to the type {@code ty} with {@code ty::from(expr)}

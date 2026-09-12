@@ -1,5 +1,5 @@
-/* Stub utility for IntelliJ's withLastChildSkipping pattern helper,
- * absent in Consulo. Returns the receiver unchanged (loses precision). */
+/* Helper for the "with last child, skipping" pattern constraint.
+ * Returns the receiver unchanged, so the constraint is not applied (loses precision). */
 package org.rust.ide.utils;
 import consulo.language.pattern.PsiElementPattern;
 public final class PatternUtilExt {

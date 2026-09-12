@@ -15,10 +15,10 @@ import org.rust.lang.core.psi.RsBlock;
 import org.rust.lang.core.psi.RsExpr;
 import org.rust.lang.core.psi.RsIfExpr;
 import org.rust.lang.core.psi.RsPsiFactory;
-import org.rust.lang.core.types.RsTypeUtil;
 import org.rust.lang.core.types.ty.TyBool;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import consulo.localize.LocalizeValue;
 
 public class RsWithIfExpSurrounder extends RsExpressionSurrounderBase<RsIfExpr> {
 

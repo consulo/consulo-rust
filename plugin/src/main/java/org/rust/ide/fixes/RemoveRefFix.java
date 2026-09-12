@@ -16,6 +16,7 @@ import org.rust.lang.core.psi.ext.RsUnaryExprUtil;
 import org.rust.lang.core.psi.ext.UnaryOperator;
 
 import java.util.Arrays;
+import consulo.localize.LocalizeValue;
 
 /**
  * Fix that converts the given reference to owned value.

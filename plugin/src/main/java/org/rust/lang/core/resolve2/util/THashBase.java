@@ -11,11 +11,9 @@ import jakarta.annotation.Nonnull;
 /**
  * Open-addressing hash table over a single {@code Object[]} of keys.
  * <p>
- * Replaces {@code gnu.trove.TObjectHash}, which is unavailable here: the JetBrains trove fork is an
- * automatic module of the platform and does not export {@code gnu.trove} to plugins. The contract
- * kept below ({@link #_set}, {@link #_size}, {@link #index}, {@link #insertionIndex},
- * {@link #postInsertHook}, {@link #setUp}, {@link #rehash}) is the subset that
- * {@link THashMapBase} and its subclasses actually used, so they port over unchanged.
+ * The protected contract ({@link #_set}, {@link #_size}, {@link #index}, {@link #insertionIndex},
+ * {@link #postInsertHook}, {@link #setUp}, {@link #rehash}) is what {@link THashMapBase} and its
+ * subclasses build on.
  * <p>
  * Deletion is not supported — that is what lets a probe stop at the first {@code null} slot without
  * tombstone bookkeeping.

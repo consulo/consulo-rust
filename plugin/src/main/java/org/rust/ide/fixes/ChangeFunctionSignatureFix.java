@@ -14,7 +14,6 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.annotator.FunctionCallContextUtil;
 import org.rust.ide.presentation.TypeRendering;
-import org.rust.ide.refactoring.RsSuggestedNamesUtil;
 import org.rust.ide.refactoring.changeSignature.*;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
@@ -26,13 +25,16 @@ import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyUnknown;
 import org.rust.lang.utils.RsDiagnostic;
 import org.rust.stdext.CollectionExtUtil;
-import org.rust.stdext.NumberExtUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import org.rust.ide.refactoring.changeSignature.ChangeSignatureImpl;
 import org.rust.lang.core.psi.ext.RsValueParameterUtil;
 import org.rust.lang.core.types.ImplLookupUtil;
+import consulo.localize.LocalizeValue;
+import org.rust.ide.refactoring.RsNameSuggestions;
+import org.rust.ide.refactoring.changeSignature.RsChangeSignatureProcessor;
+import org.rust.stdext.Utils;
 
 /**
  * This fix can add, remove or change the type of parameters of a function.

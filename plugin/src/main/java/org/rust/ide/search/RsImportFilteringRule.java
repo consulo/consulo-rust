@@ -5,6 +5,7 @@
 
 package org.rust.ide.search;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.util.PsiTreeUtil;
 import consulo.usage.Usage;
@@ -14,6 +15,7 @@ import consulo.usage.rule.PsiElementUsage;
 import org.rust.lang.core.psi.RsUseSpeck;
 import org.rust.lang.core.psi.ext.RsElement;
 
+@ExtensionImpl
 public class RsImportFilteringRule implements ImportFilteringRule {
 
     @Override

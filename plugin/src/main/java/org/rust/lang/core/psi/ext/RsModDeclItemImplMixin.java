@@ -21,6 +21,7 @@ import org.rust.lang.core.stubs.RsModDeclItemStub;
 
 import javax.swing.*;
 import org.rust.lang.core.psi.ext.RsVisibilityUtil;
+import consulo.ui.image.Image;
 
 public abstract class RsModDeclItemImplMixin extends RsStubbedNamedElementImpl<RsModDeclItemStub> implements RsModDeclItem {
 

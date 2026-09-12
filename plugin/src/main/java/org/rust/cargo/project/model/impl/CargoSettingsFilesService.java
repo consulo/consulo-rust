@@ -5,7 +5,6 @@
 
 package org.rust.cargo.project.model.impl;
 
-import com.intellij.openapi.components.Service;
 import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
@@ -21,12 +20,19 @@ import org.rust.lang.core.macros.proc.ProcMacroApplicationService;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.*;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.annotation.component.ComponentScope;
+import jakarta.inject.Inject;
 
-@Service
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
 public final class CargoSettingsFilesService {
 
     private final Project project;
     private volatile Map<String, SettingFileType> settingsFilesCache;
+
+    @Inject
 
     public CargoSettingsFilesService(@Nonnull Project project) {
         this.project = project;

@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/** IntelliJ-compat stub — externalizes a list of strings. */
+/** Externalizes a list of strings as an entry count followed by UTF-8 entries. */
 public final class StringCollectionExternalizer {
     public static final DataExternalizer<List<String>> STRING_LIST_EXTERNALIZER = new DataExternalizer<>() {
         @Override

@@ -9,7 +9,8 @@ import consulo.language.psi.LiteralTextEscaper;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.utils.RsEscapesUtils;
-import org.rust.lang.core.psi.RsTokenType;
+import consulo.language.ast.ASTNode;
+import consulo.util.lang.Pair;
 
 public final class RsStringLiteralEscaper {
 
@@ -18,9 +19,9 @@ public final class RsStringLiteralEscaper {
 
     @Nonnull
     public static LiteralTextEscaper<RsLitExpr> escaperForLiteral(@Nonnull RsLitExpr lit) {
-        consulo.language.ast.ASTNode child = lit.getNode().findChildByType(RsTokenType.RS_ALL_STRING_LITERALS);
+        ASTNode child = lit.getNode().findChildByType(RsTokenSets.RS_ALL_STRING_LITERALS);
         assert child != null : "`" + lit.getText() + "` is not a string literal";
-        if (RsTokenType.RS_RAW_LITERALS.contains(child.getElementType())) {
+        if (RsTokenSets.RS_RAW_LITERALS.contains(child.getElementType())) {
             return new SimpleMultiLineTextEscaper(lit);
         } else {
             return new RsNormalStringLiteralEscaper(lit);

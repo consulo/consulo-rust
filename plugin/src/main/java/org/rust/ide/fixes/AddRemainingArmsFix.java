@@ -21,6 +21,7 @@ import org.rust.lang.core.types.RsTypesUtil;
 
 import java.util.Collections;
 import java.util.List;
+import consulo.localize.LocalizeValue;
 
 public class AddRemainingArmsFix extends RsQuickFixBase<RsMatchExpr> {
     @SafeFieldForPreview

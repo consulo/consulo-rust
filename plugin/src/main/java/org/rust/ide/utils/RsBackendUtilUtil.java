@@ -4,6 +4,9 @@
  */
 
 package org.rust.ide.utils;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiFile;
+import org.rust.lang.core.psi.RsExpr;
 
 public final class RsBackendUtilUtil {
     private RsBackendUtilUtil() {

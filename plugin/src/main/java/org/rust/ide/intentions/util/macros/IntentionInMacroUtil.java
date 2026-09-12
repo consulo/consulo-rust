@@ -20,6 +20,8 @@ import org.rust.lang.core.macros.MappedTextRange;
 
 import java.util.List;
 import java.util.function.Function;
+import consulo.codeEditor.Caret;
+import consulo.language.impl.ast.TreeElement;
 
 public final class IntentionInMacroUtil {
     public static final IntentionInMacroUtil INSTANCE = new IntentionInMacroUtil();

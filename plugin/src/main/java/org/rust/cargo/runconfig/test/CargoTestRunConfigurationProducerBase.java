@@ -38,6 +38,8 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import consulo.language.psi.util.PsiTreeUtil;
+import org.rust.openapiext.PsiFileExtUtil;
 
 public abstract class CargoTestRunConfigurationProducerBase extends CargoRunConfigurationProducer {
     @Nonnull

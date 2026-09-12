@@ -57,7 +57,8 @@ import org.rust.openapiext.AstExt;
 import java.io.IOException;
 
 import static org.rust.lang.core.psi.RsElementTypes.*;
-import static org.rust.lang.core.psi.RsTokenType.*;
+import static org.rust.lang.core.psi.RsTokenSets.*;
+import consulo.index.io.StringRef;
 
 /**
  * Contains all stub implementation classes and the factory method.

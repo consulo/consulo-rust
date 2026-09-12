@@ -5,7 +5,7 @@ import javax.net.ssl.X509TrustManager;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 
-/** IntelliJ-compat stub — returns a default SSLContext. */
+/** Supplies the SSL context used for outgoing connections; returns the JVM default. */
 public final class CertificateManager {
     private static final CertificateManager INSTANCE = new CertificateManager();
     private CertificateManager() {}

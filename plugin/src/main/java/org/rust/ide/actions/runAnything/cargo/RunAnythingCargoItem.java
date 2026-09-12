@@ -12,6 +12,7 @@ import org.rust.ide.actions.runAnything.RsRunAnythingItem;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
+import consulo.ui.image.Image;
 
 public class RunAnythingCargoItem extends RsRunAnythingItem {
 

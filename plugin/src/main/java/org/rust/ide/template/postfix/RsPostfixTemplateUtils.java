@@ -16,7 +16,6 @@ import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.RsTypeReference;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.TyBool;
-import org.rust.lang.utils.RsNegateUtil;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.ArrayList;

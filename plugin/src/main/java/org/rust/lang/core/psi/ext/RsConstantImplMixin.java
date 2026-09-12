@@ -19,6 +19,7 @@ import org.rust.lang.core.stubs.RsConstantStub;
 
 import javax.swing.*;
 import org.rust.lang.core.psi.ext.RsVisibilityUtil;
+import consulo.ui.image.Image;
 
 public abstract class RsConstantImplMixin extends RsStubbedNamedElementImpl<RsConstantStub> implements RsConstant {
 

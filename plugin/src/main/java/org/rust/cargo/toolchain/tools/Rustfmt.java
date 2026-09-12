@@ -36,6 +36,10 @@ import org.rust.stdext.RsResult;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import consulo.document.FileDocumentManager;
+import consulo.language.psi.PsiFile;
+import org.rust.cargo.project.settings.RustfmtProjectSettingsService;
+import org.rust.openapiext.OpenApiUtil;
 
 public class Rustfmt extends RustupComponent {
 

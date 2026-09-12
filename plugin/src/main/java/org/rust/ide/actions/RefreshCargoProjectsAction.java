@@ -12,6 +12,8 @@ import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
 import org.rust.openapiext.OpenApiUtil;
 import consulo.annotation.component.ActionImpl;
+import org.rust.cargo.runconfig.RunConfigUtil;
+import org.rust.ide.notifications.NotificationUtils;
 
 @ActionImpl(id = "Cargo.RefreshCargoProject")
 public class RefreshCargoProjectsAction extends CargoProjectActionBase {
@@ -30,8 +32,6 @@ public class RefreshCargoProjectsAction extends CargoProjectActionBase {
     public void actionPerformed(AnActionEvent e) {
         Project project = e.getData(consulo.project.Project.KEY);
         if (project == null) return;
-
-        if (!org.rust.ide.notifications.NotificationUtils.confirmLoadingUntrustedProject(project)) return;
 
         OpenApiUtil.saveAllDocuments();
         if (RsProjectSettingsServiceUtil.getToolchain(project) == null || !org.rust.cargo.runconfig.RunConfigUtil.hasCargoProject(project)) {

@@ -8,6 +8,7 @@ package org.rust.ide.intentions;
 import org.rust.RsBundle;
 import org.rust.ide.refactoring.RsBaseEditorRefactoringAction;
 import org.rust.ide.refactoring.extractStructFields.RsExtractStructFieldsAction;
+import consulo.localize.LocalizeValue;
 
 public class ExtractStructFieldsIntention extends RsRefactoringAdaptorIntention {
 

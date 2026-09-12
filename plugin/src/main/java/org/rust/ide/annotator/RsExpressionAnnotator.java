@@ -20,7 +20,6 @@ import org.rust.ide.fixes.CreateStructFieldFromConstructorFix;
 import org.rust.ide.fixes.RemoveRedundantParenthesesFix;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
-import org.rust.lang.core.resolve.ref.RsReferenceExtUtil;
 
 import java.util.*;
 import org.rust.lang.core.psi.ext.RsElementUtil;

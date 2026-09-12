@@ -19,6 +19,7 @@ import org.rust.lang.core.stubs.RsModItemStub;
 
 import javax.swing.*;
 import org.rust.lang.core.psi.ext.RsVisibilityUtil;
+import consulo.ui.image.Image;
 
 public abstract class RsModItemImplMixin extends RsStubbedNamedElementImpl<RsModItemStub> implements RsModItem {
 

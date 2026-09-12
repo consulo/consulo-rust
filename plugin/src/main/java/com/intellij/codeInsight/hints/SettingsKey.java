@@ -1,5 +1,5 @@
 package com.intellij.codeInsight.hints;
-/** IntelliJ-compat stub for the IntentionSetting Key. */
+/** Typed identifier for an inlay hint settings entry. */
 public final class SettingsKey<T> {
     private final String id;
     public SettingsKey(String id) { this.id = id; }

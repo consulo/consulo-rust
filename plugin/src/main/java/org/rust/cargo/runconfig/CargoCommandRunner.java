@@ -5,6 +5,7 @@
 
 package org.rust.cargo.runconfig;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.execution.configuration.RunProfile;
 import consulo.execution.configuration.RunProfileState;
 import consulo.execution.executor.DefaultRunExecutor;
@@ -16,7 +17,9 @@ import org.rust.cargo.runconfig.buildtool.CargoBuildManager;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 
 import java.util.List;
+import consulo.process.ExecutionException;
 
+@ExtensionImpl
 public class CargoCommandRunner extends RsDefaultProgramRunnerBase {
 
     public static final String RUNNER_ID = "CargoCommandRunner";
@@ -54,7 +57,6 @@ public class CargoCommandRunner extends RsDefaultProgramRunnerBase {
             // For commands like `cargo build` or `cargo test --no-run`
             // we skip execution here because build already was performed
             // in Build Tool window
-            // EXECUTION_SKIP_RUN is IntelliJ-only; skip flag not wired in Consulo
             return null;
         }
     }

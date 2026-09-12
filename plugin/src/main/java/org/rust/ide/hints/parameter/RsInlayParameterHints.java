@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.ext.RsTypeReferenceUtil;
 
 @SuppressWarnings("UnstableApiUsage")
 public final class RsInlayParameterHints {

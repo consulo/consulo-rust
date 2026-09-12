@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsMethodCallUtil;
 import org.rust.lang.core.psi.ext.RsSelfParameterUtil;
+import consulo.localize.LocalizeValue;
 
 public class ConvertMethodCallToUFCSIntention extends RsElementBaseIntentionAction<ConvertMethodCallToUFCSIntention.Context> {
 

@@ -10,6 +10,7 @@ import org.rust.ide.actions.runAnything.RsRunAnythingItem;
 import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
+import consulo.ui.image.Image;
 
 public class RunAnythingWasmPackItem extends RsRunAnythingItem {
 

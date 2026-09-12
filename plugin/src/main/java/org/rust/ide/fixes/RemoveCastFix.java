@@ -11,6 +11,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsCastExpr;
+import consulo.localize.LocalizeValue;
 
 public class RemoveCastFix extends RsQuickFixBase<RsCastExpr> {
 

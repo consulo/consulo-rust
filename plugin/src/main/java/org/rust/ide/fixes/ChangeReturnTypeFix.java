@@ -26,6 +26,8 @@ import java.util.Set;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsFunctionOrLambda;
+import consulo.localize.LocalizeValue;
+import org.rust.ide.utils.imports.TypeReferencesInfo;
 
 public class ChangeReturnTypeFix extends RsQuickFixBase<RsElement> {
     @SafeFieldForPreview

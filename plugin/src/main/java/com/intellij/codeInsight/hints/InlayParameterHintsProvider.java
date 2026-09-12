@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-/** IntelliJ-compat stub — parameter-hint inlays contributor. */
+/** Supplies parameter-name hints shown as inlays next to call arguments. */
 public interface InlayParameterHintsProvider {
     @Nonnull List<InlayInfo> getParameterHints(@Nonnull PsiElement element);
     @Nullable default HintInfo getHintInfo(@Nonnull PsiElement element) { return null; }

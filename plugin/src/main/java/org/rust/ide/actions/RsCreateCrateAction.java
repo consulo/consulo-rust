@@ -28,6 +28,8 @@ import consulo.annotation.component.ActionImpl;
 import consulo.annotation.component.ActionParentRef;
 import consulo.annotation.component.ActionRefAnchor;
 import consulo.annotation.component.ActionRef;
+import consulo.application.util.function.Computable;
+import org.rust.cargo.project.model.CargoProject;
 
 @ActionImpl(
     id = "Rust.NewCargoCrate",

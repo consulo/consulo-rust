@@ -19,6 +19,7 @@ import org.rust.lang.core.psi.ext.PsiElementExt;
 import org.rust.lang.core.psi.ext.RsBlockUtil;
 import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import consulo.localize.LocalizeValue;
 
 public class MergeIfsIntention extends RsElementBaseIntentionAction<MergeIfsIntention.Context> {
     @Nonnull

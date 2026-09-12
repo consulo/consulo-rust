@@ -24,6 +24,7 @@ import org.rust.lang.core.resolve.ref.RsReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import consulo.localize.LocalizeValue;
 
 public class RsInlineValueProcessor extends BaseRefactoringProcessor {
     @Nonnull

@@ -4,7 +4,7 @@ import consulo.project.Project;
 import consulo.util.concurrent.Promise;
 import jakarta.annotation.Nonnull;
 
-/** IntelliJ-compat stub. Consulo uses a different build task model. */
+/** Runs the project tasks it declares it can handle and reports the result asynchronously. */
 public abstract class ProjectTaskRunner {
     public abstract boolean canRun(ProjectTask task);
 

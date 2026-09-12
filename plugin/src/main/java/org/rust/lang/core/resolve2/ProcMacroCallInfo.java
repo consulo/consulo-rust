@@ -14,6 +14,7 @@ import org.rust.lang.core.resolve2.util.DollarCrateMap;
 import org.rust.stdext.HashCode;
 
 import java.util.Set;
+import org.rust.lang.core.resolve.SelectionCandidate;
 
 public class ProcMacroCallInfo implements MacroCallInfoBase {
     @Nonnull

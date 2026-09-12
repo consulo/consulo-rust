@@ -10,13 +10,17 @@ import consulo.execution.configuration.CommandLineState;
 import consulo.process.cmd.GeneralCommandLine;
 import consulo.process.ProcessHandler;
 import consulo.execution.runner.ExecutionEnvironment;
-import com.intellij.openapi.components.Service;
 import jakarta.annotation.Nonnull;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 
 import static com.intellij.openapi.components.Service.Level;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.annotation.component.ComponentScope;
+import consulo.application.ApplicationManager;
 
-@Service(Level.APP)
+@ServiceAPI(ComponentScope.APPLICATION)
+@ServiceImpl
 public final class RsRunConfigurationExtensionManager
     extends RunConfigurationExtensionsManager<CargoCommandConfiguration, CargoCommandConfigurationExtension> {
 

@@ -19,11 +19,15 @@ import org.rust.lang.core.psi.RsTokenType;
 import org.rust.lang.core.psi.RsElementTypes;
 
 import java.util.ArrayDeque;
+import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.RsTokenSets;
+import consulo.language.Language;
 
+@ExtensionImpl
 public class RsBraceMatcher extends RsPairedBraceMatcherAdapter {
 
     public static final TokenSet UNPAIRED_TYPE_TOKENS = TokenSet.orSet(
-        RsTokenType.RS_COMMENTS,
+        RsTokenSets.RS_COMMENTS,
         org.rust.lang.core.psi.RsTokenType.tokenSetOf(
             TokenType.WHITE_SPACE,
             RsElementTypes.IDENTIFIER, RsElementTypes.UNDERSCORE, RsElementTypes.SELF, RsElementTypes.SUPER,
@@ -130,7 +134,7 @@ public class RsBraceMatcher extends RsPairedBraceMatcherAdapter {
         };
 
         private static final TokenSet INSERT_PAIR_BRACE_BEFORE = TokenSet.orSet(
-            RsTokenType.RS_COMMENTS,
+            RsTokenSets.RS_COMMENTS,
             TokenSet.create(
                 TokenType.WHITE_SPACE,
                 RsElementTypes.SEMICOLON,

@@ -12,6 +12,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.intentions.visibility.ChangeVisibilityIntention;
 import org.rust.lang.core.psi.ext.RsVisibilityOwner;
+import consulo.localize.LocalizeValue;
 
 public class MakePublicFix extends RsQuickFixBase<RsVisibilityOwner> {
 

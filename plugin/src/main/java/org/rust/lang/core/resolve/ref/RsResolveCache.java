@@ -8,7 +8,6 @@ package org.rust.lang.core.resolve.ref;
 import org.rust.lang.core.psi.ext.RsElementUtil;
 import consulo.language.file.inject.VirtualFileWindow;
 import consulo.disposer.Disposable;
-import com.intellij.openapi.components.Service;
 import consulo.ide.ServiceManager;
 import consulo.application.progress.ProgressManager;
 import consulo.project.Project;
@@ -37,13 +36,19 @@ import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import jakarta.inject.Inject;
+import consulo.component.messagebus.MessageBusConnection;
+import consulo.virtualFileSystem.VirtualFile;
+import org.rust.lang.core.psi.ext.RsModificationTrackerOwnerUtil;
 
 /**
- * The implementation is inspired by Intellij platform's {@link com.intellij.psi.impl.source.resolve.ResolveCache}.
- * The main difference from the platform one: we invalidate the cache depends on {@link ResolveCacheDependency}, when
- * platform cache invalidates on any PSI change.
+ * The cache is invalidated according to {@link ResolveCacheDependency}, not on every PSI change.
  */
-@Service
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
 public final class RsResolveCache implements Disposable {
     /** The cache is cleared on rustStructureModificationTracker increment */
     private final AtomicReference<ConcurrentMap<PsiElement, Object>> myRustStructureDependentCache = new AtomicReference<>(null);
@@ -57,6 +62,8 @@ public final class RsResolveCache implements Disposable {
     private static final Key<CachedValue<ConcurrentMap<PsiElement, Object>>> LOCAL_CACHE_KEY2 = Key.create("LOCAL_CACHE_KEY2");
 
     private static final Object NULL_RESULT = new Object();
+
+    @Inject
 
     public RsResolveCache(@Nonnull Project project) {
         RsPsiManager rustPsiManager = RsPsiManagerUtil.getRustPsiManager(project);
@@ -213,16 +220,6 @@ public final class RsResolveCache implements Disposable {
     }
 
     @SuppressWarnings("UnstableApiUsage")
-    /**
-     * Upstream subclassed {@code ConcurrentWeakKeySoftValueHashMap} to (a) hold trivial values
-     * (the NULL_RESULT sentinel, empty arrays/lists) behind strong rather than soft references and
-     * (b) translate NULL_RESULT to {@code null} inside {@code get}. That class is platform-internal;
-     * the public factory returns a plain {@link ConcurrentMap} with no subclass hooks.
-     * <p>
-     * (a) was a memory optimisation only — trivial values may now be softly collected and
-     * recomputed. (b) moved to the single call site that needed it, {@link #getCached}
-     * ({@code resolveWithCaching} already translated the sentinel itself).
-     */
     @Nonnull
     private static <K, V> ConcurrentMap<K, V> createWeakMap() {
         return Maps.newConcurrentWeakKeySoftValueHashMap(

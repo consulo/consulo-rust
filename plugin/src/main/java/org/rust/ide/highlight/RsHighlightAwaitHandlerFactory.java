@@ -5,6 +5,7 @@
 
 package org.rust.ide.highlight;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.highlight.usage.HighlightUsagesHandlerBase;
 import consulo.language.editor.highlight.usage.HighlightUsagesHandlerFactoryBase;
 import consulo.codeEditor.Editor;
@@ -21,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsElementExtUtil;
 
+@ExtensionImpl
 public class RsHighlightAwaitHandlerFactory extends HighlightUsagesHandlerFactoryBase {
     @Nullable
     @Override

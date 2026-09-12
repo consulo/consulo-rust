@@ -7,11 +7,11 @@ package org.rust.ide.console;
 
 import com.intellij.execution.process.KillableColoredProcessHandler;
 import consulo.disposer.Disposer;
+import consulo.process.ExecutionException;
+import consulo.process.cmd.GeneralCommandLine;
 import consulo.util.dataholder.Key;
 import consulo.process.io.BaseOutputReader;
 import jakarta.annotation.Nonnull;
-
-import java.nio.charset.Charset;
 
 public class RsConsoleProcessHandler extends KillableColoredProcessHandler {
 
@@ -20,12 +20,10 @@ public class RsConsoleProcessHandler extends KillableColoredProcessHandler {
     @Nonnull
     private final RsConsoleCommunication consoleCommunication;
 
-    public RsConsoleProcessHandler(@Nonnull Process process,
+    public RsConsoleProcessHandler(@Nonnull GeneralCommandLine commandLine,
                                    @Nonnull RsConsoleView consoleView,
-                                   @Nonnull RsConsoleCommunication consoleCommunication,
-                                   @Nonnull String commandLine,
-                                   @Nonnull Charset charset) {
-        super(process, commandLine, charset);
+                                   @Nonnull RsConsoleCommunication consoleCommunication) throws ExecutionException {
+        super(commandLine);
         this.consoleView = consoleView;
         this.consoleCommunication = consoleCommunication;
         Disposer.register(consoleView, () -> {

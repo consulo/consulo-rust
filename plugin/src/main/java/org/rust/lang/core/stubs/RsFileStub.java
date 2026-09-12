@@ -29,6 +29,7 @@ import static org.rust.lang.core.psi.RsElementTypes.*;
 import static org.rust.lang.core.stubs.RsAttributeOwnerStub.CommonStubAttrFlags.*;
 import static org.rust.lang.core.stubs.RsAttributeOwnerStub.FileStubAttrFlags.*;
 import static org.rust.lang.core.stubs.RsAttributeOwnerStub.ModStubAttrFlags.*;
+import org.rust.lang.core.psi.RsTokenSets;
 
 public class RsFileStub extends PsiFileStubImpl<RsFile> implements RsAttributeOwnerStub {
     private final int flags;
@@ -88,7 +89,8 @@ public class RsFileStub extends PsiFileStubImpl<RsFile> implements RsAttributeOw
     }
 
     public static final IStubFileElementType<RsFileStub> Type = new IStubFileElementType<RsFileStub>(RsLanguage.INSTANCE) {
-        private static final int STUB_VERSION = 234;
+        // Bump this number whenever the stub layout changes
+        private static final int STUB_VERSION = 235;
 
         @Override
         public int getStubVersion() {
@@ -120,7 +122,7 @@ public class RsFileStub extends PsiFileStubImpl<RsFile> implements RsAttributeOw
                 public boolean skipChildProcessingWhenBuildingStubs(@Nonnull ASTNode parent, @Nonnull ASTNode child) {
                     IElementType elementType = child.getElementType();
                     return elementType == MACRO_ARGUMENT || elementType == MACRO_BODY
-                        || org.rust.lang.core.psi.RsTokenType.RS_DOC_COMMENTS.contains(elementType)
+                        || RsTokenSets.RS_DOC_COMMENTS.contains(elementType)
                         || (elementType == BLOCK && parent.getElementType() == FUNCTION
                             && !BlockMayHaveStubsHeuristic.getAndClearCached(child));
                 }

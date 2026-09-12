@@ -17,7 +17,6 @@ import org.rust.lang.core.psi.RsExprStmt;
 import org.rust.lang.core.psi.RsPathExpr;
 import org.rust.lang.core.psi.RsExpr;
 import org.rust.lang.core.psi.RsVisitor;
-import org.rust.lang.core.psi.ext.RsExprStmtExtUtil;
 // import org.rust.lang.core.types.ImplLookupExtensionsUtil; // placeholder
 import org.rust.lang.core.types.infer.NeedsDropUtil;
 import org.rust.lang.core.types.RsTypesUtil;

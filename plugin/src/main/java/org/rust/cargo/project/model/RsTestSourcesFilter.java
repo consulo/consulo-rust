@@ -5,12 +5,14 @@
 
 package org.rust.cargo.project.model;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.project.Project;
 import consulo.project.content.TestSourcesFilter;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import org.rust.ide.injected.RsDoctestLanguageInjector;
 
+@ExtensionImpl
 public class RsTestSourcesFilter extends TestSourcesFilter {
 
     @Override

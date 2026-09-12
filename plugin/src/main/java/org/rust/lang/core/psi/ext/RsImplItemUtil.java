@@ -14,6 +14,8 @@ import org.rust.lang.core.types.NormTypeUtil;
 import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyAdt;
 import org.rust.lang.core.psi.ext.RsTraitRefUtil;
+import consulo.language.ast.ASTNode;
+import org.rust.lang.core.types.BoundElement;
 
 public final class RsImplItemUtil {
     private RsImplItemUtil() {

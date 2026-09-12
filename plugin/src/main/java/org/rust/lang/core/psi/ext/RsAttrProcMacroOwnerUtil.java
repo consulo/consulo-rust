@@ -12,6 +12,7 @@ import org.rust.lang.core.crate.Crate;
 import org.rust.lang.core.psi.RsMetaItem;
 import org.rust.lang.core.stubs.RsAttributeOwnerStub;
 import org.rust.lang.core.stubs.common.RsMetaItemPsiOrStub;
+import org.rust.lang.core.psi.ProcMacroAttribute;
 
 /**
  * Delegates to {@link RsAttrProcMacroOwnerUtil} for the actual implementations.

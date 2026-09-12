@@ -5,6 +5,7 @@
 
 package org.rust.ide.formatter.processors;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.ast.ASTNode;
 import consulo.document.util.TextRange;
 import consulo.language.psi.PsiElement;
@@ -16,6 +17,7 @@ import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.RsMatchArm;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
 
+@ExtensionImpl
 public class RsMatchArmCommaFormatProcessor implements PreFormatProcessor {
 
     @Nonnull

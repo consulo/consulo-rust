@@ -5,6 +5,7 @@
 
 package org.rust.cargo.toolchain.wsl;
 
+import consulo.annotation.component.ExtensionImpl;
 import com.intellij.execution.wsl.WslPath;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -15,6 +16,7 @@ import org.rust.openapiext.OpenApiUtil;
 
 import java.nio.file.Path;
 
+@ExtensionImpl
 public class RsWslToolchainProvider implements RsToolchainProvider {
 
     @Nullable

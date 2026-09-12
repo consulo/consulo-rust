@@ -12,6 +12,7 @@ import org.rust.lang.core.resolve.Namespace;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Set;
+import org.rust.lang.core.psi.RsProcMacroKind;
 
 /**
  * Lightweight representation of simple items (functions, constants, type aliases, etc.)

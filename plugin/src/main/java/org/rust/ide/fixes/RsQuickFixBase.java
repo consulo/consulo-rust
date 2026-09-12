@@ -16,6 +16,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.ide.intentions.util.macros.IntentionInMacroUtil;
 import org.rust.lang.core.macros.RsExpandedElementUtil;
+import consulo.localize.LocalizeValue;
 
 /**
  * A base class for implementing quick fixes.

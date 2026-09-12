@@ -5,6 +5,7 @@
 
 package org.rust.toml.search;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.psi.PsiElement;
 import consulo.usage.UsageTarget;
 import consulo.usage.UsageType;
@@ -16,7 +17,9 @@ import org.rust.lang.core.psi.RsLitExpr;
 import org.rust.toml.CargoTomlPsiPattern;
 import org.rust.toml.Util;
 import org.toml.lang.psi.TomlLiteral;
+import consulo.localize.LocalizeValue;
 
+@ExtensionImpl
 public class CargoTomlUsageTypeProvider implements UsageTypeProviderEx {
     private static final UsageType FEATURE_DEPENDENCY = new UsageType(consulo.localize.LocalizeValue.of("Cargo feature dependency"));
     private static final UsageType DEPENDENCY_FEATURE = new UsageType(consulo.localize.LocalizeValue.of("Package dependency"));

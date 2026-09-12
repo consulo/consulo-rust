@@ -11,6 +11,8 @@ import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.RsPsiFactory;
 
 import java.util.List;
+import consulo.language.psi.PsiComment;
+import consulo.language.psi.PsiWhiteSpace;
 
 /**
  * Utility methods for lists of named field declarations.

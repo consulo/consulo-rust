@@ -5,6 +5,7 @@
 
 package org.rust.lang.core.types.infer;
 
+import consulo.language.psi.PsiElement;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -26,6 +27,8 @@ import org.rust.stdext.RsResult;
 import java.util.*;
 import java.util.function.Supplier;
 import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
+import consulo.util.lang.Pair;
+import org.rust.stdext.CollectionsUtil;
 
 /**
  * A mutable object, which is filled while we walk function body top down.
@@ -307,9 +310,9 @@ public class RsInferenceContext implements RsInferenceData {
 
     private void fallbackIfPossible(@Nonnull TyInfer ty) {
         if (ty instanceof TyInfer.IntVar) {
-            myIntUnificationTable.unifyVarValue((TyInfer.IntVar) ty, TyInteger.DEFAULT);
+            myIntUnificationTable.unifyVarValue((TyInfer.IntVar) ty, TyInteger.getDefault());
         } else if (ty instanceof TyInfer.FloatVar) {
-            myFloatUnificationTable.unifyVarValue((TyInfer.FloatVar) ty, TyFloat.DEFAULT);
+            myFloatUnificationTable.unifyVarValue((TyInfer.FloatVar) ty, TyFloat.getDefault());
         }
         // TyVar - do nothing
     }
@@ -394,6 +397,15 @@ public class RsInferenceContext implements RsInferenceData {
     public Ty getPatFieldType(@Nonnull RsPatField patField) {
         Ty ty = myPatFieldTypes.get(patField);
         return ty != null ? ty : TyUnknown.INSTANCE;
+    }
+
+    /** The type a pattern binding introduces, taken from the type inferred for the pattern that declares it. */
+    @Nonnull
+    public Ty getBindingType(@Nonnull RsPatBinding binding) {
+        PsiElement parent = binding.getParent();
+        if (parent instanceof RsPat) return getPatType((RsPat) parent);
+        if (parent instanceof RsPatField) return getPatFieldType((RsPatField) parent);
+        return TyUnknown.INSTANCE;
     }
 
     @Nonnull

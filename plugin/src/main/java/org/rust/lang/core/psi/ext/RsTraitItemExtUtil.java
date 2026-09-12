@@ -11,6 +11,7 @@ import org.rust.lang.core.types.ty.Ty;
 
 import java.util.Collections;
 import java.util.List;
+import org.rust.lang.core.types.RsPsiTypeImplUtil;
 
 public final class RsTraitItemExtUtil {
     private RsTraitItemExtUtil() {}

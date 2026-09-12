@@ -7,6 +7,7 @@ package org.rust.ide.intentions;
 
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
+import consulo.localize.LocalizeValue;
 
 public class RsShowSingleStepMacroExpansionIntention extends RsShowMacroExpansionIntentionBase {
     @Override

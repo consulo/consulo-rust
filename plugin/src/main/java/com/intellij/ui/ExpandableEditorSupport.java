@@ -6,7 +6,7 @@ import java.awt.Color;
 import java.util.List;
 import java.util.function.Function;
 
-/** IntelliJ-compat stub — expandable inline-editor support with popup expansion. */
+/** Lets a single-line editor field expand into a multi-line popup editor and collapse back. */
 public class ExpandableEditorSupport {
     public ExpandableEditorSupport(Object editor, Function<String, List<String>> onShow, Function<List<String>, String> onHide) {}
 

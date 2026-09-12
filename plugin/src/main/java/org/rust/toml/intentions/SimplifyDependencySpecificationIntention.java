@@ -16,6 +16,7 @@ import org.rust.toml.Util;
 import org.toml.lang.psi.*;
 
 import java.util.List;
+import consulo.localize.LocalizeValue;
 
 public class SimplifyDependencySpecificationIntention extends RsTomlElementBaseIntentionAction<SimplifyDependencySpecificationIntention.Context> {
     @Nonnull

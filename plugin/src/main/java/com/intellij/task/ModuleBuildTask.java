@@ -1,6 +1,6 @@
 package com.intellij.task;
 import consulo.module.Module;
-/** IntelliJ-compat stub. */
+/** A build task scoped to a single module, describing what to include in the build. */
 public interface ModuleBuildTask extends ProjectTask {
     Module getModule();
     boolean isIncrementalBuild();

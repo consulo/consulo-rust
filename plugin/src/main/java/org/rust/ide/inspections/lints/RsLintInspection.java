@@ -32,6 +32,7 @@ import org.rust.lang.core.psi.ext.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 
 public abstract class RsLintInspection extends RsLocalInspectionTool {
 

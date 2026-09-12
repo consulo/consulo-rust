@@ -6,7 +6,9 @@
 package org.rust.lang.core.types.infer;
 
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.rust.lang.core.resolve.ImplLookup;
+import org.rust.lang.core.resolve.NameResolution;
 import org.rust.lang.core.resolve.KnownItems;
 import org.rust.lang.core.types.ty.*;
 
@@ -33,55 +35,69 @@ public class Autoderef implements Iterable<Ty> {
     @Override
     public Iterator<Ty> iterator() {
         return new Iterator<Ty>() {
-            private Ty myCurrent = myBaseTy;
-            private boolean myFirst = true;
+            private Ty myNext;
+            /** -2: not started, -1: next element not computed yet, 0: exhausted, 1: next element ready */
+            private int myState = -2;
+            private int myProduced = 0;
+
+            private void calcNext() {
+                if (myState == -2) {
+                    myNext = myBaseTy;
+                }
+                else if (myProduced >= NameResolution.DEFAULT_RECURSION_LIMIT) {
+                    myNext = null;
+                }
+                else {
+                    myNext = derefOnce(myNext);
+                }
+                myState = myNext == null ? 0 : 1;
+            }
 
             @Override
             public boolean hasNext() {
-                return myCurrent != null;
+                if (myState < 0) calcNext();
+                return myState == 1;
             }
 
             @Override
             public Ty next() {
-                if (myCurrent == null) throw new NoSuchElementException();
-                Ty result = myCurrent;
-                if (myFirst) {
-                    myFirst = false;
-                } else {
-                    // already advanced
-                }
-                advance();
+                if (myState < 0) calcNext();
+                if (myState == 0) throw new NoSuchElementException();
+                Ty result = myNext;
+                myState = -1;
+                myProduced++;
                 return result;
             }
-
-            private void advance() {
-                if (myCurrent == null) return;
-                if (!myVisitedTys.add(myCurrent)) {
-                    myCurrent = null;
-                    return;
-                }
-                TyWithObligations<Ty> deref = myLookup.deref(myCurrent);
-                Ty to = null;
-                if (deref != null) {
-                    if (!deref.getObligations().isEmpty()) {
-                        FulfillmentContext fulfillment = new FulfillmentContext(myCtx, myLookup);
-                        fulfillment.registerPredicateObligations(deref.getObligations());
-                        fulfillment.selectWherePossible();
-                        for (PendingPredicateObligation pending : fulfillment.getPendingObligations()) {
-                            myObligations.add(pending.getObligation());
-                        }
-                    }
-                    to = myCtx.resolveTypeVarsWithObligations(deref.getValue());
-                }
-                if (to == null && myCurrent instanceof TyArray) {
-                    to = new TySlice(((TyArray) myCurrent).getBase());
-                }
-                if (to != null) {
-                    mySteps.add(new AutoderefStep(myCurrent, to));
-                }
-                myCurrent = to;
-            }
         };
+    }
+
+    /**
+     * One dereference step away from {@code from}, recording it in {@link #steps()}, or {@code null} when
+     * {@code from} cannot be dereferenced further or has already been visited.
+     */
+    @Nullable
+    private Ty derefOnce(@Nonnull Ty from) {
+        if (!myVisitedTys.add(from)) return null;
+        TyWithObligations<Ty> deref = myLookup.deref(from);
+        Ty to = null;
+        if (deref != null) {
+            if (!deref.getObligations().isEmpty()) {
+                FulfillmentContext fulfillment = new FulfillmentContext(myCtx, myLookup);
+                fulfillment.registerPredicateObligations(deref.getObligations());
+                fulfillment.selectWherePossible();
+                for (PendingPredicateObligation pending : fulfillment.getPendingObligations()) {
+                    myObligations.add(pending.getObligation());
+                }
+            }
+            to = myCtx.resolveTypeVarsWithObligations(deref.getValue());
+        }
+        if (to == null && from instanceof TyArray) {
+            to = new TySlice(((TyArray) from).getBase());
+        }
+        if (to != null) {
+            mySteps.add(new AutoderefStep(from, to));
+        }
+        return to;
     }
 
     @Nonnull

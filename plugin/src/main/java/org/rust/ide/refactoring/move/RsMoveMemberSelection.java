@@ -15,10 +15,11 @@ import javax.swing.JTree;
 import java.awt.BorderLayout;
 import java.util.Collections;
 import java.util.List;
+import consulo.ui.image.Image;
 
 /**
- * Stub — IntelliJ's ChangesTreeImpl / TreeModelBuilder (com.intellij.openapi.vcs.changes.ui)
- * are not available in Consulo. Real tree with checkbox selection needs a Consulo-native rewrite.
+ * Member-selection UI for the Move refactoring. The tree is a placeholder: it shows no nodes
+ * and has no checkbox selection; the initially-selected nodes are returned unchanged.
  */
 public class RsMoveMemberSelection {
 

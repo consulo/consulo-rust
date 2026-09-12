@@ -14,8 +14,13 @@ import jakarta.annotation.Nonnull;
 
 import java.util.ArrayList;
 import java.util.List;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.annotation.component.ComponentScope;
 
-@State(name = "RsUserTemplatesState", storages = @Storage("rust.usertemplates.xml"))
+@State(name = "RsUserTemplatesState", storages = @Storage("rust.usertemplates"))
+@ServiceAPI(ComponentScope.APPLICATION)
+@ServiceImpl
 public class RsUserTemplatesState implements PersistentStateComponent<RsUserTemplatesState> {
 
     public List<RsUserTemplate> templates = new ArrayList<>();

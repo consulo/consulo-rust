@@ -1,5 +1,5 @@
 package com.intellij.ide.wizard;
-/** IntelliJ-compat stub. */
+/** New-project wizard step that supplies the project's base path. */
 public abstract class NewProjectWizardLanguageStep {
     public String getPath() { return "."; }
 }

@@ -19,6 +19,7 @@ import org.rust.lang.core.types.ExtensionsUtil;
 import org.rust.lang.core.types.infer.RsInferenceResult;
 
 import java.util.*;
+import org.rust.lang.core.dfa.MemoryCategorization;
 
 public class BorrowChecker {
     private BorrowChecker() {

@@ -1,6 +1,6 @@
 package com.intellij.codeInsight.hints;
 
-/** IntelliJ-compat stub. */
+/** Text of an inlay hint plus the document offset it is anchored to. */
 public final class InlayInfo {
     public final String text;
     public final int offset;

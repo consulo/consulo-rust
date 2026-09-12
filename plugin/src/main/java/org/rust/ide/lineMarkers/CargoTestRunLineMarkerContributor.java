@@ -8,6 +8,7 @@ import org.rust.lang.RsLanguage;
 import consulo.language.Language;
 
 import consulo.execution.test.TestStateStorage;
+import consulo.annotation.component.ExtensionImpl;
 import consulo.execution.lineMarker.ExecutorAction;
 import consulo.execution.lineMarker.RunLineMarkerContributor;
 import consulo.execution.test.TestIconMapper;
@@ -34,7 +35,9 @@ import org.rust.lang.doc.psi.RsDocElementTypes;
 
 import javax.swing.Icon;
 import java.util.Collections;
+import consulo.ui.image.Image;
 
+@ExtensionImpl
 public class CargoTestRunLineMarkerContributor extends RunLineMarkerContributor {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 

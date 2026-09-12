@@ -16,6 +16,7 @@ import org.rust.lang.core.psi.RsMatchBody;
 import org.rust.lang.core.psi.RsMatchExpr;
 
 import java.util.List;
+import consulo.localize.LocalizeValue;
 
 public class AddRemainingArmsIntention extends RsElementBaseIntentionAction<AddRemainingArmsIntention.Context> {
 

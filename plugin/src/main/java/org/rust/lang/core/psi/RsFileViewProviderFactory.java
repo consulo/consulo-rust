@@ -12,6 +12,9 @@ import consulo.language.file.FileViewProviderFactory;
 import consulo.language.psi.PsiManager;
 import consulo.language.impl.file.SingleRootFileViewProvider;
 import jakarta.annotation.Nonnull;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.file.LanguageFileViewProviderFactory;
+import org.rust.lang.RsLanguage;
 
 /**
  * Hacky adjust the file limit for Rust file.
@@ -19,9 +22,10 @@ import jakarta.annotation.Nonnull;
  *
  * @see SingleRootFileViewProvider#isTooLargeForIntelligence
  */
-public class RsFileViewProviderFactory implements FileViewProviderFactory {
+@ExtensionImpl
+public class RsFileViewProviderFactory implements LanguageFileViewProviderFactory {
 
-    // Experimentally verified that 8Mb works with the default IDEA -Xmx768M
+    // Experimentally verified that 8Mb works with the default -Xmx768M heap
     private static final int RUST_FILE_SIZE_LIMIT_FOR_INTELLISENSE = 8 * 1024 * 1024;
 
     @Nonnull
@@ -38,5 +42,11 @@ public class RsFileViewProviderFactory implements FileViewProviderFactory {
         }
 
         return new SingleRootFileViewProvider(manager, file, eventSystemEnabled);
+    }
+
+    @Nonnull
+    @Override
+    public Language getLanguage() {
+        return RsLanguage.INSTANCE;
     }
 }

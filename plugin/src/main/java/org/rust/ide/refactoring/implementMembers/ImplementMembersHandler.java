@@ -6,7 +6,8 @@
 package org.rust.ide.refactoring.implementMembers;
 
 import org.rust.lang.core.psi.ext.RsElementUtil;
-import consulo.language.editor.action.LanguageCodeInsightActionHandler;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.editor.generation.ImplementMethodHandler;
 import consulo.codeEditor.Editor;
 import consulo.project.Project;
 import consulo.language.psi.PsiElement;
@@ -17,8 +18,11 @@ import org.rust.lang.core.psi.RsImplItem;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.openapiext.Testmark;
 import org.rust.ide.refactoring.implementMembers.ImplementMembersImpl;
+import consulo.language.Language;
+import org.rust.lang.RsLanguage;
 
-public class ImplementMembersHandler implements LanguageCodeInsightActionHandler {
+@ExtensionImpl
+public class ImplementMembersHandler implements ImplementMethodHandler {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 
 

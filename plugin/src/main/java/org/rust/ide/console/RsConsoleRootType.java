@@ -5,14 +5,16 @@
 
 package org.rust.ide.console;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.execution.ui.console.ConsoleRootType;
 import consulo.language.scratch.RootType;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 
+@ExtensionImpl
 public class RsConsoleRootType extends ConsoleRootType {
 
-    RsConsoleRootType() {
+    public RsConsoleRootType() {
         super("rs", RsBundle.message("rust.consoles"));
     }
 

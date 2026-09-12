@@ -35,6 +35,7 @@ import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsGenericDeclaration;
 import org.rust.lang.core.resolve.ref.RsReference;
 import org.rust.openapiext.OpenApiUtil;
+import consulo.language.impl.parser.GeneratedParserUtilBase;
 
 public class RsStructuralSearchProfile extends StructuralSearchProfile {
 

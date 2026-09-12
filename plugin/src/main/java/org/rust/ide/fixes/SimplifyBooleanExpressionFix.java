@@ -11,9 +11,9 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.utils.BooleanExprSimplifier;
-import org.rust.ide.utils.PurityUtil;
 import org.rust.lang.core.psi.RsExpr;
 import org.rust.ide.utils.ExprUtil;
+import consulo.localize.LocalizeValue;
 
 public class SimplifyBooleanExpressionFix extends RsQuickFixBase<RsExpr> {
 

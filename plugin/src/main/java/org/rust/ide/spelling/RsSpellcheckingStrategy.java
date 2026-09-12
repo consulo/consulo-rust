@@ -5,6 +5,7 @@
 
 package org.rust.ide.spelling;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.psi.PsiElement;
 import consulo.language.spellcheker.SpellcheckingStrategy;
 import consulo.language.spellcheker.tokenizer.Tokenizer;
@@ -12,7 +13,9 @@ import jakarta.annotation.Nonnull;
 import org.rust.lang.RsLanguage;
 import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.ext.RsNameIdentifierOwner;
+import consulo.language.Language;
 
+@ExtensionImpl
 public class RsSpellcheckingStrategy extends SpellcheckingStrategy {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 

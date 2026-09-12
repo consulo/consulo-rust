@@ -18,7 +18,11 @@ import org.rust.ide.refactoring.introduceParameter.RsIntroduceParameterHandler;
 import org.rust.ide.refactoring.introduceVariable.RsIntroduceVariableHandler;
 import org.rust.lang.core.macros.RsExpandedElementUtil;
 import org.rust.lang.core.psi.ext.RsNameIdentifierOwner;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.Language;
+import org.rust.lang.RsLanguage;
 
+@ExtensionImpl
 public class RsRefactoringSupportProvider extends RefactoringSupportProvider {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 

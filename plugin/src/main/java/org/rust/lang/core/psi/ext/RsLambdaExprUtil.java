@@ -16,6 +16,7 @@ import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyFunctionBase;
 
 import java.util.List;
+import consulo.language.ast.ASTNode;
 
 public final class RsLambdaExprUtil {
     private RsLambdaExprUtil() {

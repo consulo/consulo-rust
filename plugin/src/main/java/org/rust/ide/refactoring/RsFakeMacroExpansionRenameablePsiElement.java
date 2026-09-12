@@ -17,6 +17,8 @@ import org.rust.lang.core.resolve.ref.RsReferenceBase;
 
 import javax.swing.*;
 import org.rust.lang.core.psi.ext.RsReferenceElementBase;
+import consulo.language.icon.IconDescriptorUpdaters;
+import consulo.ui.image.Image;
 
 public abstract class RsFakeMacroExpansionRenameablePsiElement extends RenameableFakePsiElement implements PsiNameIdentifierOwner {
     @Nonnull

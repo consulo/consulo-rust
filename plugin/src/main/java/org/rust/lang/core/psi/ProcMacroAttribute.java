@@ -18,6 +18,9 @@ import org.rust.lang.core.stubs.common.RsMetaItemPsiOrStub;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import org.rust.lang.core.psi.ext.RsDocAndAttributeOwnerUtil;
+import org.rust.lang.core.resolve2.FacadeResolve;
+import org.rust.lang.core.resolve2.ProcMacroDefInfo;
 
 /**
  * The class helps to check whether some item is a procedural macro call or not.

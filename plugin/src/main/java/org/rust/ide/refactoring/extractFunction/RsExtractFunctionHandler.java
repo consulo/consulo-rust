@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import consulo.language.psi.PsiReference;
 
 public class RsExtractFunctionHandler implements RefactoringActionHandler {
 

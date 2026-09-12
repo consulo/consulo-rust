@@ -5,6 +5,7 @@
 
 package org.rust.ide.wordSelection;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.action.ExtendWordSelectionHandlerBase;
 import consulo.codeEditor.Editor;
 import consulo.document.util.TextRange;
@@ -17,6 +18,7 @@ import org.rust.lang.core.psi.ext.PsiElementUtil;
 
 import java.util.List;
 
+@ExtensionImpl
 public class RsFieldLikeSelectionHandler extends ExtendWordSelectionHandlerBase {
     @Override
     public boolean canSelect(@Nonnull PsiElement e) {

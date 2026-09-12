@@ -14,6 +14,7 @@ import org.rust.lang.core.psi.RsBlockExpr;
 import org.rust.lang.core.psi.RsLabelDecl;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import consulo.localize.LocalizeValue;
 
 public class RsConvertBlockToLoopFix extends RsQuickFixBase<RsBlockExpr> {
 

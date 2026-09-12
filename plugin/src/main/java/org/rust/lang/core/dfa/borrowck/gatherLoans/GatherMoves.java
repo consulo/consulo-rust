@@ -24,6 +24,8 @@ import org.rust.lang.core.types.ty.TySlice;
 import org.rust.lang.core.types.ty.TyUtil;
 
 import java.util.Objects;
+import org.rust.lang.core.dfa.ExprUseWalker;
+import org.rust.lang.core.dfa.MemoryCategorization;
 
 public class GatherMoves {
     private GatherMoves() {

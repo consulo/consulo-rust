@@ -30,7 +30,7 @@ public class RsConsoleBuilder extends TextConsoleBuilderImpl {
     @Nonnull
     @Override
     protected ConsoleView createConsole() {
-        // TerminalExecutionConsole is IntelliJ-only; always use the Cargo console view
+        // Always use the Cargo console view
         return new CargoConsoleView(getProject(), (GlobalSearchScope) getScope(), isViewer(), true);
     }
 }

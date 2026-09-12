@@ -12,7 +12,6 @@ import org.rust.lang.core.psi.ext.RsDocAndAttributeOwner;
 import org.rust.lang.core.psi.ext.RsElement;
 
 /**
- * <p>
  * Contains utility methods for PSI element presentation.
  */
 public final class Utils {

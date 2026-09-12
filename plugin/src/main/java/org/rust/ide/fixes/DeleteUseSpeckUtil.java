@@ -4,6 +4,10 @@
  */
 
 package org.rust.ide.fixes;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiWhiteSpace;
+import org.rust.lang.core.psi.RsUseItem;
+import org.rust.lang.core.psi.ext.RsUseSpeckUtil;
 
 public final class DeleteUseSpeckUtil {
     private DeleteUseSpeckUtil() {

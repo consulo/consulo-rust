@@ -17,7 +17,6 @@ import org.rust.ide.inspections.RsWithMacrosInspectionVisitor;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsTypeReferenceExtUtil;
 import org.rust.lang.core.psi.ext.RsTraitTypeExtUtil;
-import org.rust.lang.core.psi.ext.RsEditionsUtil;
 import org.rust.lang.core.resolve.ref.RsReference;
 import org.rust.lang.utils.RsDiagnostic;
 // import removed
@@ -25,6 +24,9 @@ import org.rust.lang.core.types.RsTypesUtil;
 import consulo.localize.LocalizeValue;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.resolve.ref.RsPathReference;
+import org.rust.lang.core.resolve.ref.RsPathReferenceImpl;
 
 @ExtensionImpl
 public class RsBareTraitObjectsInspection extends RsLintInspection {

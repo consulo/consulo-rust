@@ -5,6 +5,7 @@
 
 package org.rust.ide.actions.mover;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.codeEditor.Editor;
 import consulo.language.psi.PsiDocumentManager;
 import consulo.language.psi.PsiElement;
@@ -17,7 +18,9 @@ import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import consulo.project.Project;
 
+@ExtensionImpl(id = "rsMatchArm", order = "after rsCommaListElement")
 public class RsMatchArmUpDownMover extends RsLineMover {
 
     @Override

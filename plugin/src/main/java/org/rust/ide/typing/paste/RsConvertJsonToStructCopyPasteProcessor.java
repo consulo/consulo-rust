@@ -6,6 +6,7 @@
 package org.rust.ide.typing.paste;
 import consulo.language.psi.PsiDocumentManager;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.ide.impl.idea.codeInsight.editorActions.CopyPastePostProcessor;
 import consulo.ide.impl.idea.codeInsight.editorActions.TextBlockTransferableData;
 import consulo.application.ApplicationManager;
@@ -62,7 +63,11 @@ import java.awt.datatransfer.Transferable;
 import java.util.*;
 import java.util.regex.Pattern;
 import consulo.language.psi.PsiFile;
+import consulo.language.psi.SmartPointerManager;
+import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.RsRawIdentifiers;
 
+@ExtensionImpl
 public class RsConvertJsonToStructCopyPasteProcessor extends CopyPastePostProcessor<TextBlockTransferableData> {
 
     public static final String CONVERT_JSON_TO_STRUCT_SETTING_KEY = "org.rust.convert.json.to.struct";
@@ -169,7 +174,8 @@ public class RsConvertJsonToStructCopyPasteProcessor extends CopyPastePostProces
     private static boolean shouldConvertJson(Project project) {
         if (OpenApiUtil.isUnitTestMode()) return true;
 
-        String prefStr = AdvancedSettings.getString(CONVERT_JSON_TO_STRUCT_SETTING_KEY);
+        String prefStr = AdvancedSettings.getString(CONVERT_JSON_TO_STRUCT_SETTING_KEY,
+            StoredPreference.ASK_EVERY_TIME.name());
         StoredPreference pref;
         try {
             pref = StoredPreference.valueOf(prefStr);

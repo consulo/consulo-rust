@@ -19,6 +19,7 @@ import org.toml.lang.psi.TomlPsiFactory;
 import org.toml.lang.psi.TomlTable;
 import org.toml.lang.psi.ext.TomlLiteralKind;
 import org.toml.lang.psi.ext.TomlLiteralExt;
+import consulo.localize.LocalizeValue;
 
 public class ExpandDependencySpecificationIntention extends RsTomlElementBaseIntentionAction<TomlKeyValue> {
     @Nonnull

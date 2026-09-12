@@ -12,6 +12,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsExpr;
 import org.rust.lang.core.psi.RsParenExpr;
+import consulo.localize.LocalizeValue;
 
 public class RemoveRedundantParenthesesFix extends RsQuickFixBase<RsParenExpr> {
 

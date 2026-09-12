@@ -6,9 +6,7 @@
 package org.rust.lang.doc.psi;
 
 /**
- *
- * In Java, interfaces should ideally be in their own files. However, since the original
- * interoperable with Java), this file serves as a reference point.
+ * Doc-comment PSI element interfaces:
  *
  * <ul>
  *   <li>{@link RsDocElement} - Base interface for doc elements</li>

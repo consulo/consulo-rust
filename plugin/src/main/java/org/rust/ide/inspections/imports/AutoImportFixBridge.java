@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>
  * Bridge providing Java-accessible access to {@link AutoImportFix} from the
  * {@code org.rust.ide.inspections.import} package. Java source code cannot easily reference
  * packages named {@code import} since it is a reserved keyword, so this bridge in

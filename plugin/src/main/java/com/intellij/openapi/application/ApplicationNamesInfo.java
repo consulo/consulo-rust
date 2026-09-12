@@ -1,5 +1,5 @@
 package com.intellij.openapi.application;
-/** IntelliJ-compat stub — app-name metadata. */
+/** Product name metadata of the running application. */
 public final class ApplicationNamesInfo {
     private static final ApplicationNamesInfo INSTANCE = new ApplicationNamesInfo();
     private ApplicationNamesInfo() {}

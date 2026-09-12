@@ -9,7 +9,6 @@ import consulo.language.editor.FileStatusMap;
 import org.rust.stdext.Lazy;
 import consulo.language.editor.impl.highlight.DirtyScopeTrackingHighlightingPassFactory;
 import consulo.language.editor.highlight.TextEditorHighlightingPass;
-import com.intellij.codeHighlighting.TextEditorHighlightingPassRegistrar;
 import consulo.language.editor.rawHighlight.HighlightInfo;
 import consulo.language.editor.highlight.UpdateHighlightersUtil;
 import consulo.disposer.Disposable;
@@ -33,8 +32,6 @@ import consulo.language.editor.DaemonCodeAnalyzer;
 import consulo.application.progress.EmptyProgressIndicator;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.cargo.project.settings.RsExternalLinterSettingsUtil;
-import org.rust.cargo.project.settings.ToolchainExtUtil;
 import org.rust.cargo.project.workspace.PackageOrigin;
 import org.rust.cargo.toolchain.impl.RustcMessage;
 import org.rust.cargo.toolchain.tools.CargoCheckArgs;
@@ -48,6 +45,8 @@ import java.util.Collections;
 import java.util.List;
 import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
 import org.rust.lang.core.psi.ext.RsElementExtUtil;
+import org.rust.cargo.project.workspace.CargoWorkspace;
+import org.rust.cargo.toolchain.RsToolchainBase;
 
 public class RsExternalLinterPass extends TextEditorHighlightingPass implements DumbAware {
     private static final Logger LOG = Logger.getInstance(RsExternalLinterPass.class);
@@ -80,6 +79,7 @@ public class RsExternalLinterPass extends TextEditorHighlightingPass implements 
 
         org.rust.cargo.project.workspace.CargoWorkspace.Target cargoTarget = RsElementExtUtil.getContainingCargoTarget(myFile);
         if (cargoTarget == null) return;
+        if (cargoTarget.getPkg().getOrigin() != PackageOrigin.WORKSPACE) return;
 
         Disposable moduleOrProject = (Disposable) ModuleUtilCore.findModuleForPsiElement(myFile);
         if (moduleOrProject == null) moduleOrProject = myProject;
@@ -87,13 +87,14 @@ public class RsExternalLinterPass extends TextEditorHighlightingPass implements 
         Disposer.register(moduleOrProject, myDisposable);
 
         CargoCheckArgs args = CargoCheckArgs.forTarget(myProject, cargoTarget);
-        Object toolchain = RsProjectSettingsServiceUtil.getToolchain(myProject);
+        RsToolchainBase toolchain = RsProjectSettingsServiceUtil.getToolchain(myProject);
         if (toolchain == null) return;
 
         myAnnotationInfo = RsExternalLinterUtils.checkLazily(
             toolchain,
             myProject,
             myDisposable,
+            cargoTarget.getPkg().getWorkspace().getContentRoot(),
             args
         );
     }

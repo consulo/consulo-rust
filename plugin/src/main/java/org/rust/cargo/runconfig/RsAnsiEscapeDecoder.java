@@ -17,9 +17,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
+import consulo.platform.Platform;
 
 /**
- * Currently IntelliJ Platform supports only 16 ANSI colors (standard colors and high intensity colors). The base
+ * The platform console supports only 16 ANSI colors (standard colors and high intensity colors). The base
  * {@link AnsiEscapeDecoder} class simply ignores 8-bit and 24-bit ANSI color escapes. This class converts (quantizes) such
  * escapes to supported 3/4-bit ANSI color escapes. Note that the user can configure color mapping in editor settings
  * (Preferences &gt; Editor &gt; Console Scheme &gt; Console Colors &gt; ANSI Colors). In addition, the themes also set the colors.

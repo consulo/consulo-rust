@@ -1,7 +1,7 @@
 package com.intellij.util;
 import consulo.application.AllIcons;
 import consulo.ui.image.Image;
-/** IntelliJ-compat stub referencing consulo.application.AllIcons nearest equivalents. */
+/** Shared node icons; entries without a platform image are empty. */
 public final class PlatformIcons {
     public static final Image PACKAGE_ICON = Image.empty(16);
     public static final Image CLASS_ICON = Image.empty(16);

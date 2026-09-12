@@ -6,7 +6,6 @@
 package org.rust.lang.core.resolve;
 
 import consulo.disposer.Disposable;
-import com.intellij.openapi.components.Service;
 import consulo.project.Project;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
@@ -21,8 +20,13 @@ import org.rust.lang.core.types.TyFingerprint;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import jakarta.inject.Inject;
 
-@Service
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
 public final class RsImplIndexAndTypeAliasCache implements Disposable {
     private final Project project;
 
@@ -37,6 +41,8 @@ public final class RsImplIndexAndTypeAliasCache implements Disposable {
      */
     private final ConcurrentMap<PsiFile, Object> usedPsiFiles = ContainerUtil.createConcurrentSoftMap();
     private static final Object PLACEHOLDER = new Object();
+
+    @Inject
 
     public RsImplIndexAndTypeAliasCache(@Nonnull Project project) {
         this.project = project;

@@ -5,8 +5,8 @@
 
 package org.rust.cargo.toolchain;
 
+import consulo.http.HttpProxyManager;
 import consulo.process.cmd.GeneralCommandLine;
-import com.intellij.util.net.HttpConfigurable;
 
 import java.net.URI;
 
@@ -15,19 +15,22 @@ public final class ProxyHelper {
     private ProxyHelper() {
     }
 
-    public static void withProxyIfNeeded(GeneralCommandLine cmdLine, HttpConfigurable http) {
-        if (http.USE_HTTP_PROXY && !http.PROXY_HOST.isEmpty()) {
-            cmdLine.withEnvironment("http_proxy", getProxyUri(http).toString());
+    public static void withProxyIfNeeded(GeneralCommandLine cmdLine, HttpProxyManager proxy) {
+        String host = proxy.getProxyHost();
+        if (proxy.isHttpProxyEnabled() && host != null && !host.isEmpty()) {
+            cmdLine.withEnvironment("http_proxy", getProxyUri(proxy, host).toString());
         }
     }
 
-    private static URI getProxyUri(HttpConfigurable http) {
+    private static URI getProxyUri(HttpProxyManager proxy, String host) {
         String userInfo = null;
-        if (http.PROXY_AUTHENTICATION && http.getProxyLogin() != null && !http.getProxyLogin().isEmpty() && http.getPlainProxyPassword() != null) {
-            String login = http.getProxyLogin();
-            String password = http.getPlainProxyPassword();
-            userInfo = (password != null && !password.isEmpty()) ? login + ":" + password : login;
+        if (proxy.isProxyAuthenticationEnabled()) {
+            String login = proxy.getProxyLogin();
+            if (login != null && !login.isEmpty()) {
+                String password = proxy.getPlainProxyPassword();
+                userInfo = (password != null && !password.isEmpty()) ? login + ":" + password : login;
+            }
         }
-        return URI.create("http://" + (userInfo != null ? userInfo + "@" : "") + http.PROXY_HOST + ":" + http.PROXY_PORT + "/");
+        return URI.create("http://" + (userInfo != null ? userInfo + "@" : "") + host + ":" + proxy.getProxyPort() + "/");
     }
 }

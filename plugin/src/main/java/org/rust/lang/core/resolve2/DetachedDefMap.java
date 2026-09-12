@@ -25,6 +25,7 @@ import org.rust.openapiext.OpenApiUtil;
 
 import java.lang.ref.SoftReference;
 import java.util.*;
+import consulo.application.progress.ProgressIndicator;
 
 /**
  * Provides functions for resolving module info in detached and doctest crates.

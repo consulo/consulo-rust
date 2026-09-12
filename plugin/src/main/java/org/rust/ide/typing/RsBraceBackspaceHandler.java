@@ -10,6 +10,7 @@ import consulo.codeEditor.EditorEx;
 import consulo.codeEditor.HighlighterIterator;
 import consulo.language.psi.PsiFile;
 import org.rust.lang.core.psi.RsFile;
+import consulo.language.ast.IElementType;
 
 public abstract class RsBraceBackspaceHandler extends RsEnableableBackspaceHandlerDelegate {
 

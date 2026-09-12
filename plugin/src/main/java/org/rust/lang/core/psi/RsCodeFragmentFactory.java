@@ -17,6 +17,7 @@ import org.rust.lang.core.resolve.Namespace;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.Set;
+import consulo.virtualFileSystem.VirtualFile;
 
 public class RsCodeFragmentFactory {
     public static final String TMP_MOD_NAME = "__tmp__";

@@ -10,8 +10,8 @@ import consulo.document.util.TextRange;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.lexer.RsEscapesLexer;
-import org.rust.lang.utils.UnescapeRustUtil;
 import org.rust.lang.utils.RsEscapesUtils;
+import consulo.language.ast.IElementType;
 
 /**
  * Represents a Rust literal kind, parsed from AST.
@@ -186,7 +186,7 @@ public abstract class RsLiteralKind {
         @Nullable
         @Override
         public String getValue() {
-            if (RsTokenType.RS_RAW_LITERALS.contains(node.getElementType())) {
+            if (RsTokenSets.RS_RAW_LITERALS.contains(node.getElementType())) {
                 return getRawValue();
             } else {
                 String raw = getRawValue();

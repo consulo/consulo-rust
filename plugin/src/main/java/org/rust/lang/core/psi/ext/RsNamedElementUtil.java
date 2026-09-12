@@ -8,6 +8,7 @@ package org.rust.lang.core.psi.ext;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.*;
+import org.rust.lang.core.psi.RsRawIdentifiers;
 
 public final class RsNamedElementUtil {
     private RsNamedElementUtil() {}

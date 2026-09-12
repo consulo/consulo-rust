@@ -5,6 +5,7 @@
 
 package org.rust.toml.search;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.find.FindUsagesHandler;
 import consulo.find.FindUsagesHandlerFactory;
 import consulo.language.psi.PsiElement;
@@ -13,6 +14,7 @@ import jakarta.annotation.Nullable;
 import org.rust.toml.Util;
 import org.toml.lang.psi.TomlKeySegment;
 
+@ExtensionImpl
 public class CargoTomlFindUsagesHandlerFactory extends FindUsagesHandlerFactory {
     @Override
     public boolean canFindUsages(@Nonnull PsiElement element) {

@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import consulo.project.Project;
 
 public class MatchPostfixTemplate extends PostfixTemplateWithExpressionSelector {
 

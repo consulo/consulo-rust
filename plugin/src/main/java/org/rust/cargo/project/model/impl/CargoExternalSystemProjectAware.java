@@ -22,6 +22,7 @@ import org.rust.cargo.project.model.CargoProjectsService.CargoRefreshStatus;
 
 import java.util.Map;
 import java.util.Set;
+import org.rust.cargo.project.model.CargoProjectsRefreshListener;
 
 @SuppressWarnings("UnstableApiUsage")
 public class CargoExternalSystemProjectAware implements ExternalSystemProjectAware {
@@ -78,7 +79,7 @@ public class CargoExternalSystemProjectAware implements ExternalSystemProjectAwa
     public void subscribe(@Nonnull ExternalSystemProjectListener listener, @Nonnull Disposable parentDisposable) {
         project.getMessageBus().connect(parentDisposable).subscribe(
             CargoProjectsService.CARGO_PROJECTS_REFRESH_TOPIC,
-            new CargoProjectsService.CargoProjectsRefreshListener() {
+            new CargoProjectsRefreshListener() {
                 @Override
                 public void onRefreshStarted() {
                     listener.onProjectReloadStart();

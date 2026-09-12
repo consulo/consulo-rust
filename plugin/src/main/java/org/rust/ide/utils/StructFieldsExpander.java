@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.resolve.ref.RsPathReferenceImpl;
 
 public final class StructFieldsExpander {
     private StructFieldsExpander() {

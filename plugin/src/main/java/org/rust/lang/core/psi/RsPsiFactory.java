@@ -51,6 +51,9 @@ import org.rust.lang.core.types.ty.Ty;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.rust.lang.core.psi.ext.RsExprUtil;
+import org.rust.lang.core.psi.ext.RsTypeParameterListUtil;
+import org.rust.lang.core.psi.ext.RsTypeReferenceUtil;
 
 public class RsPsiFactory {
     @Nonnull

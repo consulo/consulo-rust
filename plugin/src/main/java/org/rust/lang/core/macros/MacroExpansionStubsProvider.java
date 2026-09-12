@@ -13,6 +13,7 @@ import consulo.language.psi.stub.SerializerNotFoundException;
 import consulo.language.psi.stub.Stub;
 import consulo.language.psi.stub.FileContent;
 import jakarta.annotation.Nullable;
+import consulo.virtualFileSystem.VirtualFile;
 
 /**
  * Used in a couple with {@link MacroExpansionSharedCache} to provide macro expansion cache shared between projects.

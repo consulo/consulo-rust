@@ -15,16 +15,22 @@ import consulo.language.psi.stub.StubIndexKey;
 import consulo.application.util.CachedValueProvider;
 import consulo.application.util.CachedValuesManager;
 import consulo.virtualFileSystem.VirtualFile;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiFile;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.rust.cargo.project.workspace.CargoWorkspace;
 import org.rust.lang.core.RsPsiPattern;
 import org.rust.lang.core.psi.RsMetaItem;
 import org.rust.lang.core.psi.RsMetaItemArgs;
-import org.rust.lang.core.psi.ext.RsElement;
+import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.RsMetaItemUtil;
 import org.rust.lang.core.stubs.RsFileStub;
 import org.rust.lang.core.stubs.RsMetaItemStub;
 import org.rust.openapiext.OpenApiUtil;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsCfgNotTestIndex extends StringStubIndexExtension<RsMetaItem> {
     @Nonnull
     private static final StubIndexKey<String, RsMetaItem> KEY =
@@ -70,11 +76,32 @@ public class RsCfgNotTestIndex extends StringStubIndexExtension<RsMetaItem> {
         return found[0];
     }
 
+    /**
+     * {@code true} for the {@code test} meta item of {@code #[cfg(not(test))]} and of any deeper
+     * negated cfg condition such as {@code #[cfg(not(and(or(test, ...), ...)))]}.
+     */
     public static boolean isCfgNotTest(@Nonnull RsMetaItem psi) {
-        if (!"test".equals(psi.getName())) return false;
-        consulo.language.psi.PsiElement parent = psi.getParent();
+        if (!"test".equals(RsMetaItemUtil.getName(psi))) return false;
+        PsiElement parent = PsiElementUtil.getStubParent(psi);
         if (!(parent instanceof RsMetaItemArgs)) return false;
-        // Simplified check
-        return true;
+
+        PsiElement not = null;
+        for (PsiElement it = parent; it != null; it = stubAncestor(it)) {
+            if (it instanceof RsMetaItem && "not".equals(RsMetaItemUtil.getName((RsMetaItem) it))) {
+                not = it;
+                break;
+            }
+        }
+        if (not == null) return false;
+
+        for (PsiElement it = not; it != null; it = stubAncestor(it)) {
+            if (it instanceof RsMetaItem && RsPsiPattern.anyCfgCondition.accepts(it)) return true;
+        }
+        return false;
+    }
+
+    @Nullable
+    private static PsiElement stubAncestor(@Nonnull PsiElement element) {
+        return element instanceof PsiFile ? null : PsiElementUtil.getStubParent(element);
     }
 }

@@ -5,6 +5,8 @@
 
 package org.rust.toml.crates.local;
 
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
 import consulo.application.ApplicationManager;
 import io.github.z4kn4fein.semver.Version;
 import io.github.z4kn4fein.semver.StringExtensionsKt;
@@ -20,6 +22,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@ServiceAPI(ComponentScope.APPLICATION)
 public interface CratesLocalIndexService {
 
     @Nonnull
@@ -35,7 +38,7 @@ public interface CratesLocalIndexService {
 
     @Nullable
     static CratesLocalIndexService getInstanceIfCreated() {
-        return ApplicationManager.getApplication().getInstance(CratesLocalIndexService.class);
+        return ApplicationManager.getApplication().getInstanceIfCreated(CratesLocalIndexService.class);
     }
 
     abstract class Error {

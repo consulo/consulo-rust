@@ -7,6 +7,7 @@ package org.rust.ide.utils.imports;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import consulo.language.psi.PsiFile;
 import org.rust.cargo.project.workspace.PackageOrigin;
 import org.rust.cargo.util.AutoInjectedCrates;
 import org.rust.lang.core.crate.Crate;
@@ -18,6 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
+import consulo.language.psi.PsiElement;
 
 /**
  *
@@ -59,7 +61,11 @@ public final class ImportUtils {
      */
     @Nonnull
     public static RsFile.Attributes getStdlibAttributes(@Nonnull RsElement element) {
-        return ImportBridge.getStdlibAttributes(element);
+        RsMod crateRoot = element.getCrateRoot();
+        if (crateRoot == null) return RsFile.Attributes.NONE;
+        PsiFile containingFile = crateRoot.getContainingFile();
+        if (!(containingFile instanceof RsFile)) return RsFile.Attributes.NONE;
+        return ((RsFile) containingFile).getStdlibAttributes();
     }
 
     /**

@@ -5,12 +5,18 @@
 
 package org.rust.ide.inspections.lints;
 
+import jakarta.annotation.Nonnull;
+import org.rust.lang.core.psi.RsUseSpeck;
+
 public final class UseSpeckUsageUtil {
     private UseSpeckUsageUtil() {
     }
 
-    public static boolean isUsed(@org.jetbrains.annotations.NotNull org.rust.lang.core.psi.RsUseSpeck useSpeck, @org.jetbrains.annotations.NotNull PathUsageMap pathUsage) {
-        // Stub: assume all use specks are used
-        return true;
+    /**
+     * @return whether {@code useSpeck} imports something that is actually referenced, taking the
+     * {@code unused_imports} lint level into account.
+     */
+    public static boolean isUsed(@Nonnull RsUseSpeck useSpeck, @Nonnull PathUsageMap pathUsage) {
+        return RsUnusedImportInspection.isUseSpeckUsed(useSpeck, pathUsage);
     }
 }

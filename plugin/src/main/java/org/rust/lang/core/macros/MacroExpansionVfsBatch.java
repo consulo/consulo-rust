@@ -17,6 +17,7 @@ import org.rust.openapiext.OpenApiUtil;
 
 import java.util.HashSet;
 import java.util.Set;
+import consulo.util.lang.Pair;
 
 public class MacroExpansionVfsBatch {
     private final String myContentRoot;

@@ -21,6 +21,8 @@ import org.rust.openapiext.TestAssertUtil;
 import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
+import org.rust.lang.core.dfa.MemoryCategorization;
+import org.rust.lang.core.types.regions.Scope;
 
 // ---- MoveData ----
 public class MoveData {

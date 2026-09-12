@@ -32,6 +32,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import consulo.util.io.FileUtil;
+import consulo.util.lang.SemVer;
+import org.rust.cargo.util.StdLibInfo;
+import org.rust.stdext.PathUtil;
+import org.rust.stdext.RsResult;
 
 public class StdlibDataFetcher {
 

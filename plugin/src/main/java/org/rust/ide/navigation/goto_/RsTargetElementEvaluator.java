@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.psi.ext.RsStructOrEnumItemElementUtil;
+import org.rust.lang.core.macros.RsExpandedElementUtil;
 
 public class RsTargetElementEvaluator extends TargetElementEvaluatorEx2 {
 

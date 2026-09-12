@@ -27,6 +27,9 @@ import org.rust.lang.core.psi.ext.ArithmeticOp;
 import org.rust.lang.core.psi.ext.ArithmeticAssignmentOp;
 import org.rust.lang.core.psi.ext.ComparisonOp;
 import org.rust.lang.core.psi.ext.EqualityOp;
+import consulo.language.icon.IconDescriptorUpdaters;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.util.PsiTreeUtil;
 
 public class ScopedBaseCompletionEntity implements CompletionEntity {
     private final ScopeEntry myScopeEntry;

@@ -19,6 +19,7 @@ import org.rust.lang.core.psi.RsFile;
 import org.rust.lang.core.psi.RsModDeclItem;
 
 import java.util.List;
+import consulo.localize.LocalizeValue;
 
 public class AddModuleFileFix extends RsQuickFixBase<RsModDeclItem> {
     

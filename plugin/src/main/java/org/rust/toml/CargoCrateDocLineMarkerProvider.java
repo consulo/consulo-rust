@@ -25,7 +25,12 @@ import org.toml.lang.psi.*;
 import javax.swing.*;
 import java.util.Collection;
 import java.util.List;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.Language;
+import consulo.localize.LocalizeValue;
+import consulo.ui.image.Image;
 
+@ExtensionImpl
 public class CargoCrateDocLineMarkerProvider extends LineMarkerProviderDescriptor {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.toml.lang.TomlLanguage.INSTANCE; }
 

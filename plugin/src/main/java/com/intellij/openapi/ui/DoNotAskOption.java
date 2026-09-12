@@ -1,5 +1,5 @@
 package com.intellij.openapi.ui;
-/** IntelliJ-compat stub. */
+/** Backing state for a dialog's "Don't show again" checkbox. */
 public interface DoNotAskOption {
     boolean isToBeShown();
     void setToBeShown(boolean toBeShown, int exitCode);

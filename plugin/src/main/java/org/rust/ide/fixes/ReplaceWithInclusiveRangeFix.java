@@ -14,6 +14,7 @@ import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsPatRange;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.ext.RsPatRangeUtil;
+import consulo.localize.LocalizeValue;
 
 public class ReplaceWithInclusiveRangeFix extends RsQuickFixBase<RsPatRange> {
 

@@ -30,6 +30,7 @@ import org.rust.lang.core.psi.ext.RsVisibilityUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
+import consulo.localize.LocalizeValue;
 
 /**
  * This refactoring can be applied to either inherent impl or trait.

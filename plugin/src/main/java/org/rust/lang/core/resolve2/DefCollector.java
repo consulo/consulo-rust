@@ -29,6 +29,7 @@ import java.nio.file.InvalidPathException;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import org.rust.lang.core.macros.MacroExpansionManager;
 
 /**
  * Resolves all imports and expands macros (new items are added to defMap) using fixed point iteration algorithm.

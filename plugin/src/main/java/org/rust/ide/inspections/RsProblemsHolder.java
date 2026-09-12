@@ -31,6 +31,9 @@ import consulo.util.lang.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
+import consulo.language.ast.IElementType;
+import org.rust.lang.core.psi.RsMacroCall;
+import org.rust.lang.core.psi.ext.RsPossibleMacroCall;
 
 public class RsProblemsHolder {
     private final ProblemsHolder myHolder;

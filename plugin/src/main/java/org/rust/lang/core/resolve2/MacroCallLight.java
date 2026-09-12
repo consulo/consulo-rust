@@ -8,6 +8,7 @@ package org.rust.lang.core.resolve2;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.macros.MacroCallBody;
+import org.rust.stdext.HashCode;
 
 /**
  * Lightweight representation of macro call items for hash calculation.

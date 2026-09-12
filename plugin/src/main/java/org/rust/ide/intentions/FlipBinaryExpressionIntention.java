@@ -19,6 +19,7 @@ import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
 
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
+import consulo.localize.LocalizeValue;
 
 public class FlipBinaryExpressionIntention extends RsElementBaseIntentionAction<RsBinaryExpr> {
 

@@ -10,6 +10,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.RsTraitAlias;
+import consulo.language.ast.ASTNode;
 
 public final class RsTraitAliasUtil {
     private RsTraitAliasUtil() {

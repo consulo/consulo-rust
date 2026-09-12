@@ -55,7 +55,7 @@ public class RsDocCommentImpl extends LazyParseablePsiElement implements RsDocCo
         return getNode().getElementType();
     }
 
-    /** Needed for URL references ({@link com.intellij.openapi.paths.WebReference}) */
+    /** Needed for URL references ({@link consulo.language.impl.psi.path.WebReference}) */
     @Override
     @Nonnull
     public PsiReference[] getReferences() {

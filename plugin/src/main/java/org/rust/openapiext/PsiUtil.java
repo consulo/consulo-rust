@@ -25,6 +25,7 @@ import org.rust.lang.core.psi.ext.RsPossibleMacroCallUtil;
 import java.util.Collection;
 import java.util.function.Consumer;
 import org.rust.lang.core.psi.ext.RsMacroCallUtil;
+import org.rust.lang.core.psi.ext.RsPossibleMacroCall;
 
 /**
  * Utility methods for working with PSI elements.

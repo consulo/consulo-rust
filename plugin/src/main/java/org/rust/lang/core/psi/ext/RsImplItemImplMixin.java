@@ -29,6 +29,7 @@ import java.util.List;
 import org.rust.lang.core.psi.ext.RsTraitRefUtil;
 import org.rust.lang.core.types.BoundElement;
 import org.rust.lang.core.resolve.RsCachedImplItem;
+import consulo.ui.image.Image;
 
 public abstract class RsImplItemImplMixin extends RsStubbedElementImpl<RsImplItemStub> implements RsImplItem {
 

@@ -1,6 +1,6 @@
 package com.intellij.execution.wsl;
 import jakarta.annotation.Nullable;
-/** IntelliJ-compat stub. Consulo doesn't bundle WSL support. */
+/** A WSL distribution paired with a Linux path; parsing never recognises a path as WSL. */
 public final class WslPath {
     private final WSLDistribution distribution;
     private final String linuxPath;

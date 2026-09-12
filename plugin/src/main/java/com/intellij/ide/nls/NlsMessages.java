@@ -1,7 +1,7 @@
 package com.intellij.ide.nls;
 import java.util.Collection;
 import java.util.List;
-/** IntelliJ-compat stub. */
+/** Formats collections as "a, b and c" lists and renders durations as text. */
 public final class NlsMessages {
     private NlsMessages() {}
     public static String formatAndList(Collection<?> items) {

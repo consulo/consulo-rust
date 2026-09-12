@@ -7,7 +7,7 @@ import consulo.codeEditor.VisualPosition;
 import java.util.Collections;
 import java.util.List;
 
-/** IntelliJ-compat stub — empty soft-wrap model. */
+/** Soft-wrap model that never wraps. */
 public class EmptySoftWrapModel implements SoftWrapModel {
     @Override public boolean isSoftWrappingEnabled() { return false; }
     @Override public SoftWrap getSoftWrap(int offset) { return null; }

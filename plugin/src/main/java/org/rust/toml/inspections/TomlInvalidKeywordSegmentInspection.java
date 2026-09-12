@@ -16,7 +16,11 @@ import org.toml.lang.psi.ext.TomlLiteralKind;
 import org.toml.lang.psi.ext.TomlLiteralExt;
 
 import java.util.List;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.localize.LocalizeValue;
 
+@ExtensionImpl
 public class TomlInvalidKeywordSegmentInspection extends TomlLocalInspectionToolBase {
     @Nullable
     @Override
@@ -69,5 +73,11 @@ public class TomlInvalidKeywordSegmentInspection extends TomlLocalInspectionTool
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("cargo.toml"));
+    }
+
+    @Override
+    @jakarta.annotation.Nonnull
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.ERROR;
     }
 }

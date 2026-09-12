@@ -25,6 +25,7 @@ import java.util.List;
 import org.rust.lang.core.psi.RsPsiImplUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.types.ty.TyUtil;
+import consulo.localize.LocalizeValue;
 
 public class DeriveCopyFix extends RsQuickFixBase<RsPathExpr> {
 

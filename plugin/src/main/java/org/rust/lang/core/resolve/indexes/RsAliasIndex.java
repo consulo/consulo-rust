@@ -5,6 +5,7 @@
 
 package org.rust.lang.core.resolve.indexes;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.virtualFileSystem.fileType.FileType;
 import consulo.project.Project;
 import consulo.language.psi.stub.StubTree;
@@ -33,7 +34,15 @@ import org.rust.lang.core.types.TyFingerprint;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.*;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.stub.Stub;
+import consulo.language.psi.stub.StubElement;
+import org.rust.lang.core.psi.RsTypeAlias;
+import org.rust.lang.core.psi.RsTypeReference;
+import org.rust.lang.core.psi.ext.RsAbstractableImplUtil;
+import org.rust.lang.core.stubs.RsPathStub;
 
+@ExtensionImpl
 public class RsAliasIndex extends FileBasedIndexExtension<TyFingerprint, List<String>> {
 
     private static final ID<TyFingerprint, List<String>> KEY =

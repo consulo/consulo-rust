@@ -16,6 +16,7 @@ import org.rust.lang.core.psi.RsTypeReference;
 import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
 import org.rust.lang.core.types.ty.Mutability;
 import org.rust.lang.core.psi.ext.RsRefLikeTypeUtil;
+import consulo.localize.LocalizeValue;
 
 public abstract class ChangeReferenceMutabilityIntention extends RsElementBaseIntentionAction<ChangeReferenceMutabilityIntention.Context> {
 

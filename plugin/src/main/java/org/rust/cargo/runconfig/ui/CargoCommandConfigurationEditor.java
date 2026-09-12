@@ -21,7 +21,6 @@ import consulo.virtualFileSystem.VirtualFile;
 import consulo.ui.ex.awt.SimpleListCellRenderer;
 import consulo.ui.ex.awt.JBCheckBox;
 import consulo.ui.ex.awt.JBLabel;
-// import com.intellij.ui.dsl.builder.RowLayout; — not in Consulo
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.cargo.project.model.CargoProject;
@@ -45,6 +44,7 @@ import javax.swing.*;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
+import consulo.platform.Platform;
 
 public class CargoCommandConfigurationEditor extends RsCommandConfigurationEditor<CargoCommandConfiguration> {
     private JComponent panel;
@@ -114,7 +114,7 @@ public class CargoCommandConfigurationEditor extends RsCommandConfigurationEdito
             ? RsBundle.message("checkbox.run.with.administrator.privileges")
             : RsBundle.message("checkbox.run.with.root.privileges");
         withSudo = new JBCheckBox(sudoLabel, false);
-        // TODO: remove when `com.intellij.execution.process.ElevationService` supports error stream redirection
+        // TODO: remove once elevated execution supports error stream redirection
         withSudo.setEnabled(OpenApiUtil.isFeatureEnabled(RsExperiments.BUILD_TOOL_WINDOW));
     }
 

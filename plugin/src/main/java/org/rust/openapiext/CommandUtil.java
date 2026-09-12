@@ -19,6 +19,7 @@ import jakarta.annotation.Nullable;
 
 import java.nio.file.Path;
 import java.util.function.Supplier;
+import consulo.localize.LocalizeValue;
 
 /**
  * Bridge class delegating to {@link OpenApiUtil}.

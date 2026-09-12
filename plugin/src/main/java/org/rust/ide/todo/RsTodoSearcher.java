@@ -6,6 +6,8 @@
 package org.rust.ide.todo;
 
 import org.rust.lang.core.psi.ext.RsElementUtil;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.psi.search.LightIndexPatternSearcher;
 import consulo.project.util.query.QueryExecutorBase;
 import consulo.document.util.TextRange;
 import consulo.language.psi.PsiElement;
@@ -20,7 +22,9 @@ import org.rust.lang.core.psi.RsMacroCall;
 import org.rust.lang.core.psi.RsRecursiveVisitor;
 import org.rust.lang.core.psi.ext.RsElement;
 
-public class RsTodoSearcher extends QueryExecutorBase<IndexPatternOccurrence, IndexPatternSearch.SearchParameters> {
+@ExtensionImpl
+public class RsTodoSearcher extends QueryExecutorBase<IndexPatternOccurrence, IndexPatternSearch.SearchParameters>
+    implements LightIndexPatternSearcher {
 
     public RsTodoSearcher() {
         super(true);

@@ -17,7 +17,7 @@ import org.rust.RsBundle;
 import org.rust.cargo.project.configurable.RsExternalLinterConfigurable;
 import org.rust.cargo.project.settings.RsExternalLinterProjectSettingsService;
 import org.rust.cargo.project.settings.RsProjectSettingsServiceBase;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceBase.RsSettingsListener;
+import org.rust.cargo.project.settings.RsSettingsListener;
 import org.rust.cargo.project.settings.RsProjectSettingsServiceBase.SettingsChangedEventBase;
 import org.rust.cargo.toolchain.ExternalLinter;
 import org.rust.ide.icons.RsIcons;
@@ -27,6 +27,7 @@ import org.rust.openapiext.OpenApiUtil;
 import javax.swing.*;
 import java.awt.event.MouseEvent;
 import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
+import consulo.project.ui.wm.StatusBarWidget;
 
 public class RsExternalLinterWidget extends TextPanel.WithIconAndArrows implements CustomStatusBarWidget {
 
@@ -52,7 +53,6 @@ public class RsExternalLinterWidget extends TextPanel.WithIconAndArrows implemen
     public RsExternalLinterWidget(@Nonnull Project project) {
         this.project = project;
         setTextAlignment(CENTER_ALIGNMENT);
-        // JBUI.CurrentTheme is IntelliJ-only; use default border
         setBorder(javax.swing.BorderFactory.createEmptyBorder());
     }
 
@@ -99,8 +99,8 @@ public class RsExternalLinterWidget extends TextPanel.WithIconAndArrows implemen
                 RsProjectSettingsServiceBase.RUST_SETTINGS_TOPIC,
                 new RsSettingsListener() {
                     @Override
-                    public <T extends RsProjectSettingsServiceBase.RsProjectSettingsBase<T>> void settingsChanged(
-                        @Nonnull SettingsChangedEventBase<T> e
+                    public void settingsChanged(
+                        @Nonnull SettingsChangedEventBase<?> e
                     ) {
                         if (!(e instanceof RsExternalLinterProjectSettingsService.SettingsChangedEvent)) return;
                         RsExternalLinterProjectSettingsService.SettingsChangedEvent event =

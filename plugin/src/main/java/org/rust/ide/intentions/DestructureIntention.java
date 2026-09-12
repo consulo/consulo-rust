@@ -36,6 +36,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.rust.lang.core.psi.ext.RsStructItemUtil;
 import org.rust.lang.core.psi.ext.RsMod;
+import consulo.localize.LocalizeValue;
 
 public class DestructureIntention extends RsElementBaseIntentionAction<DestructureIntention.Context> {
 

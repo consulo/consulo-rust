@@ -4,7 +4,7 @@ import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
-/** IntelliJ-compat stub: signature-change refactoring data. */
+/** Data for a suggested change-signature refactoring: old and new signatures plus the declaration. */
 public class SuggestedChangeSignatureData extends SuggestedRefactoringData {
     private final String name;
     private final SuggestedRefactoringState state;

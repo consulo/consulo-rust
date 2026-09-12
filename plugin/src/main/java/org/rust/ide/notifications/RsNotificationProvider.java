@@ -5,16 +5,17 @@
 
 package org.rust.ide.notifications;
 
-import consulo.component.PropertiesComponent;
-import consulo.fileEditor.FileEditor;
-import consulo.project.Project;
-import consulo.virtualFileSystem.VirtualFile;
+import consulo.fileEditor.EditorNotificationBuilder;
 import consulo.fileEditor.EditorNotificationProvider;
 import consulo.fileEditor.EditorNotifications;
+import consulo.fileEditor.FileEditor;
+import consulo.project.Project;
+import consulo.project.ProjectPropertiesComponent;
+import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 public abstract class RsNotificationProvider implements EditorNotificationProvider {
 
@@ -32,27 +33,24 @@ public abstract class RsNotificationProvider implements EditorNotificationProvid
 
     @Nullable
     @Override
-    public consulo.fileEditor.EditorNotificationBuilder buildNotification(
+    public final EditorNotificationBuilder buildNotification(
         @Nonnull VirtualFile file,
         @Nonnull FileEditor fileEditor,
-        @Nonnull java.util.function.Supplier<consulo.fileEditor.EditorNotificationBuilder> builderFactory
+        @Nonnull Supplier<EditorNotificationBuilder> builderFactory
     ) {
-        return null;
+        RsEditorNotificationPanel panel = createNotificationPanel(file, fileEditor, myProject, builderFactory);
+        return panel == null ? null : panel.getBuilder();
     }
 
     @Nonnull
     protected abstract String getDisablingKey(@Nonnull VirtualFile file);
 
-    @Nonnull
-    public final Function<FileEditor, RsEditorNotificationPanel> collectNotificationData(@Nonnull Project project, @Nonnull VirtualFile file) {
-        return editor -> createNotificationPanel(file, editor, project);
-    }
-
     @Nullable
     protected abstract RsEditorNotificationPanel createNotificationPanel(
         @Nonnull VirtualFile file,
         @Nonnull FileEditor editor,
-        @Nonnull Project project
+        @Nonnull Project project,
+        @Nonnull Supplier<EditorNotificationBuilder> builderFactory
     );
 
     protected void updateAllNotifications() {
@@ -60,10 +58,10 @@ public abstract class RsNotificationProvider implements EditorNotificationProvid
     }
 
     protected void disableNotification(@Nonnull VirtualFile file) {
-        myProject.getInstance(consulo.component.PropertiesComponent.class).setValue(getDisablingKey(file), true);
+        ProjectPropertiesComponent.getInstance(myProject).setValue(getDisablingKey(file), true);
     }
 
     protected boolean isNotificationDisabled(@Nonnull VirtualFile file) {
-        return myProject.getInstance(consulo.component.PropertiesComponent.class).getBoolean(getDisablingKey(file));
+        return ProjectPropertiesComponent.getInstance(myProject).getBoolean(getDisablingKey(file));
     }
 }

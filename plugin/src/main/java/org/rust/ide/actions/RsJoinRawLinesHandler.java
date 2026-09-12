@@ -5,18 +5,20 @@
 
 package org.rust.ide.actions;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.action.JoinRawLinesHandlerDelegate;
 import consulo.document.Document;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
-import org.rust.lang.core.parser.RustParserDefinition;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.RsTokenType;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
 import org.rust.lang.core.psi.ext.RsBlockExprUtil;
 import org.rust.lang.core.psi.ext.RsBlockUtil;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.doc.psi.ext.RsDocCommentUtil;
 
+@ExtensionImpl(id = "RsJoinRawLinesHandler")
 public class RsJoinRawLinesHandler implements JoinRawLinesHandlerDelegate {
 
     /**
@@ -40,7 +42,7 @@ public class RsJoinRawLinesHandler implements JoinRawLinesHandlerDelegate {
         if (leftPsi != rightPsi) return CANNOT_JOIN;
 
         var elementType = PsiElementUtil.getElementType(leftPsi);
-        if (elementType == RustParserDefinition.INNER_EOL_DOC_COMMENT || elementType == RustParserDefinition.OUTER_EOL_DOC_COMMENT) {
+        if (elementType == RsTokenType.INNER_EOL_DOC_COMMENT || elementType == RsTokenType.OUTER_EOL_DOC_COMMENT) {
             return joinLineDocComment(document, start, end);
         }
 
@@ -63,7 +65,7 @@ public class RsJoinRawLinesHandler implements JoinRawLinesHandlerDelegate {
 
         RsExprStmt tailStmt = RsBlockUtil.singleTailStmt(block);
         if (tailStmt == null) return CANNOT_JOIN;
-        if (block.getNode().getChildren(RsTokenType.RS_COMMENTS).length > 0) {
+        if (block.getNode().getChildren(RsTokenSets.RS_COMMENTS).length > 0) {
             return CANNOT_JOIN;
         }
 

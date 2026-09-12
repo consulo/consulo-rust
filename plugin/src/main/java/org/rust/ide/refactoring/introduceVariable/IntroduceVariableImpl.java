@@ -30,6 +30,8 @@ import java.util.List;
 import static org.rust.ide.refactoring.ExtraxtExpressionUtils.*;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsStmtUtil;
+import consulo.language.psi.PsiNamedElement;
+import org.rust.ide.refactoring.ExtraxtExpressionUiUtils;
 
 public final class IntroduceVariableImpl {
 

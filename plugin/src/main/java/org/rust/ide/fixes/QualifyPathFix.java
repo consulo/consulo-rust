@@ -16,6 +16,7 @@ import org.rust.ide.utils.imports.ImportInfoUtil;
 import org.rust.lang.core.psi.RsPath;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.RsPsiImplUtil;
+import consulo.localize.LocalizeValue;
 
 /**
  * Fix that qualifies a path.

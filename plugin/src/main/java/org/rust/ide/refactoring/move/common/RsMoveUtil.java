@@ -21,6 +21,7 @@ import org.rust.lang.core.psi.ext.RsPathUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
+import org.rust.lang.core.macros.MacrosUtil;
 
 /**
  * Utility methods for move refactoring. Placed in a class to decrease their priority in completion.

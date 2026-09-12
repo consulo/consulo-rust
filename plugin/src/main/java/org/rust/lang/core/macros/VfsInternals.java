@@ -21,18 +21,13 @@ public final class VfsInternals {
     private VfsInternals() {
     }
 
-    /** {@code com.intellij.openapi.vfs.newvfs.persistent.PersistentFSContentAccessor.getContentHashDigest} */
     @Nonnull
     private static MessageDigest getContentHashDigest() {
         return DigestUtil.sha1();
     }
 
     /**
-     * Upstream only re-read the file when the VFS had flagged it {@code MUST_RELOAD_CONTENT}. Consulo
-     * keeps that flag in {@code consulo.virtualFileSystem.internal.PersistentFS}, which is exported
-     * only to platform modules, so a plugin cannot query it. Reading unconditionally is a superset of
-     * the upstream behaviour — correct, just occasionally redundant I/O. This is a
-     * {@code @VisibleForTesting} helper upstream with no production callers, so the cost is moot.
+     * Re-reads the file contents from disk unconditionally.
      */
     public static void reloadFileIfNeeded(@Nonnull VirtualFile file) throws IOException {
         file.contentsToByteArray(false);
@@ -42,11 +37,10 @@ public final class VfsInternals {
     
     @Nullable
     public static HashCode getContentHashIfStored(@Nonnull VirtualFile file) {
-        // PersistentFSImpl.getContentHashIfStored is not exposed in Consulo; return null (no cached hash)
+        // No cached content hash is available.
         return null;
     }
 
-    /** {@code com.intellij.openapi.vfs.newvfs.persistent.PersistentFSContentAccessor.calculateHash} */
     @Nonnull
     public static HashCode calculateContentHash(byte[] fileContent) {
         MessageDigest digest = getContentHashDigest();

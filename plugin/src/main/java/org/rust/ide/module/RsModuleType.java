@@ -6,18 +6,18 @@
 package org.rust.ide.module;
 
 import com.intellij.openapi.module.ModuleType;
-import com.intellij.openapi.module.ModuleTypeManager;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.ide.icons.RsIcons;
 
 import javax.swing.*;
+import consulo.ui.image.Image;
 
 public class RsModuleType extends ModuleType<RsModuleBuilder> {
 
     public static final String ID = "RUST_MODULE";
 
-    public static final RsModuleType INSTANCE = (RsModuleType) ModuleTypeManager.getInstance().findByID(ID);
+    public static final RsModuleType INSTANCE = new RsModuleType();
 
     public RsModuleType() {
         super(ID);

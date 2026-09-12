@@ -5,8 +5,7 @@
 
 package org.rust.cargo.util;
 
-// Copy of com.intellij.openapi.externalSystem.service.execution.cmd.ParametersListLexer,
-// which is not present in all IDEs.
+// Splits a command-line parameter string into tokens, treating double-quoted spans as one token.
 public class ParametersListLexer {
     private final String myText;
     private int myTokenStart = -1;

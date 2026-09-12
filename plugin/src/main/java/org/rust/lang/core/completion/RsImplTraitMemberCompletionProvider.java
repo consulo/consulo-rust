@@ -37,6 +37,11 @@ import org.rust.lang.core.types.RsPsiSubstitution;
 import org.rust.openapiext.SmartPointerExtUtil;
 
 import java.util.*;
+import consulo.language.ast.TokenType;
+import consulo.language.icon.IconDescriptorUpdaters;
+import consulo.language.psi.SmartPsiElementPointer;
+import org.rust.ide.utils.imports.ImportCandidate;
+import org.rust.lang.core.types.BoundElement;
 
 public class RsImplTraitMemberCompletionProvider extends RsCompletionProvider {
     public static final RsImplTraitMemberCompletionProvider INSTANCE = new RsImplTraitMemberCompletionProvider();
@@ -53,7 +58,7 @@ public class RsImplTraitMemberCompletionProvider extends RsCompletionProvider {
     private static final TokenSet KEYWORD_TOKEN_TYPES = TokenSet.orSet(
         RsTokenType.tokenSetOf(RsElementTypes.FN, RsElementTypes.CONST, RsElementTypes.TYPE_KW,
             consulo.language.ast.TokenType.WHITE_SPACE, consulo.language.ast.TokenType.ERROR_ELEMENT),
-        RsTokenType.RS_COMMENTS
+        RsTokenSets.RS_COMMENTS
     );
 
     private final PsiElementPattern.Capture<PsiElement> myElementPattern;

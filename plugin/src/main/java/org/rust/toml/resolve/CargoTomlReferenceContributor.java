@@ -11,10 +11,13 @@ import consulo.language.psi.PsiReferenceRegistrar;
 import jakarta.annotation.Nonnull;
 import org.rust.toml.CargoTomlPsiPattern;
 import org.rust.toml.Util;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.Language;
 
 /**
  * Provides references for TOML elements in {@code Cargo.toml} files.
  */
+@ExtensionImpl
 public class CargoTomlReferenceContributor extends PsiReferenceContributor {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.toml.lang.TomlLanguage.INSTANCE; }
 

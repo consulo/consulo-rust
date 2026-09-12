@@ -15,6 +15,7 @@ import org.rust.ide.presentation.TypeRendering;
 import org.rust.lang.core.psi.RsExpr;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.types.ty.Ty;
+import consulo.localize.LocalizeValue;
 
 /**
  * For the given {@code expr} adds cast to the given type {@code ty}

@@ -16,13 +16,13 @@ import org.rust.cargo.util.AutoInjectedCrates;
 import org.rust.lang.core.crate.Crate;
 import org.rust.lang.core.crate.CratePersistentId;
 import org.rust.lang.core.psi.RsFile;
-import org.rust.lang.core.psi.RsPsiUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.openapiext.VirtualFileExtUtil;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
+import consulo.virtualFileSystem.VirtualFile;
 
 /**
  * Provides functions for building CrateDefMap.

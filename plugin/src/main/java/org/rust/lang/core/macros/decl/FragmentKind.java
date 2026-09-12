@@ -14,10 +14,10 @@ import jakarta.annotation.Nullable;
 import org.rust.lang.core.parser.RustParser;
 import org.rust.lang.core.parser.RustParserUtil;
 import org.rust.lang.core.parser.ParserUtil;
-import org.rust.lang.core.psi.RsTokenType;
 import org.rust.lang.core.psi.RsElementTypes;
 
 import java.util.*;
+import org.rust.lang.core.psi.RsTokenSets;
 
 public enum FragmentKind {
     Ident("ident"),
@@ -56,7 +56,7 @@ public enum FragmentKind {
     public boolean parse(@Nonnull PsiBuilder builder) {
         ParserUtil.clearFrame(builder);
         switch (this) {
-            case Ident: return consumeToken(builder, RsTokenType.RS_IDENTIFIER_TOKENS);
+            case Ident: return consumeToken(builder, RsTokenSets.RS_IDENTIFIER_TOKENS);
             case Path: return RustParser.TypePathGenericArgsNoTypeQual(builder, 0);
             case Expr: return RustParser.Expr(builder, 0, -1);
             case Ty: return RustParser.TypeReference(builder, 0);

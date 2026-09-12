@@ -14,6 +14,7 @@ import org.rust.lang.core.psi.RsConstant;
 import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.stubs.RsConstantStub;
 import org.rust.lang.core.types.ty.Mutability;
+import consulo.language.ast.ASTNode;
 
 /**
  * Extension functions for {@link RsConstant}.

@@ -9,7 +9,7 @@ import jakarta.annotation.Nonnull;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-/** IntelliJ Kotlin DSL {@code Cell<T>} stub. */
+/** Builder cell wrapping one component, with chainable layout, visibility and binding calls. */
 public class Cell<T> {
     @Nonnull private final T component;
 

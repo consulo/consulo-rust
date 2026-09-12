@@ -70,7 +70,6 @@ public final class FacadeMetaInfo {
 
     /**
      * List of items added to context by glob import to scope.
-     * Extension function on RsMod: RsMod.exportedItems(context)
      */
     @Nonnull
     public static List<NamedItem> exportedItems(@Nonnull RsMod scope, @Nonnull RsMod context) {

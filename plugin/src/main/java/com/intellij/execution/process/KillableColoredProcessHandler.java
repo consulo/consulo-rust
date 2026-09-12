@@ -14,9 +14,9 @@ import java.nio.charset.Charset;
 import java.util.concurrent.Future;
 
 /**
- * IntelliJ-compat stub emulating {@code KillableColoredProcessHandler} — delegates to Consulo's
- * {@link ProcessHandlerBuilder}. Tracks PTY flag / destroy-recursively flag on self since the
- * Consulo API does not expose them post-build.
+ * Colored, killable process handler that delegates to a handler built with
+ * {@link ProcessHandlerBuilder}. The PTY and destroy-recursively flags are tracked here because
+ * the built handler does not expose them.
  */
 public class KillableColoredProcessHandler extends UserDataHolderBase implements ProcessHandler {
     private final ProcessHandler delegate;
@@ -25,20 +25,6 @@ public class KillableColoredProcessHandler extends UserDataHolderBase implements
 
     public KillableColoredProcessHandler(GeneralCommandLine commandLine) throws ExecutionException {
         this(ProcessHandlerBuilder.create(commandLine).colored().killable().build());
-    }
-
-    /** Target-environment ctor — we have a ready Process, no command line to build from. */
-    public KillableColoredProcessHandler(Process process, String commandRepresentation, Charset charset) {
-        this(buildFromProcess(charset));
-    }
-
-    private static ProcessHandler buildFromProcess(Charset charset) {
-        try {
-            return ProcessHandlerBuilder.create(new GeneralCommandLine().withCharset(charset)).colored().killable().build();
-        }
-        catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     protected KillableColoredProcessHandler(ProcessHandler delegate) {

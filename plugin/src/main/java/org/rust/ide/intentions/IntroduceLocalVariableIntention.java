@@ -17,6 +17,7 @@ import org.rust.ide.utils.PsiModificationUtil;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.TyUnit;
+import consulo.localize.LocalizeValue;
 
 public class IntroduceLocalVariableIntention extends RsElementBaseIntentionAction<RsExpr> {
 

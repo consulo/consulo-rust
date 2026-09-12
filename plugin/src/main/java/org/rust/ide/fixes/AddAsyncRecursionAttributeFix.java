@@ -17,6 +17,7 @@ import org.rust.lang.core.psi.RsOuterAttr;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.resolve.KnownItems;
+import consulo.localize.LocalizeValue;
 
 public class AddAsyncRecursionAttributeFix extends RsQuickFixBase<RsFunction> {
 

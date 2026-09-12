@@ -27,6 +27,7 @@ import org.rust.lang.core.types.ty.TyFunctionBase;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import consulo.localize.LocalizeValue;
 
 public class FillFunctionArgumentsFix extends RsQuickFixBase<PsiElement> {
 

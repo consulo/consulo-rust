@@ -10,12 +10,16 @@ import consulo.component.persist.Storage;
 import consulo.component.persist.StoragePathMacros;
 import consulo.component.persist.PersistentStateComponent;
 import consulo.component.persist.RoamingType;
-import com.intellij.openapi.components.Service;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.annotation.component.ComponentScope;
 
 @State(name = "RsConsoleOptions", storages = @Storage(StoragePathMacros.WORKSPACE_FILE))
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
 public class RsConsoleOptions implements PersistentStateComponent<RsConsoleOptions> {
 
     public boolean showVariables = true;

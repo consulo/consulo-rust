@@ -14,7 +14,6 @@ import org.rust.lang.core.stubs.RsStubLiteralKind;
 import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyInteger;
 import org.rust.lang.utils.RsEscapesUtils;
-import org.rust.stdext.JoinUtil;
 
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsValueParameterUtil;

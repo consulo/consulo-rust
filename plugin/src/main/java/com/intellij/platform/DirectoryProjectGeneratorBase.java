@@ -1,5 +1,5 @@
 package com.intellij.platform;
 
-/** IntelliJ-compat stub. */
+/** Base class for directory-based project generators. */
 public abstract class DirectoryProjectGeneratorBase<T> implements DirectoryProjectGenerator<T> {
 }

@@ -14,7 +14,11 @@ import consulo.language.psi.PsiFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.RsFileBase;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.Language;
+import org.rust.lang.RsLanguage;
 
+@ExtensionImpl
 public class RsPsiStructureViewFactory implements PsiStructureViewFactory {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 

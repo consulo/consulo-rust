@@ -26,6 +26,7 @@ import org.rust.lang.core.psi.ext.RsDocAndAttributeOwnerUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import consulo.localize.LocalizeValue;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.cargo.project.workspace.CargoWorkspace;
 
 @ExtensionImpl
 public class RsDeprecationInspection extends RsLintInspection {

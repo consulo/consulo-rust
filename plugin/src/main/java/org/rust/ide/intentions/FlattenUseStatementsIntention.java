@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.rust.lang.core.psi.ext.RsPathUtil;
+import consulo.localize.LocalizeValue;
 
 public class FlattenUseStatementsIntention extends RsElementBaseIntentionAction<FlattenUseStatementsIntention.Context> {
 

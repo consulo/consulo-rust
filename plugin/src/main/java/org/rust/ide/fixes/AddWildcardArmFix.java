@@ -15,6 +15,7 @@ import org.rust.lang.core.psi.ext.RsElement;
 
 import java.util.Collections;
 import java.util.List;
+import consulo.localize.LocalizeValue;
 
 public class AddWildcardArmFix extends AddRemainingArmsFix {
     

@@ -26,6 +26,7 @@ import org.rust.stdext.RsResult;
 
 import java.nio.file.Path;
 import org.rust.lang.core.psi.ext.RsPathUtil;
+import org.rust.openapiext.RsProcessExecutionException;
 
 public final class Utils {
 

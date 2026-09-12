@@ -24,7 +24,11 @@ import org.rust.stdext.RsResult;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ComponentScope;
+import org.rust.stdext.PathUtil;
 
+@ServiceAPI(ComponentScope.PROJECT)
 public interface MacroExpansionManager {
 
     @Nullable

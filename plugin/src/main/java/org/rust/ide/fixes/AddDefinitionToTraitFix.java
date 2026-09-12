@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 import org.rust.lang.core.psi.ext.RsTraitRefUtil;
 import org.rust.lang.core.psi.ext.RsElement;
+import consulo.language.psi.PsiElement;
+import consulo.localize.LocalizeValue;
 
 public class AddDefinitionToTraitFix extends RsQuickFixBase<RsAbstractable> {
 

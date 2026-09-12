@@ -18,7 +18,6 @@ import org.rust.lang.core.psi.ext.RsElementUtil;
 import org.rust.lang.core.resolve.NameResolution;
 import org.rust.lang.core.resolve.Processors;
 import org.rust.lang.core.resolve2.ItemProcessingMode;
-import org.rust.lang.core.resolve2.VisResolve2Util;
 import org.rust.openapiext.VirtualFileExtUtil;
 
 import java.util.*;
@@ -27,6 +26,7 @@ import org.rust.lang.core.psi.ext.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
 import org.rust.lang.core.resolve2.FacadeResolve;
 import org.rust.lang.core.psi.ext.RsMod;
+import org.rust.lang.core.psi.ext.RsFileUtil;
 
 public class RsConsoleCodeFragmentContext {
 

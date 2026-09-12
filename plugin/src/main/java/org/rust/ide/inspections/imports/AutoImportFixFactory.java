@@ -17,7 +17,6 @@ import org.rust.lang.core.psi.ext.RsElement;
 import java.util.List;
 
 /**
- * <p>
  * Delegates to {@link AutoImportFixBridge} for all operations.
  * This class provides backward compatibility for existing Java code that references
  * {@code AutoImportFixFactory} by name.

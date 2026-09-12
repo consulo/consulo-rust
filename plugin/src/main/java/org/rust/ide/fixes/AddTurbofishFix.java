@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
+import consulo.localize.LocalizeValue;
 
 public class AddTurbofishFix extends RsElementBaseIntentionAction<AddTurbofishFix.Context> {
 

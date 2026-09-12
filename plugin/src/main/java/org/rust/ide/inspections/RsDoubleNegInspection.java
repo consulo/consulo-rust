@@ -18,6 +18,7 @@ import consulo.language.psi.PsiElement;
 import java.util.ArrayList;
 import java.util.List;
 import consulo.annotation.component.ExtensionImpl;
+import consulo.localize.LocalizeValue;
 
 /**
  * Checks for usage of double negation, which is a no-op in Rust but might be misleading for

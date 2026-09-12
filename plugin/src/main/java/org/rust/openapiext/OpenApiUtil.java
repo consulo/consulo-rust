@@ -97,17 +97,23 @@ import org.rust.ide.annotator.RsExternalLinterPass;
 
 import java.io.ByteArrayInputStream;
 import java.lang.ref.SoftReference;
+import org.rust.ide.experiments.RsExperiments;
+
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import consulo.ui.ex.awt.TextFieldWithBrowseButton;
+import org.rust.lang.core.psi.ext.RsElement;
 
 /**
- * Utility methods for working with the IntelliJ Open API.
+ * Utility methods for working with the platform API.
  */
 public final class OpenApiUtil {
     private OpenApiUtil() {
@@ -246,11 +252,8 @@ public final class OpenApiUtil {
     public static void checkCommitIsNotInProgress(@Nonnull Project project) {
         Application app = ApplicationManager.getApplication();
         if ((app.isUnitTestMode() || app.isInternal()) && app.isDispatchThread()) {
-            // PsiDocumentManagerBase.isCommitInProgress() is platform-internal, and the public
-            // PsiDocumentManager exposes no equivalent ("has uncommitted documents" is a different
-            // question). This was a debug-only assertion, so it is simply not checked on Consulo.
-            //
-            // Original intent: accessing indices during PSI event processing hurts typing performance.
+            // Not checked: there is no public way to query whether a PSI commit is in progress.
+            // Accessing indices during PSI event processing hurts typing performance.
         }
     }
 
@@ -624,19 +627,40 @@ public final class OpenApiUtil {
 
     // --- Feature flags ---
 
+    /**
+     * Feature ids that are on unless something turns them off. Everything not listed here is off.
+     */
+    private static final Set<String> ENABLED_BY_DEFAULT_FEATURES = Set.of(
+        RsExperiments.BUILD_TOOL_WINDOW,
+        RsExperiments.EVALUATE_BUILD_SCRIPTS,
+        RsExperiments.FETCH_ACTUAL_STDLIB_METADATA,
+        RsExperiments.FN_LIKE_PROC_MACROS,
+        RsExperiments.DERIVE_PROC_MACROS,
+        RsExperiments.ATTR_PROC_MACROS,
+        RsExperiments.CRATES_LOCAL_INDEX,
+        RsExperiments.WSL_TOOLCHAIN
+    );
+
+    /** Per-session overrides set through {@link #setFeatureEnabled}. */
+    private static final ConcurrentMap<String, Boolean> FEATURE_OVERRIDES = new ConcurrentHashMap<>();
+
+    /**
+     * A feature is on if it was explicitly switched on for this session, else if a system property of the
+     * same name says so, else if it is on by default.
+     */
     public static boolean isFeatureEnabled(@Nonnull String featureId) {
-        if (isHeadlessEnvironment()) {
-            String value = System.getProperty(featureId);
-            if (value != null) {
-                if ("true".equals(value)) return true;
-                if ("false".equals(value)) return false;
-            }
-        }
-        return false;
+        Boolean override = FEATURE_OVERRIDES.get(featureId);
+        if (override != null) return override;
+
+        String value = System.getProperty(featureId);
+        if ("true".equals(value)) return true;
+        if ("false".equals(value)) return false;
+
+        return ENABLED_BY_DEFAULT_FEATURES.contains(featureId);
     }
 
     public static void setFeatureEnabled(@Nonnull String featureId, boolean enabled) {
-        /* experiments no-op */
+        FEATURE_OVERRIDES.put(featureId, enabled);
     }
 
     public static <T> T runWithEnabledFeatures(@Nonnull String[] featureIds, @Nonnull Supplier<T> action) {

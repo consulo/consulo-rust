@@ -27,6 +27,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import consulo.language.psi.PsiDirectory;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.PsiManager;
+import consulo.util.io.FileUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import org.rust.lang.RsConstants;
+import org.rust.lang.core.psi.ext.RsAbstractable;
+import org.rust.lang.core.psi.ext.RsMacroDefinitionBase;
+import org.rust.lang.core.psi.ext.RsMacroUtil;
+import org.rust.lang.core.psi.ext.RsMandatoryReferenceElement;
+import org.rust.lang.core.psi.ext.RsStructOrEnumItemElement;
+import org.rust.lang.core.psi.ext.RsTraitOrImpl;
+import org.rust.lang.core.resolve.ref.RsPathReference;
+import org.rust.lang.core.resolve.ref.RsPathReferenceImpl;
+import org.rust.lang.core.resolve2.CrateDefMap;
+import org.rust.lang.core.resolve2.FacadeResolve;
+import org.rust.lang.core.resolve2.ModData;
+import org.rust.lang.core.resolve2.RsModInfo;
+import org.rust.lang.core.stubs.index.RsNamedElementIndex;
+import org.rust.lang.core.types.ExtensionsUtil;
+import org.rust.lang.core.types.infer.Autoderef;
+import org.rust.lang.core.types.ty.TyAdt;
 
 /**
  * Rust name resolution algorithm. Top-level entry points for resolving paths, method calls,
@@ -89,7 +111,7 @@ public final class NameResolution {
 
     @Nullable
     public static Crate resolveDollarCrateIdentifier(@Nonnull RsPath path) {
-        // crate-id mapping ported, we fall back to the containing crate which is correct
+        // Falls back to the containing crate, which is correct
         // in non-macro contexts.
         return RsElementUtil.getContainingCrate(path);
     }
@@ -596,7 +618,7 @@ public final class NameResolution {
 
         final boolean completion = isCompletion;
         @SuppressWarnings("unchecked")
-        RsResolveProcessor filtered = (RsResolveProcessor) Processors.wrapWithFilter(originalProcessor, entry -> {
+        RsResolveProcessor filtered = Processors.asResolveProcessor(Processors.wrapWithFilter(originalProcessor, entry -> {
             if (!originalProcessor.acceptsName(entry.getName())) return false;
             RsElement element = entry.getElement();
             boolean isConstant = RsElementUtil.isConstantLike(element);
@@ -606,7 +628,7 @@ public final class NameResolution {
                     || element instanceof RsEnumVariant
                     || element instanceof RsStructItem;
             return isConstant || (completion && isPathOrDestructurable);
-        });
+        }));
         return processNestedScopesUpwards(
             binding,
             isCompletion ? Namespace.TYPES_N_VALUES : Namespace.VALUES,
@@ -773,8 +795,8 @@ public final class NameResolution {
         @Nonnull RsResolveProcessor originalProcessor,
         boolean isCompletion
     ) {
-        RsResolveProcessor filtered = (RsResolveProcessor) Processors.wrapWithFilter(originalProcessor,
-            e -> !(e.getElement() instanceof org.rust.lang.core.psi.ext.RsMacroDefinitionBase));
+        RsResolveProcessor filtered = Processors.asResolveProcessor(Processors.wrapWithFilter(originalProcessor,
+            e -> !(e.getElement() instanceof RsMacroDefinitionBase)));
         if (path.getPath() == null) {
             return processMacroCallVariantsInScope(path, true, filtered);
         }

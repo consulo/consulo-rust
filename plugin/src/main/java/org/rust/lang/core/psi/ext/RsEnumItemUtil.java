@@ -18,6 +18,7 @@ import org.rust.lang.core.types.ty.TyInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import consulo.language.psi.stub.StubElement;
 
 public final class RsEnumItemUtil {
     private RsEnumItemUtil() {

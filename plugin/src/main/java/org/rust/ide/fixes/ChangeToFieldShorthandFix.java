@@ -12,6 +12,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsStructLiteralField;
+import consulo.localize.LocalizeValue;
 
 public class ChangeToFieldShorthandFix extends RsQuickFixBase<RsStructLiteralField> {
 

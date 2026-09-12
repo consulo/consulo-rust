@@ -5,6 +5,7 @@
 
 package org.rust.ide.status;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.project.Project;
 import consulo.disposer.Disposer;
 import consulo.project.ui.wm.StatusBar;
@@ -14,6 +15,7 @@ import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.cargo.runconfig.RunConfigUtil;
 
+@ExtensionImpl
 public class RsExternalLinterWidgetFactory implements StatusBarWidgetFactory {
     @Override
     @Nonnull

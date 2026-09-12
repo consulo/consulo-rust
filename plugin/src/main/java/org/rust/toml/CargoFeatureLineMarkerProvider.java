@@ -21,7 +21,7 @@ import consulo.document.FileDocumentManager;
 import consulo.ui.ex.popup.JBPopup;
 import consulo.ui.ex.popup.JBPopupFactory;
 import consulo.language.psi.PsiElement;
-import consulo.ui.ex.RelativePoint;
+import consulo.ui.event.ComponentEvent;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
@@ -43,9 +43,15 @@ import org.rust.openapiext.SaveAllDocumentsUtil;
 import org.toml.lang.psi.*;
 
 import javax.swing.*;
-import java.awt.event.MouseEvent;
 import java.util.*;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.document.Document;
+import consulo.language.Language;
+import consulo.language.psi.util.PsiTreeUtil;
+import consulo.ui.image.Image;
+import org.rust.openapiext.OpenApiUtil;
 
+@ExtensionImpl
 public class CargoFeatureLineMarkerProvider implements LineMarkerProvider {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.toml.lang.TomlLanguage.INSTANCE; }
 
@@ -168,7 +174,7 @@ public class CargoFeatureLineMarkerProvider implements LineMarkerProvider {
         public static final ToggleFeatureAction INSTANCE = new ToggleFeatureAction();
 
         @Override
-        public void navigate(MouseEvent e, PsiElement element) {
+        public void navigate(ComponentEvent<?> e, PsiElement element) {
             Context context = getContext(element);
             if (context == null) return;
             TomlKeySegment keySegment = consulo.language.psi.util.PsiTreeUtil.getParentOfType(element, TomlKeySegment.class);
@@ -197,11 +203,11 @@ public class CargoFeatureLineMarkerProvider implements LineMarkerProvider {
         public static final OpenSettingsAction INSTANCE = new OpenSettingsAction();
 
         @Override
-        public void navigate(MouseEvent e, PsiElement element) {
+        public void navigate(ComponentEvent<?> e, PsiElement element) {
             Context context = getContext(element);
             if (context == null) return;
             DataContext dataContext = DataManager.getInstance().getDataContext(e.getComponent());
-            createActionGroupPopup(context, dataContext).show(new RelativePoint(e));
+            createActionGroupPopup(context, dataContext).showBy(e);
         }
 
         @Nonnull

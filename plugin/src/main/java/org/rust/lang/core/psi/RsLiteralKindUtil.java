@@ -9,7 +9,6 @@ import consulo.language.ast.ASTNode;
 import consulo.document.util.TextRange;
 import consulo.language.ast.IElementType;
 import jakarta.annotation.Nonnull;
-import org.rust.lang.core.psi.RsTokenType;
 
 /**
  * Utility methods for computing literal offsets (for number and text literals).
@@ -24,7 +23,7 @@ public final class RsLiteralKindUtil {
      */
     @org.jetbrains.annotations.Nullable
     public static RsLiteralKind getKind(@Nonnull RsLitExpr litExpr) {
-        ASTNode literalAstNode = litExpr.getNode().findChildByType(RsTokenType.RS_LITERALS);
+        ASTNode literalAstNode = litExpr.getNode().findChildByType(RsTokenSets.RS_LITERALS);
         if (literalAstNode == null) return null;
         RsLiteralKind kind = RsLiteralKind.fromAstNode(literalAstNode);
         if (kind == null) {

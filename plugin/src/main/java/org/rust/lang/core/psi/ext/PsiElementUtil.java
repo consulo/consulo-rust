@@ -5,6 +5,7 @@
 
 package org.rust.lang.core.psi.ext;
 
+import consulo.language.impl.psi.PsiFileImpl;
 import consulo.language.impl.psi.stub.StubBasedPsiElementBase;
 import consulo.document.util.TextRange;
 import consulo.language.psi.PsiElement;
@@ -15,14 +16,18 @@ import consulo.language.ast.IElementType;
 import consulo.language.ast.TokenSet;
 import consulo.language.psi.util.PsiTreeUtil;
 import consulo.language.psi.PsiUtilCore;
+import consulo.language.psi.StubBasedPsiElement;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.stubs.RsFileStub;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import org.rust.lang.core.psi.RsElementTypes;
+import org.rust.lang.core.psi.RsTokenSets;
 
 /**
  * Delegates to {@link PsiElementExt} where possible, and provides additional methods.
@@ -32,14 +37,31 @@ public final class PsiElementUtil {
     private PsiElementUtil() {
     }
 
-    @Nonnull
-    public static IElementType getElementType(@Nonnull PsiElement element) {
-        return PsiUtilCore.getElementType(element);
+    @Nullable
+    public static IElementType getElementType(@Nullable PsiElement element) {
+        return getElementTypeOrNull(element);
     }
 
+    /**
+     * Element type of {@code element}, read from the stub layer whenever one is available so that the
+     * AST is not parsed. Returns {@code null} for an element that has neither a stub nor a node.
+     */
     @Nullable
     public static IElementType getElementTypeOrNull(@Nullable PsiElement element) {
-        return element != null ? PsiUtilCore.getElementType(element) : null;
+        if (element == null) return null;
+        if (element instanceof RsFile) return RsFileStub.Type;
+        if (element instanceof StubBasedPsiElement) {
+            StubElement<?> stub = ((StubBasedPsiElement<?>) element).getGreenStub();
+            if (stub != null) {
+                IElementType stubType = stub.getStubType();
+                if (stubType != null) return stubType;
+            }
+        }
+        if (element instanceof PsiFile) {
+            IElementType fileType = ((PsiFile) element).getFileElementType();
+            if (fileType != null) return fileType;
+        }
+        return PsiUtilCore.getElementType(element);
     }
 
     @Nullable
@@ -94,18 +116,16 @@ public final class PsiElementUtil {
 
     @Nonnull
     public static <T extends PsiElement> List<T> stubChildrenOfType(@Nonnull PsiElement element, @Nonnull Class<T> clazz) {
-        if (element instanceof StubBasedPsiElementBase) {
-            StubElement<?> stub = ((StubBasedPsiElementBase<?>) element).getGreenStub();
-            if (stub != null) {
-                List<T> result = new ArrayList<>();
-                for (StubElement<?> childStub : stub.getChildrenStubs()) {
-                    PsiElement childPsi = childStub.getPsi();
-                    if (clazz.isInstance(childPsi)) {
-                        result.add(clazz.cast(childPsi));
-                    }
+        StubElement<?> stub = getGreenStubOf(element);
+        if (stub != null) {
+            List<T> result = new ArrayList<>();
+            for (StubElement<?> childStub : stub.getChildrenStubs()) {
+                PsiElement childPsi = childStub.getPsi();
+                if (clazz.isInstance(childPsi)) {
+                    result.add(clazz.cast(childPsi));
                 }
-                return result;
             }
+            return result;
         }
         return childrenOfType(element, clazz);
     }
@@ -119,17 +139,16 @@ public final class PsiElementUtil {
     public static PsiElement stubChildOfElementType(@Nonnull PsiElement element,
                                                      @Nonnull TokenSet tokenSet,
                                                      @Nonnull Class<? extends PsiElement> clazz) {
-        if (element instanceof StubBasedPsiElementBase) {
-            StubElement<?> stub = ((StubBasedPsiElementBase<?>) element).getGreenStub();
-            if (stub != null) {
-                for (StubElement<?> childStub : stub.getChildrenStubs()) {
-                    PsiElement childPsi = childStub.getPsi();
-                    if (clazz.isInstance(childPsi)) {
-                        return childPsi;
-                    }
+        StubElement<?> stub = getGreenStubOf(element);
+        if (stub != null) {
+            for (StubElement<?> childStub : stub.getChildrenStubs()) {
+                if (!tokenSet.contains(childStub.getStubType())) continue;
+                PsiElement childPsi = childStub.getPsi();
+                if (clazz.isInstance(childPsi)) {
+                    return childPsi;
                 }
-                return null;
             }
+            return null;
         }
         for (PsiElement child = element.getFirstChild(); child != null; child = child.getNextSibling()) {
             if (tokenSet.contains(PsiUtilCore.getElementType(child)) && clazz.isInstance(child)) {
@@ -142,21 +161,34 @@ public final class PsiElementUtil {
     @Nullable
     public static PsiElement stubChildOfElementType(@Nonnull PsiElement element,
                                                      @Nonnull IElementType type) {
-        if (element instanceof StubBasedPsiElementBase) {
-            StubElement<?> stub = ((StubBasedPsiElementBase<?>) element).getGreenStub();
-            if (stub != null) {
-                for (StubElement<?> childStub : stub.getChildrenStubs()) {
-                    if (childStub.getStubType() == type) {
-                        return childStub.getPsi();
-                    }
+        StubElement<?> stub = getGreenStubOf(element);
+        if (stub != null) {
+            for (StubElement<?> childStub : stub.getChildrenStubs()) {
+                if (childStub.getStubType() == type) {
+                    return childStub.getPsi();
                 }
-                return null;
             }
+            return null;
         }
         for (PsiElement child = element.getFirstChild(); child != null; child = child.getNextSibling()) {
             if (PsiUtilCore.getElementType(child) == type) {
                 return child;
             }
+        }
+        return null;
+    }
+
+    /**
+     * Stub backing {@code element}, or {@code null} when the element is not stub-based or its AST is
+     * already loaded. Never parses the file.
+     */
+    @Nullable
+    public static StubElement<?> getGreenStubOf(@Nonnull PsiElement element) {
+        if (element instanceof PsiFileImpl) {
+            return ((PsiFileImpl) element).getGreenStub();
+        }
+        if (element instanceof StubBasedPsiElementBase) {
+            return ((StubBasedPsiElementBase<?>) element).getGreenStub();
         }
         return null;
     }
@@ -240,7 +272,7 @@ public final class PsiElementUtil {
 
     public static boolean isKeywordLike(@Nonnull PsiElement element) {
         IElementType type = PsiUtilCore.getElementType(element);
-        return org.rust.lang.core.psi.RsTokenType.RS_KEYWORDS.contains(type);
+        return RsTokenSets.RS_KEYWORDS.contains(type);
     }
 
     @Nullable

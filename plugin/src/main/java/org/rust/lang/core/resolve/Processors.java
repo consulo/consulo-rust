@@ -175,13 +175,13 @@ public final class Processors {
     @SuppressWarnings("unchecked")
     @Nonnull
     public static RsResolveProcessor filterNotCfgDisabledItemsAndTestFunctions(@Nonnull RsResolveProcessor processor) {
-        return (RsResolveProcessor) wrapWithFilter(processor, e -> {
+        return asResolveProcessor(wrapWithFilter(processor, e -> {
             RsElement element = e.getElement();
             if (element instanceof RsFunction && RsFunctionUtil.isTest((RsFunction) element)) return false;
             if (element instanceof RsDocAndAttributeOwner && !RsDocAndAttributeOwnerUtil.existsAfterExpansionSelf((RsDocAndAttributeOwner) element))
                 return false;
             return true;
-        });
+        }));
     }
 
     @SuppressWarnings("unchecked")
@@ -192,7 +192,7 @@ public final class Processors {
             return processor;
         }
         RsMod contextMod = context.getContainingMod();
-        return (RsResolveProcessor) wrapWithFilter(processor, it -> {
+        return asResolveProcessor(wrapWithFilter(processor, it -> {
             RsElement element = it.getElement();
             if (element instanceof RsVisible && !RsVisibilityUtil.isVisibleFrom((RsVisible) element, contextMod)) return false;
             if (!isVisibleFrom(it, context)) return false;
@@ -200,40 +200,40 @@ public final class Processors {
                 if (shouldHideElementInCompletion((RsOuterAttributeOwner) element, context, contextMod)) return false;
             }
             return true;
-        });
+        }));
     }
 
     @SuppressWarnings("unchecked")
     @Nonnull
     public static RsResolveProcessor filterNotAttributeAndDeriveProcMacros(@Nonnull RsResolveProcessor processor) {
-        return (RsResolveProcessor) wrapWithFilter(processor, e -> {
+        return asResolveProcessor(wrapWithFilter(processor, e -> {
             RsElement element = e.getElement();
             if (element instanceof RsFunction) {
                 RsFunction fn = (RsFunction) element;
                 if (RsFunctionUtil.isProcMacroDef(fn) && !RsFunctionUtil.isBangProcMacroDef(fn)) return false;
             }
             return true;
-        });
+        }));
     }
 
     @SuppressWarnings("unchecked")
     @Nonnull
     public static RsResolveProcessor filterAttributeProcMacros(@Nonnull RsResolveProcessor processor) {
-        return (RsResolveProcessor) wrapWithFilter(processor, e -> {
+        return asResolveProcessor(wrapWithFilter(processor, e -> {
             RsElement element = e.getElement();
             if (!(element instanceof RsFunction)) return false;
             return RsFunctionUtil.isAttributeProcMacroDef((RsFunction) element);
-        });
+        }));
     }
 
     @SuppressWarnings("unchecked")
     @Nonnull
     public static RsResolveProcessor filterDeriveProcMacros(@Nonnull RsResolveProcessor processor) {
-        return (RsResolveProcessor) wrapWithFilter(processor, e -> {
+        return asResolveProcessor(wrapWithFilter(processor, e -> {
             RsElement element = e.getElement();
             if (!(element instanceof RsFunction)) return false;
             return RsFunctionUtil.isCustomDeriveProcMacroDef((RsFunction) element);
-        });
+        }));
     }
 
     // --- Visibility utilities ---
@@ -303,6 +303,29 @@ public final class Processors {
     }
 
     // --- Wrapper processors ---
+
+    /**
+     * Views a base processor as an {@link RsResolveProcessor}. The sub-interface adds only default
+     * methods over {@code RsResolveProcessorBase<ScopeEntry>}, so the view is behaviour-preserving.
+     */
+    @Nonnull
+    public static RsResolveProcessor asResolveProcessor(@Nonnull RsResolveProcessorBase<ScopeEntry> processor) {
+        if (processor instanceof RsResolveProcessor) {
+            return (RsResolveProcessor) processor;
+        }
+        return new RsResolveProcessor() {
+            @Override
+            public boolean process(@Nonnull ScopeEntry entry) {
+                return processor.process(entry);
+            }
+
+            @Nullable
+            @Override
+            public Set<String> getNames() {
+                return processor.getNames();
+            }
+        };
+    }
 
     @Nonnull
     public static <T extends ScopeEntry> RsResolveProcessorBase<T> wrapWithFilter(
@@ -542,7 +565,7 @@ public final class Processors {
         @Nonnull ImplLookup lookup
     ) {
         Map<TraitImplSource, Boolean> cache = new HashMap<>();
-        return (RsResolveProcessor) wrapWithFilter(processor, entry -> {
+        return asResolveProcessor(wrapWithFilter(processor, entry -> {
             if (!(entry instanceof AssocItemScopeEntry)) return true;
             AssocItemScopeEntry assoc = (AssocItemScopeEntry) entry;
             Ty receiver = assoc.getSubst().get(TyTypeParameter.self());
@@ -551,7 +574,7 @@ public final class Processors {
             if (FoldUtil.containsTyOfClass(receiver, TyUnknown.class)) return true;
             return cache.computeIfAbsent(assoc.getSource(),
                 source -> lookup.getCtx().canEvaluateBounds(source, receiver));
-        });
+        }));
     }
 
     /**
@@ -567,13 +590,13 @@ public final class Processors {
         @Nonnull RsResolveProcessor processor
     ) {
         Set<Map.Entry<String, RsTraitItem>> processed = new HashSet<>();
-        return (RsResolveProcessor) wrapWithFilter(processor, entry -> {
+        return asResolveProcessor(wrapWithFilter(processor, entry -> {
             if (!(entry instanceof MethodResolveVariant)) return true;
             MethodResolveVariant mrv = (MethodResolveVariant) entry;
             BoundElement<RsTraitItem> implementedTrait = mrv.getSource().getImplementedTrait();
             RsTraitItem trait = implementedTrait != null ? implementedTrait.getTypedElement() : null;
             return processed.add(new AbstractMap.SimpleImmutableEntry<>(mrv.getName(), trait));
-        });
+        }));
     }
 
     /**
@@ -591,13 +614,13 @@ public final class Processors {
         if (FoldUtil.containsTyOfClass(receiverTy, TyUnknown.class)) return processor;
 
         Map<Map.Entry<TraitImplSource, Integer>, Boolean> cache = new HashMap<>();
-        return (RsResolveProcessor) wrapWithFilter(processor, entry -> {
+        return asResolveProcessor(wrapWithFilter(processor, entry -> {
             if (!(entry instanceof MethodResolveVariant)) return true;
             MethodResolveVariant mrv = (MethodResolveVariant) entry;
             Map.Entry<TraitImplSource, Integer> key =
                 new AbstractMap.SimpleImmutableEntry<>(mrv.getSource(), mrv.getDerefCount());
             return cache.computeIfAbsent(key,
                 k -> lookup.getCtx().canEvaluateBounds(mrv.getSource(), mrv.getSelfTy()));
-        });
+        }));
     }
 }

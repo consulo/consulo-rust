@@ -20,6 +20,8 @@ import org.rust.openapiext.OpenApiUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import consulo.language.Language;
+import org.rust.lang.RsLanguage;
 
 public class GenerateSetterHandler extends GenerateAccessorHandler {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }

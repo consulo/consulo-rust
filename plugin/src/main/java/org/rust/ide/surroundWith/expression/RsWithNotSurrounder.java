@@ -10,9 +10,9 @@ import consulo.project.Project;
 import consulo.document.util.TextRange;
 import consulo.language.psi.PsiElement;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.types.RsTypeUtil;
 import org.rust.lang.core.types.ty.TyBool;
 import org.rust.lang.core.types.RsTypesUtil;
+import consulo.localize.LocalizeValue;
 
 public class RsWithNotSurrounder extends RsExpressionSurrounderBase<RsUnaryExpr> {
 

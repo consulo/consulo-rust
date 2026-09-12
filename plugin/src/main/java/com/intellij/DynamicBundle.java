@@ -4,7 +4,7 @@ import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-/** IntelliJ-compat stub — message bundle base. */
+/** Loads messages from a {@link ResourceBundle}, formatting parameters and falling back to the key when it is missing. */
 public abstract class DynamicBundle {
     private final String bundleName;
     private ResourceBundle bundle;

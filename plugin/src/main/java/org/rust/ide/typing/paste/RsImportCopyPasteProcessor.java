@@ -6,6 +6,7 @@
 package org.rust.ide.typing.paste;
 
 import consulo.language.editor.util.CollectHighlightsUtil;
+import consulo.annotation.component.ExtensionImpl;
 import consulo.ide.impl.idea.codeInsight.editorActions.CopyPastePostProcessor;
 import consulo.ide.impl.idea.codeInsight.editorActions.TextBlockTransferableData;
 import consulo.application.ApplicationManager;
@@ -40,6 +41,7 @@ import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
 
+@ExtensionImpl
 public class RsImportCopyPasteProcessor extends CopyPastePostProcessor<RsTextBlockTransferableData> {
 
     public static final DataFlavor dataFlavor;

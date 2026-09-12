@@ -11,6 +11,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import javax.swing.*;
+import consulo.ui.image.Image;
 
 public abstract class RsProjectTemplate {
 

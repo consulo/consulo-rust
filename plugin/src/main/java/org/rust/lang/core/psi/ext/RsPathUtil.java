@@ -18,6 +18,7 @@ import org.rust.lang.doc.psi.RsDocPathLinkParent;
 
 import java.util.List;
 import java.util.Set;
+import org.rust.lang.core.psi.RsLifetime;
 
 public final class RsPathUtil {
     private RsPathUtil() {

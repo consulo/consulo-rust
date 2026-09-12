@@ -11,12 +11,17 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class TyFloat extends TyPrimitive {
-    public static final TyFloat DEFAULT = F64.INSTANCE;
+public abstract class TyFloat extends TyPrimitive implements TyNumeric {
     public static final Set<String> NAMES = new HashSet<>(Arrays.asList("f32", "f64"));
 
     protected TyFloat() {
         super();
+    }
+
+    /** The float type an unconstrained float literal falls back to. */
+    @Nonnull
+    public static TyFloat getDefault() {
+        return F64.INSTANCE;
     }
 
     public static final class F32 extends TyFloat {

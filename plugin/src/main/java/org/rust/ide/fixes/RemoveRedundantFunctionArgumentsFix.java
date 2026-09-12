@@ -16,6 +16,7 @@ import org.rust.lang.core.psi.ext.RsElementUtil;
 
 import java.util.List;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
+import consulo.localize.LocalizeValue;
 
 public class RemoveRedundantFunctionArgumentsFix extends RsQuickFixBase<RsValueArgumentList> {
 

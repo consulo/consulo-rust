@@ -22,6 +22,7 @@ import consulo.util.lang.StringUtil;
 
 import java.nio.file.Path;
 import java.util.Collection;
+import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 
 public abstract class RsCommandConfiguration extends LocatableConfigurationBase
     implements RunConfigurationWithSuppressedDefaultDebugAction {

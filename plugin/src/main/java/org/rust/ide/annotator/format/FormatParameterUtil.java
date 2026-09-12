@@ -4,6 +4,10 @@
  */
 
 package org.rust.ide.annotator.format;
+import org.rust.lang.core.psi.ext.RsStructOrEnumItemElement;
+import org.rust.lang.core.types.ty.Ty;
+import org.rust.lang.core.types.ty.TyAdt;
+import org.rust.lang.core.types.ty.TyReference;
 
 /**
  * Bridge class delegating to {@link FormatParameter}.

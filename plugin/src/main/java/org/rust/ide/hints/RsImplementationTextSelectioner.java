@@ -10,7 +10,11 @@ import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.RsPat;
 import org.rust.lang.core.psi.RsPatBinding;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.Language;
+import org.rust.lang.RsLanguage;
 
+@ExtensionImpl
 public class RsImplementationTextSelectioner implements ImplementationTextSelectioner {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 

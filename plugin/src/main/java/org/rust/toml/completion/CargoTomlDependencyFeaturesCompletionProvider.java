@@ -20,6 +20,7 @@ import org.toml.lang.psi.TomlFile;
 
 import java.util.HashSet;
 import java.util.Set;
+import consulo.language.psi.PsiElement;
 
 /**
  * Provides completion for dependency features in Cargo.toml

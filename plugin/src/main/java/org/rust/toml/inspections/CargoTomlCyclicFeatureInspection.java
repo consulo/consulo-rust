@@ -12,7 +12,11 @@ import org.rust.toml.Util;
 import org.toml.lang.psi.*;
 import org.toml.lang.psi.ext.TomlLiteralKind;
 import org.toml.lang.psi.ext.TomlLiteralExt;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.localize.LocalizeValue;
 
+@ExtensionImpl
 public class CargoTomlCyclicFeatureInspection extends CargoTomlInspectionToolBase {
     @Nonnull
     @Override
@@ -54,5 +58,11 @@ public class CargoTomlCyclicFeatureInspection extends CargoTomlInspectionToolBas
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("cargo.toml"));
+    }
+
+    @Override
+    @jakarta.annotation.Nonnull
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.ERROR;
     }
 }

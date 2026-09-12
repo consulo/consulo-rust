@@ -4,24 +4,26 @@
  */
 
 package org.rust.ide.formatter.settings;
-import consulo.language.codeStyle.CustomCodeStyleSettings;
-import consulo.application.util.matcher.NameUtil;
 
-import consulo.language.codeStyle.ui.setting.CodeStyleAbstractConfigurable;
-import consulo.language.codeStyle.ui.setting.CodeStyleAbstractPanel;
-import consulo.language.codeStyle.setting.IndentOptionsEditor;
-import consulo.language.codeStyle.ui.setting.SmartIndentOptionsEditor;
-import consulo.language.Language;
+import consulo.annotation.component.ExtensionImpl;
 import consulo.application.ApplicationBundle;
+import consulo.configurable.Configurable;
+import consulo.language.Language;
 import consulo.language.codeStyle.CodeStyleSettings;
 import consulo.language.codeStyle.CommonCodeStyleSettings;
+import consulo.language.codeStyle.CustomCodeStyleSettings;
 import consulo.language.codeStyle.setting.CodeStyleSettingsCustomizable;
+import consulo.language.codeStyle.setting.IndentOptionsEditor;
 import consulo.language.codeStyle.setting.LanguageCodeStyleSettingsProvider;
-import consulo.language.codeStyle.CodeStyleManager;
+import consulo.language.codeStyle.ui.setting.CodeStyleAbstractConfigurable;
+import consulo.language.codeStyle.ui.setting.CodeStyleAbstractPanel;
+import consulo.language.codeStyle.ui.setting.SmartIndentOptionsEditor;
+import consulo.localize.LocalizeValue;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.lang.RsLanguage;
 
+@ExtensionImpl
 public class RsLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsProvider {
 
     @Nonnull
@@ -35,6 +37,15 @@ public class RsLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettin
         return new RsCodeStyleSettings(settings);
     }
 
+    @Override
+    public Configurable createSettingsPage(CodeStyleSettings baseSettings, CodeStyleSettings modelSettings) {
+        return new CodeStyleAbstractConfigurable(baseSettings, modelSettings, getConfigurableDisplayName()) {
+            @Override
+            protected CodeStyleAbstractPanel createPanel(CodeStyleSettings settings) {
+                return new RsCodeStyleMainPanel(getCurrentSettings(), settings);
+            }
+        };
+    }
 
     @Override
     public consulo.localize.LocalizeValue getConfigurableDisplayName() {
@@ -143,19 +154,23 @@ public class RsLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettin
         return new SmartIndentOptionsEditor();
     }
 
-    public void customizeDefaults(@Nonnull CommonCodeStyleSettings commonSettings,
-                                  @Nonnull CommonCodeStyleSettings.IndentOptions indentOptions) {
+    @Override
+    public CommonCodeStyleSettings getDefaultCommonSettings() {
+        CommonCodeStyleSettings commonSettings = new CommonCodeStyleSettings(getLanguage());
+        CommonCodeStyleSettings.IndentOptions indentOptions = commonSettings.initIndentOptions();
+
         commonSettings.RIGHT_MARGIN = 100;
         commonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true;
 
-        // Make default behavior consistent with rustfmt
+        // Keep default comment handling consistent with rustfmt
         commonSettings.LINE_COMMENT_AT_FIRST_COLUMN = false;
         commonSettings.LINE_COMMENT_ADD_SPACE = true;
         commonSettings.BLOCK_COMMENT_AT_FIRST_COLUMN = false;
 
-        // FIXME(mkaput): It's a hack
-        // Nobody else does this and still somehow achieve similar effect
+        // Continuation lines are indented by exactly one indent step
         indentOptions.CONTINUATION_INDENT_SIZE = indentOptions.INDENT_SIZE;
+
+        return commonSettings;
     }
 
     private static String sample(String code) {

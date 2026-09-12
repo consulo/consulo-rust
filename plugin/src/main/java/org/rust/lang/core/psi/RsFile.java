@@ -20,6 +20,7 @@ import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import consulo.language.impl.ast.FileElement;
 import consulo.language.psi.stub.PsiFileStub;
+import consulo.language.psi.stub.StubElement;
 import consulo.application.util.CachedValue;
 import consulo.application.util.CachedValueProvider;
 import consulo.application.util.CachedValuesManager;
@@ -335,6 +336,16 @@ public class RsFile extends RsFileBase implements RsMod {
         return decl != null && RsVisibilityUtil.isPublic(decl);
     }
 
+    /**
+     * File stub still backing this file, even after its AST has been loaded; {@code null} once the
+     * file is only represented by its AST.
+     */
+    @Nullable
+    private RsFileStub getGreenFileStub() {
+        StubElement<?> stub = getGreenStub();
+        return stub instanceof RsFileStub ? (RsFileStub) stub : null;
+    }
+
     @Nonnull
     public Attributes getStdlibAttributes() {
         return getStdlibAttributes(null);
@@ -342,7 +353,7 @@ public class RsFile extends RsFileBase implements RsMod {
 
     @Nonnull
     public Attributes getStdlibAttributes(@Nullable Crate crate) {
-        RsFileStub stub = (RsFileStub) getStub();
+        RsFileStub stub = getGreenFileStub();
         if (stub != null && !stub.getMayHaveStdlibAttributes()) return Attributes.NONE;
         var attributes = RsAttrProcMacroOwnerUtil.getQueryAttributes(this, crate, stub);
         if (attributes.hasAtomAttribute("no_core")) return Attributes.NO_CORE;
@@ -351,13 +362,13 @@ public class RsFile extends RsFileBase implements RsMod {
     }
 
     public boolean hasMacroUseInner(@Nullable Crate crate) {
-        RsFileStub stub = (RsFileStub) getStub();
+        RsFileStub stub = getGreenFileStub();
         if (stub != null && !stub.getMayHaveMacroUse()) return false;
         return RsAttrProcMacroOwnerUtil.getQueryAttributes(this, crate, stub).hasAtomAttribute("macro_use");
     }
 
     public int getRecursionLimit(@Nullable Crate crate) {
-        RsFileStub stub = (RsFileStub) getStub();
+        RsFileStub stub = getGreenFileStub();
         if (stub != null && !stub.getMayHaveRecursionLimitAttribute()) return NameResolution.DEFAULT_RECURSION_LIMIT;
         var attributes = RsAttrProcMacroOwnerUtil.getQueryAttributes(this, crate, stub);
         String recursionLimit = attributes.lookupStringValueForKey("recursion_limit");

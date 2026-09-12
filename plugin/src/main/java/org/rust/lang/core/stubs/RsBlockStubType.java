@@ -39,7 +39,10 @@ import org.rust.lang.core.psi.RsBlock;
 import org.rust.lang.core.psi.impl.RsBlockImpl;
 
 import static org.rust.lang.core.psi.RsElementTypes.*;
+import static org.rust.lang.core.psi.RsTokenSets.*;
 import static org.rust.lang.core.psi.RsTokenType.*;
+import consulo.language.version.LanguageVersion;
+import org.rust.lang.core.psi.RsTokenType;
 
 /**
  * {@link IReparseableElementTypeBase} and {@link ICustomParsingType} are implemented to provide lazy and incremental
@@ -53,7 +56,14 @@ public class RsBlockStubType extends RsPlaceholderStub.Type<RsBlock>
 
     public static final RsBlockStubType INSTANCE = new RsBlockStubType();
 
-    private static final TokenSet RS_ITEMS_AND_INNER_ATTR = TokenSet.orSet(RS_ITEMS, tokenSetOf(MACRO, INNER_ATTR));
+    /**
+     * Token sets derived from {@link org.rust.lang.core.psi.RsTokenType} live in a holder so that they are
+     * computed on first use instead of while this element type is being constructed. Initialization is
+     * published safely by the class initialization lock of the holder.
+     */
+    private static final class ItemTokens {
+        private static final TokenSet RS_ITEMS_AND_INNER_ATTR = TokenSet.orSet(RS_ITEMS, tokenSetOf(MACRO, INNER_ATTR));
+    }
 
     private RsBlockStubType() {
         super("BLOCK", RsBlockImpl::new);
@@ -63,7 +73,7 @@ public class RsBlockStubType extends RsPlaceholderStub.Type<RsBlock>
     @Override
     public boolean shouldCreateStub(@Nonnull ASTNode node) {
         if (node.getTreeParent().getElementType() == FUNCTION) {
-            return node.findChildByType(RS_ITEMS_AND_INNER_ATTR) != null || ItemSeekingVisitor.containsItems(node);
+            return node.findChildByType(ItemTokens.RS_ITEMS_AND_INNER_ATTR) != null || ItemSeekingVisitor.containsItems(node);
         } else {
             return createStubIfParentIsStub(node) || node.findChildByType(RS_ITEMS) != null;
         }

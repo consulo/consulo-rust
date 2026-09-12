@@ -41,6 +41,7 @@ import java.util.regex.Pattern;
 
 import static org.rust.cargo.util.AutoInjectedCrates.STD;
 import org.rust.lang.doc.psi.RsQualifiedName;
+import consulo.ui.ex.awtUnsafe.TargetAWT;
 
 public final class RsDocPipeline {
 

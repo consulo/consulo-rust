@@ -7,6 +7,7 @@ package org.rust.ide.intentions;
 
 import org.rust.RsBundle;
 import org.rust.lang.core.types.ty.Mutability;
+import consulo.localize.LocalizeValue;
 
 /**
  * Set reference mutable

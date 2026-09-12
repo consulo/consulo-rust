@@ -5,6 +5,7 @@
 
 package org.rust.ide.actions.mover;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.moveUpDown.StatementUpDownMover;
 import consulo.codeEditor.Editor;
 import consulo.language.psi.PsiDocumentManager;
@@ -18,7 +19,9 @@ import org.rust.lang.core.psi.ext.PsiElementUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import consulo.project.Project;
 
+@ExtensionImpl(id = "rsCommaListElement")
 public class RsCommaListElementUpDownMover extends RsLineMover {
 
     @Override

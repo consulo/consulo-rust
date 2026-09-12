@@ -22,6 +22,11 @@ import org.rust.lang.core.resolve.ref.MethodResolveVariant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import consulo.language.psi.stub.StubIndex;
+import org.rust.lang.core.psi.RsTraitItem;
+import org.rust.lang.core.psi.ext.RsNamedElement;
+import org.rust.lang.core.resolve.Processors;
+import org.rust.lang.core.stubs.index.RsNamedElementIndex;
 
 /**
  * Finds {@link ImportCandidate}s for auto-import and completion features. {@link
@@ -133,14 +138,14 @@ public final class ImportCandidatesCollector {
     @SuppressWarnings("unchecked")
     @Nonnull
     public static RsResolveProcessor filterAccessibleTraits(@Nonnull ImportContext context, @Nonnull RsResolveProcessor processor) {
-        return (RsResolveProcessor) org.rust.lang.core.resolve.Processors.wrapWithFilter(processor, entry -> {
+        return Processors.asResolveProcessor(Processors.wrapWithFilter(processor, entry -> {
             if (!(entry instanceof MethodResolveVariant)) return true;
             TraitImplSource source = ((MethodResolveVariant) entry).getSource();
             if (source.isInherent()) return true;
             org.rust.lang.core.psi.RsTraitItem trait = source.getRequiredTraitInScope();
             if (trait == null) return true;
             return findImportCandidate(context, trait) != null;
-        });
+        }));
     }
 
     /**

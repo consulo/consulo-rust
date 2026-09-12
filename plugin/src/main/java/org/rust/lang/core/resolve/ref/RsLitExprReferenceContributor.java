@@ -44,7 +44,11 @@ import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 
 import java.util.List;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.Language;
+import org.rust.lang.RsLanguage;
 
+@ExtensionImpl
 public class RsLitExprReferenceContributor extends PsiReferenceContributor {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 

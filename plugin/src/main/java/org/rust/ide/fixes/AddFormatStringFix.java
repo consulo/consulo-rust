@@ -18,6 +18,7 @@ import org.rust.lang.core.psi.RsPsiFactory;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import consulo.localize.LocalizeValue;
 
 public class AddFormatStringFix extends LocalQuickFixAndIntentionActionOnPsiElement {
     private final int formatStringPosition;

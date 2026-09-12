@@ -8,6 +8,7 @@ package org.rust.lang.core.resolve;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.RsTraitItem;
+import org.rust.lang.core.macros.proc.ProcMacroApplicationService;
 
 /**
  * Known derivable traits in Rust.

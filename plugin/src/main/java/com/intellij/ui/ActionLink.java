@@ -1,9 +1,10 @@
 package com.intellij.ui;
-import javax.swing.JLabel;
+
 import java.awt.event.ActionListener;
-public class ActionLink extends JLabel {
-    public ActionLink() {}
+
+/** Clickable text link; alias of {@link com.intellij.ui.components.ActionLink}. */
+public class ActionLink extends com.intellij.ui.components.ActionLink {
+    public ActionLink() { super(); }
     public ActionLink(String text) { super(text); }
-    public ActionLink(String text, ActionListener listener) { super(text); }
-    public void addActionListener(ActionListener listener) {}
+    public ActionLink(String text, ActionListener listener) { super(text, listener); }
 }

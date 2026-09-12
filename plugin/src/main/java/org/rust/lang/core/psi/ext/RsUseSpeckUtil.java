@@ -14,6 +14,8 @@ import org.rust.lang.core.psi.RsUseSpeck;
 import org.rust.lang.core.stubs.RsUseSpeckStub;
 
 import java.util.function.Consumer;
+import consulo.language.psi.PsiElement;
+import org.rust.lang.core.psi.RsAlias;
 
 public final class RsUseSpeckUtil {
     private RsUseSpeckUtil() {

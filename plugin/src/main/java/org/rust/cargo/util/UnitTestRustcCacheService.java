@@ -10,6 +10,8 @@ import org.rust.cargo.toolchain.impl.RustcVersion;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ComponentScope;
 
 /**
  * This cache is used *only* in unit tests.
@@ -18,6 +20,7 @@ import java.util.function.Supplier;
  * (in unit tests) until the version of rustc is changed, so we can cache these values for all tests.
  * The cache significantly speeds up heavy tests with a full toolchain ({@code RsWithToolchainTestBase})
  */
+@ServiceAPI(ComponentScope.APPLICATION)
 public interface UnitTestRustcCacheService {
 
     <T> T cachedInner(

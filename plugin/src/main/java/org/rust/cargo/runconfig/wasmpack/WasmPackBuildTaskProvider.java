@@ -5,6 +5,7 @@
 
 package org.rust.cargo.runconfig.wasmpack;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.execution.configuration.RunConfiguration;
 import consulo.execution.runner.ExecutionEnvironment;
 import consulo.dataContext.DataContext;
@@ -24,6 +25,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+@ExtensionImpl
 public class WasmPackBuildTaskProvider extends RsBuildTaskProvider<WasmPackBuildTaskProvider.BuildTask> {
 
     public static final Key<BuildTask> ID = Key.create("WASM_PACK.BUILD_TASK_PROVIDER");
@@ -36,8 +38,9 @@ public class WasmPackBuildTaskProvider extends RsBuildTaskProvider<WasmPackBuild
     }
 
     @Override
-    public consulo.util.concurrent.AsyncResult<Void> configureTask(RunConfiguration runConfiguration, BuildTask task) {
-        return consulo.util.concurrent.AsyncResult.done(null);
+    public java.util.concurrent.CompletableFuture<Void> configureTask(RunConfiguration runConfiguration, BuildTask task) {
+        // Nothing to configure: the task carries no settings.
+        return java.util.concurrent.CompletableFuture.completedFuture(null);
     }
 
     @Nullable

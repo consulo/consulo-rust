@@ -5,18 +5,22 @@
 
 package org.rust.cargo.project.model;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.WritingAccessProvider;
 import jakarta.annotation.Nonnull;
 
+import jakarta.inject.Inject;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+@ExtensionImpl
 public class RsGeneratedSourcesWritingAccessProvider extends WritingAccessProvider {
 
     private final Project project;
 
+    @Inject
     public RsGeneratedSourcesWritingAccessProvider(@Nonnull Project project) {
         this.project = project;
     }

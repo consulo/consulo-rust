@@ -9,7 +9,6 @@ import consulo.language.editor.refactoring.postfixTemplate.PostfixTemplateExpres
 import consulo.util.lang.StringUtil;
 import org.jdom.Element;
 import org.rust.RsBundle;
-import org.rust.ide.presentation.RsPsiRenderingUtil;
 import org.rust.lang.core.psi.RsExpr;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.*;

@@ -6,14 +6,10 @@
 package org.rust.ide.settings;
 
 import consulo.execution.ui.awt.ListTableWithButtons;
-import consulo.application.AllIcons;
-import com.intellij.ide.ui.laf.darcula.DarculaUIUtil;
 import consulo.project.Project;
+import consulo.ui.ex.awt.ComponentValidator;
 import consulo.ui.ex.awt.table.ComboBoxTableRenderer;
-import consulo.ide.impl.idea.openapi.ui.ComponentValidator;
 import consulo.ui.ex.awt.ValidationInfo;
-import com.intellij.openapi.ui.cellvalidators.ValidatingTableCellRendererWrapper;
-import com.intellij.openapi.ui.cellvalidators.ValidationUtils;
 
 
 import com.intellij.ui.components.fields.ExtendableTextField;
@@ -150,7 +146,7 @@ public class RsPathsExcludeTable extends ListTableWithButtons<RsPathsExcludeTabl
     }
 
     @SuppressWarnings("DialogTitleCapitalization")
-    private static final ColumnInfo<Item, String> PATH_COLUMN = new ColumnInfo<>(RsBundle.message("column.name.item.or.module")) {
+    private static final ColumnInfo<Item, String> PATH_COLUMN = new ColumnInfo<Item, String>(RsBundle.message("column.name.item.or.module")) {
         @Nullable
         @Override
         public String valueOf(Item item) {

@@ -5,8 +5,11 @@
 
 package org.rust.lang.core.macros;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.application.CachesInvalidator;
+import consulo.localize.LocalizeValue;
 
+@ExtensionImpl
 public class RsMacroExpansionCachesInvalidator extends CachesInvalidator {
     @Override
     public consulo.localize.LocalizeValue getDescription() {

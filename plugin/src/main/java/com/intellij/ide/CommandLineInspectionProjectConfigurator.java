@@ -5,7 +5,7 @@ import jakarta.annotation.Nonnull;
 
 import java.nio.file.Path;
 
-/** IntelliJ-compat stub for command-line inspection project configurators. */
+/** Configures a project before inspections are run from the command line. */
 public interface CommandLineInspectionProjectConfigurator {
     @Nonnull String getName();
 

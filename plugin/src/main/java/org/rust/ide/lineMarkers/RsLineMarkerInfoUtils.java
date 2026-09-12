@@ -15,6 +15,7 @@ import jakarta.annotation.Nullable;
 
 import consulo.ui.image.Image;
 import java.util.function.Supplier;
+import consulo.language.editor.Pass;
 
 public final class RsLineMarkerInfoUtils {
 

@@ -14,6 +14,7 @@ import org.rust.lang.core.types.ty.TyInfer;
 import org.rust.lang.core.types.ty.TyProjection;
 
 import java.util.*;
+import org.rust.stdext.RsResult;
 
 public class FulfillmentContext {
     @Nonnull

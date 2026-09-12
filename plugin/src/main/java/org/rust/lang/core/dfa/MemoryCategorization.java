@@ -20,6 +20,9 @@ import org.rust.stdext.StdextUtil;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import consulo.util.lang.Pair;
+import org.rust.lang.core.types.infer.ResolvedPath;
+import org.rust.lang.core.types.ty.TyUtil;
 
 // ---- Categorization ----
 

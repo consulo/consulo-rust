@@ -13,7 +13,6 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.refactoring.inlineTypeAlias.RsInlineTypeAliasProcessor;
-import org.rust.ide.refactoring.inlineTypeAlias.InlineTypeAliasUtil;
 import org.rust.ide.utils.PsiModificationUtil;
 import org.rust.ide.utils.imports.RsImportHelper;
 import org.rust.lang.core.psi.RsPath;
@@ -23,6 +22,8 @@ import org.rust.lang.core.resolve.ref.RsPathReferenceImpl;
 import org.rust.lang.core.types.BoundElement;
 import org.rust.lang.core.types.Substitution;
 import org.rust.lang.core.types.RsTypesUtil;
+import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.ext.RsElement;
 
 /** See also {@link RsInlineTypeAliasProcessor} */
 public class SubstituteTypeAliasIntention extends RsElementBaseIntentionAction<SubstituteTypeAliasIntention.Context> {

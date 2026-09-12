@@ -18,6 +18,7 @@ import org.rust.lang.core.psi.PsiModificationUtils;
 
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import consulo.localize.LocalizeValue;
 
 public class MoveTypeConstraintToWhereClauseIntention extends RsElementBaseIntentionAction<RsTypeParameterList> {
     @Nonnull

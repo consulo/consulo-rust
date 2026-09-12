@@ -25,6 +25,7 @@ import org.rust.openapiext.OpenApiUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import consulo.localize.LocalizeValue;
 
 public class RunCargoExpandIntention extends RsElementBaseIntentionAction<RunCargoExpandIntention.Context> implements LowPriorityAction {
 

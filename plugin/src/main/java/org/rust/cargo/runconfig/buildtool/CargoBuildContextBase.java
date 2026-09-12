@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.rust.cargo.toolchain.impl.RustcMessage;
 
 public abstract class CargoBuildContextBase {
     private final CargoProject cargoProject;

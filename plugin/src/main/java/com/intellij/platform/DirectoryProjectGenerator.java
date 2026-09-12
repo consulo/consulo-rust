@@ -8,7 +8,7 @@ import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
-/** IntelliJ-compat stub for platform new-project wizard. */
+/** Generates project content into a directory from the new-project wizard. */
 public interface DirectoryProjectGenerator<T> {
     @Nonnull String getName();
     @Nullable default Image getLogo() { return null; }

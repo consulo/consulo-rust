@@ -16,6 +16,7 @@ import org.rust.lang.core.psi.RsUseItem;
 import org.rust.lang.core.psi.RsUseSpeck;
 import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
 import org.rust.lang.core.psi.ext.RsUseSpeckUtil;
+import consulo.localize.LocalizeValue;
 
 /**
  * Adds curly braces to singleton imports, changing from this

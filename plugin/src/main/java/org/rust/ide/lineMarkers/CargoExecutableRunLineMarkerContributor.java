@@ -7,6 +7,7 @@ package org.rust.ide.lineMarkers;
 import org.rust.lang.RsLanguage;
 import consulo.language.Language;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.execution.lineMarker.ExecutorAction;
 import consulo.execution.lineMarker.RunLineMarkerContributor;
 import consulo.ui.ex.action.AnAction;
@@ -25,6 +26,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@ExtensionImpl
 public class CargoExecutableRunLineMarkerContributor extends RunLineMarkerContributor {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 

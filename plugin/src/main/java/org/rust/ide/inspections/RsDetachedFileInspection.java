@@ -15,7 +15,6 @@ import consulo.language.editor.inspection.ProblemsHolder;
 import consulo.language.editor.inspection.scheme.InspectionManager;
 import consulo.language.editor.inspection.LocalInspectionTool;
 import consulo.language.editor.inspection.LocalInspectionToolSession;
-import consulo.component.PropertiesComponent;
 import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.language.psi.PsiElement;
@@ -33,6 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import consulo.annotation.component.ExtensionImpl;
+import consulo.project.ProjectPropertiesComponent;
+import consulo.localize.LocalizeValue;
 
 @ExtensionImpl
 public class RsDetachedFileInspection extends RsLocalInspectionTool {
@@ -90,7 +91,7 @@ public class RsDetachedFileInspection extends RsLocalInspectionTool {
     }
 
     private boolean isInspectionEnabled(@Nonnull Project project, @Nonnull VirtualFile file) {
-        return !project.getInstance(consulo.component.PropertiesComponent.class).getBoolean(getDisablingKey(file), false);
+        return !ProjectPropertiesComponent.getInstance(project).getBoolean(getDisablingKey(file), false);
     }
 
     @Nonnull
@@ -110,7 +111,7 @@ public class RsDetachedFileInspection extends RsLocalInspectionTool {
             PsiElement startElement = descriptor.getStartElement();
             if (!(startElement instanceof RsFile)) return;
             RsFile file = (RsFile) startElement;
-            project.getInstance(consulo.component.PropertiesComponent.class).setValue(getDisablingKey(file.getVirtualFile()), true);
+            ProjectPropertiesComponent.getInstance(project).setValue(getDisablingKey(file.getVirtualFile()), true);
         }
 
         @Override

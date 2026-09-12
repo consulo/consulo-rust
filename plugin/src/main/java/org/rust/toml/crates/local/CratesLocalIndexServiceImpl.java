@@ -9,7 +9,7 @@ import consulo.index.io.PersistentHashMap;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.module.kotlin.KotlinModule;
+import consulo.annotation.component.ServiceImpl;
 import consulo.disposer.Disposable;
 import consulo.application.ApplicationManager;
 import consulo.application.WriteAction;
@@ -64,7 +64,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import org.rust.stdext.PathUtil;
 
+@ServiceImpl
 public class CratesLocalIndexServiceImpl implements CratesLocalIndexService, Disposable {
 
     private static final Logger LOG = Logger.getInstance(CratesLocalIndexServiceImpl.class);
@@ -638,8 +641,8 @@ public class CratesLocalIndexServiceImpl implements CratesLocalIndexService, Dis
 
             var revTree = new RevWalk(repository).parseCommit(ObjectId.fromString(newHeadHash)).getTree();
             ObjectMapper mapper = JsonMapper.builder()
-                .addModule(new KotlinModule.Builder().build())
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .addModule(new ParameterNamesModule())
                 .build();
 
             List<Map.Entry<ObjectId, String>> objectIds = new ArrayList<>();

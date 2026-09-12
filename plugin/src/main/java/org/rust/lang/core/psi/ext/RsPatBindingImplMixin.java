@@ -19,6 +19,7 @@ import org.rust.lang.core.resolve.ref.RsPatBindingReferenceImpl;
 import org.rust.lang.core.resolve.ref.RsReference;
 
 import javax.swing.*;
+import consulo.ui.image.Image;
 
 public abstract class RsPatBindingImplMixin extends RsNamedElementImpl implements RsPatBinding {
 

@@ -20,6 +20,8 @@ import org.rust.openapiext.Testmark;
 import java.util.*;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.BoundElement;
+import org.rust.ide.inspections.lints.RsNamingInspection;
+import org.rust.lang.core.psi.RsTraitItem;
 
 public final class RsNameSuggestions {
 

@@ -4,12 +4,13 @@
  */
 
 package org.rust.ide.hints.codeVision;
-import consulo.language.editor.ui.PsiElementListNavigator;
 
-import consulo.language.editor.CodeInsightBundle;
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.codeVision.CodeVisionRelativeOrdering;
 import consulo.language.editor.impl.codeVision.InheritorsCodeVisionProvider;
-import consulo.language.editor.ui.DefaultPsiElementCellRenderer;
+import consulo.language.editor.localize.CodeInsightLocalize;
+import consulo.language.editor.ui.navigation.PsiTargetNavigationService;
+import consulo.application.Application;
 import consulo.codeEditor.Editor;
 import consulo.util.dataholder.Key;
 import consulo.application.util.registry.Registry;
@@ -22,6 +23,7 @@ import consulo.application.util.CachedValueProvider;
 import consulo.application.util.CachedValuesManager;
 import consulo.application.util.query.EmptyQuery;
 import consulo.application.util.query.Query;
+import consulo.ui.event.ComponentEvent;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
@@ -31,12 +33,13 @@ import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.psi.RsPsiUtilUtil;
 import org.rust.openapiext.OpenApiUtil;
 
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsElement;
+import consulo.application.util.query.CollectionQuery;
 
+@ExtensionImpl
 public class RsImplementationsCodeVisionProvider extends InheritorsCodeVisionProvider {
 
     public static final String ID = "rust.inheritors";
@@ -84,8 +87,7 @@ public class RsImplementationsCodeVisionProvider extends InheritorsCodeVisionPro
     }
 
     @Override
-    public void handleClick(@Nonnull Editor editor, @Nonnull PsiElement element, @Nullable MouseEvent event) {
-        if (event == null) return;
+    public void handleClick(@Nonnull Editor editor, @Nonnull PsiElement element, @Nullable ComponentEvent<?> event) {
         if (!(element instanceof RsNamedElement)) return;
         String elementName = ((RsNamedElement) element).getName();
         if (elementName == null) return;
@@ -99,16 +101,13 @@ public class RsImplementationsCodeVisionProvider extends InheritorsCodeVisionPro
         }
         if (navigatable.isEmpty()) return;
 
-        NavigatablePsiElement[] targets = navigatable.toArray(new NavigatablePsiElement[0]);
         String escapedName = StringUtil.escapeXmlEntities(elementName);
 
-        PsiElementListNavigator.openTargets(
-            event,
-            targets,
-            CodeInsightBundle.message("goto.implementation.chooserTitle", escapedName, targets.length, ""),
-            CodeInsightBundle.message("goto.implementation.findUsages.title", escapedName, targets.length),
-            new DefaultPsiElementCellRenderer()
-        );
+        Application.get().getInstance(PsiTargetNavigationService.class)
+            .newNavigator(() -> navigatable)
+            .title(CodeInsightLocalize.gotoImplementationChoosertitle(escapedName, navigatable.size(), ""))
+            .findUsagesTitle(CodeInsightLocalize.gotoImplementationFindusagesTitle(escapedName))
+            .navigate(editor, element.getProject());
     }
 
     @Nonnull

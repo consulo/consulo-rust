@@ -19,6 +19,7 @@ import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
 import consulo.language.psi.util.PsiTreeUtil;
 import org.rust.openapiext.Testmark;
+import consulo.localize.LocalizeValue;
 
 public class ExtractInlineModuleIntention extends RsElementBaseIntentionAction<RsModItem> {
 

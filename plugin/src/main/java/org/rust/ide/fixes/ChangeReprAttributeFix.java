@@ -19,6 +19,9 @@ import org.rust.lang.core.types.ty.TyInteger;
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsDocAndAttributeOwnerUtil;
 import org.rust.lang.core.psi.ext.RsElement;
+import consulo.language.psi.PsiElement;
+import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.RsMetaItem;
 
 public class ChangeReprAttributeFix extends RsQuickFixBase<RsElement> {
     

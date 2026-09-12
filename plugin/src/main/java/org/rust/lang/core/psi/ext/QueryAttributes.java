@@ -13,6 +13,10 @@ import org.rust.lang.core.stubs.common.RsMetaItemPsiOrStub;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
+import org.rust.lang.core.psi.RsProcMacroPsiUtil;
+import org.rust.lang.core.psi.RsStability;
+import org.rust.lang.core.stubs.common.RsMetaItemArgsPsiOrStub;
+import org.rust.lang.core.stubs.common.RsPathPsiOrStub;
 
 /**
  * Allows for easy querying {@link RsDocAndAttributeOwner} for specific attributes.

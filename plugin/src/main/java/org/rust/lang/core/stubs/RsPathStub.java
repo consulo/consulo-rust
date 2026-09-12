@@ -37,7 +37,7 @@ public class RsPathStub extends StubBase<RsPath> implements RsPathPsiOrStub {
         new RsStubElementType<RsPathStub, RsPath>("PATH") {
             @Override public boolean shouldCreateStub(@Nonnull ASTNode node) { return createStubIfParentIsStub(node); }
             @Nonnull @Override public RsPathStub deserialize(@Nonnull StubInputStream ds, StubElement p) throws IOException {
-                String name = ds.readName() != null ? ds.readName().getString() : null;
+                String name = StubImplementationsKt.readNameAsString(ds);
                 return new RsPathStub(p, this, name, ds.readBoolean(),
                     IoUtil.readEnum(ds, PathKind.class), ds.readVarInt());
             }

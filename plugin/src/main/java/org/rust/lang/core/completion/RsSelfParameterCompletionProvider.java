@@ -20,6 +20,7 @@ import org.rust.lang.core.psi.ext.RsAbstractableUtil;
 
 import static org.rust.lang.core.PsiElementPatternExtUtil.psiElement;
 import static org.rust.lang.core.PsiElementPatternExtUtil.or;
+import consulo.language.pattern.PatternCondition;
 
 public class RsSelfParameterCompletionProvider extends RsCompletionProvider {
     public static final RsSelfParameterCompletionProvider INSTANCE = new RsSelfParameterCompletionProvider();

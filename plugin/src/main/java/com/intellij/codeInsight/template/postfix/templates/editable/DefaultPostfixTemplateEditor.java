@@ -4,6 +4,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.util.Collections;
 import java.util.List;
+import consulo.language.psi.PsiElement;
 public class DefaultPostfixTemplateEditor implements PostfixTemplateEditor {
     public DefaultPostfixTemplateEditor(Object provider, Object template) {}
     @Override public JComponent getComponent() { return new JPanel(); }

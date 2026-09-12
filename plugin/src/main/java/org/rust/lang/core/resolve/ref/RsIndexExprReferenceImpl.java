@@ -14,14 +14,21 @@ import org.rust.lang.core.psi.ext.AssignmentOp;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.resolve.ImplLookup;
 import org.rust.lang.core.resolve.KnownItems;
+import org.rust.lang.core.resolve.Selection;
+import org.rust.lang.core.types.BoundElement;
 import org.rust.lang.core.types.TraitRef;
 import org.rust.lang.core.types.ExtensionsUtil;
+import org.rust.lang.core.types.ty.Ty;
+import org.rust.lang.core.psi.ext.RsAbstractable;
+import org.rust.lang.core.psi.ext.RsTraitOrImplUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsIndexExprUtil;
 import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
+import consulo.language.psi.PsiElement;
+import org.rust.lang.core.psi.ext.RsElementUtil;
 
 public class RsIndexExprReferenceImpl extends RsReferenceCached<RsIndexExpr> implements MultiRangeReference {
 
@@ -60,6 +67,11 @@ public class RsIndexExprReferenceImpl extends RsReferenceCached<RsIndexExpr> imp
         return ranges;
     }
 
+    /**
+     * The {@code Index::index} or {@code IndexMut::index_mut} function that an index expression calls,
+     * or {@code null} if neither trait is implemented for the indexed type. When {@code preferMutable}
+     * is set, {@code IndexMut} is tried first.
+     */
     @Nullable
     public static RsFunction findIndexFunction(@Nonnull RsIndexExpr element, boolean preferMutable) {
         RsExpr container = RsIndexExprUtil.getContainerExpr(element);
@@ -69,22 +81,29 @@ public class RsIndexExprReferenceImpl extends RsReferenceCached<RsIndexExpr> imp
         ImplLookup lookup = ExtensionsUtil.getImplLookup(element);
         KnownItems items = KnownItems.getKnownItems(element);
 
-        RsTraitItem indexTrait = items.getIndex();
-        RsTraitItem indexMutTrait = items.getIndexMut();
-
-        String[][] candidates;
+        RsTraitItem[] traits;
+        String[] functionNames;
         if (preferMutable) {
-            candidates = new String[][]{{"IndexMut", "index_mut"}, {"Index", "index"}};
-        } else {
-            candidates = new String[][]{{"Index", "index"}, {"IndexMut", "index_mut"}};
+            traits = new RsTraitItem[]{items.getIndexMut(), items.getIndex()};
+            functionNames = new String[]{"index_mut", "index"};
+        }
+        else {
+            traits = new RsTraitItem[]{items.getIndex(), items.getIndexMut()};
+            functionNames = new String[]{"index", "index_mut"};
         }
 
-        for (String[] candidate : candidates) {
-            RsTraitItem trait = candidate[0].equals("Index") ? indexTrait : indexMutTrait;
-            String functionName = candidate[1];
+        Ty containerTy = ExtensionsUtil.getType(container);
+        Ty indexTy = ExtensionsUtil.getType(index);
+        for (int i = 0; i < traits.length; i++) {
+            RsTraitItem trait = traits[i];
             if (trait == null) continue;
-            // Simplified: resolve through trait lookup
-            // Full implementation requires TraitRef and select logic
+            Selection selection = lookup.select(new TraitRef(containerTy, new BoundElement<>(trait).withSubst(indexTy))).ok();
+            if (selection == null) continue;
+            for (RsAbstractable member : RsTraitOrImplUtil.getExpandedMembers(selection.getImpl())) {
+                if (member instanceof RsFunction && functionNames[i].equals(member.getName())) {
+                    return (RsFunction) member;
+                }
+            }
         }
         return null;
     }

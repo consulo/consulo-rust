@@ -15,6 +15,7 @@ import org.rust.lang.core.stubs.common.RsPathPsiOrStub;
 
 import java.util.ArrayList;
 import java.util.List;
+import consulo.language.psi.PsiElement;
 
 public final class RsMetaItemUtil {
     private RsMetaItemUtil() {

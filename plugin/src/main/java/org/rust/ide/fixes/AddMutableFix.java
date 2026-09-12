@@ -18,6 +18,7 @@ import org.rust.lang.core.psi.ext.RsSelfParameterUtil;
 import org.rust.lang.core.psi.ext.RsPatBindingUtil;
 import org.rust.lang.core.psi.ext.RsTypeReferenceUtil;
 import org.rust.lang.core.psi.ext.RsElement;
+import consulo.localize.LocalizeValue;
 
 public class AddMutableFix extends RsQuickFixBase<RsNamedElement> {
     

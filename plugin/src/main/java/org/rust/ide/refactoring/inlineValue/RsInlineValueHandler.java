@@ -25,7 +25,9 @@ import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.resolve.ref.RsReference;
 import org.rust.openapiext.OpenApiUtil;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsInlineValueHandler extends InlineActionHandler {
     @Nullable
     private static InlineValueMode MOCK = null;

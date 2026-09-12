@@ -8,6 +8,7 @@ package org.rust.lang.core.psi.ext;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.RsForeignModItem;
+import org.rust.lang.core.stubs.RsForeignModStub;
 
 public final class RsForeignModItemUtil {
     private RsForeignModItemUtil() {

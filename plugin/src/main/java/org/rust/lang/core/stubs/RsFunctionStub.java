@@ -36,7 +36,7 @@ public class RsFunctionStub extends RsAttrProcMacroOwnerStubBase<RsFunction> imp
     private static final int PREFERRED_BRACES;
 
     static {
-        BitFlagsBuilder b = new BitFlagsBuilder(new RsAttributeOwnerStub.FunctionStubAttrFlags(), BitFlagsBuilder.Limit.INT);
+        BitFlagsBuilder b = new BitFlagsBuilder(RsAttributeOwnerStub.FunctionStubAttrFlags.INSTANCE, BitFlagsBuilder.Limit.INT);
         ABSTRACT_MASK = b.nextBitMask();
         CONST_MASK = b.nextBitMask();
         UNSAFE_MASK = b.nextBitMask();
@@ -75,7 +75,7 @@ public class RsFunctionStub extends RsAttrProcMacroOwnerStubBase<RsFunction> imp
         new RsStubElementType<RsFunctionStub, RsFunction>("FUNCTION") {
             @Nonnull @Override
             public RsFunctionStub deserialize(@Nonnull StubInputStream dataStream, StubElement parentStub) throws IOException {
-                String name = dataStream.readName() != null ? dataStream.readName().getString() : null;
+                String name = StubImplementationsKt.readNameAsString(dataStream);
                 String abiName = StubImplementationsKt.readUTFFastAsNullable(dataStream);
                 int flags = dataStream.readInt();
                 RsProcMacroStubInfo info = RsProcMacroStubInfo.deserialize(dataStream);

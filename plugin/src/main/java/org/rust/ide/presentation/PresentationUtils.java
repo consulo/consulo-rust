@@ -28,6 +28,9 @@ import org.rust.lang.core.psi.ext.RsTypeParameterUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
+import consulo.colorScheme.TextAttributesKey;
+import consulo.language.icon.IconDescriptorUpdaters;
+import consulo.ui.image.Image;
 
 public final class PresentationUtils {
 

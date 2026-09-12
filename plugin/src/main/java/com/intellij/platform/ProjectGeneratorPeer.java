@@ -1,6 +1,6 @@
 package com.intellij.platform;
 import javax.swing.JComponent;
-/** IntelliJ-compat stub for platform new-project wizard peer. */
+/** Settings UI a project generator contributes to the new-project wizard. */
 public interface ProjectGeneratorPeer<T> {
     JComponent getComponent();
     T getSettings();

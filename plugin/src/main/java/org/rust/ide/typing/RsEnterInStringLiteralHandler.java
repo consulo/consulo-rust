@@ -5,6 +5,7 @@
 
 package org.rust.ide.typing;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.action.EnterHandlerDelegate;
 import consulo.language.editor.action.EnterHandlerDelegateAdapter;
 import consulo.dataContext.DataContext;
@@ -12,23 +13,26 @@ import consulo.codeEditor.Editor;
 import consulo.codeEditor.action.EditorActionHandler;
 import consulo.codeEditor.EditorEx;
 import consulo.codeEditor.HighlighterIterator;
-import consulo.util.lang.ref.Ref;
+import consulo.util.lang.ref.SimpleReference;
 import consulo.language.psi.PsiFile;
 import consulo.language.ast.StringEscapesTokenTypes;
-import org.rust.lang.core.psi.RsTokenType;
 import org.rust.lang.core.psi.RsFile;
 
 import java.util.regex.Pattern;
+import org.rust.lang.core.psi.RsTokenSets;
+import consulo.language.ast.IElementType;
 
+@ExtensionImpl(id = "RustEnterInStringLiterals")
 public class RsEnterInStringLiteralHandler extends EnterHandlerDelegateAdapter {
 
     private static final Pattern UNESCAPED_NEWLINE = Pattern.compile("[^\\\\]\n");
 
+    @Override
     public Result preprocessEnter(
         PsiFile file,
         Editor editor,
-        Ref<Integer> caretOffsetRef,
-        Ref<Integer> caretAdvanceRef,
+        SimpleReference<Integer> caretOffsetRef,
+        SimpleReference<Integer> caretAdvanceRef,
         DataContext dataContext,
         EditorActionHandler originalHandler
     ) {
@@ -53,7 +57,7 @@ public class RsEnterInStringLiteralHandler extends EnterHandlerDelegateAdapter {
             }
         }
 
-        if (RsTokenType.RS_STRING_LITERALS.contains(((consulo.language.ast.IElementType) iterator.getTokenType()))) {
+        if (RsTokenSets.RS_STRING_LITERALS.contains(((IElementType) iterator.getTokenType()))) {
             CharSequence tokenText = editor.getDocument().getImmutableCharSequence().subSequence(
                 iterator.getStart(), iterator.getEnd()
             );
@@ -64,7 +68,7 @@ public class RsEnterInStringLiteralHandler extends EnterHandlerDelegateAdapter {
             return Result.DefaultForceIndent;
         }
 
-        if (RsTokenType.RS_RAW_LITERALS.contains(((consulo.language.ast.IElementType) iterator.getTokenType()))) {
+        if (RsTokenSets.RS_RAW_LITERALS.contains(((IElementType) iterator.getTokenType()))) {
             return Result.DefaultSkipIndent;
         }
 

@@ -1,7 +1,7 @@
 package com.intellij.platform;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-/** IntelliJ-compat stub — default ProjectGeneratorPeer base. */
+/** Default {@link ProjectGeneratorPeer}: holds the settings object and an empty UI component. */
 public class GeneratorPeerImpl<T> implements ProjectGeneratorPeer<T> {
     private final T settings;
     public GeneratorPeerImpl() { this.settings = null; }

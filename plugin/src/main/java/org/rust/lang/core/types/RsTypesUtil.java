@@ -18,6 +18,7 @@ import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyReference;
 import org.rust.lang.core.types.ty.TyUtil;
 import org.rust.lang.core.resolve.ImplLookup;
+import org.rust.lang.core.psi.RsStructLiteralField;
 
 /**
  * Bridge class delegating to {@link ExtensionsKt} and related type utility classes.

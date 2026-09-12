@@ -13,7 +13,6 @@ import org.rust.cargo.project.workspace.PackageOrigin;
 import org.rust.ide.fixes.RemoveParameterFix;
 import org.rust.ide.fixes.RemoveVariableFix;
 import org.rust.ide.fixes.RenameFix;
-import org.rust.ide.injected.DoctestUtils;
 import org.rust.ide.inspections.RsProblemsHolder;
 import org.rust.ide.inspections.RsWithMacrosInspectionVisitor;
 import org.rust.lang.core.dfa.liveness.Liveness;

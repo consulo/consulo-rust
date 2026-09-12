@@ -5,6 +5,7 @@
 
 package org.rust.ide.actions;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.application.CommonBundle;
 import consulo.document.Document;
 import consulo.document.FileDocumentManager;
@@ -40,6 +41,7 @@ import org.rust.stdext.RsResult;
 import java.util.ArrayList;
 import java.util.List;
 
+@ExtensionImpl(order = "last")
 public class RustfmtCheckinFactory extends CheckinHandlerFactory {
 
     @Nonnull

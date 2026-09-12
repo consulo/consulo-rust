@@ -14,6 +14,7 @@ import org.rust.lang.core.types.ExtensionsUtil;
 import org.rust.lang.core.types.Substitution;
 import org.rust.lang.core.types.ty.Ty;
 import org.rust.openapiext.AstExt;
+import consulo.language.psi.PsiElement;
 
 public final class RsTypeReferenceUtil {
     private RsTypeReferenceUtil() {}

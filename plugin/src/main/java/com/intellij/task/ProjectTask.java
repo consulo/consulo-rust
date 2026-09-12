@@ -1,5 +1,5 @@
 package com.intellij.task;
-/** IntelliJ-compat stub. Consulo uses a different build task model. */
+/** A build task identified by a presentable name. */
 public interface ProjectTask {
     String getPresentableName();
 }

@@ -19,6 +19,7 @@ import org.rust.lang.utils.Graph;
 import org.rust.lang.utils.Node;
 
 import java.util.*;
+import org.rust.lang.core.macros.MacroExpansion;
 
 public class CFGBuilder extends RsVisitor {
 

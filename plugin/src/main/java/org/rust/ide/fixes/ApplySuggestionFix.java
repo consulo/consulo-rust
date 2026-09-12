@@ -18,6 +18,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.cargo.toolchain.impl.RustcMessage;
 import org.rust.lang.core.psi.ext.RsElement;
+import consulo.localize.LocalizeValue;
 
 public class ApplySuggestionFix extends LocalQuickFixAndIntentionActionOnPsiElement {
     private final String myMessage;

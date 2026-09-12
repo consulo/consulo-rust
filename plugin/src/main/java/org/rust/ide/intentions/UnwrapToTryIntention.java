@@ -16,6 +16,7 @@ import org.rust.lang.core.psi.RsMethodCall;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.ext.PsiElementExt;
 import org.rust.lang.core.psi.ext.RsMethodCallUtil;
+import consulo.localize.LocalizeValue;
 
 public class UnwrapToTryIntention extends RsElementBaseIntentionAction<RsMethodCall> {
     @Nonnull

@@ -69,7 +69,7 @@ public class RsEdition2018KeywordsAnnotator extends AnnotatorBase {
             && !(element.getParent() instanceof RsMacro)
             && !(element.getParent() != null && element.getParent().getParent() instanceof RsMacroCall)
             && !(element.getParent() instanceof RsFieldLookup);
-        boolean isEdition2018Keyword = RsTokenType.RS_EDITION_2018_KEYWORDS.contains(RsElementUtil.getElementType(element));
+        boolean isEdition2018Keyword = RsTokenSets.RS_EDITION_2018_KEYWORDS.contains(RsElementUtil.getElementType(element));
         return (isReservedIdentifier || isEdition2018Keyword)
             && PsiTreeUtil.getParentOfType(element, RsUseItem.class, RsMetaItemArgs.class) == null;
     }

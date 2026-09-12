@@ -17,6 +17,7 @@ import org.rust.lang.core.crate.impl.FakeCrate;
 import org.rust.lang.core.psi.RsFile;
 import org.rust.openapiext.OpenApiUtil;
 import consulo.annotation.component.ActionImpl;
+import consulo.language.psi.PsiFile;
 
 @ActionImpl(id = "Rust.RebuildCurrentDefMap")
 public class RsRebuildCurrentDefMapAction extends AnAction {

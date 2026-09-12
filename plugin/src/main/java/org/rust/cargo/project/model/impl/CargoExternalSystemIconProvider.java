@@ -9,7 +9,7 @@ import consulo.ui.image.Image;
 import jakarta.annotation.Nonnull;
 import org.rust.cargo.icons.CargoIcons;
 
-/** ExternalSystemIconProvider is IntelliJ-only — this class is kept as a stand-alone icon holder. */
+/** Holds the icon shown on the Cargo project reload action. */
 public class CargoExternalSystemIconProvider {
     @Nonnull
     public Image getReloadIcon() {

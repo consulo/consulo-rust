@@ -14,6 +14,7 @@ import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.*;
 
 import java.util.*;
+import org.rust.lang.utils.evaluation.ThreeValuedLogic;
 
 /**
  * Cache utility for expanded items in RsItemsOwner.

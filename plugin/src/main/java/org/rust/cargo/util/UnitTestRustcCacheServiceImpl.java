@@ -9,7 +9,9 @@ import org.rust.cargo.toolchain.impl.RustcVersion;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
+import consulo.annotation.component.ServiceImpl;
 
+@ServiceImpl
 public class UnitTestRustcCacheServiceImpl implements UnitTestRustcCacheService {
     @Override
     public <T> T cachedInner(

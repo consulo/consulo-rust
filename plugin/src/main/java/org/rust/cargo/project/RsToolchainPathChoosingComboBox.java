@@ -24,6 +24,10 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
+import consulo.component.ComponentManager;
+import consulo.fileChooser.FileChooserDescriptor;
+import org.rust.openapiext.OpenApiUtil;
+import org.rust.stdext.PathUtil;
 
 /**
  * A combobox with browse button for choosing a path to a toolchain, also capable of showing progress indicator.
@@ -49,10 +53,11 @@ public class RsToolchainPathChoosingComboBox extends ComponentWithBrowseButton<C
 
         addActionListener(e -> {
             consulo.fileChooser.FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor();
-            FileChooser.chooseFile(descriptor, (consulo.component.ComponentManager) null, null).doWhenDone(
-                (consulo.virtualFileSystem.VirtualFile file) ->
-                    getChildComponent().setSelectedItem(org.rust.openapiext.OpenApiUtil.getPathAsPath(file))
-            );
+            FileChooser.chooseFile(descriptor, (ComponentManager) null, null)
+                .whenComplete((file, throwable) -> {
+                    if (throwable != null || file == null) return;
+                    getChildComponent().setSelectedItem(OpenApiUtil.getPathAsPath(file));
+                });
         });
 
         getPathTextField().getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {

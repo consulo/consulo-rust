@@ -22,6 +22,7 @@ public class CargoTestConsoleProperties extends SMTRunnerConsoleProperties imple
 
     public static final String TEST_FRAMEWORK_NAME = "Cargo Test";
     public static final String TEST_TOOL_WINDOW_SETTING_KEY = "org.rust.cargo.test.tool.window";
+    public static final boolean TEST_TOOL_WINDOW_DEFAULT = true;
 
     @Nullable
     private final SemVer rustcVersion;

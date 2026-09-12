@@ -10,6 +10,7 @@ import consulo.language.ast.ICompositeElementType;
 import consulo.language.ast.IElementType;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.RsLanguage;
+import consulo.language.impl.ast.CompositeElement;
 
 public class RsCompositeElementType extends IElementType implements ICompositeElementType {
 

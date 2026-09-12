@@ -38,6 +38,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Collection;
 import java.util.stream.Collectors;
+import consulo.undoRedo.util.UndoUtil;
 
 /**
  * Utilities for expanding macros and displaying the expansion results.

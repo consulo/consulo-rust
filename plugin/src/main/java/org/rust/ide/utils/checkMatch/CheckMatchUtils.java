@@ -17,7 +17,6 @@ import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyAdt;
 import org.rust.lang.core.types.ty.TyUnknown;
 import org.rust.lang.utils.evaluation.ConstExpr;
-import org.rust.lang.utils.evaluation.ExpressionEvaluationUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,6 +25,10 @@ import org.rust.lang.core.psi.ext.RsEnumVariantUtil;
 import org.rust.lang.utils.evaluation.ConstExprEvaluator;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
+import consulo.language.psi.PsiElement;
+import org.rust.lang.core.psi.RsTypeReference;
+import org.rust.lang.core.types.ty.TyChar;
+import org.rust.lang.core.types.ty.TyInteger;
 
 public final class CheckMatchUtils {
     private CheckMatchUtils() {

@@ -16,7 +16,10 @@ import org.toml.lang.psi.TomlValue;
 
 import java.util.ArrayList;
 import java.util.List;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.localize.LocalizeValue;
 
+@ExtensionImpl
 public class CrateVersionInvalidInspection extends CrateVersionInspection {
     @Override
     protected void handleCrateVersion(@Nonnull DependencyCrate dependency,

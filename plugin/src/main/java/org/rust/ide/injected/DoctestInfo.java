@@ -15,7 +15,6 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
 import org.rust.lang.core.psi.ext.RsElementUtil;
-import org.rust.lang.doc.DocElementUtil;
 import org.rust.lang.doc.psi.RsDocCodeFence;
 import org.rust.lang.doc.psi.RsDocComment;
 import org.rust.lang.doc.psi.RsDocElementTypes;
@@ -26,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.rust.lang.core.psi.ext.RsElementExtUtil;
+import org.rust.lang.core.psi.ext.RsDocAndAttributeOwner;
+import org.rust.lang.core.psi.ext.RsDocAndAttributeOwnerUtil;
 
 public class DoctestInfo {
 

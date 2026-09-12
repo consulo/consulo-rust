@@ -1,8 +1,9 @@
 package com.intellij.ide.util.projectWizard;
 
 import javax.swing.JComponent;
+import consulo.configurable.ConfigurationException;
 
-/** IntelliJ-compat stub. */
+/** One step of the new-module wizard: its UI, validation and data-model updates. */
 public abstract class ModuleWizardStep {
     public abstract JComponent getComponent();
     public void updateDataModel() {}

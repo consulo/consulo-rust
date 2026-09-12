@@ -6,10 +6,8 @@
 package org.rust.toml.crates.local;
 
 import consulo.execution.configuration.EnvironmentVariablesData;
-import consulo.component.PropertiesComponent;
 import consulo.disposer.Disposable;
 import consulo.application.ApplicationManager;
-import com.intellij.openapi.components.Service;
 import consulo.logging.Logger;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
@@ -36,8 +34,14 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.annotation.component.ComponentScope;
+import consulo.application.ApplicationPropertiesComponent;
+import consulo.process.cmd.GeneralCommandLine;
 
-@Service
+@ServiceAPI(ComponentScope.APPLICATION)
+@ServiceImpl
 public final class CratesLocalIndexUpdater implements Disposable {
     private static final Logger LOG = Logger.getInstance(CratesLocalIndexUpdater.class);
     private static final String CRATES_IO_INDEX_LAST_UPDATE = "CRATES_IO_INDEX_LAST_UPDATE";
@@ -53,7 +57,7 @@ public final class CratesLocalIndexUpdater implements Disposable {
         if (myIsUpdating) return;
         if (!hasOpenRustProject()) return;
 
-        long lastUpdate = consulo.application.Application.get().getInstance(consulo.component.PropertiesComponent.class).getLong(CRATES_IO_INDEX_LAST_UPDATE, 0);
+        long lastUpdate = ApplicationPropertiesComponent.getInstance().getLong(CRATES_IO_INDEX_LAST_UPDATE, 0);
         long sinceLastUpdate = System.currentTimeMillis() - lastUpdate;
         int interval = getUpdateIntervalMillis();
 
@@ -72,7 +76,7 @@ public final class CratesLocalIndexUpdater implements Disposable {
                 LOG.info("crates.io index update started");
                 boolean isSuccessful = updateCratesIoGitIndex(CratesLocalIndexUpdater.this);
                 if (isSuccessful) {
-                    consulo.application.Application.get().getInstance(consulo.component.PropertiesComponent.class).setValue(CRATES_IO_INDEX_LAST_UPDATE, String.valueOf(System.currentTimeMillis()));
+                    ApplicationPropertiesComponent.getInstance().setValue(CRATES_IO_INDEX_LAST_UPDATE, String.valueOf(System.currentTimeMillis()));
                 }
             }
 

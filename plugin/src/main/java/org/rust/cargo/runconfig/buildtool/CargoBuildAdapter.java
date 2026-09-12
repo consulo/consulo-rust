@@ -40,6 +40,9 @@ import org.rust.cargo.runconfig.RunConfigUtil;
 
 import javax.swing.*;
 import java.nio.file.Path;
+import consulo.execution.ui.console.Filter;
+import consulo.ui.ex.action.Presentation;
+import consulo.virtualFileSystem.LocalFileSystem;
 
 @SuppressWarnings("UnstableApiUsage")
 public class CargoBuildAdapter extends CargoBuildAdapterBase {
@@ -59,7 +62,6 @@ public class CargoBuildAdapter extends CargoBuildAdapterBase {
         boolean activateToolWindow = Utils.isActivateToolWindowBeforeRun(context.getEnvironment());
         buildContentDescriptor.setActivateToolWindowWhenAdded(activateToolWindow);
         buildContentDescriptor.setActivateToolWindowWhenFailed(activateToolWindow);
-        // setNavigateToError is IntelliJ-only; omitted
 
         DefaultBuildDescriptor descriptor = new DefaultBuildDescriptor(
             context.getBuildId(),

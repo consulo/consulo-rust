@@ -26,6 +26,7 @@ import org.rust.lang.core.psi.ext.RsModUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import consulo.localize.LocalizeValue;
 
 /**
  * See overview of move refactoring in comment for {@link RsMoveCommonProcessor}.

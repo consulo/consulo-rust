@@ -21,7 +21,6 @@ import org.rust.lang.core.macros.*;
 import org.rust.lang.core.macros.errors.BuiltinMacroExpansionError;
 import org.rust.lang.core.parser.RustParser;
 import org.rust.lang.core.parser.ParserUtil;
-import org.rust.lang.core.psi.RsTokenType;
 import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.RsFormatMacroArgument;
 import org.rust.lang.core.psi.RsLitExpr;
@@ -29,6 +28,10 @@ import org.rust.lang.core.psi.ext.PsiElementUtil;
 import org.rust.stdext.RsResult;
 
 import java.util.*;
+import org.rust.lang.core.psi.RsTokenSets;
+import org.rust.ide.annotator.format.ParseContext;
+import org.rust.lang.core.macros.RangeMap;
+import org.rust.lang.core.psi.RsFormatMacroArg;
 
 /**
  * A macro expander for built-in macros like {@code concat!()} and {@code stringify!()}
@@ -132,7 +135,7 @@ public class BuiltinMacroExpander extends MacroExpander<RsBuiltinMacroData, Buil
             if (parameter.getLookup() instanceof ParameterLookup.Named) {
                 String name = ((ParameterLookup.Named) parameter.getLookup()).getName();
                 IElementType tokenType = LexerUtilUtil.getRustLexerTokenType(name);
-                if (!RsTokenType.RS_IDENTIFIER_TOKENS.contains(tokenType)) {
+                if (!RsTokenSets.RS_IDENTIFIER_TOKENS.contains(tokenType)) {
                     return null;
                 }
                 if (!namedArguments.contains(name)) {

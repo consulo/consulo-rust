@@ -10,6 +10,7 @@ import org.rust.lang.core.dfa.MemoryCategorization.MutabilityCategory;
 import org.rust.lang.core.psi.ext.RsElement;
 
 import java.util.Objects;
+import org.rust.lang.core.dfa.MemoryCategorization;
 
 public abstract class LoanPathKind {
     private LoanPathKind() {

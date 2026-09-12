@@ -14,12 +14,12 @@ import jakarta.annotation.Nullable;
 import org.rust.lang.core.macros.errors.MacroMatchingError;
 import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.RsMacroPatternContents;
-import org.rust.lang.core.psi.RsTokenType;
 import org.rust.stdext.RsResult;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.rust.lang.core.psi.RsTokenSets;
 
 /**
  * Represents a parsed macro pattern used for matching against macro call bodies.
@@ -63,7 +63,7 @@ public class MacroPattern {
         ASTNode child = node.getFirstChildNode();
         while (child != null) {
             IElementType type = child.getElementType();
-            if (type != TokenType.WHITE_SPACE && !RsTokenType.RS_COMMENTS.contains(type)) {
+            if (type != TokenType.WHITE_SPACE && !RsTokenSets.RS_COMMENTS.contains(type)) {
                 if (type == RsElementTypes.MACRO_PATTERN || type == RsElementTypes.MACRO_PATTERN_CONTENTS) {
                     result.addAll(flattenChildren(child));
                 } else {

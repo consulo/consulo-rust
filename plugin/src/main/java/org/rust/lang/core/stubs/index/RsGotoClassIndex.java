@@ -10,7 +10,9 @@ import consulo.language.psi.stub.StubIndexKey;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.ext.RsNamedElement;
 import org.rust.lang.core.stubs.RsFileStub;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsGotoClassIndex extends StringStubIndexExtension<RsNamedElement> {
     @Nonnull
     public static final StubIndexKey<String, RsNamedElement> KEY =

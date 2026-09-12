@@ -31,6 +31,7 @@ import consulo.ui.ex.action.AnActionWithSyncUpdate;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
+import consulo.localize.LocalizeValue;
 
 public class RsConsoleActions {
 

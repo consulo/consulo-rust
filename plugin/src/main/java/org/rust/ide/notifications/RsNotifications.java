@@ -6,10 +6,22 @@
 package org.rust.ide.notifications;
 
 import consulo.project.ui.notification.NotificationGroup;
-import com.intellij.notification.NotificationGroupManager;
 import jakarta.annotation.Nonnull;
 
+/**
+ * Notification groups used by the Rust plugin. The instances are also handed to the platform by
+ * {@link RsNotificationGroupContributor} so that they appear in the notification settings.
+ */
 public final class RsNotifications {
+
+    public static final String BUILD_LOG_GROUP_ID = "Rust Build Log";
+    public static final String PLUGIN_GROUP_ID = "Rust Plugin";
+
+    /** Log-only group used for background build progress messages. */
+    public static final NotificationGroup BUILD_LOG = NotificationGroup.logOnlyGroup(BUILD_LOG_GROUP_ID);
+
+    /** Balloon group used for user facing plugin notifications. */
+    public static final NotificationGroup PLUGIN = NotificationGroup.balloonGroup(PLUGIN_GROUP_ID);
 
     public static final RsNotifications INSTANCE = new RsNotifications();
 
@@ -18,11 +30,11 @@ public final class RsNotifications {
 
     @Nonnull
     public static NotificationGroup buildLogGroup() {
-        return NotificationGroupManager.getInstance().getNotificationGroup("Rust Build Log");
+        return BUILD_LOG;
     }
 
     @Nonnull
     public static NotificationGroup pluginNotifications() {
-        return NotificationGroupManager.getInstance().getNotificationGroup("Rust Plugin");
+        return PLUGIN;
     }
 }

@@ -8,6 +8,9 @@ package org.rust.lang.core.psi.ext;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.RsTypeParameterList;
 import org.rust.lang.core.psi.RsWhereClause;
+import org.rust.lang.core.psi.RsConstParameter;
+import org.rust.lang.core.psi.RsLifetimeParameter;
+import org.rust.lang.core.psi.RsTypeParameter;
 
 public interface RsGenericDeclaration extends RsElement {
     @Nullable

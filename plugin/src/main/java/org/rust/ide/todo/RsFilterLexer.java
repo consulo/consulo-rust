@@ -12,7 +12,7 @@ import consulo.language.psi.search.UsageSearchContext;
 import consulo.language.ast.IElementType;
 import org.rust.lang.core.lexer.RsLexer;
 import org.rust.lang.core.psi.RsElementTypes;
-import org.rust.lang.core.psi.RsPsiUtil;
+import org.rust.lang.core.psi.RsTokenSets;
 
 class RsFilterLexer extends BaseFilterLexer {
 
@@ -23,7 +23,7 @@ class RsFilterLexer extends BaseFilterLexer {
     @Override
     public void advance() {
         IElementType tokenType = myDelegate.getTokenType();
-        if (tokenType != null && org.rust.lang.core.psi.RsTokenType.RS_COMMENTS.contains(tokenType)) {
+        if (tokenType != null && RsTokenSets.RS_COMMENTS.contains(tokenType)) {
             scanWordsInToken(UsageSearchContext.IN_COMMENTS, false, false);
             advanceTodoItemCountsInToken();
         } else if (tokenType == RsElementTypes.IDENTIFIER) {

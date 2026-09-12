@@ -21,7 +21,6 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.ide.formatter.RsFmtContext;
 import org.rust.ide.formatter.settings.RsCodeStyleSettings;
-import org.rust.lang.core.parser.RustParserDefinition;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
 import org.rust.lang.core.psi.ext.RsItemElement;
@@ -29,6 +28,7 @@ import org.rust.lang.core.psi.ext.RsNamedElement;
 
 import static org.rust.lang.core.psi.RsElementTypes.*;
 import static org.rust.lang.core.psi.RsTokenType.tokenSetOf;
+import org.rust.lang.core.psi.RsTokenType;
 
 public final class RsSpacingUtil {
 
@@ -38,8 +38,6 @@ public final class RsSpacingUtil {
     @Nonnull
     public static SpacingBuilder createSpacingBuilder(@Nonnull CommonCodeStyleSettings commonSettings,
                                                       @Nonnull RsCodeStyleSettings rustSettings) {
-        // Use sb1/sb2 temporaries to work around
-        // https://youtrack.jetbrains.com/issue/KT-12239
 
         TokenSet ts_BLOCK_FIELDS_ENUM_BODY = tokenSetOf(BLOCK_FIELDS, ENUM_BODY);
         TokenSet ts_BLOCK_FIELDS_STRUCT_LITERAL_BODY = tokenSetOf(BLOCK_FIELDS, STRUCT_LITERAL_BODY);
@@ -115,7 +113,7 @@ public final class RsSpacingUtil {
             .between(BINDING_MODE, IDENTIFIER).spaces(1)
             .between(IMPL, TYPE_PARAMETER_LIST).spaces(0)
             .afterInside(TYPE_PARAMETER_LIST, IMPL_ITEM).spaces(1)
-            .betweenInside(ts_TYPE_PARAMETER_LIST, RsTokenType.RS_TYPES, IMPL_ITEM).spaces(1)
+            .betweenInside(ts_TYPE_PARAMETER_LIST, RsTokenSets.RS_TYPES, IMPL_ITEM).spaces(1)
 
             // Handling blocks is pretty complicated. Do not tamper with
             // them too much and let rustfmt do all the pesky work.
@@ -164,7 +162,7 @@ public final class RsSpacingUtil {
             .around(RsFmtImplUtil.NO_SPACE_AROUND_OPS).spaces(0)
             .around(BINARY_OP).spaces(1)
             .around(RsFmtImplUtil.SPACE_AROUND_OPS).spaces(1)
-            .around(RsTokenType.RS_KEYWORDS).spaces(1);
+            .around(RsTokenSets.RS_KEYWORDS).spaces(1);
 
         // applyForEach(BLOCK_LIKE) { before(it).spaces(1) }
         for (IElementType tt : RsFmtImplUtil.BLOCK_LIKE.getTypes()) {
@@ -193,7 +191,7 @@ public final class RsSpacingUtil {
 
     @Nullable
     private static Spacing computeCustomSpacing(@Nonnull SpacingContext sc, @Nonnull Block child2) {
-        if (sc.myElementType2 == RustParserDefinition.EOL_COMMENT) {
+        if (sc.myElementType2 == RsTokenType.EOL_COMMENT) {
             return Spacing.createKeepingFirstColumnSpacing(1, Integer.MAX_VALUE, true, sc.myCtx.getCommonSettings().KEEP_BLANK_LINES_IN_CODE);
         }
 
@@ -267,7 +265,7 @@ public final class RsSpacingUtil {
     }
 
     private static boolean needsBlankLineBetweenItems(@Nonnull SpacingContext sc) {
-        if (RsTokenType.RS_COMMENTS.contains(sc.myElementType1) || RsTokenType.RS_COMMENTS.contains(sc.myElementType2)) {
+        if (RsTokenSets.RS_COMMENTS.contains(sc.myElementType1) || RsTokenSets.RS_COMMENTS.contains(sc.myElementType2)) {
             return false;
         }
 

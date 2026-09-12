@@ -17,9 +17,7 @@ import org.rust.lang.core.crate.Crate;
 import org.rust.lang.core.macros.decl.DeclMacroConstantsUtil;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
-import org.rust.lang.core.types.InferenceUtil;
 import org.rust.lang.core.types.infer.ResolvedPath;
-import org.rust.lang.core.types.InferenceExtensionsUtil;
 import org.rust.openapiext.TreeStatus;
 import org.rust.openapiext.ProcessElementsWithMacrosUtil;
 
@@ -29,6 +27,10 @@ import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
 // import removed
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.psi.ext.RsElement;
+import org.rust.lang.core.resolve.TraitImplSource;
+import org.rust.lang.core.resolve.ref.MethodResolveVariant;
+import org.rust.lang.core.types.BoundElement;
+import org.rust.lang.core.types.infer.RsInferenceResult;
 
 public final class RsPathUsageAnalysis {
 

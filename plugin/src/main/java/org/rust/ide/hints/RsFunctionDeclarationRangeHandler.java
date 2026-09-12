@@ -5,6 +5,7 @@
 
 package org.rust.ide.hints;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.hint.DeclarationRangeHandler;
 import consulo.document.util.TextRange;
 import consulo.language.psi.PsiElement;
@@ -13,6 +14,7 @@ import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.ext.RsElementUtil;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
 
+@ExtensionImpl
 public class RsFunctionDeclarationRangeHandler implements DeclarationRangeHandler<RsFunction> {
 
     @Override

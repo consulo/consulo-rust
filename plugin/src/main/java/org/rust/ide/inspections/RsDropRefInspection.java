@@ -21,6 +21,7 @@ import consulo.language.psi.PsiElement;
 
 import java.util.List;
 import consulo.annotation.component.ExtensionImpl;
+import consulo.localize.LocalizeValue;
 
 /**
  * Checks for calls to std::mem::drop with a reference instead of an owned value. Analogue of Clippy's drop_ref.

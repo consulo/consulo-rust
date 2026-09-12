@@ -5,6 +5,7 @@
 
 package org.rust.cargo.runconfig.wasmpack;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.process.ExecutionException;
 import consulo.execution.configuration.RunProfile;
 import consulo.execution.executor.DefaultRunExecutor;
@@ -13,6 +14,7 @@ import jakarta.annotation.Nonnull;
 import org.rust.cargo.runconfig.RsDefaultProgramRunnerBase;
 import org.rust.cargo.toolchain.tools.Cargo;
 
+@ExtensionImpl
 public class WasmPackCommandRunner extends RsDefaultProgramRunnerBase {
 
     public static final String RUNNER_ID = "WasmPackRunner";

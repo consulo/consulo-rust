@@ -8,6 +8,8 @@ package org.rust.lang.core.psi.ext;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.RsRetType;
 import org.rust.lang.core.psi.RsValueParameterList;
+import org.rust.lang.core.psi.RsSelfParameter;
+import org.rust.lang.core.psi.RsValueParameter;
 
 /**
  * Represents {@link org.rust.lang.core.psi.RsFunction} or {@link org.rust.lang.core.psi.RsLambdaExpr}.

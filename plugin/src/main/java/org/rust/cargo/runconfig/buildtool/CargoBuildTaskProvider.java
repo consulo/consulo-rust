@@ -5,6 +5,7 @@
 
 package org.rust.cargo.runconfig.buildtool;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.execution.configuration.RunConfiguration;
 import consulo.execution.runner.ExecutionEnvironment;
 import consulo.dataContext.DataContext;
@@ -16,6 +17,7 @@ import org.rust.cargo.toolchain.tools.Rustup;
 
 import java.util.List;
 
+@ExtensionImpl
 public class CargoBuildTaskProvider extends RsBuildTaskProvider<CargoBuildTaskProvider.BuildTask> {
 
     @SuppressWarnings("rawtypes")
@@ -35,8 +37,9 @@ public class CargoBuildTaskProvider extends RsBuildTaskProvider<CargoBuildTaskPr
     }
 
     @Override
-    public consulo.util.concurrent.AsyncResult<Void> configureTask(RunConfiguration runConfiguration, BuildTask task) {
-        return consulo.util.concurrent.AsyncResult.done(null);
+    public java.util.concurrent.CompletableFuture<Void> configureTask(RunConfiguration runConfiguration, BuildTask task) {
+        // Nothing to configure: the task carries no settings.
+        return java.util.concurrent.CompletableFuture.completedFuture(null);
     }
 
     @Override

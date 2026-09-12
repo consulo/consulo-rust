@@ -14,8 +14,8 @@ open module consulo.rust {
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.databind;
+    requires com.fasterxml.jackson.module.paramnames;
     requires com.fasterxml.jackson.dataformat.toml;
-    requires com.fasterxml.jackson.kotlin;
     requires kotlin.stdlib;
     requires markdown.jvm;
     requires semver.jvm;
@@ -72,6 +72,8 @@ open module consulo.rust {
     requires consulo.project.ui.api;
     requires consulo.module.api;
     requires consulo.module.content.api;
+    requires consulo.module.ui.api;
+    requires consulo.module.creation.api;
 
     // File chooser / editor / template
     requires consulo.file.chooser.api;
@@ -100,11 +102,6 @@ open module consulo.rust {
     requires consulo.language.code.style.ui.api;
     requires consulo.language.spellchecker.api;
     requires consulo.language.duplicate.analysis.api;
-
-    // Internals reached via --add-exports in pom.xml (compilerArgs).
-    requires consulo.build.ui.impl;
-    requires consulo.file.editor.impl;
-    requires consulo.http.impl;
 
     // Higher-level services
     requires consulo.build.ui.api;

@@ -74,12 +74,19 @@ import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
 import consulo.language.psi.PsiFile;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
 import org.rust.ide.presentation.PresentationUtil;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.editor.documentation.LanguageDocumentationProvider;
+import consulo.language.Language;
+import org.rust.lang.RsLanguage;
+import org.rust.ide.presentation.TypeRendering;
 
 @SuppressWarnings("UnstableApiUsage")
-public class RsDocumentationProvider extends AbstractDocumentationProvider {
+@ExtensionImpl
+public class RsDocumentationProvider extends AbstractDocumentationProvider implements LanguageDocumentationProvider {
 
     public static final String STD_DOC_HOST = "https://doc.rust-lang.org";
     public static final String EXTERNAL_DOCUMENTATION_URL_SETTING_KEY = "org.rust.external.doc.url";
+    private static final String EXTERNAL_DOCUMENTATION_URL_DEFAULT = "https://docs.rs/";
 
     @Nullable
     @Override
@@ -901,7 +908,7 @@ public class RsDocumentationProvider extends AbstractDocumentationProvider {
     }
 
     public static String getExternalDocumentationBaseUrl() {
-        String url = AdvancedSettings.getString(EXTERNAL_DOCUMENTATION_URL_SETTING_KEY);
+        String url = AdvancedSettings.getString(EXTERNAL_DOCUMENTATION_URL_SETTING_KEY, EXTERNAL_DOCUMENTATION_URL_DEFAULT);
         return url.endsWith("/") ? url : url + "/";
     }
 
@@ -921,5 +928,11 @@ public class RsDocumentationProvider extends AbstractDocumentationProvider {
         public static final Testmark NotExportedMacro = new Testmark();
         public static final Testmark PkgWithoutSource = new Testmark();
         public static final Testmark NonDependency = new Testmark();
+    }
+
+    @Nonnull
+    @Override
+    public Language getLanguage() {
+        return RsLanguage.INSTANCE;
     }
 }

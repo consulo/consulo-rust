@@ -22,7 +22,6 @@ import org.rust.lang.core.types.infer.RsInferenceResult;
 import java.util.*;
 
 /**
- * <p>
  * be called directly from Java. This class provides static method equivalents
  * that accept explicit {@code Class<T>} parameters.
  */

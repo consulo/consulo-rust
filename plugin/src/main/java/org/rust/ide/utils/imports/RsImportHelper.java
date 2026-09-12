@@ -13,6 +13,15 @@ import org.rust.lang.core.types.ty.Ty;
 
 import java.util.Collection;
 import java.util.Set;
+import org.rust.lang.core.psi.RsPath;
+import org.rust.lang.core.psi.RsVisitor;
+import org.rust.lang.core.resolve.ref.RsReference;
+import org.rust.lang.core.types.BoundElement;
+import org.rust.lang.core.types.infer.TypeVisitor;
+import org.rust.lang.core.types.ty.TyAdt;
+import org.rust.lang.core.types.ty.TyAnon;
+import org.rust.lang.core.types.ty.TyProjection;
+import org.rust.lang.core.types.ty.TyTraitObject;
 
 /**
  *
@@ -75,12 +84,46 @@ public final class RsImportHelper {
     }
 
     /**
-     * <p>
      * Collects the concrete items (ADTs, traits, projections, anon-impls) referenced by each
      * {@link Ty}, then splits them into {@code toImport} (resolvable via
      * {@link ImportCandidatesCollector}) and {@code toQualify} (cannot be imported — must use a
      * fully-qualified path). Alias handling and default-generic-argument elision from the
      */
+    /**
+     * Collects the items referenced by the unqualified paths inside {@code element}, then splits them
+     * into {@code toImport} and {@code toQualify} the same way {@link #getTypeReferencesInfoFromTys} does.
+     */
+    @Nonnull
+    public static TypeReferencesInfo getTypeReferencesInfoFromElement(@Nonnull RsElement context, @Nonnull RsElement element) {
+        java.util.Set<RsQualifiedNamedElement> raw = new java.util.LinkedHashSet<>();
+        collectImportSubjectsFromTypeReferences(element, raw);
+        return processRawImportSubjects(context, raw);
+    }
+
+    private static void collectImportSubjectsFromTypeReferences(
+        @Nonnull RsElement element,
+        @Nonnull java.util.Set<RsQualifiedNamedElement> out
+    ) {
+        element.accept(new RsVisitor() {
+            @Override
+            public void visitPath(@Nonnull RsPath path) {
+                if (path.getPath() == null) {
+                    RsReference reference = path.getReference();
+                    RsElement resolved = reference != null ? reference.resolve() : null;
+                    if (resolved instanceof RsQualifiedNamedElement) {
+                        out.add((RsQualifiedNamedElement) resolved);
+                    }
+                }
+                super.visitPath(path);
+            }
+
+            @Override
+            public void visitElement(@Nonnull RsElement e) {
+                e.acceptChildren(this);
+            }
+        });
+    }
+
     @Nonnull
     public static TypeReferencesInfo getTypeReferencesInfoFromTys(@Nonnull RsElement context, @Nonnull Ty... tys) {
         java.util.Set<RsQualifiedNamedElement> raw = new java.util.LinkedHashSet<>();

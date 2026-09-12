@@ -34,6 +34,15 @@ import org.rust.stdext.CollectionsUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiFile;
+import org.rust.lang.core.psi.RsBound;
+import org.rust.lang.core.psi.RsPath;
+import org.rust.lang.core.psi.RsTraitRef;
+import org.rust.lang.core.psi.RsTypeReference;
+import org.rust.lang.core.psi.RsWherePred;
+import org.rust.lang.core.psi.ext.RsInferenceContextOwner;
+import org.rust.lang.core.types.ExtensionsUtil;
 
 public class ImplLookup {
 
@@ -198,10 +207,39 @@ public class ImplLookup {
         return implsFilter;
     }
 
+    /**
+     * Returns a filter that hides the impls of the current crate while inferring a const argument that is
+     * part of an impl's own signature, as in
+     *
+     * <pre>{@code
+     * impl Foo< {0} > for Bar< {0} > {}
+     * //        ~~~            ~~~
+     * }</pre>
+     *
+     * Resolving such a const against those same impls would recurse back into this inference.
+     */
     @Nonnull
     private ImplsFilter computeImplsFilter() {
-        // Simplified: return AllowAll by default
-        return ImplsFilter.AllowAll.INSTANCE;
+        if (context == null) return ImplsFilter.AllowAll.INSTANCE;
+        RsInferenceContextOwner owner =
+            ExtensionsUtil.getInferenceContextOwner(context);
+        if (!(owner instanceof RsPath)) return ImplsFilter.AllowAll.INSTANCE;
+
+        RsImplItem ancestorImpl = null;
+        PsiElement previous = null;
+        for (PsiElement current = owner.getContext(); current != null; current = current.getContext()) {
+            if (current instanceof RsImplItem
+                && (previous instanceof RsTraitRef
+                || previous == ((RsImplItem) current).getTypeReference())) {
+                ancestorImpl = (RsImplItem) current;
+                break;
+            }
+            previous = current;
+        }
+        if (ancestorImpl == null) return ImplsFilter.AllowAll.INSTANCE;
+
+        boolean isInsideTraitImpl = ancestorImpl.getTraitRef() != null;
+        return new ImplsFilter.ConstBodyInsideImplSignatureFilter(containingCrate, isInsideTraitImpl);
     }
 
     @Nonnull
@@ -892,8 +930,32 @@ public class ImplLookup {
         RsItemElement parentItem = PsiElementUtil.contextOrSelf(psi, RsItemElement.class);
         ParamEnv paramEnvResult;
         if (parentItem instanceof RsGenericDeclaration) {
-            // Simplified: build param env for the parent item
-            paramEnvResult = ParamEnv.buildFor(parentItem);
+            PsiElement ancestor = null;
+            PsiElement cameFrom = null;
+            // Walk `psi` and its context chain, stopping at the containing file; `cameFrom` is the
+            // element of that chain directly below the first where-predicate, bound or impl found.
+            PsiElement previous = null;
+            for (PsiElement current = psi;
+                 current != null;
+                 current = current instanceof PsiFile ? null : current.getContext()) {
+                if (current instanceof RsWherePred
+                    || current instanceof RsBound
+                    || current instanceof RsImplItem) {
+                    ancestor = current;
+                    cameFrom = previous;
+                    break;
+                }
+                previous = current;
+            }
+            boolean isInTraitBoundOrImplSignature = ancestor != null
+                && (!(ancestor instanceof RsImplItem)
+                || cameFrom instanceof RsTraitRef
+                || cameFrom instanceof RsTypeReference);
+            // Inside a bound or an impl signature the type parameter bounds have to be computed lazily,
+            // because computing them eagerly resolves back into the very bound being processed.
+            paramEnvResult = isInTraitBoundOrImplSignature
+                ? new LazyParamEnv((RsGenericDeclaration) parentItem)
+                : ParamEnv.buildFor(parentItem);
         } else if (parentItem != null) {
             paramEnvResult = ParamEnv.buildFor(parentItem);
         } else {

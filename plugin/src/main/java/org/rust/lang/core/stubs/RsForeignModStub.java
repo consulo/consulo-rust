@@ -10,6 +10,9 @@ import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.RsForeignModItem;
 import org.rust.lang.core.psi.impl.RsForeignModItemImpl;
 import java.io.IOException;
+import org.rust.lang.core.psi.RsExternAbi;
+import org.rust.lang.core.psi.RsLitExpr;
+import org.rust.lang.core.psi.ext.RsLitExprUtil;
 
 public class RsForeignModStub extends RsAttrProcMacroOwnerStubBase<RsForeignModItem> {
     private final int flags;
@@ -36,7 +39,10 @@ public class RsForeignModStub extends RsAttrProcMacroOwnerStubBase<RsForeignModI
             @Nonnull @Override public RsForeignModItem createPsi(@Nonnull RsForeignModStub s) { return new RsForeignModItemImpl(s, this); }
             @Nonnull @Override public RsForeignModStub createStub(@Nonnull RsForeignModItem psi, @Nullable StubElement p) {
                 int flags = RsAttributeOwnerStub.extractFlags(psi);
-                return new RsForeignModStub(p, this, flags, RsAttrProcMacroOwnerStub.extractTextAndOffset(flags, psi), psi.getExternAbi() != null ? psi.getExternAbi().getText() : null);
+                RsExternAbi externAbi = psi.getExternAbi();
+                RsLitExpr abiLiteral = externAbi != null ? externAbi.getLitExpr() : null;
+                String abi = abiLiteral != null ? RsLitExprUtil.getStringValue(abiLiteral) : null;
+                return new RsForeignModStub(p, this, flags, RsAttrProcMacroOwnerStub.extractTextAndOffset(flags, psi), abi);
             }
         };
 }

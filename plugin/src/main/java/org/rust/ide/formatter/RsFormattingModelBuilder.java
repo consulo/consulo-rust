@@ -29,11 +29,18 @@ import jakarta.annotation.Nullable;
 import org.rust.ide.formatter.blocks.RsFmtBlock;
 import org.rust.ide.formatter.blocks.RsMacroArgFmtBlock;
 import org.rust.ide.formatter.blocks.RsMultilineStringLiteralBlock;
-import org.rust.lang.core.psi.RsTokenType;
 
 import static org.rust.lang.core.psi.RsElementTypes.*;
 import static org.rust.lang.core.psi.RsTokenType.tokenSetOf;
+import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.RsTokenSets;
+import consulo.language.Language;
+import consulo.language.codeStyle.CodeStyleSettings;
+import consulo.language.psi.PsiElement;
+import org.rust.lang.RsLanguage;
+import org.rust.lang.core.psi.RsTokenType;
 
+@ExtensionImpl
 public class RsFormattingModelBuilder implements FormattingModelBuilder {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 
@@ -73,7 +80,7 @@ public class RsFormattingModelBuilder implements FormattingModelBuilder {
             return new RsMacroArgFmtBlock(node, alignment, indent, wrap, ctx);
         }
 
-        if ((RsTokenType.RS_STRING_LITERALS.contains(type) || RsTokenType.RS_RAW_LITERALS.contains(type))
+        if ((RsTokenSets.RS_STRING_LITERALS.contains(type) || RsTokenSets.RS_RAW_LITERALS.contains(type))
             && node.textContains('\n')) {
             return new RsMultilineStringLiteralBlock(node, alignment, indent, wrap);
         }

@@ -1,5 +1,4 @@
 package com.intellij.task;
-/** IntelliJ-compat stub. */
 public final class TaskRunnerResults {
     public static final ProjectTaskRunner.Result SUCCESS = new ProjectTaskRunner.Result() {
         @Override public boolean isAborted() { return false; }

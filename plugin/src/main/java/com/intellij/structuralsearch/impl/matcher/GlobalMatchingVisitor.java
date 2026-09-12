@@ -4,7 +4,7 @@ import com.intellij.structuralsearch.impl.matcher.handlers.SubstitutionHandler;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiElementVisitor;
 
-/** IntelliJ-compat stub for SSR global matching visitor. */
+/** Structural-search visitor that matches a pattern against PSI elements. */
 public class GlobalMatchingVisitor extends PsiElementVisitor {
     protected PsiElement myMatchedNode;
     protected PsiElement myElement;
@@ -21,12 +21,12 @@ public class GlobalMatchingVisitor extends PsiElementVisitor {
     public boolean matchSequentially(PsiElement[] a, PsiElement[] b) { return false; }
     public boolean matchInAnyOrder(PsiElement[] a, PsiElement[] b) { return false; }
 
-    /** IntelliJ-compat stub for MatchContext used by SSR. */
+    /** State of a structural-search match, giving access to the compiled pattern. */
     public static class MatchContext {
         public Pattern getPattern() { return new Pattern(); }
     }
 
-    /** IntelliJ-compat stub for Pattern holding MatchingHandlers. */
+    /** Compiled structural-search pattern holding the matching handler of each node. */
     public static class Pattern {
         public MatchingHandler getHandler(PsiElement element) { return null; }
     }

@@ -12,6 +12,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.intentions.ConvertFunctionToClosureIntention;
 import org.rust.lang.core.psi.RsFunction;
+import consulo.localize.LocalizeValue;
 
 public class ConvertFunctionToClosureFix extends RsQuickFixBase<RsFunction> {
 

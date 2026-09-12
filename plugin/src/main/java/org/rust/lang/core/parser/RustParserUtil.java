@@ -31,7 +31,10 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.rust.lang.core.psi.RsElementTypes.*;
+import static org.rust.lang.core.psi.RsTokenSets.*;
 import static org.rust.lang.core.psi.RsTokenType.*;
+import org.rust.lang.core.psi.RsTokenType;
+import consulo.util.collection.Stack;
 
 @SuppressWarnings("unused")
 public class RustParserUtil extends GeneratedParserUtilBase {
@@ -182,11 +185,11 @@ public class RustParserUtil extends GeneratedParserUtilBase {
         int candidate = tokens.size();
         for (int i = 0; i < tokens.size(); i++) {
             IElementType token = tokens.get(i);
-            if (RustParserDefinition.OUTER_BLOCK_DOC_COMMENT == token || RustParserDefinition.OUTER_EOL_DOC_COMMENT == token) {
+            if (RsTokenType.OUTER_BLOCK_DOC_COMMENT == token || RsTokenType.OUTER_EOL_DOC_COMMENT == token) {
                 candidate = Math.min(candidate, i);
                 break;
             }
-            if (RustParserDefinition.EOL_COMMENT == token) {
+            if (RsTokenType.EOL_COMMENT == token) {
                 candidate = Math.min(candidate, i);
             }
             if (TokenType.WHITE_SPACE == token && getter.get(i).toString().contains("\n\n")) {
@@ -969,7 +972,7 @@ public class RustParserUtil extends GeneratedParserUtilBase {
 
     @SuppressWarnings("unused")
     public static boolean parseCodeBlockLazy(@Nonnull PsiBuilder builder, int level) {
-        // Consulo has no parseBlockLazy — eagerly parse the braced block
+        // Eagerly parse the braced block and collapse it into a single BLOCK node
         IElementType first = builder.getTokenType();
         if (first != LBRACE) return false;
         PsiBuilder.Marker marker = builder.mark();

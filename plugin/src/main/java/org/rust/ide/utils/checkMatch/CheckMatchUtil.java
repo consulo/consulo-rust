@@ -9,14 +9,12 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
-import org.rust.lang.core.types.TypeUtil;
 import org.rust.lang.core.types.consts.CtValue;
 import org.rust.lang.core.types.infer.TypeInference;
 import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyAdt;
 import org.rust.lang.core.types.ty.TyUnknown;
 import org.rust.lang.utils.evaluation.ConstExpr;
-import org.rust.lang.utils.evaluation.ExpressionEvaluationUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;

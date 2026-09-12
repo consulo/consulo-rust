@@ -11,9 +11,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * IntelliJ Kotlin DSL {@code Panel} stub. DSL UI is IntelliJ-specific; this stub
- * swallows the builder calls so existing source compiles. Real UI will be
- * rewritten with Consulo FormBuilder.
+ * Builder for a {@link DialogPanel}. Every layout call is a no-op and {@link #build()}
+ * returns an empty panel.
  */
 public class Panel {
     public DialogPanel build() { return new DialogPanel(); }

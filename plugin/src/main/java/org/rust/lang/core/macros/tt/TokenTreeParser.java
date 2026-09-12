@@ -40,20 +40,20 @@ public final class TokenTreeParser {
     // --- Private implementation ---
 
     private static final TokenSet PROC_MACRO_IDENTIFIER_TOKENS = TokenSet.orSet(
-        RsTokenType.RS_IDENTIFIER_TOKENS,
+        RsTokenSets.RS_IDENTIFIER_TOKENS,
         RsTokenType.tokenSetOf(UNDERSCORE)
     );
 
     private static final TokenSet NEXT_TOKEN_ALONE_SET = TokenSet.orSet(
         RsTokenType.tokenSetOf(TokenType.WHITE_SPACE, LBRACK, LBRACE, LPAREN, QUOTE_IDENTIFIER),
-        RsTokenType.RS_COMMENTS,
-        RsTokenType.RS_LITERALS,
+        RsTokenSets.RS_COMMENTS,
+        RsTokenSets.RS_LITERALS,
         PROC_MACRO_IDENTIFIER_TOKENS
     );
 
     private static final TokenSet WHITESPACE_OR_COMMENTS = TokenSet.orSet(
         RsTokenType.tokenSetOf(TokenType.WHITE_SPACE),
-        RsTokenType.RS_COMMENTS
+        RsTokenSets.RS_COMMENTS
     );
 
     private static class TokenTreeParserImpl {
@@ -145,7 +145,7 @@ public final class TokenTreeParser {
                 } else {
                     result.add(lit(tokenText, offset, nextWhitespaceOrCommentText(true)));
                 }
-            } else if (RsTokenType.RS_LITERALS.contains(tokenType)) {
+            } else if (RsTokenSets.RS_LITERALS.contains(tokenType)) {
                 result.add(lit(tokenText, offset));
             } else if (PROC_MACRO_IDENTIFIER_TOKENS.contains(tokenType)) {
                 result.add(ident(tokenText, offset));

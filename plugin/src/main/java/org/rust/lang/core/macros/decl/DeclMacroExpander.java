@@ -88,7 +88,7 @@ public class DeclMacroExpander extends MacroExpander<RsDeclMacroData, DeclMacroE
         }
         TokenSet compareByTextTokens = TokenSet.orSet(
             RsTokenType.tokenSetOf(IDENTIFIER, QUOTE_IDENTIFIER),
-            RsTokenType.RS_LITERALS
+            RsTokenSets.RS_LITERALS
         );
         boolean result = node.getElementType() == elementType
             && (elementType == null || !compareByTextTokens.contains(elementType)

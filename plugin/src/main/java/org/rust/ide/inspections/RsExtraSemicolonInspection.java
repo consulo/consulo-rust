@@ -15,6 +15,7 @@ import org.rust.lang.core.psi.RsVisitor;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.TyUnit;
 import consulo.annotation.component.ExtensionImpl;
+import consulo.localize.LocalizeValue;
 
 /**
  * Suggest to remove a semicolon in situations like

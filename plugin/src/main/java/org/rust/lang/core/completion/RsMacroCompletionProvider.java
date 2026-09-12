@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.rust.lang.core.PsiElementPatternExtUtil.psiElement;
+import org.rust.lang.core.RsPsiPatternUtil;
 
 /**
  * This completion provider is used only in the case of incomplete macro call outside of function or other code block.

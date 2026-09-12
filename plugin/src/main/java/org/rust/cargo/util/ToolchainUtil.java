@@ -9,6 +9,8 @@ import consulo.util.lang.SemVer;
 import org.rust.stdext.Utils;
 
 import java.nio.file.Path;
+import consulo.platform.Platform;
+import org.rust.stdext.PathUtil;
 
 public final class ToolchainUtil {
 

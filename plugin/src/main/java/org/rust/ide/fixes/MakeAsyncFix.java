@@ -16,6 +16,7 @@ import org.rust.lang.core.psi.RsLambdaExpr;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.ext.RsFunctionOrLambda;
 import org.rust.lang.core.psi.ext.RsFunctionOrLambdaUtil;
+import consulo.localize.LocalizeValue;
 
 public class MakeAsyncFix extends RsQuickFixBase<RsFunctionOrLambda> {
 

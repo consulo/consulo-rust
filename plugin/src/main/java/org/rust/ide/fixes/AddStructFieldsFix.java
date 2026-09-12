@@ -13,6 +13,7 @@ import org.rust.RsBundle;
 import org.rust.ide.utils.StructFieldsExpander;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.RsStructLiteral;
+import consulo.localize.LocalizeValue;
 
 /**
  * Adds the given fields to the structure defined by {@code expr}

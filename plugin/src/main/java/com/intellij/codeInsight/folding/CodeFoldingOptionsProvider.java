@@ -1,3 +1,3 @@
 package com.intellij.codeInsight.folding;
-/** IntelliJ-compat stub — contributes code-folding setting groups. */
+/** Contributes code-folding setting groups to the settings UI. */
 public interface CodeFoldingOptionsProvider {}

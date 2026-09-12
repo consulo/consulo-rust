@@ -18,7 +18,13 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.ext.RsElementUtil;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.codeEditor.markup.GutterIconRenderer;
+import consulo.language.Language;
+import consulo.language.editor.Pass;
+import org.rust.lang.RsLanguage;
 
+@ExtensionImpl
 public class RsMethodLineSeparatorProvider implements LineMarkerProvider {
 
     @Nonnull

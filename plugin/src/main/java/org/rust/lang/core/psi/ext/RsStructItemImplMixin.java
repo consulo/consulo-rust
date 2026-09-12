@@ -21,6 +21,7 @@ import org.rust.lang.core.types.ty.Ty;
 
 import javax.swing.*;
 import org.rust.lang.core.psi.ext.RsVisibilityUtil;
+import consulo.ui.image.Image;
 
 public abstract class RsStructItemImplMixin extends RsStubbedNamedElementImpl<RsStructItemStub> implements RsStructItem {
 

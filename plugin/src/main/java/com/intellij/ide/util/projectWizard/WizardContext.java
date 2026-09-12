@@ -2,7 +2,7 @@ package com.intellij.ide.util.projectWizard;
 
 import consulo.project.Project;
 
-/** IntelliJ-compat stub. Consulo has a different new-project wizard API. */
+/** Holds the project and project builder shared between new-project wizard steps. */
 public class WizardContext {
     private Project project;
     private Object projectBuilder;

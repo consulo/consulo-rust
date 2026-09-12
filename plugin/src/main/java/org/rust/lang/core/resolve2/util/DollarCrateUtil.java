@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>
  * Algorithm: for each DeclMacroDefInfo and MacroCallInfo maintain map
  * from index of MACRO_DOLLAR_CRATE_IDENTIFIER occurrence in text to corresponding CratePersistentId.
  * When expanding a macro call, we want for each occurrence

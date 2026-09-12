@@ -14,12 +14,8 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
 /**
- * Simplified Consulo port of the original IntelliJ RsCommandLineEditor.
- * The original built an {@code ExpandableEditorSupport}-backed popup editor over an
- * {@code EditorTextField} with completion. Consulo's {@code TextFieldWithCompletion}
- * takes {@code TextCompletionProvider} (not {@code TextFieldCompletionProvider}),
- * and the IntelliJ-specific ExpandableEditorSupport Content / prepare API is absent.
- * For now this falls back to a plain text field — completion is not wired.
+ * Single-line editor for a Cargo command line.
+ * Backed by a plain text field; completion is not wired.
  */
 public class RsCommandLineEditor extends JPanel implements TextAccessor {
 

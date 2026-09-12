@@ -47,7 +47,7 @@ public class RsHighlightingAnnotator extends AnnotatorBase {
             RsElementTypes.MUL, RsElementTypes.PLUS, RsElementTypes.LPAREN, RsElementTypes.LBRACE,
             RsElementTypes.RPAREN, RsElementTypes.RBRACE, RsElementTypes.EXCL
         ),
-        RsTokenType.RS_CONTEXTUAL_KEYWORDS, RsTokenType.RS_LITERALS
+        RsTokenSets.RS_CONTEXTUAL_KEYWORDS, RsTokenSets.RS_LITERALS
     );
 
     @Override
@@ -112,7 +112,7 @@ public class RsHighlightingAnnotator extends AnnotatorBase {
         if (elementType == RsElementTypes.IDENTIFIER || elementType == RsElementTypes.QUOTE_IDENTIFIER || elementType == RsElementTypes.SELF) {
             return highlightIdentifier(element, rsParent, holder);
         }
-        if (RsTokenType.RS_CONTEXTUAL_KEYWORDS.contains(elementType)) return RsColor.KEYWORD;
+        if (RsTokenSets.RS_CONTEXTUAL_KEYWORDS.contains(elementType)) return RsColor.KEYWORD;
         if (elementType == RsElementTypes.FLOAT_LITERAL) return RsColor.NUMBER;
         if (elementType == RsElementTypes.Q) {
             return rsParent instanceof RsTryExpr ? RsColor.Q_OPERATOR : macroGroupColor(rsParent);
@@ -130,7 +130,7 @@ public class RsHighlightingAnnotator extends AnnotatorBase {
             if (rsParent instanceof RsMacroCall && shouldHighlightMacroCall((RsMacroCall) rsParent, holder)) return RsColor.MACRO;
             return null;
         }
-        if (RsTokenType.RS_LITERALS.contains(elementType)) {
+        if (RsTokenSets.RS_LITERALS.contains(elementType)) {
             if (rsParent instanceof RsLitExpr) {
                 PsiElement grandParent = rsParent.getParent();
                 if (grandParent instanceof RsMetaItem || grandParent instanceof RsMetaItemArgs) {

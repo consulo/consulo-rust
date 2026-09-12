@@ -31,6 +31,12 @@ import java.util.List;
  */
 public class CargoTomlWatcher implements BulkFileListener {
 
+    /**
+     * How long after a Cargo metadata call a Cargo.lock change still counts as caused by it,
+     * unless the registry key overrides it.
+     */
+    private static final int DEFAULT_LOCK_UPDATE_DELAY_THRESHOLD_MS = 5000;
+
     private static final Logger LOG = Logger.getInstance(CargoTomlWatcher.class);
 
     private static final List<String> IMPLICIT_TARGET_FILES = List.of(
@@ -87,7 +93,7 @@ public class CargoTomlWatcher implements BulkFileListener {
             long ts = timestamp != null ? timestamp : 0;
             if (event.getRequestor() != null) return true;
             long current = System.currentTimeMillis();
-            int delayThreshold = Registry.intValue("org.rust.cargo.lock.update.delay.threshold");
+            int delayThreshold = Registry.intValue("org.rust.cargo.lock.update.delay.threshold", DEFAULT_LOCK_UPDATE_DELAY_THRESHOLD_MS);
             long delay = current - ts;
             if (delay > delayThreshold) {
                 LOG.info("External change in " + event.getPath() + ". Previous Cargo metadata call was " + delay + " ms before");

@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsVisibilityUtil;
+import org.rust.lang.core.types.RsTypesUtil;
 
 public final class RsFieldsOwnerExtUtil {
     private RsFieldsOwnerExtUtil() {

@@ -34,6 +34,7 @@ import org.rust.lang.core.types.infer.TypeVisitor;
 import org.rust.lang.core.types.consts.Const;
 import org.rust.lang.doc.psi.RsQualifiedName;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
+import consulo.localize.LocalizeValue;
 
 public class SpecifyTypeExplicitlyIntention extends RsElementBaseIntentionAction<SpecifyTypeExplicitlyIntention.Context> {
 

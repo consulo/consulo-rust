@@ -18,6 +18,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsModDeclItem;
 import org.rust.openapiext.NonBlockingUtil;
+import consulo.localize.LocalizeValue;
 
 /**
  * Fix that renames the given element.

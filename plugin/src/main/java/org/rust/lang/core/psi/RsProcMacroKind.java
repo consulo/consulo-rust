@@ -9,6 +9,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.RsPsiPattern;
 import org.rust.lang.core.psi.ext.RsMetaItemUtil;
+import org.rust.lang.core.psi.ext.QueryAttributes;
 
 public enum RsProcMacroKind {
     /**

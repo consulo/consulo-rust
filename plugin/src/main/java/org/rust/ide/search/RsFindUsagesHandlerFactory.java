@@ -5,6 +5,7 @@
 
 package org.rust.ide.search;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.find.FindUsagesHandler;
 import consulo.find.FindUsagesHandlerFactory;
 import consulo.project.Project;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@ExtensionImpl
 public class RsFindUsagesHandlerFactory extends FindUsagesHandlerFactory {
 
     @Override

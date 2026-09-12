@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.module.kotlin.KotlinModule;
 import consulo.execution.configuration.EnvironmentVariablesData;
 import consulo.process.io.ProcessIOExecutorService;
 import consulo.disposer.Disposable;
@@ -39,6 +38,9 @@ import java.util.concurrent.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import consulo.http.HttpProxyManager;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A pool of proc macro expander server processes.
@@ -460,7 +462,7 @@ class ProcMacroServerProcess implements Runnable, Disposable {
             false,
             false,
             true,
-            com.intellij.util.net.HttpConfigurable.getInstance()
+            HttpProxyManager.getInstance()
         ).withRedirectErrorStream(false);
 
         Process process;
@@ -500,7 +502,7 @@ class ProcMacroJsonParser {
         .configure(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT, false)
         .configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false)
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        .registerModule(new KotlinModule.Builder().build())
+        .registerModule(new ParameterNamesModule())
         .registerModule(
             new SimpleModule()
                 .addSerializer(Request.class, new RequestJsonSerializer())

@@ -25,7 +25,14 @@ import java.util.List;
 import org.rust.lang.core.psi.ext.RsTypeReferenceUtil;
 import org.rust.lang.core.psi.ext.RsTypeParameterUtil;
 import org.rust.lang.core.psi.ext.RsTraitRefUtil;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.Language;
+import consulo.language.editor.completion.lookup.LookupElement;
+import consulo.language.editor.parameterInfo.ParameterInfoContext;
+import org.rust.lang.RsLanguage;
+import org.rust.lang.core.psi.ext.RsTypeParameterListUtil;
 
+@ExtensionImpl
 public class RsGenericParameterInfoHandler extends RsAsyncParameterInfoHandler<RsTypeArgumentList, HintLine> {
 
     private static final String WHERE_PREFIX = "where ";

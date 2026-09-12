@@ -6,8 +6,9 @@ import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 
 import java.util.HashSet;
+import consulo.virtualFileSystem.VirtualFile;
 
-/** IntelliJ-compat stub: spellchecker dictionary generator. Consulo doesn't expose this dev-tool. */
+/** Walks source files and collects identifier names into a spellchecker dictionary. */
 public abstract class SpellCheckerDictionaryGenerator {
     protected final Project myProject;
     protected final String myOutputFolder;

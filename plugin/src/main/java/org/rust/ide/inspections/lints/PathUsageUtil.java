@@ -10,8 +10,6 @@ import org.rust.lang.core.psi.ext.RsItemsOwner;
 
 /**
  * Bridge class that delegates to {@link RsPathUsageAnalysis}.
- * <p>
- * {@code RsItemsOwner.pathUsage}. Now delegates to the hand-written Java conversion.
  */
 public final class PathUsageUtil {
     private PathUsageUtil() {

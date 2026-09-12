@@ -5,6 +5,7 @@
 
 package org.rust.cargo.toolchain.flavors;
 
+import consulo.annotation.component.ExtensionImpl;
 import org.rust.stdext.PathUtil;
 
 import java.io.File;
@@ -13,6 +14,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+@ExtensionImpl(id = "rust.sysPathToolchainFlavor")
 public class RsSysPathToolchainFlavor extends RsToolchainFlavor {
     @Override
     protected Stream<Path> getHomePathCandidates() {

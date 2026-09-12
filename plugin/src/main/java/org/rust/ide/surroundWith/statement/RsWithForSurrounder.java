@@ -13,6 +13,7 @@ import org.rust.lang.core.psi.RsBlock;
 import org.rust.lang.core.psi.RsForExpr;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import consulo.localize.LocalizeValue;
 
 public class RsWithForSurrounder extends RsStatementsSurrounderBase.BlockWithCondition<RsForExpr> {
 

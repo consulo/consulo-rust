@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
-/** IntelliJ-compat stub. */
 public final class PostfixTemplatesUtils {
     private PostfixTemplatesUtils() {}
     public static final String TOPMOST_ATTR = "topmost";

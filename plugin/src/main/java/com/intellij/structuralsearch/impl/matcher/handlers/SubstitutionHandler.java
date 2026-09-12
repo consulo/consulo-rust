@@ -1,4 +1,5 @@
 package com.intellij.structuralsearch.impl.matcher.handlers;
+import consulo.language.psi.PsiElement;
 public class SubstitutionHandler extends MatchingHandler {
     private final String name;
     private final boolean target;
@@ -12,5 +13,5 @@ public class SubstitutionHandler extends MatchingHandler {
     public boolean isTarget() { return target; }
     public int getMinOccurs() { return minOccurs; }
     public int getMaxOccurs() { return maxOccurs; }
-    public boolean validate(consulo.language.psi.PsiElement element, com.intellij.structuralsearch.impl.matcher.GlobalMatchingVisitor.MatchContext context) { return false; }
+    public boolean validate(PsiElement element, com.intellij.structuralsearch.impl.matcher.GlobalMatchingVisitor.MatchContext context) { return false; }
 }

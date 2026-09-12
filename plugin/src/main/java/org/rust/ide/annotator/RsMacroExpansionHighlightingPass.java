@@ -36,6 +36,8 @@ import org.rust.lang.core.psi.ext.RsPsiElementExt;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.*;
+import consulo.ide.impl.language.editor.LanguageEditorInternalHelperImpl;
+import org.rust.lang.RsLanguage;
 
 public class RsMacroExpansionHighlightingPass extends TextEditorHighlightingPass {
     @Nonnull

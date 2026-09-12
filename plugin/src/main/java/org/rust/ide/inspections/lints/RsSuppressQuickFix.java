@@ -20,6 +20,7 @@ import org.rust.lang.core.psi.ext.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import consulo.localize.LocalizeValue;
 
 public class RsSuppressQuickFix extends LocalQuickFixOnPsiElement implements ContainerBasedSuppressQuickFix {
 

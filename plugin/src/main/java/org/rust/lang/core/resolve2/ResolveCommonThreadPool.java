@@ -6,15 +6,19 @@
 package org.rust.lang.core.resolve2;
 
 import consulo.disposer.Disposable;
-import com.intellij.openapi.components.Service;
 import jakarta.annotation.Nonnull;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinPool.ForkJoinWorkerThreadFactory;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.application.ApplicationManager;
 
-@Service
+@ServiceAPI(ComponentScope.APPLICATION)
+@ServiceImpl
 public final class ResolveCommonThreadPool implements Disposable {
 
     private static final String THREAD_NAME_PREFIX = "Rust-resolve-thread-";

@@ -9,7 +9,7 @@ import javax.swing.JTextField;
 import java.util.ArrayList;
 import java.util.List;
 
-/** IntelliJ-compat stub for Swing text field with extension icons. */
+/** Swing text field that keeps a list of extension icons. */
 public class ExtendableTextField extends JTextField {
     private final List<ExtendableTextComponent.Extension> extensions = new ArrayList<>();
     public ExtendableTextField() {}

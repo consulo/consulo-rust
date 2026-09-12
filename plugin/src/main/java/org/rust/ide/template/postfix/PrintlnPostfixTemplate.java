@@ -13,10 +13,10 @@ import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.resolve.KnownItems;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.TraitRef;
-import org.rust.lang.core.types.RsImplLookupUtil;
 import org.rust.lang.core.types.ty.TyUnit;
 
 import java.util.function.Predicate;
+import consulo.language.psi.PsiWhiteSpace;
 
 public class PrintlnPostfixTemplate extends PostfixTemplateWithExpressionSelector {
 

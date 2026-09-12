@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.rust.ide.injected.RsDoctestLanguageInjector;
 import org.rust.lang.core.psi.ext.RsPossibleMacroCallUtil;
+import consulo.document.util.TextRange;
 
 public class RsFormatMacroAnnotator extends AnnotatorBase {
     @Override

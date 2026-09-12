@@ -19,6 +19,7 @@ import org.rust.lang.doc.psi.RsDocComment;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.*;
+import org.rust.lang.core.psi.ext.RsElementUtil;
 
 /**
  * Utility class for doctest context detection.

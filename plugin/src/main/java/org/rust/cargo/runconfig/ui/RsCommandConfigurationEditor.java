@@ -24,6 +24,7 @@ import org.rust.cargo.util.RsCommandLineEditor;
 import javax.swing.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import consulo.configurable.ConfigurationException;
 
 public abstract class RsCommandConfigurationEditor<T extends RsCommandConfiguration> extends SettingsEditor<T> {
 

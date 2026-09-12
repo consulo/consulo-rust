@@ -17,6 +17,7 @@ import org.rust.lang.core.psi.RsIfExpr;
 import org.rust.lang.core.psi.RsVisitor;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
 import consulo.annotation.component.ExtensionImpl;
+import consulo.localize.LocalizeValue;
 
 @ExtensionImpl
 public class RsDanglingElseInspection extends RsLocalInspectionTool {

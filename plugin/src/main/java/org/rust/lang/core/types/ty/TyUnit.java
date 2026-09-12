@@ -5,12 +5,14 @@
 
 package org.rust.lang.core.types.ty;
 
-import java.util.Collections;
-
-public class TyUnit extends TyTuple {
+public class TyUnit extends TyPrimitive {
     public static final TyUnit INSTANCE = new TyUnit();
 
     private TyUnit() {
-        super(Collections.emptyList());
+    }
+
+    @Override
+    public String getName() {
+        return "unit";
     }
 }

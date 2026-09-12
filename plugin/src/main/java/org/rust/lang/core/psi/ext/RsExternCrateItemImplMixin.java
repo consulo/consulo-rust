@@ -20,6 +20,7 @@ import org.rust.lang.core.resolve.ref.RsReference;
 import org.rust.lang.core.stubs.RsExternCrateItemStub;
 
 import javax.swing.*;
+import consulo.ui.image.Image;
 
 public abstract class RsExternCrateItemImplMixin extends RsStubbedNamedElementImpl<RsExternCrateItemStub>
     implements RsExternCrateItem {

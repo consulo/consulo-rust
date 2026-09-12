@@ -13,6 +13,7 @@ import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsExpr;
 import org.rust.lang.core.psi.RsParenExpr;
 import org.rust.lang.core.psi.RsPsiFactory;
+import consulo.localize.LocalizeValue;
 
 public class RsWithParenthesesSurrounder extends RsExpressionSurrounderBase<RsParenExpr> {
 

@@ -26,6 +26,9 @@ import org.rust.stdext.HashCode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import consulo.language.ast.ASTNode;
+import org.rust.cargo.project.workspace.CargoWorkspace;
+import org.rust.lang.core.macros.MacroExpansionContext;
 
 public final class RsMacroCallUtil {
     private RsMacroCallUtil() {

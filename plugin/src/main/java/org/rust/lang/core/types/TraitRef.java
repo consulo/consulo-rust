@@ -19,6 +19,7 @@ import org.rust.lang.core.types.ty.TyUnknown;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.rust.lang.core.psi.RsTypeParameter;
 
 /**
  * A complete reference to a trait. These take numerous guises in syntax,

@@ -26,6 +26,8 @@ import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
 import consulo.language.psi.PsiFile;
+import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.ext.RsStructLiteralFieldUtil;
 
 public class RsMoveConflictsDetector {
 

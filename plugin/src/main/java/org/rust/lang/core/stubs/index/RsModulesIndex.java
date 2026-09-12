@@ -27,7 +27,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.ext.RsElementUtil;
 
+@ExtensionImpl
 public class RsModulesIndex extends StringStubIndexExtension<RsModDeclItem> {
     @Nonnull
     private static final StubIndexKey<String, RsModDeclItem> KEY =

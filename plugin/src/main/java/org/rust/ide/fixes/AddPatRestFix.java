@@ -17,6 +17,7 @@ import org.rust.lang.core.psi.RsPatStruct;
 import org.rust.lang.core.psi.RsPatTupleStruct;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.ext.RsElement;
+import consulo.localize.LocalizeValue;
 
 public class AddPatRestFix extends RsQuickFixBase<PsiElement> {
 

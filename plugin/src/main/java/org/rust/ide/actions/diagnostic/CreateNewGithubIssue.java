@@ -33,13 +33,14 @@ import consulo.annotation.component.ActionImpl;
 import consulo.annotation.component.ActionParentRef;
 import consulo.annotation.component.ActionRefAnchor;
 import consulo.annotation.component.ActionRef;
+import consulo.application.util.SystemInfo;
+import org.rust.cargo.runconfig.RunConfigUtil;
 
 @ActionImpl(
     id = "Rust.CreateNewGithubIssue",
     parents = @ActionParentRef(
         value = @ActionRef(id = "HelpMenu"),
-        anchor = ActionRefAnchor.AFTER,
-        relatedToAction = @ActionRef(id = "ReportProblem")
+        anchor = ActionRefAnchor.LAST
     )
 )
 public class CreateNewGithubIssue extends LegacyDumbAwareAction {

@@ -16,7 +16,6 @@ import org.rust.lang.core.psi.ext.RsNamedFieldDeclListUtil;
 import org.rust.lang.core.psi.ext.RsStructLiteralFieldUtil;
 import org.rust.lang.core.psi.ext.RsVisibility;
 import org.rust.lang.core.psi.ext.RsVisibilityOwnerUtil;
-import org.rust.lang.core.resolve.ref.RsReferenceCoreUtil;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.infer.TypeVisitor;
 import org.rust.lang.core.types.regions.ReStatic;
@@ -25,9 +24,9 @@ import org.rust.lang.core.types.ty.*;
 
 import java.util.Collections;
 import java.util.List;
-import org.rust.lang.core.resolve.ref.RsReferenceExtUtil;
 import org.rust.lang.core.psi.ext.RsVisibilityUtil;
 import org.rust.lang.core.resolve.ref.RsPathReferenceImpl;
+import consulo.localize.LocalizeValue;
 
 public class CreateStructFieldFromConstructorFix extends RsQuickFixBase<RsStructItem> {
 

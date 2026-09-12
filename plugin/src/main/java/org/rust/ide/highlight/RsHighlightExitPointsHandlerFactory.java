@@ -5,6 +5,7 @@
 
 package org.rust.ide.highlight;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.highlight.usage.HighlightUsagesHandlerBase;
 import consulo.language.editor.highlight.usage.HighlightUsagesHandlerFactoryBase;
 import consulo.codeEditor.Editor;
@@ -25,6 +26,7 @@ import org.rust.lang.core.psi.ext.RsBlockExprUtil;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsFunctionOrLambda;
 
+@ExtensionImpl
 public class RsHighlightExitPointsHandlerFactory extends HighlightUsagesHandlerFactoryBase {
     @Nullable
     @Override

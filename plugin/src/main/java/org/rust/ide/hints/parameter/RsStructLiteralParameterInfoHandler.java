@@ -15,16 +15,22 @@ import jakarta.annotation.Nullable;
 import org.rust.ide.utils.PsiUtils;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
-import org.rust.lang.core.resolve.ref.RsResolveExtUtil;
 import org.rust.lang.core.types.SubstitutionUtil;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.TyAdt;
 import org.rust.lang.core.types.Substitution;
 
 import java.util.*;
-import org.rust.lang.core.resolve.ref.RsReferenceExtUtil;
 import org.rust.lang.core.resolve.ref.RsPathReferenceImpl;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.Language;
+import consulo.language.editor.completion.lookup.LookupElement;
+import consulo.language.editor.parameterInfo.ParameterInfoContext;
+import org.rust.ide.utils.SearchByOffset;
+import org.rust.lang.RsLanguage;
+import org.rust.lang.core.psi.ext.RsTypeReferenceUtil;
 
+@ExtensionImpl
 public class RsStructLiteralParameterInfoHandler extends RsAsyncParameterInfoHandler<RsStructLiteralBody, RsStructLiteralParameterInfoHandler.Description> {
 
     public static class Description {

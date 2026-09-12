@@ -23,6 +23,7 @@ import org.rust.lang.core.resolve.NameResolution;
 import consulo.localize.LocalizeValue;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.resolve.Namespace;
 
 @ExtensionImpl
 public class RsThreadRngGenInspection extends RsLocalInspectionTool {

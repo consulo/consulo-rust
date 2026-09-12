@@ -3,7 +3,7 @@ package com.intellij.refactoring.suggested;
 import consulo.language.psi.PsiNamedElement;
 import jakarta.annotation.Nonnull;
 
-/** IntelliJ-compat stub: rename refactoring data. */
+/** Data for a suggested rename refactoring: the declaration and its old name. */
 public class SuggestedRenameData extends SuggestedRefactoringData {
     private final PsiNamedElement declaration;
     private final String oldName;

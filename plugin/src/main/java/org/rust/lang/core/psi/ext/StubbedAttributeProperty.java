@@ -11,6 +11,7 @@ import org.rust.lang.core.stubs.RsAttributeOwnerStub;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
+import org.rust.lang.core.crate.Crate;
 
 /**
  * A helper to check attribute existence on a PSI element backed by a stub.

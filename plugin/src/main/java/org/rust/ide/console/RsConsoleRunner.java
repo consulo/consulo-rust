@@ -31,7 +31,6 @@ import consulo.language.editor.CommonDataKeys;
 import consulo.language.editor.PlatformDataKeys;
 import consulo.application.ApplicationManager;
 import consulo.ui.ModalityState;
-import com.intellij.openapi.application.TransactionGuard;
 import consulo.logging.Logger;
 import consulo.execution.action.ScrollToTheEndToolbarAction;
 import consulo.ui.ex.keymap.KeymapManager;
@@ -58,11 +57,14 @@ import org.rust.openapiext.OpenApiUtil;
 
 import javax.swing.*;
 import java.awt.*;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import javax.swing.border.Border;
+import consulo.process.ExecutionException;
+import consulo.process.ProcessHandler;
+import consulo.ui.image.Image;
 
 public class RsConsoleRunner extends AbstractConsoleRunnerWithHistory<RsConsoleView> {
 
@@ -73,7 +75,9 @@ public class RsConsoleRunner extends AbstractConsoleRunnerWithHistory<RsConsoleV
     @Nonnull
     public static final String TOOL_WINDOW_TITLE = RsBundle.message("rust.repl");
 
-    private GeneralCommandLine commandLine;
+    @Nullable
+    private RsConsoleView consoleView;
+    @Nullable
     private RsConsoleCommunication consoleCommunication;
 
     public RsConsoleRunner(@Nonnull Project project) {
@@ -95,9 +99,32 @@ public class RsConsoleRunner extends AbstractConsoleRunnerWithHistory<RsConsoleV
     @Override
     @Nonnull
     protected RsConsoleView createConsoleView() {
-        RsConsoleView consoleView = new RsConsoleView(getProject());
-        consoleCommunication = new RsConsoleCommunication(consoleView);
-        return consoleView;
+        return getOrCreateConsoleView();
+    }
+
+    /**
+     * Builds the console view and its communication channel on first request and caches them.
+     * The process handler and the console view are created by separate platform hooks, but both
+     * have to see the same view/communication pair, so whichever hook runs first builds them.
+     */
+    private void ensureConsoleCreated() {
+        if (consoleView == null) {
+            RsConsoleView view = new RsConsoleView(getProject());
+            consoleView = view;
+            consoleCommunication = new RsConsoleCommunication(view);
+        }
+    }
+
+    @Nonnull
+    private RsConsoleView getOrCreateConsoleView() {
+        ensureConsoleCreated();
+        return Objects.requireNonNull(consoleView);
+    }
+
+    @Nonnull
+    private RsConsoleCommunication getOrCreateConsoleCommunication() {
+        ensureConsoleCreated();
+        return Objects.requireNonNull(consoleCommunication);
     }
 
     @Override
@@ -224,10 +251,8 @@ public class RsConsoleRunner extends AbstractConsoleRunnerWithHistory<RsConsoleV
 
     public void run(boolean requestEditorFocus) {
         if (Cargo.checkNeedInstallEvcxr(getProject())) return;
-        @SuppressWarnings("deprecation")
         Runnable saveAction = () -> OpenApiUtil.saveAllDocuments();
-        //noinspection deprecation
-        TransactionGuard.getInstance().submitTransaction(getProject(), saveAction);
+        getProject().getApplication().invokeLater(saveAction, getProject().getDisposed());
 
         ApplicationManager.getApplication().executeOnPooledThread(() -> {
             ProgressManager.getInstance().run(new Task.Backgroundable(getProject(), RsBundle.message("progress.title.connecting.to.console"), false) {
@@ -266,14 +291,9 @@ public class RsConsoleRunner extends AbstractConsoleRunnerWithHistory<RsConsoleV
     @Override
     @Nonnull
     protected consulo.process.ProcessHandler createProcessHandler() throws consulo.process.ExecutionException {
-        Process process = commandLine.createProcess();
-        return new RsConsoleProcessHandler(
-            process,
-            getConsoleView(),
-            consoleCommunication,
-            commandLine.getCommandLineString(),
-            StandardCharsets.UTF_8
-        );
+        GeneralCommandLine commandLine = createCommandLine();
+        RsConsoleView view = getOrCreateConsoleView();
+        return new RsConsoleProcessHandler(commandLine, view, getOrCreateConsoleCommunication());
     }
 
     @Nonnull
@@ -297,16 +317,6 @@ public class RsConsoleRunner extends AbstractConsoleRunnerWithHistory<RsConsoleV
         return evcxr.createCommandLine(workingDir.toFile());
     }
 
-    @Nonnull
-    protected Process createProcess() {
-        try {
-            commandLine = createCommandLine();
-            return commandLine.createProcess();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private void connect() {
         ApplicationManager.getApplication().invokeLater(() -> {
             getConsoleView().removeBorders();
@@ -323,7 +333,7 @@ public class RsConsoleRunner extends AbstractConsoleRunnerWithHistory<RsConsoleV
     @Nonnull
     protected RsConsoleExecuteActionHandler createExecuteActionHandler() {
         RsConsoleExecuteActionHandler handler =
-            new RsConsoleExecuteActionHandler(getProcessHandler(), consoleCommunication);
+            new RsConsoleExecuteActionHandler(getProcessHandler(), getOrCreateConsoleCommunication());
         handler.setEnabled(false);
         // Consulo's ConsoleHistoryController is an interface; skip install() here — TODO: wire up via ConsoleHistoryController.getController(...).
         ConsoleHistoryController.getController(getConsoleView());

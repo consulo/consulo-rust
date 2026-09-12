@@ -8,6 +8,12 @@ package org.rust.lang.core.psi.ext;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.ext.RsTraitOrImpl;
+import consulo.application.util.query.Query;
+import org.rust.lang.core.psi.RsConstant;
+import org.rust.lang.core.psi.RsFunction;
+import org.rust.lang.core.psi.RsImplItem;
+import org.rust.lang.core.psi.RsTraitItem;
+import org.rust.lang.core.psi.RsTypeAlias;
 
 /**
  * Delegates to {@link RsAbstractableImplUtil} for the actual implementations.

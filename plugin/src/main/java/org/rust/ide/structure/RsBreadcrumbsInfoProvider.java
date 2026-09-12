@@ -19,6 +19,7 @@ import java.util.List;
 import org.rust.lang.core.psi.ext.RsTypeReferenceUtil;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsElement;
+import consulo.language.Language;
 
 public class RsBreadcrumbsInfoProvider implements BreadcrumbsProvider {
 

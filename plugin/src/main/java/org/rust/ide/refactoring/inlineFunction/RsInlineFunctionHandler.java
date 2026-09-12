@@ -23,7 +23,9 @@ import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
 import org.rust.lang.core.resolve.ref.RsReference;
 import org.rust.openapiext.OpenApiUtil;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsInlineFunctionHandler extends InlineActionHandler {
     private static final String HELP_ID = "refactoring.inlineMethod";
 

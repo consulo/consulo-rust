@@ -13,6 +13,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.ext.RsElement;
+import consulo.localize.LocalizeValue;
 
 public class EncloseExprInBracesFix extends RsQuickFixBase<PsiElement> {
 

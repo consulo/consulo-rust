@@ -10,6 +10,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 
 import java.util.Set;
+import consulo.platform.Platform;
 
 public final class RsPackageNameValidator {
 

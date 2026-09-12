@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import com.fasterxml.jackson.module.kotlin.KotlinModule;
 import consulo.language.editor.inspection.LocalQuickFix;
 import consulo.language.editor.annotation.AnnotationHolder;
 import consulo.logging.Logger;
@@ -35,6 +34,8 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import org.rust.lang.core.psi.ext.RsElementExtUtil;
 
 public class CompilerFeature {
     private final String name;
@@ -223,7 +224,7 @@ public class CompilerFeature {
         if (MAPPER == null) {
             synchronized (CompilerFeature.class) {
                 if (MAPPER == null) {
-                    MAPPER = new ObjectMapper().registerModule(new KotlinModule.Builder().build());
+                    MAPPER = new ObjectMapper().registerModule(new ParameterNamesModule());
                 }
             }
         }

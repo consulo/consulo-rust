@@ -5,6 +5,7 @@
 
 package org.rust.cargo.runconfig.wasmpack;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.execution.configuration.ConfigurationFactory;
 import consulo.execution.configuration.ConfigurationTypeBase;
 import consulo.execution.configuration.ConfigurationTypeUtil;
@@ -13,7 +14,9 @@ import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.ide.icons.RsIcons;
+import consulo.localize.LocalizeValue;
 
+@ExtensionImpl
 public class WasmPackCommandConfigurationType extends ConfigurationTypeBase {
 
     public WasmPackCommandConfigurationType() {

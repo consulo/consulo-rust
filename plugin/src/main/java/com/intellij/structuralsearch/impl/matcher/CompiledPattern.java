@@ -4,7 +4,7 @@ import com.intellij.structuralsearch.impl.matcher.strategies.MatchingStrategy;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 
-/** IntelliJ-compat stub for SSR compiled pattern. */
+/** Compiled structural-search pattern. */
 public abstract class CompiledPattern {
     public void setStrategy(MatchingStrategy strategy) {}
     public NodeIterator getNodes() { return new NodeIterator(); }

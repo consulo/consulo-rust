@@ -19,6 +19,7 @@ import org.rust.lang.core.resolve.KnownItems;
 import org.rust.lang.core.types.ty.TyAdt;
 import org.rust.lang.core.types.infer.TypeInference;
 import org.rust.lang.core.types.RsTypesUtil;
+import consulo.localize.LocalizeValue;
 
 public class UnwrapToMatchIntention extends RsElementBaseIntentionAction<UnwrapToMatchIntention.Context> {
     @Nonnull

@@ -17,6 +17,7 @@ import org.rust.lang.core.psi.ext.RsExprUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import consulo.localize.LocalizeValue;
 
 public class ReplaceWithStdMemDropFix extends RsQuickFixBase<PsiElement> {
 

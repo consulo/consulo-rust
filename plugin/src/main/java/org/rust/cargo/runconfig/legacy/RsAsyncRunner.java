@@ -51,6 +51,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import consulo.execution.runner.RunContentBuilder;
+import consulo.execution.ui.console.Filter;
+import consulo.process.ExecutionException;
+import org.rust.cargo.toolchain.impl.RustcMessage;
+import org.rust.cargo.toolchain.impl.RustcVersion;
+import org.rust.openapiext.OpenApiUtil;
 
 
 /**

@@ -9,6 +9,7 @@ import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.resolve.ref.RsPathReference;
 import org.rust.lang.core.stubs.common.RsPathPsiOrStub;
+import org.rust.lang.core.psi.RsPsiUtilUtil;
 
 public interface RsPathReferenceElement extends RsReferenceElement, RsPathPsiOrStub {
     @Override

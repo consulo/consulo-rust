@@ -11,8 +11,7 @@ import org.rust.lang.core.psi.RsBlock;
 import org.rust.lang.core.psi.RsExpr;
 
 /**
- * Bridge class delegating to {@link RsBlockKt}.
- * Some converted Java code references RsBlockExtUtil instead of RsBlockUtil.
+ * Bridge class delegating to {@link RsBlockUtil}.
  */
 public final class RsBlockExtUtil {
 

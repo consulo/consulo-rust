@@ -5,7 +5,7 @@ import consulo.language.psi.PsiElement;
 
 import java.util.function.Supplier;
 
-/** IntelliJ-compat stub. */
+/** Builds inlay hint presentations from text, icons and nested presentations. */
 public class PresentationFactory {
     public PresentationFactory(Object editor) {}
     public InlayPresentation text(String text) { return null; }

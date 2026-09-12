@@ -12,12 +12,16 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.lexer.LexerUtilUtil;
 import org.rust.lang.core.psi.RsElementTypes;
-import org.rust.lang.core.psi.RsTokenType;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.RsTokenSets;
+import consulo.language.Language;
+import org.rust.lang.RsLanguage;
 
+@ExtensionImpl
 public class RsNamesValidator implements NamesValidator {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 
@@ -59,7 +63,7 @@ public class RsNamesValidator implements NamesValidator {
 
     public static boolean isKeyword(@Nonnull String name) {
         IElementType tokenType = LexerUtilUtil.getRustLexerTokenType(name);
-        return RsTokenType.RS_KEYWORDS.contains(tokenType);
+        return RsTokenSets.RS_KEYWORDS.contains(tokenType);
     }
 
     public static boolean isValidRustVariableIdentifier(@Nonnull String name) {

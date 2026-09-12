@@ -16,6 +16,7 @@ import org.rust.ide.presentation.TypeRendering;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.RsTypeReference;
 import org.rust.lang.core.types.ty.Ty;
+import consulo.localize.LocalizeValue;
 
 public class ConvertTypeReferenceFix extends RsQuickFixBase<RsTypeReference> {
 

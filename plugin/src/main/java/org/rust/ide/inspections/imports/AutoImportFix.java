@@ -41,6 +41,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.rust.lang.core.psi.ext.RsPathUtil;
 import org.rust.lang.core.psi.ext.RsElement;
+import consulo.language.editor.inspection.QuickFix;
+import consulo.localize.LocalizeValue;
+import org.rust.lang.core.resolve.ref.MethodResolveVariant;
 
 public class AutoImportFix extends RsQuickFixBase<RsElement> implements BatchQuickFix, PriorityAction, HintAction {
 

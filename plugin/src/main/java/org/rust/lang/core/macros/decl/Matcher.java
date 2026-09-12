@@ -16,6 +16,7 @@ import org.rust.lang.core.psi.ext.RsMacroDefinitionBase;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.rust.lang.core.psi.ext.RsMacroBindingUtil;
 
 /**
  * Represents a parsed macro pattern structure used for building the macro graph.

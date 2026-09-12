@@ -12,7 +12,10 @@ import consulo.language.psi.PsiFile;
 import consulo.component.messagebus.MessageBusConnection;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ComponentScope;
 
+@ServiceAPI(ComponentScope.PROJECT)
 public interface RsPsiManager {
     @Nonnull
     ModificationTracker getRustStructureModificationTracker();

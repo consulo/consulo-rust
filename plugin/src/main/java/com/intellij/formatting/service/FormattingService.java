@@ -5,7 +5,7 @@ import consulo.language.psi.PsiFile;
 
 import java.util.Set;
 
-/** IntelliJ-compat stub — formatting service extension point. */
+/** Formatting service extension point. */
 public interface FormattingService {
     enum Feature {
         FORMAT_FRAGMENTS,

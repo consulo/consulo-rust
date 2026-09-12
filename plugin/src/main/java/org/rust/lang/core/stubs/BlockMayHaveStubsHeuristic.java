@@ -15,6 +15,7 @@ import org.rust.lang.RsLanguage;
 
 import static org.rust.lang.core.psi.RsElementTypes.*;
 import static org.rust.lang.core.psi.RsTokenType.tokenSetOf;
+import consulo.language.parser.PsiBuilder;
 
 /**
  * A utility used in the stub builder to detect that a code block should not be

@@ -15,12 +15,14 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.ide.utils.PsiModificationUtil;
-import org.rust.lang.core.parser.RustParserDefinition;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.ext.PsiElementExt;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.rust.lang.core.psi.RsTokenType;
+import consulo.language.ast.IElementType;
+import consulo.localize.LocalizeValue;
 
 public class ReplaceLineCommentWithBlockCommentIntention extends RsElementBaseIntentionAction<PsiComment> {
 
@@ -54,7 +56,7 @@ public class ReplaceLineCommentWithBlockCommentIntention extends RsElementBaseIn
     public PsiComment findApplicableContext(@Nonnull Project project, @Nonnull Editor editor, @Nonnull PsiElement element) {
         PsiComment comment = PsiElementExt.ancestorOrSelf(element, PsiComment.class);
         if (comment == null) return null;
-        if (((consulo.language.ast.IElementType) comment.getTokenType()) != RustParserDefinition.EOL_COMMENT) return null;
+        if (((IElementType) comment.getTokenType()) != RsTokenType.EOL_COMMENT) return null;
 
         // Find the first comment in the chain
         PsiComment first = comment;
@@ -126,7 +128,7 @@ public class ReplaceLineCommentWithBlockCommentIntention extends RsElementBaseIn
     @Nullable
     private PsiComment getPrevComment(@Nonnull PsiComment comment) {
         PsiElement prev = PsiElementExt.getPrevNonWhitespaceSibling(comment);
-        if (prev instanceof PsiComment && ((PsiComment) prev).getTokenType() == RustParserDefinition.EOL_COMMENT) {
+        if (prev instanceof PsiComment && ((PsiComment) prev).getTokenType() == RsTokenType.EOL_COMMENT) {
             return (PsiComment) prev;
         }
         return null;
@@ -135,7 +137,7 @@ public class ReplaceLineCommentWithBlockCommentIntention extends RsElementBaseIn
     @Nullable
     private PsiComment getNextComment(@Nonnull PsiComment comment) {
         PsiElement next = PsiElementExt.getNextNonWhitespaceSibling(comment);
-        if (next instanceof PsiComment && ((PsiComment) next).getTokenType() == RustParserDefinition.EOL_COMMENT) {
+        if (next instanceof PsiComment && ((PsiComment) next).getTokenType() == RsTokenType.EOL_COMMENT) {
             return (PsiComment) next;
         }
         return null;

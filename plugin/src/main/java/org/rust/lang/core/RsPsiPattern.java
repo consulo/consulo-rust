@@ -30,6 +30,7 @@ import java.util.Set;
 import static consulo.language.pattern.PlatformPatterns.psiElement;
 import static consulo.language.pattern.StandardPatterns.or;
 import static org.rust.lang.core.psi.RsElementTypes.*;
+import org.rust.lang.core.crate.Crate;
 
 /**
  * Rust PSI tree patterns.

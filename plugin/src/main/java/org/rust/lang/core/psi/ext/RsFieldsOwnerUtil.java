@@ -12,6 +12,8 @@ import org.rust.lang.core.psi.RsTupleFieldDecl;
 import org.rust.lang.core.types.ty.Ty;
 
 import java.util.List;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.search.ReferencesSearch;
 
 /**
  * Delegates to {@link RsFieldsOwnerExtUtil} and {@link RsFieldsOwnerUtil}

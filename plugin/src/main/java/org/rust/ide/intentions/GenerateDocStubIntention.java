@@ -23,6 +23,7 @@ import org.rust.lang.core.types.ty.Ty;
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsValueParameterUtil;
+import consulo.localize.LocalizeValue;
 
 public class GenerateDocStubIntention extends RsElementBaseIntentionAction<GenerateDocStubIntention.Context> {
 

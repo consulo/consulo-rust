@@ -15,6 +15,8 @@ import consulo.usage.UsageInfo;
 import consulo.usage.UsageViewDescriptor;
 import consulo.util.collection.MultiMap;
 import jakarta.annotation.Nonnull;
+import consulo.localize.LocalizeValue;
+import consulo.util.lang.ref.SimpleReference;
 
 public class RsChangeSignatureProcessor extends ChangeSignatureProcessorBase {
 

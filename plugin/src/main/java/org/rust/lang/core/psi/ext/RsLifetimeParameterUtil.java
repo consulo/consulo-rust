@@ -14,6 +14,7 @@ import org.rust.lang.core.psi.RsWherePred;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import consulo.language.psi.PsiElement;
 
 public final class RsLifetimeParameterUtil {
     private RsLifetimeParameterUtil() {

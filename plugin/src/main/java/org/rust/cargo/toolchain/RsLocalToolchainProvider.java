@@ -5,11 +5,14 @@
 
 package org.rust.cargo.toolchain;
 
+import consulo.annotation.component.ExtensionImpl;
 import com.intellij.execution.wsl.WslPath;
 import jakarta.annotation.Nullable;
 
 import java.nio.file.Path;
+import consulo.platform.Platform;
 
+@ExtensionImpl
 public class RsLocalToolchainProvider implements RsToolchainProvider {
     @Override
     @Nullable

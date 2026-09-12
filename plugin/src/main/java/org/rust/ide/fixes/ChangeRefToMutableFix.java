@@ -15,6 +15,7 @@ import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.RsUnaryExpr;
 import org.rust.lang.core.psi.ext.UnaryOperator;
 import org.rust.lang.core.psi.ext.RsUnaryExprUtil;
+import consulo.localize.LocalizeValue;
 
 /**
  * Fix that converts the given immutable reference to a mutable reference.

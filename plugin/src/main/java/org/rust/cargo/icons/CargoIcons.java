@@ -6,31 +6,31 @@
 package org.rust.cargo.icons;
 
 import consulo.application.AllIcons;
+import consulo.rust.icon.RustIconGroup;
 import consulo.ui.image.Image;
 
+/**
+ * @deprecated use {@link RustIconGroup} directly.
+ */
+@Deprecated
 public final class CargoIcons {
-    public static final Image ICON = load("/icons/cargo.svg");
-    public static final Image LOCK_ICON = load("/icons/cargoLock.svg");
-    public static final Image BUILD_RS_ICON = load("/icons/rustBuild.svg");
+    public static final Image ICON = RustIconGroup.cargo();
+    public static final Image LOCK_ICON = RustIconGroup.cargolock();
+    public static final Image BUILD_RS_ICON = RustIconGroup.rustbuild();
     public static final Image TEST = AllIcons.RunConfigurations.Junit;
     public static final Image TEST_GREEN = AllIcons.RunConfigurations.TestPassed;
     public static final Image TEST_RED = AllIcons.RunConfigurations.TestFailed;
 
-    // Icons for target nodes in cargo toolwindow
-    public static final Image TARGETS = load("/icons/targets.svg");
-    public static final Image BIN_TARGET = load("/icons/targetBin.svg");
-    public static final Image LIB_TARGET = load("/icons/targetLib.svg");
-    public static final Image TEST_TARGET = load("/icons/targetTest.svg");
-    public static final Image BENCH_TARGET = load("/icons/targetBench.svg");
-    public static final Image EXAMPLE_TARGET = load("/icons/targetExample.svg");
-    public static final Image CUSTOM_BUILD_TARGET = load("/icons/targetCustomBuild.svg");
+    public static final Image TARGETS = RustIconGroup.targets();
+    public static final Image BIN_TARGET = RustIconGroup.targetbin();
+    public static final Image LIB_TARGET = RustIconGroup.targetlib();
+    public static final Image TEST_TARGET = RustIconGroup.targettest();
+    public static final Image BENCH_TARGET = RustIconGroup.targetbench();
+    public static final Image EXAMPLE_TARGET = RustIconGroup.targetexample();
+    public static final Image CUSTOM_BUILD_TARGET = RustIconGroup.targetcustombuild();
 
-    public static final Image RELOAD_ICON = load("/icons/rustReload.svg");
+    public static final Image RELOAD_ICON = RustIconGroup.rustreload();
 
     private CargoIcons() {
-    }
-
-    private static Image load(String path) {
-        return Image.empty(16);
     }
 }

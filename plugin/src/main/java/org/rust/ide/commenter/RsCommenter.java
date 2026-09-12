@@ -6,7 +6,6 @@
 package org.rust.ide.commenter;
 
 import consulo.language.SelfManagingCommenter;
-import com.intellij.codeInsight.generation.SelfManagingCommenterUtil;
 import consulo.language.CodeDocumentationAwareCommenter;
 import consulo.language.Commenter;
 import consulo.document.Document;
@@ -17,12 +16,16 @@ import consulo.language.ast.IElementType;
 import consulo.util.lang.CharArrayUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.lang.core.parser.RustParserDefinition;
 import org.rust.lang.doc.psi.RsDocKind;
 
 import java.util.Arrays;
 import java.util.List;
+import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.RsTokenType;
+import consulo.language.Language;
+import org.rust.lang.RsLanguage;
 
+@ExtensionImpl
 public class RsCommenter implements Commenter, CodeDocumentationAwareCommenter, SelfManagingCommenter<CommentHolder> {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 
@@ -72,7 +75,7 @@ public class RsCommenter implements Commenter, CodeDocumentationAwareCommenter, 
     @Nonnull
     @Override
     public IElementType getBlockCommentTokenType() {
-        return RustParserDefinition.BLOCK_COMMENT;
+        return RsTokenType.BLOCK_COMMENT;
     }
 
     @Nonnull
@@ -118,16 +121,28 @@ public class RsCommenter implements Commenter, CodeDocumentationAwareCommenter, 
         return getBlockCommentSuffix();
     }
 
+    /**
+     * Returns the range of the block comment that exactly wraps the selection (ignoring surrounding
+     * whitespace), or {@code null} when the selection is not a block comment.
+     */
     @Nullable
     @Override
     public TextRange getBlockCommentRange(int selectionStart, int selectionEnd, @Nonnull Document document, @Nonnull CommentHolder data) {
-        return SelfManagingCommenterUtil.getBlockCommentRange(
-            selectionStart,
-            selectionEnd,
-            document,
-            getBlockCommentPrefix(),
-            getBlockCommentSuffix()
-        );
+        String prefix = getBlockCommentPrefix();
+        String suffix = getBlockCommentSuffix();
+        CharSequence sequence = document.getCharsSequence();
+
+        int start = CharArrayUtil.shiftForward(sequence, selectionStart, " \t\n");
+        int end = CharArrayUtil.shiftBackward(sequence, selectionEnd - 1, " \t\n") + 1;
+        if (end < start) {
+            end = start;
+        }
+
+        if (CharArrayUtil.regionMatches(sequence, end - suffix.length(), suffix)
+            && CharArrayUtil.regionMatches(sequence, start, prefix)) {
+            return new TextRange(start, end);
+        }
+        return null;
     }
 
     @Nonnull
@@ -142,13 +157,10 @@ public class RsCommenter implements Commenter, CodeDocumentationAwareCommenter, 
 
     @Override
     public void uncommentBlockComment(int startOffset, int endOffset, @Nonnull Document document, @Nullable CommentHolder data) {
-        SelfManagingCommenterUtil.uncommentBlockComment(
-            startOffset,
-            endOffset,
-            document,
-            getBlockCommentPrefix(),
-            getBlockCommentSuffix()
-        );
+        String prefix = getBlockCommentPrefix();
+        String suffix = getBlockCommentSuffix();
+        document.deleteString(endOffset - suffix.length(), endOffset);
+        document.deleteString(startOffset, startOffset + prefix.length());
     }
 
     @Override

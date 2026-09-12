@@ -26,6 +26,7 @@ import org.rust.ide.notifications.NotificationUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import consulo.project.ProjectPropertiesComponent;
 
 public final class CargoProjectServiceUtil {
 
@@ -48,7 +49,7 @@ public final class CargoProjectServiceUtil {
     public static boolean guessAndSetupRustProject(@Nonnull Project project, boolean explicitRequest) {
         if (!explicitRequest) {
             String key = "org.rust.cargo.project.model.PROJECT_DISCOVERY";
-            PropertiesComponent properties = project.getInstance(consulo.component.PropertiesComponent.class);
+            PropertiesComponent properties = ProjectPropertiesComponent.getInstance(project);
             boolean alreadyTried = properties.getBoolean(key);
             properties.setValue(key, true);
             if (alreadyTried) return false;

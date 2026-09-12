@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import org.rust.lang.core.psi.ext.RsEnumItemUtil;
 import org.rust.lang.core.psi.ext.RsPatUtil;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import consulo.localize.LocalizeValue;
 
 public class IfLetToMatchIntention extends RsElementBaseIntentionAction<IfLetToMatchIntention.Context> {
 

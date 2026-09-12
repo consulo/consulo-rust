@@ -28,6 +28,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.rust.cargo.project.workspace.CargoWorkspace;
 
 public final class CargoMetadata {
 

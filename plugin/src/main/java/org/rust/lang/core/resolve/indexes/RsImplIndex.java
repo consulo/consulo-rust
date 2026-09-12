@@ -24,7 +24,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.RsTypeParameter;
+import org.rust.lang.core.psi.RsTypeReference;
 
+@ExtensionImpl
 public class RsImplIndex extends AbstractStubIndex<TyFingerprint, RsImplItem> {
 
     private static final StubIndexKey<TyFingerprint, RsImplItem> KEY =

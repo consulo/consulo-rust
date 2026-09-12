@@ -11,7 +11,6 @@ import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.ide.fixes.SubstituteTextFix;
-import org.rust.ide.injected.DoctestUtils;
 import org.rust.ide.inspections.RsProblemsHolder;
 import org.rust.ide.inspections.RsWithMacrosInspectionVisitor;
 import org.rust.lang.core.psi.RsFunction;

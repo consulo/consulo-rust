@@ -15,7 +15,9 @@ import org.rust.lang.core.stubs.RsFileStub;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.Collection;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsNamedElementIndex extends StringStubIndexExtension<RsNamedElement> {
     @Nonnull
     public static final StubIndexKey<String, RsNamedElement> KEY =

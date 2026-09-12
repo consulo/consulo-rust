@@ -18,6 +18,7 @@ import org.rust.openapiext.OpenApiUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import consulo.language.icon.IconDescriptorUpdaters;
 
 public final class TraitMemberChooserUi {
 

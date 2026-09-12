@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import consulo.util.lang.Pair;
 
 public final class CollectionsUtil {
     private static final int INT_MAX_POWER_OF_TWO = Integer.MAX_VALUE / 2 + 1;

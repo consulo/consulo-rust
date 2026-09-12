@@ -1,5 +1,5 @@
 package com.intellij.refactoring.suggested;
 
-/** IntelliJ-compat stub: marker base for refactoring data. */
+/** Marker base for suggested-refactoring data. */
 public abstract class SuggestedRefactoringData {
 }

@@ -6,10 +6,12 @@
 package org.rust;
 
 import consulo.disposer.Disposable;
-import com.intellij.openapi.components.Service;
 import consulo.application.progress.Task;
 import consulo.project.Project;
 import org.rust.util.RsBackgroundTaskQueue;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.annotation.component.ComponentScope;
 
 /**
  * A common queue for cargo and macro expansion tasks that should be executed sequentially.
@@ -17,7 +19,8 @@ import org.rust.util.RsBackgroundTaskQueue;
  * The most important feature is that newly submitted tasks can cancel a currently running task or
  * tasks in the queue (See {@link RsTask#getTaskType()}).
  */
-@Service
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
 public final class RsProjectTaskQueueService implements Disposable {
     private final RsBackgroundTaskQueue queue = new RsBackgroundTaskQueue();
 

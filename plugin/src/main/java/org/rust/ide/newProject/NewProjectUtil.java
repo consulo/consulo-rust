@@ -25,6 +25,7 @@ import org.rust.stdext.StdextUtil;
 
 import java.nio.file.Path;
 import org.rust.lang.core.psi.ext.RsPathUtil;
+import org.rust.openapiext.RsProcessExecutionException;
 
 /**
  * Utilities for creating new Rust projects.

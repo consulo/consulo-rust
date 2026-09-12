@@ -5,6 +5,7 @@
 
 package org.rust.cargo.project.toolwindow;
 
+import consulo.rust.icon.RustIconGroup;
 import consulo.ui.ex.tree.PresentationData;
 import consulo.disposer.Disposable;
 import consulo.util.lang.StringUtil;
@@ -18,7 +19,6 @@ import consulo.ui.ex.awt.tree.SimpleTreeStructure;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.icons.CargoIcons;
 import org.rust.cargo.project.model.CargoProject;
 import org.rust.cargo.project.workspace.CargoWorkspace;
 import org.rust.cargo.project.workspace.PackageOrigin;
@@ -27,6 +27,7 @@ import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 import javax.swing.*;
 import java.util.*;
 import java.util.stream.Collectors;
+import consulo.ui.image.Image;
 
 public class CargoProjectTreeStructure extends SimpleTreeStructure {
 
@@ -100,7 +101,7 @@ public class CargoProjectTreeStructure extends SimpleTreeStructure {
         public Project(@Nonnull CargoProject cargoProject, @Nonnull SimpleNode parent) {
             super(parent);
             this.cargoProject = cargoProject;
-            setIcon(CargoIcons.ICON);
+            setIcon(RustIconGroup.cargoproject());
         }
 
         @Override
@@ -162,7 +163,7 @@ public class CargoProjectTreeStructure extends SimpleTreeStructure {
         public WorkspaceMember(@Nonnull CargoWorkspace.Package pkg, @Nonnull SimpleNode parent) {
             super(parent);
             this.pkg = pkg;
-            setIcon(CargoIcons.ICON);
+            setIcon(RustIconGroup.cargo());
         }
 
         @Override
@@ -185,7 +186,7 @@ public class CargoProjectTreeStructure extends SimpleTreeStructure {
         public Targets(@Nonnull Collection<CargoWorkspace.Target> targets, @Nonnull SimpleNode parent) {
             super(parent);
             this.targets = targets;
-            setIcon(CargoIcons.TARGETS);
+            setIcon(RustIconGroup.targets());
         }
 
         @Override
@@ -239,13 +240,13 @@ public class CargoProjectTreeStructure extends SimpleTreeStructure {
         @Nullable
         private static consulo.ui.image.Image getTargetIcon(@Nonnull CargoWorkspace.Target target) {
             CargoWorkspace.TargetKind kind = target.getKind();
-            if (kind instanceof CargoWorkspace.TargetKind.Lib) return CargoIcons.LIB_TARGET;
-            if (kind instanceof CargoWorkspace.TargetKind.Bin) return CargoIcons.BIN_TARGET;
-            if (kind instanceof CargoWorkspace.TargetKind.Test) return CargoIcons.TEST_TARGET;
-            if (kind instanceof CargoWorkspace.TargetKind.Bench) return CargoIcons.BENCH_TARGET;
-            if (kind instanceof CargoWorkspace.TargetKind.ExampleBin) return CargoIcons.EXAMPLE_TARGET;
-            if (kind instanceof CargoWorkspace.TargetKind.ExampleLib) return CargoIcons.EXAMPLE_TARGET;
-            if (kind instanceof CargoWorkspace.TargetKind.CustomBuild) return CargoIcons.CUSTOM_BUILD_TARGET;
+            if (kind instanceof CargoWorkspace.TargetKind.Lib) return RustIconGroup.targetlib();
+            if (kind instanceof CargoWorkspace.TargetKind.Bin) return RustIconGroup.targetbin();
+            if (kind instanceof CargoWorkspace.TargetKind.Test) return RustIconGroup.targettest();
+            if (kind instanceof CargoWorkspace.TargetKind.Bench) return RustIconGroup.targetbench();
+            if (kind instanceof CargoWorkspace.TargetKind.ExampleBin) return RustIconGroup.targetexample();
+            if (kind instanceof CargoWorkspace.TargetKind.ExampleLib) return RustIconGroup.targetexample();
+            if (kind instanceof CargoWorkspace.TargetKind.CustomBuild) return RustIconGroup.targetcustombuild();
             return null;
         }
     }

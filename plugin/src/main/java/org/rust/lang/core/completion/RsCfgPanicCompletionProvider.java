@@ -14,6 +14,7 @@ import consulo.language.util.ProcessingContext;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.RsPsiPattern;
 import org.rust.toml.completion.RsCfgFeatureCompletionProvider.RustStringLiteralInsertionHandler;
+import org.rust.toml.completion.RsCfgFeatureCompletionProvider;
 
 public class RsCfgPanicCompletionProvider extends RsCompletionProvider {
     public static final RsCfgPanicCompletionProvider INSTANCE = new RsCfgPanicCompletionProvider();

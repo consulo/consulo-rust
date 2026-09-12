@@ -9,14 +9,12 @@ import org.rust.lang.core.psi.ext.RsElementUtil;
 import consulo.language.psi.PsiReference;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.ide.presentation.RenderingUtil;
 import org.rust.lang.core.psi.RsPatBinding;
 import org.rust.lang.core.psi.RsUnaryExpr;
 import org.rust.lang.core.psi.RsValueArgumentList;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.UnaryOperator;
 import org.rust.lang.core.resolve.ImplLookup;
-import org.rust.lang.core.types.TypeUtil;
 import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyReference;
 

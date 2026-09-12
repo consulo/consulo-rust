@@ -5,6 +5,7 @@
 
 package org.rust.toml.crates.local;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.virtualFileSystem.event.AsyncFileListener;
 import consulo.virtualFileSystem.event.VFileEvent;
 import jakarta.annotation.Nonnull;
@@ -12,6 +13,7 @@ import jakarta.annotation.Nullable;
 
 import java.util.List;
 
+@ExtensionImpl
 public class CratesLocalIndexVfsListener implements AsyncFileListener {
 
     @Nullable

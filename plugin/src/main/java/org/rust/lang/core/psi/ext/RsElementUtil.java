@@ -23,9 +23,16 @@ import org.rust.lang.core.types.infer.RsInferenceResult;
 
 import java.util.*;
 import org.rust.lang.core.psi.ext.RsVisibilityUtil;
+import org.rust.lang.core.crate.impl.FakeInvalidCrate;
+import consulo.language.ast.TokenSet;
+import consulo.language.psi.PsiNameIdentifierOwner;
+import consulo.language.psi.PsiWhiteSpace;
+import org.rust.cargo.project.workspace.PackageOrigin;
+import org.rust.lang.core.resolve.NameResolution;
+import org.rust.lang.core.resolve.Namespace;
+import org.rust.lang.core.resolve.Processors;
 
 /**
- * <p>
  * Delegates to {@link RsElementExtKt}, {@link PsiElementKt}, {@link PsiElementExt},
  * {@link RsPsiJavaUtil}, {@link CfgUtils}, {@link RsDocAndAttributeOwnerKt}, etc.
  */
@@ -243,16 +250,11 @@ public final class RsElementUtil {
     // Crate / Cargo
     // ========================
 
-    @Nullable
+    @Nonnull
     public static Crate getContainingCrate(@Nonnull PsiElement element) {
-        if (element instanceof RsElement) {
-            return ((RsElement) element).getContainingCrate();
-        }
         RsFile file = PsiElementUtil.getContainingRsFileSkippingCodeFragments(element);
-        if (file != null) {
-            return file.getCrate();
-        }
-        return null;
+        Crate crate = file != null ? file.getCrate() : null;
+        return crate != null ? crate : new FakeInvalidCrate(element.getProject());
     }
 
     @Nullable
@@ -385,7 +387,7 @@ public final class RsElementUtil {
      */
     public static boolean isKeywordLike(@Nonnull PsiElement element) {
         IElementType type = PsiUtilCore.getElementType(element);
-        return RsTokenType.RS_KEYWORDS.contains(type) || RsTokenType.RS_CONTEXTUAL_KEYWORDS.contains(type);
+        return RsTokenSets.RS_KEYWORDS.contains(type) || RsTokenSets.RS_CONTEXTUAL_KEYWORDS.contains(type);
     }
 
     public static boolean isPublic(@Nonnull RsVisibilityOwner element) {
@@ -433,9 +435,15 @@ public final class RsElementUtil {
         return RsPsiJavaUtil.firstKeyword(item);
     }
 
+    /**
+     * Names of every value binding visible at the given element's position, collected by walking
+     * the nested scopes upwards from it.
+     */
     @Nonnull
-    public static Set<String> getAllVisibleBindings(@Nonnull PsiElement element) {
-        return RsPsiJavaUtil.getAllVisibleBindings(element);
+    public static Set<String> getAllVisibleBindings(@Nonnull RsElement element) {
+        return Processors.collectNames(
+            processor -> NameResolution.processNestedScopesUpwards(
+                element, Namespace.VALUES, processor));
     }
 
     /**

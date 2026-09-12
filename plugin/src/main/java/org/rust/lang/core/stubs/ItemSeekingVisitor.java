@@ -11,7 +11,7 @@ import consulo.language.ast.IElementType;
 import jakarta.annotation.Nonnull;
 
 import static org.rust.lang.core.psi.RsElementTypes.MACRO;
-import static org.rust.lang.core.psi.RsTokenType.RS_ITEMS;
+import static org.rust.lang.core.psi.RsTokenSets.RS_ITEMS;
 
 final class ItemSeekingVisitor extends RecursiveTreeElementWalkingVisitor {
     private boolean hasItemsOrAttrs = false;

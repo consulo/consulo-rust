@@ -11,9 +11,7 @@ import consulo.language.psi.scope.LocalSearchScope;
 import consulo.language.psi.search.ReferencesSearch;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.ide.presentation.RenderingUtil;
 import org.rust.ide.refactoring.RsFunctionSignatureConfig;
-import org.rust.ide.utils.ExpressionUtils;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.resolve.ImplLookup;
@@ -24,6 +22,9 @@ import java.util.stream.Collectors;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
 import org.rust.ide.presentation.TypeRendering;
 import org.rust.lang.core.psi.ext.RsStmtUtil;
+import consulo.language.ast.IElementType;
+import consulo.language.psi.PsiReference;
+import org.rust.ide.utils.SearchByOffset;
 
 public class RsExtractFunctionConfig extends RsFunctionSignatureConfig {
     @Nonnull

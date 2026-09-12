@@ -3,7 +3,7 @@ package com.intellij.refactoring.suggested;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
-/** IntelliJ-compat stub: part of the suggested refactoring framework. */
+/** Decides which refactoring, if any, is suggested for the currently edited declaration. */
 public abstract class SuggestedRefactoringAvailability {
     protected final SuggestedRefactoringSupport refactoringSupport;
 

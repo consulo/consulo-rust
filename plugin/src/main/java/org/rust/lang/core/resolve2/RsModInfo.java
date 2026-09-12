@@ -11,6 +11,7 @@ import jakarta.annotation.Nullable;
 import org.rust.lang.core.crate.Crate;
 import org.rust.lang.core.psi.ext.RsItemsOwner;
 import org.rust.lang.core.psi.ext.RsMod;
+import org.rust.lang.core.psi.ext.RsPossibleMacroCall;
 
 public class RsModInfo {
     @Nonnull

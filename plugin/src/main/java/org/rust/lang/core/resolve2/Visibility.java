@@ -10,9 +10,9 @@ import jakarta.annotation.Nullable;
 
 public abstract class Visibility {
 
-    public static final Visibility PUBLIC = Public.INSTANCE;
-    public static final Visibility INVISIBLE = Invisible.INSTANCE;
-    public static final Visibility CFG_DISABLED = CfgDisabled.INSTANCE;
+    public static final Visibility PUBLIC = new Public();
+    public static final Visibility INVISIBLE = new Invisible();
+    public static final Visibility CFG_DISABLED = new CfgDisabled();
 
     private Visibility() {}
 
@@ -72,7 +72,6 @@ public abstract class Visibility {
     }
 
     public static final class Public extends Visibility {
-        public static final Public INSTANCE = new Public();
         private Public() {}
     }
 
@@ -105,12 +104,10 @@ public abstract class Visibility {
      * But we record it for completion, etc.
      */
     public static final class Invisible extends Visibility {
-        public static final Invisible INSTANCE = new Invisible();
         private Invisible() {}
     }
 
     public static final class CfgDisabled extends Visibility {
-        public static final CfgDisabled INSTANCE = new CfgDisabled();
         private CfgDisabled() {}
     }
 }

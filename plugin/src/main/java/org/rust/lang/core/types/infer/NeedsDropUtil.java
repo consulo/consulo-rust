@@ -19,6 +19,11 @@ import org.rust.lang.utils.evaluation.ThreeValuedLogic;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.rust.lang.core.psi.RsEnumBody;
+import org.rust.lang.core.psi.RsEnumVariant;
+import org.rust.lang.core.psi.RsNamedFieldDecl;
+import org.rust.lang.core.psi.RsTupleFieldDecl;
+import org.rust.lang.core.psi.RsTypeReference;
 
 public final class NeedsDropUtil {
     private NeedsDropUtil() {

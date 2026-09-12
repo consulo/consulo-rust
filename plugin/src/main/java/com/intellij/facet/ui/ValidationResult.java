@@ -1,5 +1,5 @@
 package com.intellij.facet.ui;
-/** IntelliJ-compat stub — simple validation-result wrapper. */
+/** Outcome of a validation: OK, or a failure carrying a message. */
 public final class ValidationResult {
     public static final ValidationResult OK = new ValidationResult(null);
     private final String message;

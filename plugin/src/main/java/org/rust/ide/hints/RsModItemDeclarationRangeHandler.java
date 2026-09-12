@@ -5,11 +5,13 @@
 
 package org.rust.ide.hints;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.hint.DeclarationRangeHandler;
 import consulo.document.util.TextRange;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.RsModItem;
 
+@ExtensionImpl
 public class RsModItemDeclarationRangeHandler implements DeclarationRangeHandler<RsModItem> {
 
     @Override

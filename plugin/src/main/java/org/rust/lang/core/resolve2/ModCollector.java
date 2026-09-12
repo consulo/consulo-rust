@@ -33,6 +33,7 @@ import org.rust.stdext.HashCode;
 
 import java.nio.file.InvalidPathException;
 import java.util.*;
+import consulo.language.psi.stub.StubTree;
 // import org.rust.lang.core.stubs.RsBlockStubBuilderUtil; // placeholder removed
 
 /**

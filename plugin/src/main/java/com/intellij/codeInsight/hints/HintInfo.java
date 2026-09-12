@@ -4,7 +4,7 @@ import consulo.language.Language;
 import java.util.Collections;
 import java.util.List;
 
-/** IntelliJ-compat stub — inlay hint info. */
+/** Describes an inlay hint: either a method's parameter hints or a toggleable hint option. */
 public abstract class HintInfo {
     public static class MethodInfo extends HintInfo {
         public final String fullyQualifiedName;

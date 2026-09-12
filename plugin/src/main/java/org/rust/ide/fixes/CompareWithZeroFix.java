@@ -14,6 +14,7 @@ import org.rust.lang.core.psi.RsCastExpr;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.TyNumeric;
+import consulo.localize.LocalizeValue;
 
 public class CompareWithZeroFix extends RsQuickFixBase<RsCastExpr> {
 

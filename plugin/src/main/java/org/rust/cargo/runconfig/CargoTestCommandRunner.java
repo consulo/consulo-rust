@@ -4,6 +4,7 @@
  */
 
 package org.rust.cargo.runconfig;
+import consulo.annotation.component.ExtensionImpl;
 import consulo.execution.ExecutionResult;
 
 import consulo.execution.RunContentExecutor;
@@ -29,7 +30,11 @@ import org.rust.cargo.runconfig.buildtool.Utils;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 
 import java.util.List;
+import consulo.process.ExecutionException;
+import org.rust.cargo.toolchain.CargoCommandLine;
+import org.rust.openapiext.OpenApiUtil;
 
+@ExtensionImpl
 public class CargoTestCommandRunner extends AsyncProgramRunner<RunnerSettings> {
 
     public static final String RUNNER_ID = "CargoTestCommandRunner";

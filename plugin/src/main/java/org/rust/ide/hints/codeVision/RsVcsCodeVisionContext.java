@@ -5,6 +5,7 @@
 
 package org.rust.ide.hints.codeVision;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.versionControlSystem.codeVision.VcsCodeVisionCurlyBracketLanguageContext;
 import consulo.codeEditor.Editor;
 import consulo.application.util.registry.Registry;
@@ -13,16 +14,19 @@ import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.openapiext.OpenApiUtil;
+import consulo.language.Language;
+import consulo.ui.event.ComponentEvent;
+import org.rust.lang.RsLanguage;
 
-import java.awt.event.MouseEvent;
 
+@ExtensionImpl
 @SuppressWarnings("UnstableApiUsage")
 public class RsVcsCodeVisionContext extends VcsCodeVisionCurlyBracketLanguageContext {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 
     @Override
     public boolean isAccepted(@Nonnull PsiElement element) {
-        if (!OpenApiUtil.isUnitTestMode() && !Registry.is("org.rust.code.vision.author")) return false;
+        if (!OpenApiUtil.isUnitTestMode() && !Registry.is("org.rust.code.vision.author", true)) return false;
 
         return element instanceof RsFunction
             || element instanceof RsStructOrEnumItemElement
@@ -41,6 +45,6 @@ public class RsVcsCodeVisionContext extends VcsCodeVisionCurlyBracketLanguageCon
     }
 
     @Override
-    public void handleClick(@Nonnull MouseEvent mouseEvent, @Nonnull Editor editor, @Nonnull PsiElement element) {
+    public void handleClick(@Nonnull ComponentEvent<?> event, @Nonnull Editor editor, @Nonnull PsiElement element) {
     }
 }

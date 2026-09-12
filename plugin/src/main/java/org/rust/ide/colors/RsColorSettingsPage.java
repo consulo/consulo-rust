@@ -5,6 +5,7 @@
 
 package org.rust.ide.colors;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.colorScheme.TextAttributesKey;
 import consulo.colorScheme.setting.AttributesDescriptor;
 import consulo.colorScheme.setting.ColorDescriptor;
@@ -21,7 +22,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
+import consulo.language.editor.highlight.SyntaxHighlighter;
+import consulo.localize.LocalizeValue;
 
+@ExtensionImpl
 public class RsColorSettingsPage implements ColorSettingsPage {
 
     private static final AttributesDescriptor[] ATTRS;

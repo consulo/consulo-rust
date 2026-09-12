@@ -6,7 +6,6 @@
 package org.rust.lang.core.macros;
 
 import consulo.disposer.Disposable;
-import com.intellij.openapi.components.Service;
 import consulo.ide.ServiceManager;
 import consulo.project.Project;
 import consulo.disposer.Disposer;
@@ -29,13 +28,18 @@ import org.rust.stdext.RsResult;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.annotation.component.ComponentScope;
+import consulo.application.ApplicationManager;
 
 /**
  * A persistent (stored on disk, in the real file system) cache for macro expansion text and stubs.
  * The cache is shared between different {@link Project}s (i.e. it's an application service).
  */
 @SuppressWarnings("UnstableApiUsage")
-@Service
+@ServiceAPI(ComponentScope.APPLICATION)
+@ServiceImpl
 public final class MacroExpansionSharedCache implements Disposable {
 
     private final AtomicReference<Object> data = new AtomicReference<>(null);

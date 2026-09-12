@@ -14,6 +14,7 @@ import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.RsLanguage;
 import org.rust.lang.core.psi.RsElementTypes;
+import consulo.language.version.LanguageVersion;
 
 public final class ParserUtil {
 

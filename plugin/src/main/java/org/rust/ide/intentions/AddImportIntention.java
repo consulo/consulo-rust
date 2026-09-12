@@ -26,6 +26,8 @@ import java.util.Set;
 import org.rust.lang.core.psi.ext.RsPathUtil;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
+import consulo.localize.LocalizeValue;
+import org.rust.lang.core.resolve.NameResolution;
 
 public class AddImportIntention extends RsElementBaseIntentionAction<AddImportIntention.Context> {
 

@@ -19,6 +19,7 @@ import org.rust.cargo.project.model.impl.UserDisabledFeatures;
 
 import java.nio.file.Path;
 import java.util.*;
+import org.rust.cargo.util.AutoInjectedCrates;
 
 /**
  * Rust project model represented roughly in the same way as in Cargo itself.

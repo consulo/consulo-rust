@@ -4,7 +4,7 @@ import consulo.language.lexer.*;
 import consulo.language.ast.IElementType;
 
 import static org.rust.lang.core.psi.RsElementTypes.*;
-import static org.rust.lang.core.parser.RustParserDefinition.*;
+import static org.rust.lang.core.psi.RsTokenType.*;
 import static consulo.language.ast.TokenType.*;
 
 %%

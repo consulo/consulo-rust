@@ -20,9 +20,9 @@ import consulo.language.psi.PsiWhiteSpace;
 import consulo.language.ast.TokenSet;
 import consulo.language.psi.util.PsiTreeUtil;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.rust.ide.injected.RsDoctestLanguageInjector;
 import org.rust.lang.RsLanguage;
-import org.rust.lang.core.parser.RustParserDefinition;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 
@@ -32,7 +32,11 @@ import java.util.List;
 import static org.rust.lang.core.psi.RsElementTypes.*;
 import org.rust.lang.core.psi.ext.RsMacroCallUtil;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.Language;
+import consulo.language.psi.PsiFile;
 
+@ExtensionImpl
 public class RsFoldingBuilder extends CustomFoldingBuilder implements DumbAware {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 
@@ -91,10 +95,10 @@ public class RsFoldingBuilder extends CustomFoldingBuilder implements DumbAware 
     }
 
     private static final TokenSet RS_DOC_COMMENTS_TOKEN_SET = TokenSet.create(
-        RustParserDefinition.INNER_BLOCK_DOC_COMMENT,
-        RustParserDefinition.INNER_EOL_DOC_COMMENT,
-        RustParserDefinition.OUTER_BLOCK_DOC_COMMENT,
-        RustParserDefinition.OUTER_EOL_DOC_COMMENT
+        RsTokenType.INNER_BLOCK_DOC_COMMENT,
+        RsTokenType.INNER_EOL_DOC_COMMENT,
+        RsTokenType.OUTER_BLOCK_DOC_COMMENT,
+        RsTokenType.OUTER_EOL_DOC_COMMENT
     );
 
     private static class FoldingVisitor extends RsVisitor {
@@ -189,11 +193,11 @@ public class RsFoldingBuilder extends CustomFoldingBuilder implements DumbAware 
         @Override
         public void visitComment(@Nonnull PsiComment comment) {
             var tokenType = comment.getTokenType();
-            if (tokenType == RustParserDefinition.BLOCK_COMMENT ||
-                tokenType == RustParserDefinition.INNER_BLOCK_DOC_COMMENT ||
-                tokenType == RustParserDefinition.OUTER_BLOCK_DOC_COMMENT ||
-                tokenType == RustParserDefinition.INNER_EOL_DOC_COMMENT ||
-                tokenType == RustParserDefinition.OUTER_EOL_DOC_COMMENT) {
+            if (tokenType == RsTokenType.BLOCK_COMMENT ||
+                tokenType == RsTokenType.INNER_BLOCK_DOC_COMMENT ||
+                tokenType == RsTokenType.OUTER_BLOCK_DOC_COMMENT ||
+                tokenType == RsTokenType.INNER_EOL_DOC_COMMENT ||
+                tokenType == RsTokenType.OUTER_EOL_DOC_COMMENT) {
                 fold(comment);
             }
         }
@@ -250,18 +254,82 @@ public class RsFoldingBuilder extends CustomFoldingBuilder implements DumbAware 
 
         @Override
         public void visitUseItem(@Nonnull RsUseItem o) {
-            // Simplified: just fold the element itself
-            fold(o);
+            foldRepeatingItems(o, RsUseItem.class, o.getUse(), o.getUse(), usesRanges);
         }
 
         @Override
         public void visitModDeclItem(@Nonnull RsModDeclItem o) {
-            fold(o);
+            foldRepeatingItems(o, RsModDeclItem.class, o.getMod(), o.getMod(), modsRanges);
         }
 
         @Override
         public void visitExternCrateItem(@Nonnull RsExternCrateItem o) {
-            fold(o);
+            foldRepeatingItems(o, RsExternCrateItem.class, o.getExtern(), o.getCrate(), cratesRanges);
+        }
+
+        /**
+         * Folds a run of adjacent items of the same kind into one region that starts after
+         * {@code endKeyword} of the first item and ends at the last item, so the leading keyword stays
+         * visible. {@code ranges} records the runs already folded so the following items are skipped.
+         */
+        private <T extends PsiElement> void foldRepeatingItems(
+            @Nonnull T startNode,
+            @Nonnull Class<T> itemClass,
+            @Nullable PsiElement startKeyword,
+            @Nullable PsiElement endKeyword,
+            @Nonnull List<TextRange> ranges
+        ) {
+            if (startKeyword == null || endKeyword == null) return;
+            if (isInRangesAlready(ranges, startNode)) return;
+
+            T lastNode = null;
+            for (PsiElement sibling = startNode.getNextSibling(); sibling != null; sibling = sibling.getNextSibling()) {
+                if (sibling instanceof PsiComment || sibling instanceof PsiWhiteSpace) continue;
+                if (!itemClass.isInstance(sibling)) break;
+                lastNode = itemClass.cast(sibling);
+            }
+            if (lastNode == null) return;
+
+            PsiElement trailingSemicolon;
+            if (lastNode instanceof RsModDeclItem) {
+                trailingSemicolon = ((RsModDeclItem) lastNode).getSemicolon();
+            } else if (lastNode instanceof RsExternCrateItem) {
+                trailingSemicolon = ((RsExternCrateItem) lastNode).getSemicolon();
+            } else if (lastNode instanceof RsUseItem) {
+                trailingSemicolon = ((RsUseItem) lastNode).getSemicolon();
+            } else {
+                trailingSemicolon = null;
+            }
+
+            int foldStartOffset = foldRegionStart(endKeyword);
+            int foldEndOffset = trailingSemicolon != null
+                ? trailingSemicolon.getTextRange().getStartOffset()
+                : lastNode.getTextRange().getEndOffset();
+
+            // Can be false when only the leading keyword is present but the node is malformed;
+            // such nodes are not collapsed even though they may carry attributes.
+            if (foldStartOffset >= foldEndOffset) return;
+
+            ranges.add(new TextRange(startNode.getTextRange().getStartOffset(), lastNode.getTextRange().getEndOffset()));
+
+            FoldingGroup group = FoldingGroup.newGroup(itemClass.getName());
+            descriptors.add(new FoldingDescriptor(startNode.getNode(), new TextRange(foldStartOffset, foldEndOffset), group));
+
+            int startOffset = startNode.getTextRange().getStartOffset();
+            int startKeywordOffset = startKeyword.getTextRange().getStartOffset();
+            if (startOffset < startKeywordOffset) {
+                // Hide leading attributes and doc comments
+                descriptors.add(new FoldingDescriptor(
+                    startNode.getNode(), new TextRange(startOffset, startKeywordOffset), group, ""));
+            }
+        }
+
+        private static boolean isInRangesAlready(@Nonnull List<TextRange> ranges, @Nullable PsiElement element) {
+            if (element == null) return false;
+            for (TextRange range : ranges) {
+                if (range.contains(element.getTextOffset())) return true;
+            }
+            return false;
         }
     }
 

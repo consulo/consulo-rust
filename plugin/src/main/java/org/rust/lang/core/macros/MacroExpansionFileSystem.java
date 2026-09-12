@@ -5,6 +5,7 @@
 
 package org.rust.lang.core.macros;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.util.dataholder.Key;
 import consulo.util.io.BufferExposingByteArrayInputStream;
 import consulo.util.io.FileAttributes;
@@ -27,6 +28,7 @@ import java.util.List;
 /**
  * An implementation of {@link consulo.virtualFileSystem.VirtualFileSystem} used to store macro expansions.
  */
+@ExtensionImpl
 public class MacroExpansionFileSystem extends NewVirtualFileSystem {
     private final FSDir root = new FSDir(null, "/");
 

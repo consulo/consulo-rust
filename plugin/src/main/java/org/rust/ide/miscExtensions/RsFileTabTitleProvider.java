@@ -5,6 +5,7 @@
 
 package org.rust.ide.miscExtensions;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.application.ui.UISettings;
 import consulo.fileEditor.EditorTabTitleProvider;
 import consulo.fileEditor.UniqueVFilePathBuilder;
@@ -19,6 +20,7 @@ import org.rust.lang.core.psi.RsFile;
 
 import java.util.Set;
 
+@ExtensionImpl
 public class RsFileTabTitleProvider implements EditorTabTitleProvider {
 
     private static final Set<String> EXPLICIT_FILES = Set.of(

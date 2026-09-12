@@ -11,7 +11,6 @@ import consulo.language.psi.util.PsiTreeUtil;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.ide.fixes.RemoveElementFix;
-import org.rust.ide.injected.DoctestUtils;
 import org.rust.ide.inspections.RsProblemsHolder;
 import org.rust.ide.inspections.RsWithMacrosInspectionVisitor;
 import org.rust.lang.core.psi.*;

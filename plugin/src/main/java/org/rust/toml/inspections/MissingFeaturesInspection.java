@@ -32,7 +32,11 @@ import org.rust.openapiext.VirtualFileExtUtil;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.localize.LocalizeValue;
 
+@ExtensionImpl
 public class MissingFeaturesInspection extends LocalInspectionTool {
 
     @Nonnull

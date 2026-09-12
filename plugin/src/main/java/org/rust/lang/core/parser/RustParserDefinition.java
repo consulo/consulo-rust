@@ -29,26 +29,19 @@ import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.stubs.RsFileStub;
 import org.rust.lang.core.stubs.RsPathStub;
-import org.rust.lang.doc.psi.RsDocCommentElementType;
 import org.rust.lang.doc.psi.ext.RsDocIElementTypeExt;
 
-import static org.rust.lang.core.psi.RsTokenType.RS_ALL_STRING_LITERALS;
-import static org.rust.lang.core.psi.RsTokenType.RS_COMMENTS;
+import static org.rust.lang.core.psi.RsTokenType.EOL_COMMENT;
+import static org.rust.lang.core.psi.RsTokenSets.RS_ALL_STRING_LITERALS;
+import static org.rust.lang.core.psi.RsTokenSets.RS_COMMENTS;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.Language;
+import consulo.language.version.LanguageVersion;
+import org.rust.lang.RsLanguage;
+import org.rust.lang.core.psi.impl.RsElementTypesFactory;
 
+@ExtensionImpl
 public class RustParserDefinition implements ParserDefinition {
-
-    @Nonnull
-    public static final RsTokenType BLOCK_COMMENT = new RsTokenType("<BLOCK_COMMENT>");
-    @Nonnull
-    public static final RsTokenType EOL_COMMENT = new RsTokenType("<EOL_COMMENT>");
-    @Nonnull
-    public static final RsDocCommentElementType INNER_BLOCK_DOC_COMMENT = new RsDocCommentElementType("<INNER_BLOCK_DOC_COMMENT>");
-    @Nonnull
-    public static final RsDocCommentElementType OUTER_BLOCK_DOC_COMMENT = new RsDocCommentElementType("<OUTER_BLOCK_DOC_COMMENT>");
-    @Nonnull
-    public static final RsDocCommentElementType INNER_EOL_DOC_COMMENT = new RsDocCommentElementType("<INNER_EOL_DOC_COMMENT>");
-    @Nonnull
-    public static final RsDocCommentElementType OUTER_EOL_DOC_COMMENT = new RsDocCommentElementType("<OUTER_EOL_DOC_COMMENT>");
 
     /**
      * Should be increased after any change of lexer rules

@@ -1,7 +1,7 @@
 package com.intellij.structuralsearch;
 import com.intellij.structuralsearch.plugin.ui.Configuration;
 import consulo.virtualFileSystem.fileType.FileType;
-/** IntelliJ-compat stub for the structural-search predefined-template factory. */
+/** Factory for structural-search predefined templates. */
 public final class PredefinedConfigurationUtil {
     private PredefinedConfigurationUtil() {}
     public static Configuration createConfiguration(String name, String refName, String pattern, String category, FileType fileType) {

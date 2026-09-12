@@ -16,6 +16,7 @@ import org.rust.lang.core.psi.ext.RsInferenceContextOwner;
 import org.rust.lang.core.resolve.Namespace;
 
 import java.util.Set;
+import org.rust.lang.core.psi.ext.PsiElementUtil;
 
 /**
  * Code fragment for Rust paths.

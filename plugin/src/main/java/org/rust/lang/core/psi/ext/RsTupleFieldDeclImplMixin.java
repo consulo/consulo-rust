@@ -18,6 +18,7 @@ import org.rust.lang.core.stubs.RsPlaceholderStub;
 
 import javax.swing.*;
 import org.rust.lang.core.psi.ext.RsVisibilityUtil;
+import consulo.ui.image.Image;
 
 public abstract class RsTupleFieldDeclImplMixin extends RsStubbedElementImpl<RsPlaceholderStub<?>> implements RsTupleFieldDecl {
 

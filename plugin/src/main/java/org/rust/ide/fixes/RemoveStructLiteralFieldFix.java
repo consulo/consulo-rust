@@ -14,6 +14,7 @@ import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsStructLiteralField;
 import org.rust.lang.core.psi.ext.RsElementUtil;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
+import consulo.localize.LocalizeValue;
 
 public class RemoveStructLiteralFieldFix extends RsQuickFixBase<PsiElement> {
 

@@ -27,6 +27,7 @@ import consulo.annotation.component.ActionImpl;
 import consulo.annotation.component.ActionParentRef;
 import consulo.annotation.component.ActionRefAnchor;
 import consulo.annotation.component.ActionRef;
+import consulo.document.FileDocumentManager;
 
 @ActionImpl(
     id = "Cargo.RustfmtFile",

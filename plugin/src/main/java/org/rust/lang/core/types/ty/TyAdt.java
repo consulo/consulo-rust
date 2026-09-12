@@ -16,6 +16,7 @@ import org.rust.lang.core.types.infer.TypeFolder;
 import org.rust.lang.core.types.infer.TypeVisitor;
 
 import java.util.*;
+import consulo.util.lang.Pair;
 
 public class TyAdt extends Ty {
     @Nonnull

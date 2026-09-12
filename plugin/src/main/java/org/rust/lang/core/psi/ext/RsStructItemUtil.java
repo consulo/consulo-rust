@@ -13,6 +13,7 @@ import org.rust.lang.core.psi.RsStructItem;
 import org.rust.lang.core.stubs.RsStructItemStub;
 import org.rust.lang.core.types.RsPsiTypeImplUtil;
 import org.rust.lang.core.types.ty.Ty;
+import consulo.language.ast.ASTNode;
 
 public final class RsStructItemUtil {
     private RsStructItemUtil() {

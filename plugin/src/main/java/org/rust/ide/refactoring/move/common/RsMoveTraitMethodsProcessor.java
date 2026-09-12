@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.rust.lang.core.psi.ext.RsTraitRefUtil;
 import org.rust.lang.core.psi.ext.RsMod;
+import consulo.localize.LocalizeValue;
 
 public class RsMoveTraitMethodsProcessor {
 

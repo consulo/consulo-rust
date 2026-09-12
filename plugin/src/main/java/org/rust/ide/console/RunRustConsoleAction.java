@@ -7,7 +7,6 @@ package org.rust.ide.console;
 
 import consulo.project.ui.notification.NotificationType;
 import consulo.ui.ex.action.AnActionEvent;
-import com.intellij.openapi.application.TransactionGuard;
 import consulo.ui.ex.action.DumbAwareAction;
 import consulo.project.Project;
 import consulo.ui.ex.action.LegacyDumbAwareAction;
@@ -37,7 +36,6 @@ public class RunRustConsoleAction extends LegacyDumbAwareAction {
         }
 
         RsConsoleRunner runner = new RsConsoleRunner(project);
-        //noinspection deprecation
-        TransactionGuard.getInstance().submitTransaction(project, () -> runner.runSync(true));
+        project.getApplication().invokeLater(() -> runner.runSync(true), project.getDisposed());
     }
 }

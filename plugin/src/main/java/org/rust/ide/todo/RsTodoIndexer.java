@@ -5,11 +5,15 @@
 
 package org.rust.ide.todo;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.lexer.Lexer;
 import consulo.language.psi.stub.OccurrenceConsumer;
 import consulo.language.psi.stub.todo.LexerBasedTodoIndexer;
 import org.rust.lang.core.parser.RustParserDefinition;
+import consulo.virtualFileSystem.fileType.FileType;
+import org.rust.lang.RsFileType;
 
+@ExtensionImpl
 public class RsTodoIndexer extends LexerBasedTodoIndexer {
 
     private static final int VERSION = 2;

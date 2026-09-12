@@ -12,7 +12,6 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.intentions.util.macros.InvokeInside;
-import org.rust.ide.refactoring.RsRefactoringUtilUtil;
 import org.rust.ide.utils.PsiModificationUtil;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.PsiElementExt;
@@ -22,6 +21,8 @@ import org.rust.lang.core.types.infer.TypeInference;
 import java.util.List;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import consulo.localize.LocalizeValue;
+import org.rust.ide.refactoring.ExtraxtExpressionUtils;
 
 public class MatchToIfLetIntention extends RsElementBaseIntentionAction<MatchToIfLetIntention.Context> {
     @Nonnull

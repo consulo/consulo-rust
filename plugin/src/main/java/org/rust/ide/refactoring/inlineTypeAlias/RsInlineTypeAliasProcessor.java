@@ -26,7 +26,6 @@ import org.rust.lang.core.types.BoundElement;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.Substitution;
 import org.rust.lang.core.resolve.ImplLookup;
-import org.rust.lang.core.types.infer.SubstituteUtil;
 import org.rust.lang.core.types.ty.TyTypeParameter;
 import org.rust.openapiext.OpenApiUtil;
 
@@ -34,6 +33,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
+import consulo.language.psi.PsiReference;
+import consulo.localize.LocalizeValue;
+import org.rust.lang.core.types.SubstitutionUtil;
+import org.rust.lang.core.types.infer.FoldUtil;
+import org.rust.lang.core.types.infer.RsInferenceContext;
+import org.rust.lang.core.types.ty.Ty;
 
 public class RsInlineTypeAliasProcessor extends BaseRefactoringProcessor {
     @Nonnull

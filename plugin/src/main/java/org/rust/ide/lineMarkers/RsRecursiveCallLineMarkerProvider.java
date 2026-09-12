@@ -24,7 +24,13 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.Language;
+import consulo.localize.LocalizeValue;
+import consulo.ui.image.Image;
+import org.rust.lang.RsLanguage;
 
+@ExtensionImpl
 public class RsRecursiveCallLineMarkerProvider extends LineMarkerProviderDescriptor {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 

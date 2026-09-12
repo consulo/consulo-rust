@@ -5,6 +5,7 @@
 
 package org.rust.ide.formatter.processors;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.ast.ASTNode;
 import consulo.document.util.TextRange;
 import consulo.language.psi.PsiElement;
@@ -17,6 +18,7 @@ import org.rust.lang.core.psi.ext.PsiElementUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+@ExtensionImpl
 public class RsStatementSemicolonFormatProcessor implements PreFormatProcessor {
 
     @Nonnull

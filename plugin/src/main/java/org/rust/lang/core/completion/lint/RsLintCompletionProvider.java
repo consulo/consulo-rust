@@ -30,6 +30,7 @@ import javax.swing.*;
 import java.util.List;
 
 import static org.rust.lang.core.PsiElementPatternExtUtil.psiElement;
+import consulo.ui.image.Image;
 
 public abstract class RsLintCompletionProvider extends RsCompletionProvider {
 

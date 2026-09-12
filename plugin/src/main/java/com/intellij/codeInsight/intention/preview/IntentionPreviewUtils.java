@@ -1,8 +1,9 @@
 package com.intellij.codeInsight.intention.preview;
 
 import consulo.application.WriteAction;
+import consulo.language.psi.PsiElement;
 
-/** IntelliJ-compat stub: intention-preview helpers. Consulo runs the runnable under a write action. */
+/** Intention-preview helpers; the write helpers run the action under a write action. */
 public final class IntentionPreviewUtils {
     private IntentionPreviewUtils() {}
 

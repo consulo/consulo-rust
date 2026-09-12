@@ -12,6 +12,9 @@ import org.rust.stdext.Utils;
 
 import java.io.File;
 import java.nio.file.Path;
+import consulo.application.util.UserHomeFileUtil;
+import consulo.platform.Platform;
+import org.rust.stdext.PathUtil;
 
 public class RsLocalToolchain extends RsToolchainBase {
 

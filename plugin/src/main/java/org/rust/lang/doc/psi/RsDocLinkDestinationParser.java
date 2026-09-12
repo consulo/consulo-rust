@@ -5,45 +5,39 @@
 
 package org.rust.lang.doc.psi;
 
-import consulo.language.impl.psi.LeafPsiElement;
 import consulo.language.impl.ast.TreeElement;
+import consulo.language.impl.psi.LeafPsiElement;
 import consulo.language.util.CharTable;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 /**
- * Parses doc link destinations for Rust intra-doc links.
+ * Builds the AST of a doc link destination.
+ * <p>
+ * The destination is currently kept as plain text: it is not re-parsed as a Rust path, so intra-doc
+ * links are not resolved. Whatever this class returns must cover the whole {@code text} it is given,
+ * otherwise the doc comment AST stops matching the comment token.
  */
 public final class RsDocLinkDestinationParser {
-
-    private static final Set<String> KNOWN_PREFIXES = new HashSet<>(Arrays.asList(
-        "struct", "enum", "trait", "union", "module", "mod", "const", "constant", "static",
-        "function", "fn", "method", "derive", "type", "value", "macro", "prim", "primitive"
-    ));
-
-    private static final String[] KNOWN_SUFFIXES = {"!()", "!{}", "![]", "()", "!"};
 
     private RsDocLinkDestinationParser() {
     }
 
+    /**
+     * Parses the destination of an inline or a reference link, e.g. {@code bar} in {@code [foo](bar)}.
+     */
     @Nonnull
     public static TreeElement parse(@Nonnull CharSequence text, @Nonnull CharTable charTable) {
-        return docDataLeaf(text, charTable);
+        return new LeafPsiElement(RsDocElementTypes.DOC_DATA, charTable.intern(text));
     }
 
+    /**
+     * Parses a short reference link, e.g. {@code [foo]}, as a Rust path.
+     *
+     * @return {@code null} when the link is not a path, in which case it keeps its Markdown structure
+     */
     @Nullable
     public static TreeElement parseShortLink(@Nonnull CharSequence text, @Nonnull CharTable charTable) {
-        // Simplified: return a DOC_DATA leaf
-        if (text.length() == 0) return null;
-        return docDataLeaf(text, charTable);
-    }
-
-    @Nonnull
-    private static LeafPsiElement docDataLeaf(@Nonnull CharSequence text, @Nonnull CharTable charTable) {
-        return new LeafPsiElement(RsDocElementTypes.DOC_DATA, charTable.intern(text));
+        return null;
     }
 }

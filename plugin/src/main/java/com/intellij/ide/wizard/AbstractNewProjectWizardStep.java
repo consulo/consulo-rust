@@ -1,6 +1,6 @@
 package com.intellij.ide.wizard;
 
-/** IntelliJ-compat stub for the Kotlin new-project wizard step. */
+/** Base class for a new-project wizard step; carries the shared wizard context. */
 public abstract class AbstractNewProjectWizardStep {
     private final Object context;
 

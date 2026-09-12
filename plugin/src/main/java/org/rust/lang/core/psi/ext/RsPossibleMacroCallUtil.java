@@ -23,6 +23,11 @@ import org.rust.stdext.HashCode;
 import org.rust.stdext.RsResult;
 
 import java.util.function.Function;
+import consulo.language.impl.psi.stub.StubBasedPsiElementBase;
+import org.rust.lang.core.macros.MacroExpansionContext;
+import org.rust.lang.core.macros.RsExpandedElementUtil;
+import org.rust.lang.core.macros.decl.DeclMacroExpander;
+import org.rust.lang.core.stubs.RsAttrProcMacroOwnerStub;
 
 public final class RsPossibleMacroCallUtil {
 

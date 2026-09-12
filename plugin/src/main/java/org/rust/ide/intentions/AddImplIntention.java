@@ -13,6 +13,7 @@ import org.rust.ide.utils.PsiInsertionPlace;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.ext.RsStructOrEnumItemElement;
 import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import consulo.localize.LocalizeValue;
 
 public class AddImplIntention extends RsElementBaseIntentionAction<AddImplIntention.Context> {
 

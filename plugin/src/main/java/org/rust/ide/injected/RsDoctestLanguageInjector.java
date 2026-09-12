@@ -30,7 +30,6 @@ import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.RsFile;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.ext.RsElementUtil;
-import org.rust.lang.doc.DocElementUtil;
 import org.rust.lang.doc.psi.RsDocCodeFence;
 import org.rust.lang.doc.psi.RsDocComment;
 import org.rust.lang.doc.psi.RsDocElementTypes;
@@ -45,7 +44,9 @@ import java.util.regex.Pattern;
 import org.rust.lang.core.psi.ext.RsElement;
 import consulo.language.psi.PsiFile;
 import org.rust.lang.core.psi.ext.RsElementExtUtil;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsDoctestLanguageInjector implements MultiHostInjector {
 
     public static final String INJECTED_MAIN_NAME = "__main";

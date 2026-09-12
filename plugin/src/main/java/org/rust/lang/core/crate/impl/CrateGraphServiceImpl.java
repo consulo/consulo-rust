@@ -32,7 +32,12 @@ import org.rust.stdext.StdextUtil;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
+import consulo.annotation.component.ServiceImpl;
+import jakarta.inject.Inject;
+import org.rust.cargo.project.model.CargoProjectsListener;
+import consulo.application.util.CachedValuesManager;
 
+@ServiceImpl
 public class CrateGraphServiceImpl implements CrateGraphService {
 
     @Nonnull
@@ -42,11 +47,13 @@ public class CrateGraphServiceImpl implements CrateGraphService {
     @Nonnull
     private final CachedValue<CrateGraph> crateGraphCachedValue;
 
+    @Inject
+
     public CrateGraphServiceImpl(@Nonnull Project project) {
         this.project = project;
         project.getMessageBus().connect().subscribe(
             CargoProjectsService.CARGO_PROJECTS_TOPIC,
-            (CargoProjectsService.CargoProjectsListener) (projects, updated) -> cargoProjectsModTracker.incModificationCount()
+            (CargoProjectsListener) (projects, updated) -> cargoProjectsModTracker.incModificationCount()
         );
 
         this.crateGraphCachedValue = consulo.application.util.CachedValuesManager.getManager(project).createCachedValue(() -> {

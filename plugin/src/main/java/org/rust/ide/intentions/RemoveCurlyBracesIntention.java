@@ -18,6 +18,7 @@ import org.rust.lang.core.psi.ext.PsiElementExt;
 import org.rust.lang.core.psi.ext.RsPathUtil;
 import org.rust.lang.core.psi.ext.RsUseGroupUtil;
 import org.rust.lang.core.psi.ext.RsUseSpeckUtil;
+import consulo.localize.LocalizeValue;
 
 public class RemoveCurlyBracesIntention extends RsElementBaseIntentionAction<RemoveCurlyBracesIntention.Context> {
     @Nonnull

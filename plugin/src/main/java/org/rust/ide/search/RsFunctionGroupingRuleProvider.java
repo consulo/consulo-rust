@@ -5,6 +5,7 @@
 
 package org.rust.ide.search;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.project.Project;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.util.PsiTreeUtil;
@@ -19,6 +20,7 @@ import consulo.usage.rule.UsageGroupingRule;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsImplItem;
 
+@ExtensionImpl(id = "rs-function")
 public class RsFunctionGroupingRuleProvider implements FileStructureGroupRuleProvider {
 
     @Override

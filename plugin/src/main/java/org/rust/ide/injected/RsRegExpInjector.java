@@ -16,11 +16,13 @@ import org.rust.lang.core.psi.*;
 import java.util.Collections;
 import java.util.List;
 import org.rust.lang.core.psi.RsLiteralKindUtil;
+import consulo.annotation.component.ExtensionImpl;
 
 /**
  * Injects RegExpr language to a string literals in context like
  * {@code Regex::new("...")} and {@code RegexSet::new(&["...", "...", "..."])}
  */
+@ExtensionImpl
 public class RsRegExpInjector implements MultiHostInjector {
 
     @Override

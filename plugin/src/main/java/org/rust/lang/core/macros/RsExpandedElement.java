@@ -12,6 +12,7 @@ import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.RsMacroCall;
 
 /**
  * {@code RsExpandedElement}s are those elements which exist in temporary,

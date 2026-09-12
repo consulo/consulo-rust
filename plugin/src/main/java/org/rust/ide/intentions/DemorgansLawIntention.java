@@ -17,6 +17,7 @@ import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
 import org.rust.lang.utils.RsBooleanExpUtils;
 import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
 import org.rust.lang.core.psi.ext.RsBinaryOpUtil;
+import consulo.localize.LocalizeValue;
 
 public class DemorgansLawIntention extends RsElementBaseIntentionAction<DemorgansLawIntention.Context> {
 

@@ -12,7 +12,7 @@ import consulo.codeEditor.Editor;
 import consulo.language.psi.PsiDocumentManager;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
-import com.intellij.psi.impl.source.tree.injected.InjectedLanguageEditorUtil;
+import consulo.language.editor.inject.EditorWindow;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.ide.intentions.util.macros.IntentionInMacroUtil;
@@ -64,7 +64,7 @@ public final class EditorExtUtil {
 
     @Nonnull
     public static RsTemplateBuilder newTemplateBuilder(@Nonnull Editor editor, @Nonnull PsiElement context) {
-        Editor hostEditor = InjectedLanguageEditorUtil.getTopLevelEditor(IntentionInMacroUtil.unwrapEditor(editor));
+        Editor hostEditor = EditorWindow.getTopLevelEditor(IntentionInMacroUtil.unwrapEditor(editor));
         PsiFile contextualPsiFile;
         if (editor instanceof RsIntentionInsideMacroExpansionEditor) {
             contextualPsiFile = ((RsIntentionInsideMacroExpansionEditor) editor).getOriginalFile();

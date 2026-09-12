@@ -18,6 +18,7 @@ import org.rust.lang.core.psi.RsTokenType;
 import org.rust.lang.core.stubs.RsBlockStubType;
 
 import static org.rust.lang.core.psi.RsElementTypes.*;
+import org.rust.lang.core.psi.RsTokenSets;
 
 /**
  * Provides stub building for RsBlock that is not used to build real PSI stubs,
@@ -28,7 +29,7 @@ public final class RsBlockStubBuilder {
     private RsBlockStubBuilder() {}
 
     private static final TokenSet RS_ITEMS_AND_MACRO = TokenSet.orSet(
-        TokenSet.andNot(RsTokenType.RS_ITEMS, RsTokenType.tokenSetOf(IMPL_ITEM)),
+        TokenSet.andNot(RsTokenSets.RS_ITEMS, RsTokenType.tokenSetOf(IMPL_ITEM)),
         RsTokenType.tokenSetOf(MACRO)
     );
 

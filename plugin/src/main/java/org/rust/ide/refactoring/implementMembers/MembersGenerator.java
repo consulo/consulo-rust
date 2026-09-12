@@ -19,13 +19,14 @@ import org.rust.lang.core.resolve.KnownItems;
 import org.rust.lang.core.types.BoundElement;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.Substitution;
-import org.rust.lang.core.types.infer.SubstituteUtil;
 import org.rust.lang.core.types.ty.TyUnknown;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.rust.lang.core.types.infer.FoldUtil;
+import org.rust.lang.core.types.ty.Ty;
 
 public class MembersGenerator {
     @Nonnull

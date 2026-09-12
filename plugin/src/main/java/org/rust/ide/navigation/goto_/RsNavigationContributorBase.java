@@ -6,7 +6,6 @@
 package org.rust.ide.navigation.goto_;
 
 import consulo.ide.navigation.ChooseByNameContributorEx;
-import com.intellij.navigation.GotoClassContributor;
 import consulo.navigation.NavigationItem;
 import consulo.logging.Logger;
 import consulo.language.psi.scope.EverythingGlobalScope;
@@ -24,9 +23,10 @@ import org.rust.lang.core.psi.ext.RsNamedElement;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
 import org.rust.lang.core.psi.ext.RsElementUtil;
 import org.rust.openapiext.OpenApiUtil;
+import consulo.content.scope.SearchScope;
 
 public abstract class RsNavigationContributorBase<T extends NavigationItem & RsNamedElement>
-    implements ChooseByNameContributorEx, GotoClassContributor {
+    implements ChooseByNameContributorEx {
 
     private static final Logger LOG = Logger.getInstance(RsNavigationContributorBase.class);
 
@@ -77,7 +77,6 @@ public abstract class RsNavigationContributorBase<T extends NavigationItem & RsN
         );
     }
 
-    @Override
     @Nullable
     public String getQualifiedName(@Nonnull NavigationItem item) {
         if (item instanceof RsQualifiedNamedElement) {
@@ -86,7 +85,6 @@ public abstract class RsNavigationContributorBase<T extends NavigationItem & RsN
         return null;
     }
 
-    @Override
     @Nonnull
     public String getQualifiedNameSeparator() {
         return "::";

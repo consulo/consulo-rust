@@ -14,6 +14,7 @@ import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsSelfParameter;
 import org.rust.lang.core.psi.ext.RsAbstractableOwner;
 import org.rust.lang.core.psi.ext.RsAbstractableUtil;
+import consulo.localize.LocalizeValue;
 
 public class RemoveSelfFix extends RsQuickFixBase<RsFunction> {
 

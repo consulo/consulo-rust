@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import consulo.process.ExecutionException;
 
 public class RsWslToolchain extends RsToolchainBase {
 

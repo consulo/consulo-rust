@@ -16,6 +16,7 @@ import org.rust.lang.core.psi.RsMetaItemArgs;
 import org.rust.lang.core.psi.RsPsiFactory;
 
 import java.util.stream.Collectors;
+import consulo.localize.LocalizeValue;
 
 public class ConvertMalformedCfgNotPatternToCfgAllPatternFix extends RsQuickFixBase<RsMetaItem> {
     

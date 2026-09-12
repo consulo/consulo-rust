@@ -17,11 +17,15 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.TopicAPI;
 
 /**
- * Stores a list of {@link CargoProject}s associated with the current IntelliJ {@link Project}.
+ * Stores a list of {@link CargoProject}s associated with the current {@link Project}.
  * Use {@link CargoProjectServiceKt#getCargoProjects(Project)} to get an instance of the service.
  */
+@ServiceAPI(ComponentScope.PROJECT)
 public interface CargoProjectsService {
 
     @Nonnull
@@ -64,15 +68,7 @@ public interface CargoProjectsService {
 
     Class<CargoProjectsRefreshListener> CARGO_PROJECTS_REFRESH_TOPIC = CargoProjectsRefreshListener.class;
 
-    @FunctionalInterface
-    interface CargoProjectsListener {
-        void cargoProjectsUpdated(@Nonnull CargoProjectsService service, @Nonnull Collection<CargoProject> projects);
-    }
 
-    interface CargoProjectsRefreshListener {
-        void onRefreshStarted();
-        void onRefreshFinished(@Nonnull CargoRefreshStatus status);
-    }
 
     enum CargoRefreshStatus {
         SUCCESS,

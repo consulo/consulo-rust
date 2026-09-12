@@ -12,6 +12,7 @@ import jakarta.annotation.Nonnull;
 import org.rust.lang.core.lexer.EscapeUtils;
 import org.rust.lang.core.lexer.LexerUtils;
 import org.rust.lang.core.lexer.RsEscapesLexer;
+import consulo.language.ast.IElementType;
 
 /**
  * Unescape string escaped using Rust escaping rules.

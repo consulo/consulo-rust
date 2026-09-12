@@ -24,6 +24,8 @@ import java.lang.ref.SoftReference;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import consulo.application.progress.ProgressIndicator;
+import consulo.util.lang.Pair;
 
 /**
  * Provides functions for creating hanging (local scope) ModData for blocks and code fragments.

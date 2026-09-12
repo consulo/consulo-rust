@@ -1,6 +1,6 @@
 package com.intellij.openapi.module;
 import consulo.ui.image.Image;
-/** IntelliJ-compat stub — Consulo's module types are via consulo.module.extension. */
+/** Identity and presentation (id, name, description, icon) of a module type. */
 public abstract class ModuleType<T> {
     private final String id;
     protected ModuleType(String id) { this.id = id; }

@@ -3,7 +3,7 @@ import jakarta.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-/** IntelliJ-compat stub — builder for signature-change presentation. */
+/** Builds the text fragments that present a signature change. */
 public abstract class SignaturePresentationBuilder {
     protected final SuggestedRefactoringSupport.Signature signature;
     protected final SuggestedRefactoringSupport.Signature otherSignature;

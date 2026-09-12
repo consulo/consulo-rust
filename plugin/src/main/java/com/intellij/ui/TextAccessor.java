@@ -5,7 +5,7 @@
 
 package com.intellij.ui;
 
-/** IntelliJ-compat stub for a text access interface. */
+/** Component whose text can be read and replaced. */
 public interface TextAccessor {
     String getText();
     void setText(String text);

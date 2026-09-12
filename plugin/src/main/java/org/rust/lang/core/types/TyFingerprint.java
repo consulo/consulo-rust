@@ -18,6 +18,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.*;
+import consulo.index.io.KeyDescriptor;
 
 /**
  * A type fingerprint used for indexing. It should satisfy two properties:

@@ -18,6 +18,7 @@ import org.rust.cargo.toolchain.tools.WasmPack;
 
 import java.io.File;
 import java.util.List;
+import consulo.process.ExecutionException;
 
 public class WasmPackCommandRunState extends CommandLineState {
 

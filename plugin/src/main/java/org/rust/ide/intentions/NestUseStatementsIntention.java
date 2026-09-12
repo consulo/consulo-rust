@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.rust.lang.core.psi.ext.RsPathUtil;
 import org.rust.openapiext.EditorExt;
+import consulo.localize.LocalizeValue;
 
 public class NestUseStatementsIntention extends RsElementBaseIntentionAction<NestUseStatementsIntention.Context> {
     @Nonnull

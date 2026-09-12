@@ -11,7 +11,6 @@ import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.RsPsiUtilUtil;
 
 /**
- * <p>
  * <ul>
  *   <li>{@link RsReferenceElementBase} - provides basic methods for reference implementation</li>
  *   <li>{@link RsReferenceElement} - marks an element that optionally can have a reference</li>

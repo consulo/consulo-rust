@@ -17,10 +17,10 @@ import org.rust.ide.utils.template.EditorExtUtil;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.resolve.KnownItems;
-import org.rust.lang.core.types.DeclarationUtil;
 import org.rust.lang.core.types.RsTypesUtil;
 
 import java.util.Collections;
+import consulo.localize.LocalizeValue;
 
 public class InitializeWithDefaultValueFix extends RsQuickFixBase<RsElement> {
 

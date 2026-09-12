@@ -11,9 +11,6 @@ import consulo.language.psi.PsiLanguageInjectionHost;
 import consulo.util.lang.Pair;
 import jakarta.annotation.Nonnull;
 
-/**
- * See {@code com.intellij.psi.impl.source.tree.injected.StringLiteralEscaper}
- */
 public abstract class LiteralTextEscaperBase<T extends PsiLanguageInjectionHost> extends LiteralTextEscaper<T> {
 
     private int[] outSourceOffsets;

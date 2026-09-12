@@ -12,6 +12,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.types.*;
+import consulo.localize.LocalizeValue;
 
 public class AddMissingSupertraitImplFix extends RsQuickFixBase<RsImplItem> {
 

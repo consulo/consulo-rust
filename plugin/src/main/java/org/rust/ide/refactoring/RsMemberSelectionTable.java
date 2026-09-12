@@ -13,6 +13,7 @@ import org.rust.lang.core.psi.ext.RsItemElement;
 
 import javax.swing.*;
 import java.util.List;
+import consulo.ui.image.Image;
 
 public class RsMemberSelectionTable extends AbstractMemberSelectionTable<RsItemElement, RsMemberInfo> {
 

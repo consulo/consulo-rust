@@ -1,5 +1,5 @@
 package com.intellij.codeInsight.intention.preview;
-/** IntelliJ-compat stub. Consulo doesn't have intention preview; renders actual application. */
+/** Result of computing an intention preview; only the empty no-preview value exists. */
 public interface IntentionPreviewInfo {
     IntentionPreviewInfo EMPTY = new IntentionPreviewInfo() {};
 }

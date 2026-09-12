@@ -13,7 +13,6 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.impl.source.tree.injected.InjectedLanguageEditorUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.rust.ide.intentions.util.macros.IntentionInMacroUtil;
@@ -62,7 +61,7 @@ public final class EditorExt {
     @NotNull
     public static RsTemplateBuilder newTemplateBuilder(@NotNull Editor editor, @NotNull PsiElement context) {
         // First macros, then injections (assume that macro expansion can't contain language injections)
-        Editor hostEditor = InjectedLanguageEditorUtil.getTopLevelEditor(IntentionInMacroUtil.unwrapEditor(editor));
+        Editor hostEditor = EditorWindow.getTopLevelEditor(IntentionInMacroUtil.unwrapEditor(editor));
         PsiFile contextualPsiFile;
         if (editor instanceof RsIntentionInsideMacroExpansionEditor) {
             contextualPsiFile = ((RsIntentionInsideMacroExpansionEditor) editor).getOriginalFile();

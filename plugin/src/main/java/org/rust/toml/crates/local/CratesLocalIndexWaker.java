@@ -5,6 +5,8 @@
 
 package org.rust.toml.crates.local;
 
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.TopicImpl;
 import jakarta.annotation.Nonnull;
 import org.rust.cargo.project.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectsService;
@@ -12,8 +14,13 @@ import org.rust.ide.experiments.RsExperiments;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.Collection;
+import org.rust.cargo.project.model.CargoProjectsListener;
 
-public class CratesLocalIndexWaker implements CargoProjectsService.CargoProjectsListener {
+/**
+ * Loads the crates index and schedules its update once a Cargo project is available.
+ */
+@TopicImpl(ComponentScope.PROJECT)
+public class CratesLocalIndexWaker implements CargoProjectsListener {
 
     @Override
     public void cargoProjectsUpdated(@Nonnull CargoProjectsService service,

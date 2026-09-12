@@ -34,7 +34,7 @@ public final class RsFmtImplUtil {
     );
 
     public static final TokenSet NO_SPACE_AROUND_OPS = tokenSetOf(COLONCOLON, DOT, DOTDOT, DOTDOTDOT, DOTDOTEQ);
-    public static final TokenSet SPACE_AROUND_OPS = TokenSet.andNot(RsTokenType.RS_OPERATORS, NO_SPACE_AROUND_OPS);
+    public static final TokenSet SPACE_AROUND_OPS = TokenSet.andNot(RsTokenSets.RS_OPERATORS, NO_SPACE_AROUND_OPS);
     public static final TokenSet UNARY_OPS = tokenSetOf(MINUS, MUL, EXCL, AND, ANDAND);
 
     public static final TokenSet PAREN_DELIMITED_BLOCKS = TokenSet.orSet(

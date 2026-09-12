@@ -19,6 +19,7 @@ import org.rust.lang.core.psi.ext.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsOuterAttributeOwnerUtil;
 import org.rust.lang.core.psi.ext.RsAttrOwnerExtUtil;
 import org.rust.lang.core.psi.ext.RsDocAndAttributeOwnerUtil;
+import consulo.localize.LocalizeValue;
 
 public class ToggleIgnoreTestIntention extends RsElementBaseIntentionAction<ToggleIgnoreTestIntention.Context> {
     @Nonnull

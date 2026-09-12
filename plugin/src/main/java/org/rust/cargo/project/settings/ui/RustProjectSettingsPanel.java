@@ -36,6 +36,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Objects;
+import consulo.ui.ex.awt.FormBuilder;
+import consulo.ui.ex.awt.TextFieldWithBrowseButton;
+import consulo.ui.ex.awt.UIUtil;
 
 public class RustProjectSettingsPanel implements Disposable {
 
@@ -93,6 +96,34 @@ public class RustProjectSettingsPanel implements Disposable {
         }
         pathToStdlibField.setText(value.explicitPathToStdlib != null ? value.explicitPathToStdlib : "");
         update();
+    }
+
+    /** Form with the toolchain location, the detected toolchain version and the standard-library location. */
+    @Nonnull
+    public JComponent getComponent() {
+        JPanel stdlibRow = new JPanel(new java.awt.BorderLayout(UIUtil.DEFAULT_HGAP, 0));
+        stdlibRow.add(pathToStdlibField, java.awt.BorderLayout.CENTER);
+        stdlibRow.add(downloadStdlibLink, java.awt.BorderLayout.EAST);
+
+        return FormBuilder.createFormBuilder()
+            .addLabeledComponent(RsBundle.message("settings.rust.toolchain.location.label"), pathToToolchainComboBox)
+            .addLabeledComponent(RsBundle.message("settings.rust.toolchain.version.label"), toolchainVersion)
+            .addLabeledComponent(RsBundle.message("settings.rust.toolchain.standard.library.label"), stdlibRow)
+            .getPanel();
+    }
+
+    /** Fills the toolchain combo box from the toolchain flavors found on this machine. */
+    public void loadToolchains() {
+        pathToToolchainComboBox.addToolchainsAsync(() -> {
+            LinkedHashSet<Path> paths = new LinkedHashSet<>();
+            for (RsToolchainFlavor flavor : RsToolchainFlavor.getApplicableFlavors()) {
+                java.util.Iterator<Path> iterator = flavor.suggestHomePaths().iterator();
+                while (iterator.hasNext()) {
+                    paths.add(iterator.next());
+                }
+            }
+            return new ArrayList<>(paths);
+        });
     }
 
     public void attachTo(@Nonnull Panel panel) {

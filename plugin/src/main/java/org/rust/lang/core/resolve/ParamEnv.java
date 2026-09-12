@@ -17,6 +17,7 @@ import org.rust.lang.core.types.ty.TyTypeParameter;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import org.rust.lang.core.types.infer.TyWithObligations;
 
 /**
  * When type checking, we use the ParamEnv to track details about the set of where-clauses
@@ -71,14 +72,19 @@ public interface ParamEnv {
             new SimpleParamEnv(distinctBounds)
         );
         RsInferenceContext ctx = lookup.getCtx();
-        List<TraitRef> bounds2 = new ArrayList<>();
+        List<TraitRef> normalizedBounds = new ArrayList<>(distinctBounds.size());
         for (TraitRef ref : distinctBounds) {
-            // Note: simplified - in full implementation, normalizeAssociatedTypesIn is called
-            bounds2.add(ref);
+            TyWithObligations<TraitRef> normalized = ctx.normalizeAssociatedTypesIn(ref);
+            ctx.fulfill.registerPredicateObligations(normalized.getObligations());
+            normalizedBounds.add(normalized.getValue());
         }
-        // ctx.getFulfill().selectWherePossible(); - simplified
+        ctx.fulfill.selectWherePossible();
 
-        return new SimpleParamEnv(bounds2);
+        List<TraitRef> resolvedBounds = new ArrayList<>(normalizedBounds.size());
+        for (TraitRef ref : normalizedBounds) {
+            resolvedBounds.add(ctx.fullyResolve(ref));
+        }
+        return new SimpleParamEnv(resolvedBounds);
     }
 
     /**

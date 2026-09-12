@@ -12,6 +12,7 @@ import org.rust.lang.core.psi.RsBlock;
 import org.rust.lang.core.psi.RsLoopExpr;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import consulo.localize.LocalizeValue;
 
 public class RsWithLoopSurrounder extends RsStatementsSurrounderBase.SimpleBlock<RsLoopExpr> {
 

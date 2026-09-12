@@ -24,11 +24,12 @@ import org.rust.ide.refactoring.move.common.RsMoveUtil;
 import org.rust.lang.core.psi.RsModItem;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.ext.*;
-import org.rust.lang.core.resolve.RsResolveUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import org.rust.lang.core.psi.ext.RsMod;
+import consulo.localize.LocalizeValue;
+import org.rust.lang.core.resolve.Namespace;
 
 /**
  * See overview of move refactoring in comment for {@link RsMoveCommonProcessor}.

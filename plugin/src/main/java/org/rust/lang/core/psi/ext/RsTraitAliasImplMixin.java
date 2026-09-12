@@ -18,6 +18,7 @@ import org.rust.lang.core.stubs.RsTraitAliasStub;
 
 import javax.swing.*;
 import org.rust.lang.core.psi.ext.RsVisibilityUtil;
+import consulo.ui.image.Image;
 
 public abstract class RsTraitAliasImplMixin extends RsStubbedNamedElementImpl<RsTraitAliasStub> implements RsTraitAlias {
 

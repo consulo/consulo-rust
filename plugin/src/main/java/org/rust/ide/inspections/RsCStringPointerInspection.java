@@ -10,6 +10,7 @@ import org.rust.RsBundle;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsMethodOrFieldUtil;
 import consulo.annotation.component.ExtensionImpl;
+import consulo.localize.LocalizeValue;
 
 @ExtensionImpl
 public class RsCStringPointerInspection extends RsLocalInspectionTool {

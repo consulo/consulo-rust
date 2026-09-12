@@ -16,6 +16,8 @@ import org.rust.lang.core.psi.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import consulo.component.util.ModificationTracker;
+import org.rust.lang.core.psi.RsPsiUtilUtil;
 
 public final class RsInferenceContextOwnerUtil {
     private RsInferenceContextOwnerUtil() {

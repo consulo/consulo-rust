@@ -19,6 +19,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.util.List;
 import org.rust.stdext.BuilderUtil;
+import consulo.project.Project;
 
 public class AddUserTemplateDialog extends DialogWrapper {
 

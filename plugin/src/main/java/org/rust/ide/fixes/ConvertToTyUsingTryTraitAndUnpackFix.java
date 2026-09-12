@@ -15,6 +15,8 @@ import org.rust.lang.core.types.*;
 import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyAdt;
 import org.rust.lang.core.types.RsTypesUtil;
+import consulo.language.psi.PsiElement;
+import org.rust.lang.core.psi.ext.RsGenericDeclarationUtil;
 
 /**
  * Similar to ConvertToTyUsingTryTraitFix, but also "unwraps" the result with unwrap() or ?.

@@ -17,6 +17,7 @@ import org.rust.lang.core.psi.ext.RsPossibleMacroCall;
 import org.rust.lang.core.psi.ext.RsPossibleMacroCallUtil;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.stdext.RsResult;
+import consulo.language.psi.PsiElement;
 
 public abstract class RsShowMacroExpansionActions {
 

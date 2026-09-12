@@ -10,7 +10,10 @@ import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.toml.crates.local.CratesLocalIndexService;
 import org.toml.lang.psi.TomlVisitor;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.localize.LocalizeValue;
 
+@ExtensionImpl
 public class CrateNotFoundInspection extends CargoTomlInspectionToolBase {
     @Override
     protected boolean requiresLocalCrateIndex() {

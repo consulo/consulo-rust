@@ -20,6 +20,7 @@ import org.rust.openapiext.Testmark;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.rust.lang.core.psi.RsPsiImplUtil;
+import consulo.localize.LocalizeValue;
 
 public class ImplTraitToTypeParamIntention extends RsElementBaseIntentionAction<ImplTraitToTypeParamIntention.Context> {
 

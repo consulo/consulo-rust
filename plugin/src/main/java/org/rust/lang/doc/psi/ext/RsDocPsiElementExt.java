@@ -9,9 +9,9 @@ import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiUtilCore;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.lang.core.psi.RsTokenType;
 import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
 import org.rust.lang.doc.psi.RsDocComment;
+import org.rust.lang.core.psi.RsTokenSets;
 
 public final class RsDocPsiElementExt {
 
@@ -26,6 +26,6 @@ public final class RsDocPsiElementExt {
     public static boolean isInDocComment(@Nonnull PsiElement element) {
         RsDocComment doc = containingDoc(element);
         if (doc == null) return false;
-        return RsTokenType.RS_DOC_COMMENTS.contains(PsiUtilCore.getElementType(doc));
+        return RsTokenSets.RS_DOC_COMMENTS.contains(PsiUtilCore.getElementType(doc));
     }
 }

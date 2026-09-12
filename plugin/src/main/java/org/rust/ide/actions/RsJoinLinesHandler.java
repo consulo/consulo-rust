@@ -5,6 +5,7 @@
 
 package org.rust.ide.actions;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.action.JoinLinesHandlerDelegate;
 import consulo.document.Document;
 import consulo.language.psi.PsiElement;
@@ -14,9 +15,11 @@ import org.rust.ide.formatter.impl.RsFmtImplUtil;
 import org.rust.ide.typing.TypingUtil;
 import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.RsFile;
-import org.rust.lang.core.psi.RsTokenType;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.RsTokenSets;
+import consulo.language.ast.IElementType;
 
+@ExtensionImpl(id = "RsJoinLinesHandler")
 public class RsJoinLinesHandler implements JoinLinesHandlerDelegate {
 
     /**
@@ -36,7 +39,7 @@ public class RsJoinLinesHandler implements JoinLinesHandlerDelegate {
 
         if (leftPsi != rightPsi) return CANNOT_JOIN;
 
-        if (RsTokenType.RS_STRING_LITERALS.contains(PsiElementUtil.getElementType(leftPsi))) {
+        if (RsTokenSets.RS_STRING_LITERALS.contains(PsiElementUtil.getElementType(leftPsi))) {
             return joinStringLiteral(document, offsetNear, end);
         }
 

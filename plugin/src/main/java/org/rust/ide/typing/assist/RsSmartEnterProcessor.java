@@ -13,10 +13,15 @@ import consulo.language.psi.PsiFile;
 import consulo.language.psi.PsiWhiteSpace;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsElement;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.Language;
+import consulo.language.ast.IElementType;
+import org.rust.lang.RsLanguage;
 
 /**
  * Smart enter implementation for the Rust language.
  */
+@ExtensionImpl
 public class RsSmartEnterProcessor extends SmartEnterProcessorWithFixers {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 

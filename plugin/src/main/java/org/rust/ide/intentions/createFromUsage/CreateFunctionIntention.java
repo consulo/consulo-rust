@@ -15,7 +15,6 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.cargo.project.workspace.PackageOrigin;
 import org.rust.ide.intentions.RsElementBaseIntentionAction;
-import org.rust.ide.presentation.RsPsiRenderingUtil;
 import org.rust.ide.utils.GenericConstraints;
 import org.rust.ide.utils.PsiInsertionPlace;
 import org.rust.ide.utils.imports.ImportBridge;
@@ -36,6 +35,7 @@ import org.rust.ide.presentation.TypeRendering;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.types.ExtensionsUtil;
+import consulo.localize.LocalizeValue;
 
 public class CreateFunctionIntention extends RsElementBaseIntentionAction<CreateFunctionIntention.Context> {
     @Nonnull

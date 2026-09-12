@@ -20,9 +20,7 @@ public class CargoBuildToolConfigurableProvider extends ConfigurableProvider {
     }
 
     public boolean canCreateConfigurable() {
-        // Upstream gated this on IntelliJ >= 2022.2, the release that introduced the Build Tools
-        // configurable group. Consulo has no such version boundary, so only the capability check
-        // remains.
+        // Only offer the page when a Cargo settings page can actually be built for this project.
         return CargoConfigurable.buildToolsConfigurableExists(project);
     }
 

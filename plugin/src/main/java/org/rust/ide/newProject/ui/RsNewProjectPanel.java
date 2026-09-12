@@ -39,6 +39,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import consulo.ui.NotificationType;
+import consulo.ui.ex.popup.JBPopupFactory;
 
 @SuppressWarnings("deprecation")
 public class RsNewProjectPanel implements Disposable {

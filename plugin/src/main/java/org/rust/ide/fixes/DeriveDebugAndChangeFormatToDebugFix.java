@@ -28,6 +28,9 @@ import consulo.document.Document;
 import consulo.document.util.TextRange;
 
 import java.util.Objects;
+import consulo.document.util.Segment;
+import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.ext.RsStructOrEnumItemElement;
 
 public class DeriveDebugAndChangeFormatToDebugFix extends RsQuickFixBase<RsExpr> {
 

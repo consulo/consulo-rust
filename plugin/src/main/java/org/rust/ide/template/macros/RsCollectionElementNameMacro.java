@@ -5,6 +5,7 @@
 
 package org.rust.ide.template.macros;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.completion.lookup.LookupElement;
 import consulo.language.editor.completion.lookup.LookupElementBuilder;
 import consulo.language.editor.template.Expression;
@@ -17,7 +18,9 @@ import org.rust.ide.refactoring.RsNamesValidator;
 
 import java.util.ArrayList;
 import java.util.List;
+import consulo.localize.LocalizeValue;
 
+@ExtensionImpl
 public class RsCollectionElementNameMacro extends MacroBase {
 
     private static final String[] SUFFIXES = {"_list", "_set"};

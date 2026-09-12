@@ -9,7 +9,7 @@ import org.rust.ide.template.postfix.RsPostfixTemplateProvider;
 
 import javax.swing.*;
 
-/** Stub — IntelliJ's PostfixTemplateEditorBase/AddConditionAction internals are not in Consulo. */
+/** Editor UI for a user-defined Rust postfix template; currently an empty panel. */
 public class RsPostfixTemplateEditor {
     private final RsPostfixTemplateProvider provider;
     private final JPanel panel = new JPanel();

@@ -16,7 +16,6 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.RsTokenType;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.psi.ext.RsGenericDeclarationUtil;
 import org.rust.lang.core.psi.ext.RsPathUtil;
@@ -38,6 +37,16 @@ import org.rust.stdext.StdextUtil;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import consulo.language.psi.PsiManager;
+import org.rust.lang.core.parser.RustParserUtil;
+import org.rust.lang.core.psi.RsImplItem;
+import org.rust.lang.core.psi.ext.RsAbstractable;
+import org.rust.lang.core.psi.ext.RsTraitOrImplUtil;
+import org.rust.lang.core.resolve.NameResolutionTestmarks;
+import org.rust.lang.core.resolve.Processors;
+import org.rust.lang.core.resolve.Selection;
+import org.rust.lang.core.types.Substitution;
+import org.rust.lang.core.types.infer.RsInferenceResult;
 
 public class RsPathReferenceImpl extends RsReferenceBase<RsPath> implements RsPathReference {
 
@@ -435,17 +444,17 @@ public class RsPathReferenceImpl extends RsReferenceBase<RsPath> implements RsPa
     }
 
     private static final TokenSet ALLOWED_CACHING_ROOTS = TokenSet.orSet(
-        RsTokenType.RS_TYPES,
+        RsTokenSets.RS_TYPES,
         TokenSet.create(RsElementTypes.PATH, RsElementTypes.TYPE_ARGUMENT_LIST)
     );
 
     private static final TokenSet ALLOWED_PARENT_FOR_PATH = TokenSet.orSet(
-        RsTokenType.RS_TYPES,
+        RsTokenSets.RS_TYPES,
         TokenSet.create(RsElementTypes.TYPE_ARGUMENT_LIST, RsElementTypes.TRAIT_REF)
     );
 
     private static final TokenSet ALLOWED_PARENT_FOR_OTHERS = TokenSet.orSet(
-        RsTokenType.RS_TYPES,
+        RsTokenSets.RS_TYPES,
         TokenSet.create(
             RsElementTypes.TYPE_ARGUMENT_LIST, RsElementTypes.PATH, RsElementTypes.VALUE_PARAMETER,
             RsElementTypes.VALUE_PARAMETER_LIST, RsElementTypes.RET_TYPE, RsElementTypes.TRAIT_REF,
@@ -543,7 +552,7 @@ public class RsPathReferenceImpl extends RsReferenceBase<RsPath> implements RsPa
     @Nonnull
     public static List<ScopeEntry> resolvePathRaw(@Nonnull RsPath path, @Nullable ImplLookup lookup, boolean resolveAssocItems) {
         return NameResolutionUtil.collectResolveVariantsAsScopeEntries(path.getReferenceName(), processor ->
-            NameResolutionUtil.processPathResolveVariants(lookup, path, false, resolveAssocItems, (RsResolveProcessor) processor)
+            NameResolutionUtil.processPathResolveVariants(lookup, path, false, resolveAssocItems, Processors.asResolveProcessor(processor))
         );
     }
 

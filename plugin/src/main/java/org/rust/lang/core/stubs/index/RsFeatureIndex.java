@@ -19,7 +19,9 @@ import org.rust.openapiext.OpenApiUtil;
 
 import java.util.Collection;
 import java.util.List;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsFeatureIndex extends StringStubIndexExtension<RsInnerAttr> {
     @Nonnull
     private static final StubIndexKey<String, RsInnerAttr> KEY =

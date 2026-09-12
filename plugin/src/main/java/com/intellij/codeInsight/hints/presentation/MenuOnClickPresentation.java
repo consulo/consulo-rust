@@ -4,7 +4,7 @@ import consulo.colorScheme.TextAttributes;
 import consulo.language.editor.inlay.InlayPresentation;
 import consulo.language.editor.inlay.PresentationListener;
 
-/** IntelliJ-compat stub — wraps another presentation with a context menu on click. */
+/** Wraps another inlay presentation, showing a context menu when it is clicked. */
 public class MenuOnClickPresentation implements InlayPresentation {
     private final InlayPresentation delegate;
 

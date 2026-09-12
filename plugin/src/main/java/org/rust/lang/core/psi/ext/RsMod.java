@@ -8,6 +8,13 @@ package org.rust.lang.core.psi.ext;
 import consulo.language.psi.PsiDirectory;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import consulo.language.psi.PsiFile;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.util.io.FileUtil;
+import org.rust.lang.RsConstants;
+import org.rust.lang.RsFileType;
+import org.rust.lang.core.psi.RsFile;
+import org.rust.openapiext.VirtualFileExtUtil;
 
 public interface RsMod extends RsQualifiedNamedElement, RsItemsOwner, RsVisible, RsDocAndAttributeOwner {
     /**
@@ -37,7 +44,47 @@ public interface RsMod extends RsQualifiedNamedElement, RsItemsOwner, RsVisible,
      */
     @Nullable
     default PsiDirectory getOwnedDirectory(boolean createIfNotExists) {
-        return RsModUtil.getOwnedDirectory(this, createIfNotExists);
+        PsiFile contextualFile = RsElementExtUtil.getContextualFile(this);
+        if ((this instanceof RsFile && RsConstants.MOD_RS_FILE.equals(getName())) || isCrateRoot()) {
+            return contextualFile.getOriginalFile().getParent();
+        }
+
+        String explicitPath = getPathAttribute();
+        RsMod superMod = getSuper();
+
+        PsiDirectory parentDirectory;
+        String path;
+        if (explicitPath != null) {
+            if (this instanceof RsFile) {
+                return contextualFile.getOriginalFile().getParent();
+            }
+            parentDirectory = superMod instanceof RsFile
+                ? contextualFile.getOriginalFile().getParent()
+                : (superMod != null ? superMod.getOwnedDirectory(createIfNotExists) : null);
+            path = explicitPath;
+        }
+        else {
+            parentDirectory = superMod != null ? superMod.getOwnedDirectory(createIfNotExists) : null;
+            path = getName();
+        }
+        if (parentDirectory == null || path == null) {
+            return null;
+        }
+
+        // a relative path like `./foo` must survive, so the extension is stripped by suffix rather than by
+        // taking the name without extension
+        String suffix = "." + RsFileType.INSTANCE.getDefaultExtension();
+        String directoryPath = FileUtil.toSystemIndependentName(path);
+        if (directoryPath.endsWith(suffix)) {
+            directoryPath = directoryPath.substring(0, directoryPath.length() - suffix.length());
+        }
+
+        VirtualFile found = VirtualFileExtUtil.findFileByMaybeRelativePath(parentDirectory.getVirtualFile(), directoryPath);
+        PsiDirectory directory = found != null ? parentDirectory.getManager().findDirectory(found) : null;
+        if (directory == null && createIfNotExists) {
+            return parentDirectory.createSubdirectory(directoryPath);
+        }
+        return directory;
     }
 
     @Nullable

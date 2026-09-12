@@ -14,6 +14,7 @@ import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.RsWhileExpr;
 import org.rust.lang.core.psi.ext.RsLabelReferenceOwner;
+import consulo.localize.LocalizeValue;
 
 public class RsAddLabelFix extends RsQuickFixBase<RsLabelReferenceOwner> {
 

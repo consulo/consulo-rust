@@ -19,14 +19,20 @@ import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsOuterAttributeOwnerUtil;
 import org.rust.openapiext.VirtualFileExtUtil;
-import org.rust.toml.CargoDependencyUtil;
-import org.rust.toml.CargoTomlPsiExtUtil;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.rust.lang.core.psi.RsPsiImplUtil;
 import consulo.language.psi.PsiFile;
+import consulo.document.Document;
+import consulo.language.psi.PsiElement;
+import consulo.localize.LocalizeValue;
+import consulo.virtualFileSystem.VirtualFile;
+import org.rust.lang.core.crate.Crate;
+import org.rust.lang.core.psi.RsOuterAttr;
+import org.rust.toml.CrateExt;
+import org.rust.toml.Util;
 
 public class AddTokioMainFix extends RsQuickFixBase<RsFunction> {
     private static final List<String> REQUIRED_TOKIO_FEATURES = Arrays.asList("rt", "rt-multi-thread", "macros");

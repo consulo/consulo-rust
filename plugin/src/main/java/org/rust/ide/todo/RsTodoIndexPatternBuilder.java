@@ -5,6 +5,7 @@
 
 package org.rust.ide.todo;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.lexer.Lexer;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.search.IndexPatternBuilder;
@@ -12,11 +13,13 @@ import consulo.language.ast.IElementType;
 import consulo.language.ast.TokenSet;
 import org.rust.lang.core.lexer.RsLexer;
 import org.rust.lang.core.psi.RsFile;
+
+import static org.rust.lang.core.psi.RsTokenType.INNER_EOL_DOC_COMMENT;
+import static org.rust.lang.core.psi.RsTokenType.OUTER_EOL_DOC_COMMENT;
+import org.rust.lang.core.psi.RsTokenSets;
 import org.rust.lang.core.psi.RsTokenType;
 
-import static org.rust.lang.core.parser.RustParserDefinition.INNER_EOL_DOC_COMMENT;
-import static org.rust.lang.core.parser.RustParserDefinition.OUTER_EOL_DOC_COMMENT;
-
+@ExtensionImpl
 public class RsTodoIndexPatternBuilder implements IndexPatternBuilder {
 
     @Override
@@ -26,15 +29,15 @@ public class RsTodoIndexPatternBuilder implements IndexPatternBuilder {
 
     @Override
     public TokenSet getCommentTokenSet(PsiFile file) {
-        return file instanceof RsFile ? org.rust.lang.core.psi.RsTokenType.RS_COMMENTS : null;
+        return file instanceof RsFile ? RsTokenSets.RS_COMMENTS : null;
     }
 
     @Override
     public int getCommentStartDelta(IElementType tokenType) {
-        if (tokenType != null && RsTokenType.RS_REGULAR_COMMENTS.contains(tokenType)) {
+        if (tokenType != null && RsTokenSets.RS_REGULAR_COMMENTS.contains(tokenType)) {
             return 2;
         }
-        if (tokenType != null && RsTokenType.RS_DOC_COMMENTS.contains(tokenType)) {
+        if (tokenType != null && RsTokenSets.RS_DOC_COMMENTS.contains(tokenType)) {
             return 3;
         }
         return 0;
@@ -42,7 +45,7 @@ public class RsTodoIndexPatternBuilder implements IndexPatternBuilder {
 
     @Override
     public int getCommentEndDelta(IElementType tokenType) {
-        return tokenType != null && RsTokenType.RS_BLOCK_COMMENTS.contains(tokenType) ? 2 : 0;
+        return tokenType != null && RsTokenSets.RS_BLOCK_COMMENTS.contains(tokenType) ? 2 : 0;
     }
 
     @Override
@@ -53,7 +56,7 @@ public class RsTodoIndexPatternBuilder implements IndexPatternBuilder {
         if (tokenType == OUTER_EOL_DOC_COMMENT) {
             return "/";
         }
-        if (RsTokenType.RS_BLOCK_COMMENTS.contains(tokenType)) {
+        if (RsTokenSets.RS_BLOCK_COMMENTS.contains(tokenType)) {
             return "*";
         }
         return "";

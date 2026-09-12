@@ -6,70 +6,61 @@
 package org.rust.ide.icons;
 
 import consulo.application.AllIcons;
+import consulo.rust.icon.RustIconGroup;
 import consulo.ui.image.Image;
 import consulo.ui.image.ImageEffects;
 
 /**
- * Icons that are used by various plugin components.
- *
- * The order of properties matters in this class. When conflating an icon from simple elements,
- * make sure that all those elements are declared above to the icon.
- *
- * Port note: uses {@link Image} throughout (not Swing {@code Icon}) —
- * Consulo's UI API is Image-based; convert via {@code TargetAWT.to(...)} only
- * at Swing boundary points.
+ * @deprecated use {@link RustIconGroup} directly.
  */
+@Deprecated
 public final class RsIcons {
     private RsIcons() {
     }
 
-    // Logos
-    public static final Image RUST = load("/icons/rust.svg");
+    public static final Image RUST = RustIconGroup.rust();
 
-    // File types
-    public static final Image RUST_FILE = load("/icons/rustFile.svg");
-    public static final Image MAIN_RS = load("/icons/rustMain.svg");
-    public static final Image MOD_RS = load("/icons/rustMod.svg");
+    public static final Image RUST_FILE = RustIconGroup.rustfile();
+    public static final Image MAIN_RS = RustIconGroup.rustmain();
+    public static final Image MOD_RS = RustIconGroup.rustmod();
 
-    // Marks
     public static final Image FINAL_MARK = AllIcons.Nodes.FinalMark;
     public static final Image STATIC_MARK = AllIcons.Nodes.StaticMark;
     public static final Image TEST_MARK = AllIcons.Nodes.JunitTestMark;
-    public static final Image DOCS_MARK = load("/icons/rustDocs.svg");
+    public static final Image DOCS_MARK = RustIconGroup.rustdocs();
     public static final Image FEATURE_CHECKED_MARK = AllIcons.General.InspectionsOK;
     public static final Image FEATURE_UNCHECKED_MARK = AllIcons.General.InspectionsTrafficOff;
-    public static final Image FEATURE_CHECKED_MARK_GRAYED = FEATURE_CHECKED_MARK; // grayscale variant elided
+    public static final Image FEATURE_CHECKED_MARK_GRAYED = FEATURE_CHECKED_MARK;
     public static final Image FEATURE_UNCHECKED_MARK_GRAYED = FEATURE_UNCHECKED_MARK;
     public static final Image FEATURES_SETTINGS = AllIcons.General.Settings;
 
-    // Source code elements
     public static final Image CRATE = AllIcons.Nodes.PpLib;
-    public static final Image MODULE = load("/icons/nodes/module.svg");
+    public static final Image MODULE = RustIconGroup.nodesModule();
 
-    public static final Image TRAIT = load("/icons/nodes/trait.svg");
-    public static final Image STRUCT = load("/icons/nodes/struct.svg");
-    public static final Image UNION = load("/icons/nodes/union.svg");
-    public static final Image ENUM = load("/icons/nodes/enum.svg");
-    public static final Image TYPE_ALIAS = load("/icons/nodes/typeAlias.svg");
-    public static final Image IMPL = load("/icons/nodes/impl.svg");
-    public static final Image FUNCTION = load("/icons/nodes/function.svg");
-    public static final Image MACRO = load("/icons/nodes/macro.svg");
-    public static final Image MACRO2 = load("/icons/nodes/macro2.svg");
-    public static final Image PROC_MACRO = load("/icons/nodes/macroP.svg");
+    public static final Image TRAIT = RustIconGroup.nodesTrait();
+    public static final Image STRUCT = RustIconGroup.nodesStruct();
+    public static final Image UNION = RustIconGroup.nodesUnion();
+    public static final Image ENUM = RustIconGroup.nodesEnum();
+    public static final Image TYPE_ALIAS = RustIconGroup.nodesTypealias();
+    public static final Image IMPL = RustIconGroup.nodesImpl();
+    public static final Image FUNCTION = RustIconGroup.nodesFunction();
+    public static final Image MACRO = RustIconGroup.nodesMacro();
+    public static final Image MACRO2 = RustIconGroup.nodesMacro2();
+    public static final Image PROC_MACRO = RustIconGroup.nodesMacrop();
 
-    public static final Image CONSTANT = load("/icons/nodes/constant.svg");
-    public static final Image MUT_STATIC = load("/icons/nodes/static.svg");
+    public static final Image CONSTANT = RustIconGroup.nodesConstant();
+    public static final Image MUT_STATIC = RustIconGroup.nodesStatic();
     public static final Image STATIC = addFinalMark(MUT_STATIC);
 
-    public static final Image METHOD = load("/icons/nodes/method.svg");
+    public static final Image METHOD = RustIconGroup.nodesMethod();
     public static final Image ASSOC_FUNCTION = addStaticMark(FUNCTION);
     public static final Image ASSOC_CONSTANT = addStaticMark(CONSTANT);
     public static final Image ASSOC_TYPE_ALIAS = addStaticMark(TYPE_ALIAS);
 
-    public static final Image ABSTRACT_METHOD = load("/icons/nodes/abstractMethod.svg");
-    public static final Image ABSTRACT_ASSOC_FUNCTION = addStaticMark(load("/icons/nodes/abstractFunction.svg"));
-    public static final Image ABSTRACT_ASSOC_CONSTANT = addStaticMark(load("/icons/nodes/abstractConstant.svg"));
-    public static final Image ABSTRACT_ASSOC_TYPE_ALIAS = addStaticMark(load("/icons/nodes/abstractTypeAlias.svg"));
+    public static final Image ABSTRACT_METHOD = RustIconGroup.nodesAbstractmethod();
+    public static final Image ABSTRACT_ASSOC_FUNCTION = addStaticMark(RustIconGroup.nodesAbstractfunction());
+    public static final Image ABSTRACT_ASSOC_CONSTANT = addStaticMark(RustIconGroup.nodesAbstractconstant());
+    public static final Image ABSTRACT_ASSOC_TYPE_ALIAS = addStaticMark(RustIconGroup.nodesAbstracttypealias());
 
     public static final Image ATTRIBUTE = AllIcons.Nodes.Annotationtype;
     public static final Image MUT_ARGUMENT = AllIcons.Nodes.Parameter;
@@ -77,33 +68,25 @@ public final class RsIcons {
     public static final Image MUT_BINDING = AllIcons.Nodes.Variable;
     public static final Image BINDING = addFinalMark(MUT_BINDING);
 
-    public static final Image FIELD = load("/icons/nodes/field.svg");
-    public static final Image ENUM_VARIANT = load("/icons/nodes/enumVariant.svg");
+    public static final Image FIELD = RustIconGroup.nodesField();
+    public static final Image ENUM_VARIANT = RustIconGroup.nodesEnumvariant();
 
-    // Structure view
     public static final Image MACRO_EXPANSION = AllIcons.Nodes.ErrorMark;
     public static final Image VISIBILITY_SORT = AllIcons.ObjectBrowser.VisibilitySort;
 
-    // Gutter
     public static final Image IMPLEMENTED = AllIcons.Gutter.ImplementedMethod;
     public static final Image IMPLEMENTING_METHOD = AllIcons.Gutter.ImplementingMethod;
     public static final Image OVERRIDING_METHOD = AllIcons.Gutter.OverridingMethod;
     public static final Image RECURSIVE_CALL = AllIcons.Gutter.RecursiveMethod;
 
-    // Repl
-    public static final Image REPL = load("/icons/rustRepl.svg");
+    public static final Image REPL = RustIconGroup.rustrepl();
 
-    public static final Image CARGO_GENERATE = load("/icons/cargoGenerate.svg");
-    public static final Image WASM_PACK = load("/icons/wasmPack.svg");
+    public static final Image CARGO_GENERATE = RustIconGroup.cargogenerate();
+    public static final Image WASM_PACK = RustIconGroup.wasmpack();
 
-    // Progress
-    public static final Image GEAR = load("/icons/gear.svg");
-    public static final Image GEAR_OFF = load("/icons/gearOff.svg");
+    public static final Image GEAR = RustIconGroup.gear();
+    public static final Image GEAR_OFF = RustIconGroup.gearoff();
     public static final Image GEAR_ANIMATED = GEAR;
-
-    private static Image load(String path) {
-        return Image.empty(16);
-    }
 
     public static Image addFinalMark(Image image) {
         return ImageEffects.layered(image, FINAL_MARK);

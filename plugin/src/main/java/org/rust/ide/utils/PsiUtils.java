@@ -8,6 +8,8 @@ package org.rust.ide.utils;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.util.PsiTreeUtil;
 
 public final class PsiUtils {
     private PsiUtils() {

@@ -14,8 +14,13 @@ import consulo.util.xml.serializer.XmlSerializerUtil;
 import jakarta.annotation.Nonnull;
 
 import java.util.Arrays;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.annotation.component.ComponentScope;
 
-@State(name = "RsCodeInsightSettings", storages = @Storage("rust.xml"))
+@State(name = "RsCodeInsightSettings", storages = @Storage("rust"))
+@ServiceAPI(ComponentScope.APPLICATION)
+@ServiceImpl
 public class RsCodeInsightSettings implements PersistentStateComponent<RsCodeInsightSettings>, Disposable {
 
     public boolean showImportPopup = false;

@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.rust.lang.core.PsiElementPatternExtUtil.psiElement;
+import consulo.language.editor.completion.lookup.LookupElement;
 
 /** See also {@code RsCfgFeatureCompletionProvider} */
 public class RsCfgAttributeCompletionProvider extends RsCompletionProvider {

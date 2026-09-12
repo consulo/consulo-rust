@@ -11,6 +11,7 @@ import consulo.codeEditor.HighlighterIterator;
 import consulo.language.ast.TokenSet;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.RsElementTypes;
+import consulo.language.ast.IElementType;
 
 /**
  * Handlers for angle brace auto-completion in Rust.

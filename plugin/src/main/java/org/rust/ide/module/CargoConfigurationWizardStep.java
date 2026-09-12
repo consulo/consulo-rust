@@ -90,7 +90,6 @@ public class CargoConfigurationWizardStep extends ModuleWizardStep {
     @Nonnull
     private <T extends JComponent> T withBorderIfNeeded(@Nonnull T component) {
         if (isNewWizard()) {
-            // border size is taken from `com.intellij.ide.wizard.NewProjectWizardStepPanel`
             component.setBorder(JBUI.Borders.empty(14, 20));
         }
         return component;

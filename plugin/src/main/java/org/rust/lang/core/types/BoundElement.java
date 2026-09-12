@@ -23,6 +23,9 @@ import org.rust.lang.core.types.ty.TyUnknown;
 import org.rust.stdext.CollectionsUtil;
 
 import java.util.*;
+import consulo.util.lang.Pair;
+import org.rust.lang.core.psi.RsConstParameter;
+import org.rust.lang.core.psi.RsTypeParameter;
 
 /**
  * Represents a potentially generic Psi Element, like `fn make_t<T>() { }`,

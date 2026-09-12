@@ -68,8 +68,8 @@ public final class RsCapturingProcessHandler {
 
     /**
      * Terminates the process as forcibly as the platform allows. The public {@link ProcessHandler}
-     * contract exposes no {@link Process} handle, so {@code Process.destroyForcibly()} (used
-     * upstream) is approximated by {@link KillableProcessHandler#killProcess()} where supported.
+     * contract exposes no {@link Process} handle, so {@code Process.destroyForcibly()} is
+     * approximated by {@link KillableProcessHandler#killProcess()} where supported.
      */
     public void destroyProcess() {
         if (processHandler instanceof KillableProcessHandler killable && killable.canKillProcess()) {

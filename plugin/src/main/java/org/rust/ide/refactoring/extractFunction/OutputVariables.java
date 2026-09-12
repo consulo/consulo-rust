@@ -9,7 +9,6 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.RsExpr;
 import org.rust.lang.core.psi.RsPatBinding;
-import org.rust.lang.core.types.TypeUtil;
 import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyNever;
 import org.rust.lang.core.types.ty.TyTuple;

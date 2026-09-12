@@ -13,6 +13,7 @@ import org.rust.RsBundle;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsMacroCallUtil;
 import org.rust.lang.core.psi.ext.RsExprUtil;
+import consulo.localize.LocalizeValue;
 
 public class ChangeTryMacroToTryOperator extends RsQuickFixBase<RsMacroCall> {
 

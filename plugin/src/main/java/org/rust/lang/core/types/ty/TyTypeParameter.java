@@ -18,6 +18,11 @@ import org.rust.lang.core.types.regions.Region;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import org.rust.lang.core.psi.RsLifetime;
+import org.rust.lang.core.psi.RsPolybound;
+import org.rust.lang.core.psi.RsTypeParamBounds;
+import org.rust.lang.core.types.infer.TyLowering;
+import org.rust.lang.core.types.regions.ReUnknown;
 
 public class TyTypeParameter extends Ty {
     @Nonnull

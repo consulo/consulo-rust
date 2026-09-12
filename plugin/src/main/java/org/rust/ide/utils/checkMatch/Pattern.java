@@ -7,12 +7,10 @@ package org.rust.ide.utils.checkMatch;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.ide.presentation.RsPsiRenderingUtil;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsFieldsOwner;
 import org.rust.lang.core.psi.ext.RsNamedElement;
-import org.rust.lang.core.psi.ext.RsStubbedElementKindUtil;
 import org.rust.lang.core.resolve.NameResolution;
 import org.rust.lang.core.types.ty.*;
 

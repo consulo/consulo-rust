@@ -1,5 +1,4 @@
 package com.intellij.codeInsight.template.impl;
-/** IntelliJ-compat stub. */
 public class TemplateImpl {
     private String template;
     public TemplateImpl(String key, String template, String group) { this.template = template; }

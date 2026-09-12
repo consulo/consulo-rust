@@ -15,6 +15,8 @@ import org.rust.lang.core.psi.RsMatchArm;
 import org.rust.lang.core.psi.RsPatBinding;
 import org.rust.lang.core.psi.RsPatIdent;
 import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import consulo.language.psi.util.PsiTreeUtil;
+import consulo.localize.LocalizeValue;
 
 public class AddImportForPatternIntention extends RsElementBaseIntentionAction<AddImportForPatternIntention.Context> {
 

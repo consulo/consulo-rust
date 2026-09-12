@@ -15,6 +15,7 @@ import org.rust.lang.core.psi.ext.RsEnumItemUtil;
 import org.rust.lang.core.thir.ThirPat;
 
 import java.util.BitSet;
+import org.rust.lang.core.mir.schemas.MirMatch;
 
 public abstract class MirTest {
     @Nonnull

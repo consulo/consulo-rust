@@ -19,6 +19,7 @@ import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.psi.ext.RsEnumItemUtil;
 import org.rust.lang.core.psi.ext.RsPathUtil;
+import consulo.localize.LocalizeValue;
 
 public class CreateEnumVariantIntention extends RsElementBaseIntentionAction<CreateEnumVariantIntention.Context> {
     @Nonnull

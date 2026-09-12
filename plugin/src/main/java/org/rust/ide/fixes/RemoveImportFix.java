@@ -19,6 +19,7 @@ import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsElementUtil;
 import org.rust.lang.core.psi.ext.RsUseSpeckUtil;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
+import consulo.localize.LocalizeValue;
 
 /**
  * Fix that removes a use speck or a whole use item.

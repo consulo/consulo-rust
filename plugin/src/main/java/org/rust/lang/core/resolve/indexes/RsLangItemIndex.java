@@ -26,7 +26,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.ext.RsDocAndAttributeOwnerUtil;
 
+@ExtensionImpl
 public class RsLangItemIndex extends AbstractStubIndex<String, RsItemElement> {
 
     private static final StubIndexKey<String, RsItemElement> KEY =

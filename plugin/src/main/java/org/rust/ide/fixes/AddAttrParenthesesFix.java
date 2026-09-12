@@ -12,6 +12,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsMetaItem;
 import org.rust.lang.core.psi.RsPsiFactory;
+import consulo.localize.LocalizeValue;
 
 public class AddAttrParenthesesFix extends RsQuickFixBase<RsMetaItem> {
     private final String attrName;

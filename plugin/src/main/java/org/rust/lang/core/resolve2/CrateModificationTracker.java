@@ -32,12 +32,25 @@ public final class CrateModificationTracker {
         for (Map.Entry<String, PerNs> entry : items) {
             String name = entry.getKey();
             PerNs perNs = entry.getValue();
-            // Simplified: just collect types for now
-            for (VisItem visItem : perNs.getTypes()) {
-                // Would need toPsi helper
-            }
+            collectInto(result, name, info, perNs.getTypes(), Namespace.Types);
+            collectInto(result, name, info, perNs.getValues(), Namespace.Values);
+            collectInto(result, name, info, perNs.getMacros(), Namespace.Macros);
         }
         return result;
+    }
+
+    private static void collectInto(
+        @Nonnull List<NamedItem> result,
+        @Nonnull String name,
+        @Nonnull RsModInfo info,
+        @Nonnull VisItem[] visItems,
+        @Nonnull Namespace namespace
+    ) {
+        for (VisItem visItem : visItems) {
+            for (RsNamedElement psi : visItem.toPsi(info, namespace)) {
+                result.add(new NamedItem(name, psi));
+            }
+        }
     }
 
     @Nonnull

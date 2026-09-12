@@ -82,13 +82,15 @@ import java.util.List;
 import static consulo.language.pattern.PlatformPatterns.psiElement;
 import static consulo.language.pattern.StandardPatterns.or;
 import static org.rust.lang.core.psi.RsElementTypes.*;
-import static org.rust.lang.core.psi.RsTokenType.RS_COMMENTS;
+import static org.rust.lang.core.psi.RsTokenSets.RS_COMMENTS;
 import static org.rust.lang.core.psi.RsTokenType.tokenSetOf;
+import consulo.annotation.component.ExtensionImpl;
 
 /**
  * Completes Rust keywords
  *
  */
+@ExtensionImpl(id = "RsKeywordCompletionContributor", order = "first")
 public class RsKeywordCompletionContributor extends CompletionContributor implements DumbAware {
     @jakarta.annotation.Nonnull @Override public Language getLanguage() { return RsLanguage.INSTANCE; }
 

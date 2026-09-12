@@ -5,15 +5,17 @@
 
 package org.rust.ide.notifications;
 
-import com.intellij.ide.impl.TrustedProjects;
 import consulo.project.ui.notification.NotificationType;
 import consulo.fileChooser.FileChooser;
 import consulo.fileChooser.FileChooserDescriptorFactory;
+import consulo.fileEditor.EditorNotificationBuilder;
 import consulo.fileEditor.FileEditor;
 import consulo.application.dumb.DumbAware;
 import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
+import consulo.annotation.component.ExtensionImpl;
 import jakarta.annotation.Nonnull;
+import jakarta.inject.Inject;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.cargo.project.model.*;
@@ -25,22 +27,29 @@ import org.rust.lang.core.psi.RsFile;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.cargo.project.model.AttachCargoProjectAction;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
+import org.rust.cargo.project.model.CargoProjectsListener;
+import org.rust.cargo.project.settings.RsSettingsListener;
 
+import java.util.function.Supplier;
+import org.rust.cargo.project.settings.RsProjectSettingsServiceBase;
+
+@ExtensionImpl
 public class MissingToolchainNotificationProvider extends RsNotificationProvider implements DumbAware {
 
     private static final String NOTIFICATION_STATUS_KEY = "org.rust.hideToolchainNotifications";
     public static final String NO_RUST_TOOLCHAIN = "NoRustToolchain";
     public static final String NO_ATTACHED_STDLIB = "NoAttachedStdlib";
 
+    @Inject
     public MissingToolchainNotificationProvider(@Nonnull Project project) {
         super(project);
 
         project.getMessageBus().connect().subscribe(
             org.rust.cargo.project.settings.RsProjectSettingsServiceBase.RUST_SETTINGS_TOPIC,
-            new org.rust.cargo.project.settings.RsProjectSettingsServiceBase.RsSettingsListener() {
+            new RsSettingsListener() {
                 @Override
-                public <T extends org.rust.cargo.project.settings.RsProjectSettingsServiceBase.RsProjectSettingsBase<T>> void settingsChanged(
-                    @Nonnull org.rust.cargo.project.settings.RsProjectSettingsServiceBase.SettingsChangedEventBase<T> e
+                public void settingsChanged(
+                    @Nonnull RsProjectSettingsServiceBase.SettingsChangedEventBase<?> e
                 ) {
                     updateAllNotifications();
                 }
@@ -49,7 +58,7 @@ public class MissingToolchainNotificationProvider extends RsNotificationProvider
 
         project.getMessageBus().connect().subscribe(
             CargoProjectsService.CARGO_PROJECTS_TOPIC,
-            (CargoProjectsService.CargoProjectsListener) (projects, reason) -> updateAllNotifications()
+            (CargoProjectsListener) (projects, reason) -> updateAllNotifications()
         );
     }
 
@@ -61,15 +70,19 @@ public class MissingToolchainNotificationProvider extends RsNotificationProvider
 
     @Nullable
     @Override
-    protected RsEditorNotificationPanel createNotificationPanel(@Nonnull VirtualFile file, @Nonnull FileEditor editor, @Nonnull Project project) {
+    protected RsEditorNotificationPanel createNotificationPanel(
+        @Nonnull VirtualFile file,
+        @Nonnull FileEditor editor,
+        @Nonnull Project project,
+        @Nonnull Supplier<EditorNotificationBuilder> builderFactory
+    ) {
         if (OpenApiUtil.isUnitTestMode()) return null;
         if (!(RsFile.isRustFile(file) || AttachCargoProjectAction.isCargoToml(file)) || isNotificationDisabled(file)) return null;
-        if (!TrustedProjects.isTrusted(project)) return null;
         if (CargoProjectServiceUtil.guessAndSetupRustProject(project)) return null;
 
         RsToolchainBase toolchain = RsProjectSettingsServiceUtil.getToolchain(project);
         if (toolchain == null || !toolchain.looksLikeValidToolchain()) {
-            return createBadToolchainPanel(file);
+            return createBadToolchainPanel(file, builderFactory);
         }
 
         CargoProjectsService cargoProjects = CargoProjectServiceUtil.getCargoProjects(project);
@@ -82,15 +95,18 @@ public class MissingToolchainNotificationProvider extends RsNotificationProvider
         // Check for standard library
         if (!Rustup.isRustupAvailable(toolchain)) {
             RustcInfo rustcInfo = cargoProject.getRustcInfo();
-            return createLibraryAttachingPanel(project, file, rustcInfo);
+            return createLibraryAttachingPanel(project, file, rustcInfo, builderFactory);
         }
 
         return null;
     }
 
     @Nonnull
-    private RsEditorNotificationPanel createBadToolchainPanel(@Nonnull VirtualFile file) {
-        RsEditorNotificationPanel panel = new RsEditorNotificationPanel(NO_RUST_TOOLCHAIN);
+    private RsEditorNotificationPanel createBadToolchainPanel(
+        @Nonnull VirtualFile file,
+        @Nonnull Supplier<EditorNotificationBuilder> builderFactory
+    ) {
+        RsEditorNotificationPanel panel = new RsEditorNotificationPanel(NO_RUST_TOOLCHAIN, builderFactory.get());
         panel.setText(RsBundle.message("notification.no.toolchain.configured"));
         panel.createActionLabel(RsBundle.message("notification.action.set.up.toolchain.text"), () -> {
             RsProjectSettingsServiceUtil.getRustSettings(myProject).configureToolchain();
@@ -103,14 +119,20 @@ public class MissingToolchainNotificationProvider extends RsNotificationProvider
     }
 
     @Nonnull
-    private RsEditorNotificationPanel createLibraryAttachingPanel(@Nonnull Project project, @Nonnull VirtualFile file, @Nullable RustcInfo rustcInfo) {
-        RsEditorNotificationPanel panel = new RsEditorNotificationPanel(NO_ATTACHED_STDLIB);
+    private RsEditorNotificationPanel createLibraryAttachingPanel(
+        @Nonnull Project project,
+        @Nonnull VirtualFile file,
+        @Nullable RustcInfo rustcInfo,
+        @Nonnull Supplier<EditorNotificationBuilder> builderFactory
+    ) {
+        RsEditorNotificationPanel panel = new RsEditorNotificationPanel(NO_ATTACHED_STDLIB, builderFactory.get());
         panel.setText(RsBundle.message("notification.can.not.attach.stdlib.sources"));
         panel.createActionLabel(RsBundle.message("notification.action.attach.manually.text"), () -> {
             FileChooser.chooseFile(
                 FileChooserDescriptorFactory.createSingleFolderDescriptor(),
-                panel, myProject, null
-            ).doWhenDone((VirtualFile stdlib) -> {
+                myProject, null
+            ).whenComplete((stdlib, throwable) -> {
+                if (throwable != null || stdlib == null) return;
                 if (StandardLibrary.fromFile(project, stdlib, rustcInfo) != null) {
                     RsProjectSettingsServiceUtil.getRustSettings(myProject).modify(it -> {
                         it.explicitPathToStdlib = stdlib.getPath();

@@ -18,6 +18,7 @@ import org.rust.lang.core.stubs.RsNamedFieldDeclStub;
 
 import javax.swing.*;
 import org.rust.lang.core.psi.ext.RsVisibilityUtil;
+import consulo.ui.image.Image;
 
 public abstract class RsNamedFieldDeclImplMixin extends RsStubbedNamedElementImpl<RsNamedFieldDeclStub> implements RsNamedFieldDecl {
 

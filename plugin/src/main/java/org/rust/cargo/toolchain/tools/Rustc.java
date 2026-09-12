@@ -9,6 +9,7 @@ import consulo.process.event.ProcessListener;
 import consulo.process.util.ProcessOutput;
 import consulo.disposer.Disposable;
 import consulo.util.io.FileUtil;
+import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nullable;
@@ -28,6 +29,12 @@ import java.util.Map;
 public class Rustc extends RustupComponent {
 
     public static final String NAME = "rustc";
+
+    /**
+     * Location of the standard library sources inside a sysroot. The directory only exists when the
+     * {@code rust-src} component is installed.
+     */
+    public static final String STDLIB_SOURCES_IN_SYSROOT = "lib/rustlib/src/rust";
 
     public Rustc(RsToolchainBase toolchain) {
         super(NAME, toolchain);
@@ -98,7 +105,18 @@ public class Rustc extends RustupComponent {
     public String getStdlibPathFromSysroot(Path projectDirectory) {
         String sysroot = getSysroot(projectDirectory);
         if (sysroot == null) return null;
-        return FileUtil.join(sysroot, "lib/rustlib/src/rust");
+        return stdlibPathFromSysroot(sysroot);
+    }
+
+    /**
+     * Path of the standard library sources belonging to {@code sysroot}, in system independent form:
+     * {@code /} separators and no trailing one. That is the shape the virtual file system and bundle
+     * roots are keyed by, while {@code rustc} prints the sysroot with the native separator, so the
+     * conversion happens here rather than at every call site.
+     */
+    public static String stdlibPathFromSysroot(String sysroot) {
+        String root = StringUtil.trimTrailing(FileUtil.toSystemIndependentName(sysroot), '/');
+        return root + "/" + STDLIB_SOURCES_IN_SYSROOT;
     }
 
     @Nullable

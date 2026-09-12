@@ -13,9 +13,10 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.ide.colors.RsColor;
 import org.rust.lang.core.lexer.RsHighlightingLexer;
-import org.rust.lang.core.parser.RustParserDefinition;
 import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.RsTokenType;
+import org.rust.lang.core.psi.RsTokenSets;
+import consulo.language.lexer.Lexer;
 
 public class RsHighlighter extends SyntaxHighlighterBase {
 
@@ -47,10 +48,10 @@ public class RsHighlighter extends SyntaxHighlighterBase {
         if (tokenType == RsElementTypes.INTEGER_LITERAL) return RsColor.NUMBER;
         if (tokenType == RsElementTypes.FLOAT_LITERAL) return RsColor.NUMBER;
 
-        if (tokenType == RustParserDefinition.BLOCK_COMMENT) return RsColor.BLOCK_COMMENT;
-        if (tokenType == RustParserDefinition.EOL_COMMENT) return RsColor.EOL_COMMENT;
+        if (tokenType == RsTokenType.BLOCK_COMMENT) return RsColor.BLOCK_COMMENT;
+        if (tokenType == RsTokenType.EOL_COMMENT) return RsColor.EOL_COMMENT;
 
-        if (RsTokenType.RS_DOC_COMMENTS.contains(tokenType)) return RsColor.DOC_COMMENT;
+        if (RsTokenSets.RS_DOC_COMMENTS.contains(tokenType)) return RsColor.DOC_COMMENT;
 
         if (tokenType == RsElementTypes.LPAREN || tokenType == RsElementTypes.RPAREN) return RsColor.PARENTHESES;
         if (tokenType == RsElementTypes.LBRACE || tokenType == RsElementTypes.RBRACE) return RsColor.BRACES;
@@ -65,8 +66,8 @@ public class RsHighlighter extends SyntaxHighlighterBase {
         if (tokenType == StringEscapesTokenTypes.INVALID_UNICODE_ESCAPE_TOKEN) return RsColor.INVALID_STRING_ESCAPE;
 
         if (tokenType == RsElementTypes.UNSAFE) return RsColor.KEYWORD_UNSAFE;
-        if (RsTokenType.RS_KEYWORDS.contains(tokenType) || tokenType == RsElementTypes.BOOL_LITERAL) return RsColor.KEYWORD;
-        if (RsTokenType.RS_OPERATORS.contains(tokenType)) return RsColor.OPERATORS;
+        if (RsTokenSets.RS_KEYWORDS.contains(tokenType) || tokenType == RsElementTypes.BOOL_LITERAL) return RsColor.KEYWORD;
+        if (RsTokenSets.RS_OPERATORS.contains(tokenType)) return RsColor.OPERATORS;
 
         return null;
     }

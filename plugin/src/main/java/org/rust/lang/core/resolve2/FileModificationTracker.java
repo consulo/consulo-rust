@@ -33,6 +33,7 @@ import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.util.*;
 import org.rust.lang.core.psi.ext.RsEnumItemUtil;
+import org.rust.stdext.IoUtil;
 
 /**
  * Provides functions for tracking file modifications for the resolve system.

@@ -25,6 +25,8 @@ import org.rust.lang.core.psi.RsFile;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.psi.ext.RsModUtil;
 import org.rust.openapiext.OpenApiUtil;
+import org.rust.lang.core.psi.RsPath;
+import org.rust.lang.core.resolve.RsResolveProcessor;
 
 public class ModData {
     @Nullable
@@ -442,10 +444,7 @@ public class ModData {
     /**
      * Process macros visible in this module.
      * <p>
-     * (visibleItems lookup, legacy-macros walk, macro-index ordering, single-public-or-first
-     * selection). Porting it depends on items-owner expanded-items + name-resolution
-     * infrastructure that isn't yet ported (see also VisItem / ImportCandidatesCollector in
-     * TODO_CONVERSION_PLAN.md). Returning {@code false} means "no macros found" — callers
+     * Not implemented: returns {@code false}, meaning "no macros found" — callers
      * gracefully fall back to other resolution strategies.
      */
     public boolean processMacros(

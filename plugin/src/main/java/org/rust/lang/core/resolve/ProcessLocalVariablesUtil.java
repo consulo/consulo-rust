@@ -5,12 +5,18 @@
 
 package org.rust.lang.core.resolve;
 
+import jakarta.annotation.Nonnull;
+import org.rust.lang.core.psi.RsPatBinding;
+import org.rust.lang.core.psi.ext.RsElement;
+
+import java.util.function.Consumer;
+
 public final class ProcessLocalVariablesUtil {
     private ProcessLocalVariablesUtil() {
     }
 
-    public static void processLocalVariables(@org.jetbrains.annotations.NotNull org.rust.lang.core.psi.ext.RsElement scope,
-                                              @org.jetbrains.annotations.NotNull java.util.function.Consumer<org.rust.lang.core.psi.RsPatBinding> processor) {
-        // Stub: process local variables in scope
+    /** Feeds every local variable binding visible at {@code place} to {@code processor}. */
+    public static void processLocalVariables(@Nonnull RsElement place, @Nonnull Consumer<RsPatBinding> processor) {
+        NameResolution.processLocalVariables(place, processor);
     }
 }

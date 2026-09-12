@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.rust.lang.core.PsiElementPatternExtUtil.psiElement;
+import consulo.language.pattern.PatternCondition;
 
 public class RsLiteralSuffixCompletionProvider extends RsCompletionProvider {
     public static final RsLiteralSuffixCompletionProvider INSTANCE = new RsLiteralSuffixCompletionProvider();

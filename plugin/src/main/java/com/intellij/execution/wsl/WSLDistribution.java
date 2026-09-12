@@ -4,7 +4,7 @@ import consulo.process.ExecutionException;
 import consulo.process.cmd.GeneralCommandLine;
 import jakarta.annotation.Nullable;
 
-/** IntelliJ-compat stub. Consulo doesn't bundle WSL support. */
+/** WSL distribution handle. Path translation and command-line patching are no-ops. */
 public class WSLDistribution {
     public WSLDistribution() {}
     public WSLDistribution(String id) {}

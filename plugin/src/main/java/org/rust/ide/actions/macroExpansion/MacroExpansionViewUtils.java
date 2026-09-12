@@ -36,6 +36,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Collection;
 import java.util.stream.Collectors;
+import consulo.codeEditor.EditorSettings;
+import consulo.document.Document;
+import consulo.ui.ex.popup.JBPopup;
+import consulo.undoRedo.util.UndoUtil;
 
 /** Utility class for macro expansion view operations. */
 public final class MacroExpansionViewUtils {

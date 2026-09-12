@@ -5,6 +5,7 @@
 
 package org.rust.ide.actions.runAnything.wasmpack;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.execution.executor.Executor;
 import consulo.ide.runAnything.RunAnythingItem;
 import consulo.dataContext.DataContext;
@@ -22,7 +23,9 @@ import org.rust.ide.icons.RsIcons;
 import javax.swing.*;
 import java.nio.file.Path;
 import java.util.List;
+import consulo.ui.image.Image;
 
+@ExtensionImpl(order = "after RunAnythingRunConfigurationProviderImpl")
 public class WasmPackRunAnythingProvider extends RsRunAnythingProvider {
 
     public static final String HELP_COMMAND = "wasm-pack";

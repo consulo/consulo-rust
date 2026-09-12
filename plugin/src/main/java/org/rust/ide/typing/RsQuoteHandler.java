@@ -12,11 +12,18 @@ import consulo.language.ast.StringEscapesTokenTypes;
 import consulo.language.ast.IElementType;
 import consulo.util.lang.Pair;
 import org.rust.lang.core.psi.RsLiteralKind;
-import org.rust.lang.core.psi.RsTokenType;
 import org.rust.lang.core.psi.RsElementTypes;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.editor.action.LanguageQuoteHandler;
+import consulo.language.Language;
+import jakarta.annotation.Nonnull;
+import org.rust.lang.RsLanguage;
+import org.rust.lang.core.psi.RsTokenSets;
+import consulo.document.util.TextRange;
 
 // Remember not to auto-pair `'` in char literals because of lifetimes, which use single `'`: `'a`
-public class RsQuoteHandler extends SimpleTokenSetQuoteHandler implements MultiCharQuoteHandler {
+@ExtensionImpl
+public class RsQuoteHandler extends SimpleTokenSetQuoteHandler implements MultiCharQuoteHandler, LanguageQuoteHandler {
 
     public RsQuoteHandler() {
         super(
@@ -69,7 +76,7 @@ public class RsQuoteHandler extends SimpleTokenSetQuoteHandler implements MultiC
         if (((consulo.language.ast.IElementType) iterator.getTokenType()) == RsElementTypes.BYTE_LITERAL) {
             return iterator.getEnd() - iterator.getStart() == 2;
         }
-        if (RsTokenType.RS_RAW_LITERALS.contains(((consulo.language.ast.IElementType) iterator.getTokenType()))) {
+        if (RsTokenSets.RS_RAW_LITERALS.contains(((IElementType) iterator.getTokenType()))) {
             char lastChar = chars.charAt(iterator.getEnd() - 1);
             return lastChar != '#' && lastChar != '"';
         }
@@ -128,7 +135,7 @@ public class RsQuoteHandler extends SimpleTokenSetQuoteHandler implements MultiC
     public CharSequence getClosingQuote(HighlighterIterator iterator, int offset) {
         RsLiteralKind.RsComplexLiteral literal = TypingUtil.getLiteralDumb(iterator);
         if (literal == null) return null;
-        if (!RsTokenType.RS_RAW_LITERALS.contains(literal.getNode().getElementType())) return null;
+        if (!RsTokenSets.RS_RAW_LITERALS.contains(literal.getNode().getElementType())) return null;
 
         consulo.document.util.TextRange openDelim = literal.getOffsets().getOpenDelim();
         int hashes = openDelim != null ? openDelim.getLength() - 1 : 0;
@@ -137,5 +144,11 @@ public class RsQuoteHandler extends SimpleTokenSetQuoteHandler implements MultiC
             sb.append('#');
         }
         return sb.toString();
+    }
+
+    @Nonnull
+    @Override
+    public Language getLanguage() {
+        return RsLanguage.INSTANCE;
     }
 }

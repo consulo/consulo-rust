@@ -44,8 +44,8 @@ public final class ImportBridge {
     }
 
     public static void importTypeReferencesFromElement(@Nonnull RsElement context, @Nonnull RsElement element) {
-        // Type-reference collection is not yet ported; nothing to do until getTypeReferencesInfoFromElements
-        // lands on the Java side.
+        TypeReferencesInfo info = RsImportHelper.getTypeReferencesInfoFromElement(context, element);
+        importElements(context, info.getToImport());
     }
 
     public static void importTypeReferencesFromTy(@Nonnull RsElement context, @Nonnull Ty ty) {

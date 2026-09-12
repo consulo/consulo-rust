@@ -28,7 +28,10 @@ import org.rust.lang.core.stubs.RsMacroStub;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.*;
+import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.ext.QueryAttributes;
 
+@ExtensionImpl
 public class RsMacroIndex extends StringStubIndexExtension<RsMacro> {
 
     private static final StubIndexKey<String, RsMacro> KEY =
@@ -50,8 +53,11 @@ public class RsMacroIndex extends StringStubIndexExtension<RsMacro> {
     }
 
     public static void index(@Nonnull RsMacroStub stub, @Nonnull IndexSink sink) {
-        org.rust.lang.core.psi.ext.QueryAttributes<?> attributes = RsDocAndAttributeOwnerUtil.getQueryAttributes(stub.getPsi());
-        if (stub.getName() != null && (RsMacroUtil.getHasMacroExport(stub.getPsi()) || RsMacroUtil.isRustcDocOnlyMacro(attributes))) {
+        // Raw (non-`cfg`-evaluated) attributes only: evaluating `cfg` here would need the containing
+        // crate, which is not available while the file is being indexed
+        QueryAttributes<?> attributes =
+            RsDocAndAttributeOwnerUtil.getTraversedRawAttributes(stub.getPsi(), false);
+        if (stub.getName() != null && (attributes.hasMacroExport() || attributes.isRustcDocOnlyMacro())) {
             sink.occurrence(KEY, SINGLE_KEY);
         }
     }

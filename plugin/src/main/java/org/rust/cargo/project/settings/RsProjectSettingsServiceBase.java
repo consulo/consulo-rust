@@ -22,6 +22,9 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.TopicAPI;
+import consulo.annotation.component.TopicBroadcastDirection;
 
 public abstract class RsProjectSettingsServiceBase<T extends RsProjectSettingsServiceBase.RsProjectSettingsBase<T>>
     extends SimplePersistentStateComponent<T> {
@@ -67,9 +70,6 @@ public abstract class RsProjectSettingsServiceBase<T extends RsProjectSettingsSe
 
     public static final Class<RsSettingsListener> RUST_SETTINGS_TOPIC = RsSettingsListener.class;
 
-    public interface RsSettingsListener {
-        <T extends RsProjectSettingsBase<T>> void settingsChanged(@Nonnull SettingsChangedEventBase<T> e);
-    }
 
     @Nonnull
     protected abstract SettingsChangedEventBase<T> createSettingsChangedEvent(@Nonnull T oldEvent, @Nonnull T newEvent);

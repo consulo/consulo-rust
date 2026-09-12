@@ -28,6 +28,7 @@ import java.util.List;
 import org.rust.lang.core.psi.ext.RsPathUtil;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsElement;
+import consulo.localize.LocalizeValue;
 
 public class UnElideLifetimesIntention extends RsElementBaseIntentionAction<UnElideLifetimesIntention.LifetimeContext> {
     @Nonnull

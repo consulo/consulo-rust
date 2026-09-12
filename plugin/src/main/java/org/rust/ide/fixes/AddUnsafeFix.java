@@ -18,6 +18,7 @@ import org.rust.ide.injected.DoctestUtil;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsAbstractableUtil;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import consulo.localize.LocalizeValue;
 
 public class AddUnsafeFix extends RsQuickFixBase<PsiElement> {
     

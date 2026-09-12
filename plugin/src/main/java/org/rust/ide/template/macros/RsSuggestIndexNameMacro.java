@@ -5,6 +5,7 @@
 
 package org.rust.ide.template.macros;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.template.Expression;
 import consulo.language.editor.template.ExpressionContext;
 import consulo.language.editor.template.Result;
@@ -17,7 +18,9 @@ import org.rust.lang.core.resolve.NameResolutionUtil;
 
 import java.util.HashSet;
 import java.util.Set;
+import consulo.localize.LocalizeValue;
 
+@ExtensionImpl
 public class RsSuggestIndexNameMacro extends MacroBase {
 
     public RsSuggestIndexNameMacro() {

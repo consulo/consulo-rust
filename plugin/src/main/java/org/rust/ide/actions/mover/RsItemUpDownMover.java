@@ -5,6 +5,7 @@
 
 package org.rust.ide.actions.mover;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.psi.PsiElement;
 import consulo.language.ast.TokenSet;
 import org.rust.lang.core.psi.RsElementTypes;
@@ -12,6 +13,7 @@ import org.rust.lang.core.psi.RsMembers;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 
+@ExtensionImpl(id = "rsItem", order = "after rsStatement")
 public class RsItemUpDownMover extends RsLineMover {
     private static final TokenSet movableItems = TokenSet.create(
         RsElementTypes.TRAIT_ITEM,

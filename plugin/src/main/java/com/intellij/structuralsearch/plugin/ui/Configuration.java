@@ -1,5 +1,5 @@
 package com.intellij.structuralsearch.plugin.ui;
-/** IntelliJ-compat stub — SSR configuration. */
+/** A named structural-search configuration grouped under a category. */
 public abstract class Configuration {
     private String name;
     private String category;

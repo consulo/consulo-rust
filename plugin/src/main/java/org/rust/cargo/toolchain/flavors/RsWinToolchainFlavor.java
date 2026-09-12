@@ -5,13 +5,16 @@
 
 package org.rust.cargo.toolchain.flavors;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.util.io.FileUtil;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
+import consulo.platform.Platform;
 
+@ExtensionImpl(id = "rust.winToolchainFlavor")
 public class RsWinToolchainFlavor extends RsToolchainFlavor {
 
     @Override

@@ -15,6 +15,7 @@ import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
 
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsSelfParameterUtil;
+import consulo.localize.LocalizeValue;
 
 public class ConvertUFCSToMethodCallIntention extends RsElementBaseIntentionAction<ConvertUFCSToMethodCallIntention.Context> {
 

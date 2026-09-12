@@ -19,6 +19,8 @@ import org.rust.lang.core.psi.ext.RsAbstractableUtil;
 import org.rust.lang.core.psi.ext.RsStructOrEnumItemElementUtil;
 import org.rust.openapiext.QueryExtUtil;
 import org.rust.lang.core.psi.ext.RsTraitItemUtil;
+import consulo.application.util.function.Processor;
+import consulo.application.util.query.CollectionQuery;
 
 public class RsImplsSearch extends QueryExecutorBase<PsiElement, DefinitionsScopedSearch.SearchParameters> {
 

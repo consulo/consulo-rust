@@ -1,5 +1,5 @@
 package com.intellij.openapi.application;
-/** IntelliJ-compat stub — experiments feature flags. Consulo has no equivalent; always returns false. */
+/** Registry of experimental feature flags; every feature reports as disabled. */
 public final class Experiments {
     private static final Experiments INSTANCE = new Experiments();
     private Experiments() {}

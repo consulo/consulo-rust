@@ -27,6 +27,12 @@ import org.rust.stdext.HashCode;
 import java.nio.file.Path;
 import java.util.*;
 import org.rust.lang.core.resolve2.HangingModData;
+import consulo.project.Project;
+import consulo.virtualFileSystem.VirtualFile;
+import org.rust.cargo.project.settings.RustAdvancedSettings;
+import org.rust.lang.core.psi.HardcodedProcMacroProperties;
+import org.rust.lang.core.psi.ext.RsMod;
+import org.rust.lang.core.psi.ext.RsModExtUtil;
 
 public class CrateDefMap {
     private final int crate;

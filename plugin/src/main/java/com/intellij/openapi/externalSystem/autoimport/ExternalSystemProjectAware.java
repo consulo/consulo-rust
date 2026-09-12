@@ -6,7 +6,7 @@ import consulo.externalSystem.model.ProjectSystemId;
 
 import java.util.Set;
 
-/** IntelliJ-compat stub for external-system auto-reload integration. */
+/** External-system auto-reload integration point. */
 public interface ExternalSystemProjectAware {
     default ProjectSystemId getSystemId() { return getProjectId().getSystemId(); }
     ExternalSystemProjectId getProjectId();

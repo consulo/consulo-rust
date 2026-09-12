@@ -14,7 +14,7 @@ import org.rust.stdext.HashCode;
 import java.io.IOException;
 
 import static org.rust.lang.core.psi.RsElementTypes.*;
-import static org.rust.lang.core.psi.RsTokenType.RS_MOD_OR_FILE;
+import static org.rust.lang.core.psi.RsTokenSets.RS_MOD_OR_FILE;
 import org.rust.lang.core.psi.ext.RsMacroCallUtil;
 
 public class RsMacroCallStub extends RsAttrProcMacroOwnerStubBase<RsMacroCall> {

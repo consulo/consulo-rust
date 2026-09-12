@@ -31,6 +31,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import consulo.process.ExecutionException;
 
 public abstract class CargoRunStateBase extends CommandLineState {
 
@@ -149,7 +150,7 @@ public abstract class CargoRunStateBase extends CommandLineState {
      */
     @Nonnull
     public ProcessHandler startProcess(boolean processColors) throws consulo.process.ExecutionException {
-        // Consulo has no Run Targets system; always use the local toolchain.
+        // Always run against the local toolchain.
         GeneralCommandLine commandLine = cargo().toColoredCommandLine(getEnvironment().getProject(), prepareCommandLine());
         LOG.debug("Executing Cargo command: `" + commandLine.getCommandLineString() + "`");
         RsProcessHandler handler = new RsProcessHandler(commandLine, processColors);

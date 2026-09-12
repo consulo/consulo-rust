@@ -16,6 +16,7 @@ import org.rust.lang.core.psi.RsLiteralKind;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.ext.RsLitExprUtil;
 import org.rust.lang.core.psi.RsLiteralKindUtil;
+import consulo.localize.LocalizeValue;
 
 public class ConvertToUnsuffixedIntegerFix extends RsQuickFixBase<RsLitExpr> {
 

@@ -19,6 +19,7 @@ import org.rust.lang.core.psi.ext.PsiElementExt;
 
 import java.util.ArrayList;
 import java.util.List;
+import consulo.localize.LocalizeValue;
 
 public class JoinWildcardsIntention extends RsElementBaseIntentionAction<List<RsPatWild>> {
     @Nonnull

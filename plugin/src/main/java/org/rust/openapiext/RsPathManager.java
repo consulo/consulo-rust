@@ -13,6 +13,8 @@ import jakarta.annotation.Nullable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import consulo.container.boot.ContainerPathManager;
+import consulo.platform.Platform;
 
 public final class RsPathManager {
     public static final RsPathManager INSTANCE = new RsPathManager();

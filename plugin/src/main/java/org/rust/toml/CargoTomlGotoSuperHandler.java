@@ -5,7 +5,8 @@
 
 package org.rust.toml;
 
-import consulo.language.editor.action.LanguageCodeInsightActionHandler;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.editor.action.GotoSuperActionHander;
 import consulo.codeEditor.Editor;
 import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
@@ -18,12 +19,14 @@ import org.rust.cargo.project.workspace.CargoWorkspace;
 import org.rust.lang.core.psi.ext.RsElementExtUtil;
 import org.rust.openapiext.VirtualFileExtUtil;
 import org.toml.lang.psi.TomlFileType;
+import consulo.language.Language;
 
 /**
  * Provides navigation from a package Cargo.toml to the workspace Cargo.toml, in addition to
  * {@link org.rust.ide.navigation.goto_.RsGotoSuperHandler}
  */
-public class CargoTomlGotoSuperHandler implements LanguageCodeInsightActionHandler {
+@ExtensionImpl
+public class CargoTomlGotoSuperHandler implements GotoSuperActionHander {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.toml.lang.TomlLanguage.INSTANCE; }
 
 

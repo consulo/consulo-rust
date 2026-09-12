@@ -15,6 +15,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsImplItem;
 import org.rust.ide.refactoring.implementMembers.ImplementMembersImpl;
+import consulo.localize.LocalizeValue;
 
 /**
  * Adds unimplemented methods and associated types to an impl block

@@ -21,6 +21,8 @@ import org.rust.lang.core.stubs.RsMacroStub;
 import org.rust.stdext.HashCode;
 
 import javax.swing.*;
+import consulo.application.util.CachedValue;
+import consulo.ui.image.Image;
 
 public abstract class RsMacroImplMixin extends RsStubbedNamedElementImpl<RsMacroStub>
     implements RsMacro {

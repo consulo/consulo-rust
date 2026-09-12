@@ -10,6 +10,7 @@ import consulo.project.Project;
 import org.rust.RsBundle;
 import org.rust.ide.utils.StructFieldsExpander;
 import org.rust.lang.core.psi.RsPsiFactory;
+import consulo.localize.LocalizeValue;
 
 public class AddStructFieldsLiteralRecursiveIntention extends AddStructFieldsLiteralIntention {
 

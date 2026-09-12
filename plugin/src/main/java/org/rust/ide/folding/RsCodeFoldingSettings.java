@@ -6,7 +6,10 @@
 package org.rust.ide.folding;
 
 import consulo.application.ApplicationManager;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ComponentScope;
 
+@ServiceAPI(ComponentScope.APPLICATION)
 public abstract class RsCodeFoldingSettings {
 
     public abstract boolean getCollapsibleOneLineMethods();

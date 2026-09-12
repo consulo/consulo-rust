@@ -7,7 +7,6 @@ import javax.swing.event.ChangeListener;
 import java.util.Collections;
 import java.util.List;
 
-/** IntelliJ-compat stub. */
 public interface ImmediateConfigurable {
     @Nonnull default JComponent createComponent(@Nonnull ChangeListener listener) { throw new UnsupportedOperationException(); }
     @Nonnull default String getMainCheckboxText() { return ""; }

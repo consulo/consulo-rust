@@ -21,6 +21,7 @@ import org.toml.lang.psi.TomlKeySegment;
 import org.toml.lang.psi.impl.TomlKeyValueImpl;
 
 import java.util.List;
+import consulo.language.psi.PsiElement;
 
 /**
  * Provides completion for feature dependencies in [features] section

@@ -62,7 +62,10 @@ import org.rust.lang.core.psi.ext.RsTraitOrImpl;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsReferenceElementBase;
 import org.rust.lang.core.psi.ext.RsMod;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.localize.LocalizeValue;
 
+@ExtensionImpl(id = "rsRenameProcessor", order = "first")
 public class RsRenameProcessor extends RenamePsiElementProcessor {
 
     @Nonnull

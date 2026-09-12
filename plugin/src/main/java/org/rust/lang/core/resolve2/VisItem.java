@@ -13,6 +13,21 @@ import org.rust.lang.core.resolve.Namespace;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import org.rust.lang.core.crate.Crate;
+import org.rust.lang.core.crate.CrateGraphService;
+import org.rust.lang.core.psi.RsEnumBody;
+import org.rust.lang.core.psi.RsEnumItem;
+import org.rust.lang.core.psi.RsEnumVariant;
+import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.RsFunction;
+import org.rust.lang.core.psi.RsMacro;
+import org.rust.lang.core.psi.RsMacro2;
+import org.rust.lang.core.psi.ext.RsElement;
+import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.RsItemElement;
+import org.rust.lang.core.psi.ext.RsItemsOwner;
+import org.rust.lang.core.psi.ext.RsItemsOwnerUtil;
+import org.rust.lang.core.psi.ext.RsMod;
 
 /**
  * The item which can be visible in the module (either directly declared or imported).

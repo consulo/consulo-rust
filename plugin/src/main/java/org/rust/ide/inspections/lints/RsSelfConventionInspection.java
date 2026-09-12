@@ -16,7 +16,6 @@ import org.rust.lang.core.psi.RsVisitor;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.resolve.ImplLookup;
 import org.rust.lang.core.types.infer.InferExtUtil;
-import org.rust.lang.core.types.SelfTypeExtUtil;
 import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyReference;
 import org.rust.lang.core.types.ty.TyUnknown;
@@ -28,6 +27,7 @@ import java.util.stream.Collectors;
 import org.rust.lang.core.psi.ext.RsSelfParameterUtil;
 import consulo.localize.LocalizeValue;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.types.ExtensionsUtil;
 
 @ExtensionImpl
 public class RsSelfConventionInspection extends RsLintInspection {

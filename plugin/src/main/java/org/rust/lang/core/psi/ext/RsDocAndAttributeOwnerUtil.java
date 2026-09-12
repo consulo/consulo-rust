@@ -26,6 +26,12 @@ import org.rust.lang.utils.evaluation.ThreeValuedLogic;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
+import consulo.language.psi.PsiComment;
+import consulo.language.psi.PsiWhiteSpace;
+import org.rust.lang.core.psi.RsBlock;
+import org.rust.lang.core.psi.RsInnerAttr;
+import org.rust.lang.core.psi.RsTokenSets;
+import org.rust.lang.doc.psi.RsDocComment;
 
 public final class RsDocAndAttributeOwnerUtil {
 
@@ -186,13 +192,8 @@ public final class RsDocAndAttributeOwnerUtil {
 
     @Nullable
     public static RsAttributeOwnerStub getAttributeStub(@Nonnull RsDocAndAttributeOwner owner) {
-        if (owner instanceof StubBasedPsiElement) {
-            StubElement<?> stub = ((StubBasedPsiElement<?>) owner).getStub();
-            if (stub instanceof RsAttributeOwnerStub) {
-                return (RsAttributeOwnerStub) stub;
-            }
-        }
-        return null;
+        StubElement<?> stub = PsiElementUtil.getGreenStubOf(owner);
+        return stub instanceof RsAttributeOwnerStub ? (RsAttributeOwnerStub) stub : null;
     }
 
     /**
@@ -209,7 +210,7 @@ public final class RsDocAndAttributeOwnerUtil {
                 }
             } else if (child instanceof org.rust.lang.doc.psi.RsDocComment) {
                 IElementType tokenType = child.getNode().getElementType();
-                if (org.rust.lang.core.psi.RsTokenType.RS_DOC_COMMENTS.contains(tokenType)) {
+                if (RsTokenSets.RS_DOC_COMMENTS.contains(tokenType)) {
                     result.add(child);
                 }
             } else if (!(child instanceof consulo.language.psi.PsiWhiteSpace)
@@ -228,7 +229,7 @@ public final class RsDocAndAttributeOwnerUtil {
                     }
                 } else if (child instanceof org.rust.lang.doc.psi.RsDocComment) {
                     IElementType tokenType = child.getNode().getElementType();
-                    if (org.rust.lang.core.psi.RsTokenType.RS_DOC_COMMENTS.contains(tokenType)) {
+                    if (RsTokenSets.RS_DOC_COMMENTS.contains(tokenType)) {
                         result.add(child);
                     }
                 }

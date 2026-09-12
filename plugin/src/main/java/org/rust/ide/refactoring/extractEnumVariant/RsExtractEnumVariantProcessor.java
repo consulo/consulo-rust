@@ -27,6 +27,8 @@ import org.rust.lang.core.psi.ext.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.rust.lang.core.psi.ext.RsEnumVariantUtil;
+import consulo.document.util.TextRange;
+import consulo.localize.LocalizeValue;
 
 public class RsExtractEnumVariantProcessor extends BaseRefactoringProcessor {
     @Nonnull

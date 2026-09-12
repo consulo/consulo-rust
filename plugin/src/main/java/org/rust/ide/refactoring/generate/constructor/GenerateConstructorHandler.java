@@ -22,6 +22,9 @@ import org.rust.openapiext.OpenApiUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import consulo.language.Language;
+import consulo.language.psi.PsiElement;
+import org.rust.lang.RsLanguage;
 
 public class GenerateConstructorHandler extends BaseGenerateHandler {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }

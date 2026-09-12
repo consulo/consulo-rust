@@ -12,6 +12,10 @@ import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.resolve.*;
 import org.rust.lang.core.types.Substitution;
 import org.rust.lang.core.types.SubstitutionUtil;
+import org.rust.lang.core.psi.ext.RsMod;
+import org.rust.lang.core.psi.ext.RsVisibilityUtil;
+import org.rust.lang.core.psi.ext.RsVisible;
+import org.rust.lang.core.resolve.Processors;
 
 public abstract class ResolvedPath {
     @Nonnull

@@ -5,6 +5,7 @@
 
 package org.rust.ide.console;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.execution.ConsoleFolding;
 import consulo.project.Project;
 import consulo.util.io.FileUtil;
@@ -29,6 +30,7 @@ import java.util.regex.Matcher;
  * Folds backtrace items (function names and source code locations) that do not belong to the
  * user's workspace.
  */
+@ExtensionImpl
 public class RsConsoleFolding extends ConsoleFolding {
     @Override
     @Nullable

@@ -14,10 +14,18 @@ import org.rust.cargo.toolchain.RustChannel;
 
 import java.util.Collections;
 import java.util.Map;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.annotation.component.ComponentScope;
+import jakarta.inject.Inject;
 
 @State(name = "RustfmtProjectSettings", storages = @Storage(StoragePathMacros.WORKSPACE_FILE))
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
 public class RustfmtProjectSettingsService
     extends RsProjectSettingsServiceBase<RustfmtProjectSettingsService.RustfmtProjectSettings> {
+
+    @Inject
 
     public RustfmtProjectSettingsService(@Nonnull Project project) {
         super(project, new RustfmtProjectSettings());

@@ -6,7 +6,7 @@
 package org.rust.openapiext;
 
 import consulo.process.cmd.GeneralCommandLine;
-import com.intellij.execution.process.ElevationService;
+import consulo.platform.Platform;
 import consulo.process.event.ProcessListener;
 import consulo.process.util.ProcessOutput;
 import consulo.disposer.Disposable;
@@ -17,12 +17,14 @@ import consulo.application.progress.ProgressManager;
 import consulo.disposer.Disposer;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.rust.RsBundle;
 import org.rust.cargo.runconfig.RsCapturingProcessHandler;
 import org.rust.stdext.RsResult;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Path;
+import consulo.process.ExecutionException;
 
 public final class CommandLineExt {
     private static final Logger LOG = Logger.getInstance("org.rust.openapiext.CommandLineExt");
@@ -35,17 +37,13 @@ public final class CommandLineExt {
         String[] allArgs = new String[args.length + 1];
         allArgs[0] = path.toString().replace('\\', '/');
         System.arraycopy(args, 0, allArgs, 1, args.length);
-        return new GeneralCommandLine(allArgs) {
-            @Nonnull
-            @Override
-            public Process createProcess() throws consulo.process.ExecutionException {
-                if (withSudo) {
-                    return ElevationService.getInstance().createProcess(this);
-                } else {
-                    return super.createProcess();
-                }
-            }
-        };
+        GeneralCommandLine commandLine = new GeneralCommandLine(allArgs);
+        if (withSudo) {
+            commandLine.withSudo(Platform.current().os().isWindows()
+                ? RsBundle.message("checkbox.run.with.administrator.privileges")
+                : RsBundle.message("checkbox.run.with.root.privileges"));
+        }
+        return commandLine;
     }
 
     @Nonnull

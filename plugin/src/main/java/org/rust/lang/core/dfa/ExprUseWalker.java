@@ -21,6 +21,10 @@ import org.rust.lang.core.types.ty.*;
 
 import java.util.List;
 import org.rust.lang.core.types.RsTypesUtil;
+import org.rust.lang.core.macros.MacroExpansion;
+import org.rust.lang.core.resolve.NameResolution;
+import org.rust.lang.core.resolve.Namespace;
+import org.rust.lang.core.types.infer.FoldUtil;
 
 // ---- Delegate interface ----
 

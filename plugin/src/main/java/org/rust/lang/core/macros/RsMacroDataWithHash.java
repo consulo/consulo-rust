@@ -18,6 +18,8 @@ import org.rust.lang.core.resolve2.MacroDefInfo;
 import org.rust.lang.core.resolve2.ProcMacroDefInfo;
 import org.rust.stdext.HashCode;
 import org.rust.stdext.RsResult;
+import org.rust.cargo.project.workspace.CargoWorkspaceData;
+import org.rust.lang.core.psi.RsMacroBody;
 
 public class RsMacroDataWithHash<T extends RsMacroData> {
     private final T myData;

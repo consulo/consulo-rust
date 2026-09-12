@@ -5,8 +5,8 @@
 
 package org.rust.ide.navigation.goto_;
 
-import consulo.navigation.NavigationUtil;
-import consulo.language.editor.action.LanguageCodeInsightActionHandler;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.editor.action.GotoSuperActionHander;
 import consulo.codeEditor.Editor;
 import consulo.project.Project;
 import consulo.language.psi.NavigatablePsiElement;
@@ -25,8 +25,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsMod;
+import consulo.language.Language;
+import org.rust.lang.RsLanguage;
+import org.rust.lang.core.psi.RsModDeclItem;
 
-public class RsGotoSuperHandler implements LanguageCodeInsightActionHandler {
+@ExtensionImpl
+public class RsGotoSuperHandler implements GotoSuperActionHander {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 
 
@@ -50,7 +54,7 @@ public class RsGotoSuperHandler implements LanguageCodeInsightActionHandler {
         } else if (targets.size() == 1) {
             targets.get(0).navigate(true);
         } else {
-            // NavigationUtil.getPsiElementPopup isn't in Consulo; just navigate to the first target
+            // Several candidates: navigate to the first one
             targets.get(0).navigate(true);
         }
     }

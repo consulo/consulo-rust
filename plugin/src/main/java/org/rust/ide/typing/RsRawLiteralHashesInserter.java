@@ -5,6 +5,7 @@
 
 package org.rust.ide.typing;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.util.CollectHighlightsUtil;
 import consulo.language.editor.action.TypedHandlerDelegate;
 import consulo.codeEditor.Editor;
@@ -20,13 +21,14 @@ import consulo.util.lang.Pair;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.RsFile;
 import org.rust.lang.core.psi.RsLiteralKind;
-import org.rust.lang.core.psi.RsTokenType;
 
 import java.util.List;
+import org.rust.lang.core.psi.RsTokenSets;
 
 /**
  * Automatically inserts matching '#' characters for raw string literals.
  */
+@ExtensionImpl(id = "RsRawLiteralHashesInserter")
 public class RsRawLiteralHashesInserter extends TypedHandlerDelegate {
     @Nonnull
     @Override
@@ -76,7 +78,7 @@ public class RsRawLiteralHashesInserter extends TypedHandlerDelegate {
     private static Pair<TextRange, TextRange> getHashesOffsets(@Nonnull HighlighterIterator iterator) {
         RsLiteralKind.RsComplexLiteral literal = TypingUtil.getLiteralDumb(iterator);
         if (literal == null) return null;
-        if (!RsTokenType.RS_RAW_LITERALS.contains(literal.getNode().getElementType())) return null;
+        if (!RsTokenSets.RS_RAW_LITERALS.contains(literal.getNode().getElementType())) return null;
         TextRange openDelim = literal.getOffsets().getOpenDelim();
         TextRange closeDelim = literal.getOffsets().getCloseDelim();
         if (openDelim == null || closeDelim == null) return null;

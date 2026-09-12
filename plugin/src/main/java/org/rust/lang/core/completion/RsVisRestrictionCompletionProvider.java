@@ -19,6 +19,8 @@ import org.rust.lang.core.psi.RsVisRestriction;
 import org.rust.lang.core.psi.ext.RsPathUtil;
 
 import static org.rust.lang.core.PsiElementPatternExtUtil.psiElement;
+import consulo.language.pattern.PatternCondition;
+import consulo.language.pattern.PlatformPatterns;
 
 /**
  * Provides completion inside visibility restriction:

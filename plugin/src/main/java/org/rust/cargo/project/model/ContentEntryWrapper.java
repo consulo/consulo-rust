@@ -5,36 +5,48 @@
 
 package org.rust.cargo.project.model;
 
+import consulo.content.ContentFolderTypeProvider;
+import consulo.content.base.ExcludedContentFolderTypeProvider;
+import consulo.language.content.ProductionContentFolderTypeProvider;
+import consulo.language.content.TestContentFolderTypeProvider;
 import consulo.module.content.layer.ContentEntry;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * Wraps {@link ContentEntry} to provide IntelliJ-style addSourceFolder/addExcludeFolder helpers.
- * Consulo's ContentEntry API is different (ContentFolderTypeProvider-based); these methods no-op
- * for now — the Rust module builder will need to wire them properly via ContentFolderTypeProvider.
+ * Declares Cargo layout directories on a {@link ContentEntry}. Folders the entry already
+ * declares are left untouched, so running the setup over a configured module is a no-op.
  */
 public class ContentEntryWrapper {
 
-    private final ContentEntry contentEntry;
-    private final Set<String> knownFolders;
+    private final ContentEntry myContentEntry;
+    private final Set<String> myKnownFolders;
 
     public ContentEntryWrapper(@Nonnull ContentEntry contentEntry) {
-        this.contentEntry = contentEntry;
-        this.knownFolders = new HashSet<>();
+        myContentEntry = contentEntry;
+        myKnownFolders = new LinkedHashSet<>();
+        Collections.addAll(myKnownFolders, contentEntry.getFolderUrls(provider -> true));
     }
 
     public void addExcludeFolder(@Nonnull String url) {
-        knownFolders.add(url);
-        // TODO: map to ContentFolderTypeProvider-based addFolder
+        addFolder(url, ExcludedContentFolderTypeProvider.getInstance());
     }
 
     public void addSourceFolder(@Nonnull String url, boolean isTestSource) {
-        knownFolders.add(url);
-        // TODO: map to ContentFolderTypeProvider-based addFolder
+        addFolder(url, isTestSource
+            ? TestContentFolderTypeProvider.getInstance()
+            : ProductionContentFolderTypeProvider.getInstance());
+    }
+
+    private void addFolder(@Nonnull String url, @Nonnull ContentFolderTypeProvider typeProvider) {
+        if (!myKnownFolders.add(url)) {
+            return;
+        }
+        myContentEntry.addFolder(url, typeProvider);
     }
 
     public void setup(@Nonnull VirtualFile contentRoot) {

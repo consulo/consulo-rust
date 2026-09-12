@@ -12,13 +12,15 @@ import consulo.language.psi.util.PsiTreeUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.ide.intentions.util.macros.InvokeInside;
-import org.rust.lang.core.parser.RustParserDefinition;
 import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.ext.PsiElementExt;
 import org.rust.lang.core.psi.ext.RsElement;
 
 import java.util.Iterator;
 import java.util.List;
+import org.rust.lang.core.psi.RsTokenType;
+import consulo.language.ast.IElementType;
+import consulo.localize.LocalizeValue;
 
 public abstract class ListIntentionBase<TList extends RsElement, TElement extends RsElement>
     extends RsElementBaseIntentionAction<TList> {
@@ -84,7 +86,7 @@ public abstract class ListIntentionBase<TList extends RsElement, TElement extend
 
     protected boolean hasEolComment(@Nonnull PsiElement element) {
         for (PsiComment comment : PsiTreeUtil.findChildrenOfType(element, PsiComment.class)) {
-            if (((consulo.language.ast.IElementType) comment.getTokenType()) == RustParserDefinition.EOL_COMMENT) {
+            if (((IElementType) comment.getTokenType()) == RsTokenType.EOL_COMMENT) {
                 return true;
             }
         }

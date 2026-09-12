@@ -14,7 +14,11 @@ import org.toml.lang.psi.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.localize.LocalizeValue;
 
+@ExtensionImpl
 public class TomlDuplicatedKeyInspection extends TomlLocalInspectionToolBase {
     @Nonnull
     @Override
@@ -67,5 +71,11 @@ public class TomlDuplicatedKeyInspection extends TomlLocalInspectionToolBase {
     @jakarta.annotation.Nonnull
     public consulo.localize.LocalizeValue getGroupDisplayName() {
         return consulo.localize.LocalizeValue.of(org.rust.RsBundle.message("cargo.toml"));
+    }
+
+    @Override
+    @jakarta.annotation.Nonnull
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.ERROR;
     }
 }

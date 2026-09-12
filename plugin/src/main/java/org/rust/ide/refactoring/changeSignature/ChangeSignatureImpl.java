@@ -27,6 +27,8 @@ import java.util.function.Function;
 import org.rust.lang.core.psi.ext.RsValueParameterUtil;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsElement;
+import consulo.language.ast.ASTNode;
+import org.rust.lang.core.types.ty.Ty;
 
 public final class ChangeSignatureImpl {
     private ChangeSignatureImpl() {

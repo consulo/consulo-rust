@@ -6,7 +6,6 @@
 package org.rust.ide.notifications;
 import consulo.ide.IdeBundle;
 
-import com.intellij.ide.impl.TrustedProjects;
 import consulo.project.ui.notification.Notification;
 import consulo.project.ui.notification.event.NotificationListener;
 import consulo.project.ui.notification.NotificationType;
@@ -27,6 +26,7 @@ import javax.swing.event.HyperlinkListener;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
+import consulo.project.ui.wm.StatusBar;
 
 public final class NotificationUtils {
 
@@ -72,7 +72,7 @@ public final class NotificationUtils {
         }
         JBPopupFactory popupFactory = JBPopupFactory.getInstance();
         if (popupFactory == null) return;
-        Balloon balloon = popupFactory.createHtmlTextBalloonBuilder(content, consulo.ui.NotificationType.valueOf(type.name()), listener)
+        Balloon balloon = popupFactory.createHtmlTextBalloonBuilder(content, type.toUI(), listener)
             .setShadow(false)
             .setAnimationCycle(200)
             .setHideOnLinkClick(true)
@@ -100,22 +100,17 @@ public final class NotificationUtils {
         Notifications.Bus.notify(notification);
     }
 
+    /**
+     * Shows {@code text} as a transient balloon anchored to the project status bar. Safe to call from
+     * any thread; the balloon is shown on the UI thread.
+     */
     public static void setStatusBarText(@Nonnull Project project, @Nonnull String text) {
-        consulo.project.ui.wm.StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
-        if (statusBar != null) {
-            // statusBar.setInfo not in Consulo API
-        }
-    }
-
-    @SuppressWarnings("UnstableApiUsage")
-    public static boolean confirmLoadingUntrustedProject(@Nonnull Project project) {
-        if (TrustedProjects.isTrusted(project)) return true;
-        return TrustedProjects.confirmLoadingUntrustedProject(
-            project,
-            IdeBundle.message("untrusted.project.dialog.title", RsBundle.message("cargo"), 1),
-            IdeBundle.message("untrusted.project.dialog.text", RsBundle.message("cargo"), 1),
-            IdeBundle.message("untrusted.project.dialog.trust.button"),
-            IdeBundle.message("untrusted.project.dialog.distrust.button")
-        );
+        ApplicationManager.getApplication().invokeLater(() -> {
+            if (project.isDisposed()) return;
+            StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
+            if (statusBar != null) {
+                statusBar.notifyProgressByBalloon(consulo.ui.NotificationType.INFO, text);
+            }
+        });
     }
 }

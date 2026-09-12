@@ -21,6 +21,8 @@ import org.rust.lang.core.psi.ext.RsVisibilityUtil;
 
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsTraitRefUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import org.rust.lang.core.crate.Crate;
 
 /**
  * Mixin methods to implement PSI interfaces without copy pasting and

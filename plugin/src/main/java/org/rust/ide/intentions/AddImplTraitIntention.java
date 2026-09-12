@@ -33,6 +33,8 @@ import org.rust.lang.core.psi.ext.RsTraitRefUtil;
 
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.types.BoundElement;
+import consulo.localize.LocalizeValue;
+import org.rust.openapiext.SmartPointerUtil;
 
 public class AddImplTraitIntention extends RsElementBaseIntentionAction<AddImplTraitIntention.Context> {
 

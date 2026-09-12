@@ -5,6 +5,9 @@
 
 package org.rust.ide.typing;
 
+import consulo.annotation.component.ExtensionImpl;
+
+@ExtensionImpl(id = "RsAngleBraceBackspaceHandler")
 public class RsAngleBraceBackspaceHandler extends RsBraceBackspaceHandler {
     public RsAngleBraceBackspaceHandler() {
         super(AngleBraceHandler.INSTANCE);

@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.rust.lang.core.PsiElementPatternExtUtil.psiElement;
+import consulo.language.editor.completion.lookup.LookupElement;
 
 public class RsTupleFieldCompletionProvider extends RsCompletionProvider {
     public static final RsTupleFieldCompletionProvider INSTANCE = new RsTupleFieldCompletionProvider();

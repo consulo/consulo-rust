@@ -9,7 +9,7 @@ import jakarta.annotation.Nullable;
 
 import java.util.List;
 
-/** IntelliJ-compat stub for suggested refactoring framework. Consulo has no equivalent. */
+/** Suggested-refactoring framework hooks; every member is inert. */
 public interface SuggestedRefactoringSupport {
 
     default Language getLanguage() { return null; }

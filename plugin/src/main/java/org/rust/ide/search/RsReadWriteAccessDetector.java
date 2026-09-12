@@ -5,6 +5,7 @@
 
 package org.rust.ide.search;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.highlight.ReadWriteAccessDetector;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiReference;
@@ -13,6 +14,7 @@ import org.rust.lang.core.psi.ext.*;
 
 
 
+@ExtensionImpl(id = "rust")
 public class RsReadWriteAccessDetector extends ReadWriteAccessDetector {
 
     @Override

@@ -14,6 +14,10 @@ import org.rust.lang.core.psi.*;
 
 import javax.swing.*;
 import org.rust.lang.core.psi.ext.RsTraitRefUtil;
+import consulo.language.psi.PsiElement;
+import consulo.ui.image.Image;
+import consulo.ui.image.ImageEffects;
+import org.rust.lang.core.stubs.RsVisStub;
 
 public final class RsVisibilityUtil {
     private RsVisibilityUtil() {

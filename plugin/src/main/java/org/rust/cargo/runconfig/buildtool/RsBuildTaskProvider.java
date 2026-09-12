@@ -13,7 +13,8 @@ import consulo.execution.runner.ExecutionEnvironment;
 import consulo.localize.LocalizeValue;
 import consulo.ui.image.Image;
 import consulo.util.dataholder.Key;
-import com.intellij.task.ProjectTaskManager;
+import com.intellij.task.ProjectTaskContext;
+import com.intellij.task.impl.ProjectModelBuildTaskImpl;
 import org.rust.RsBundle;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 
@@ -42,9 +43,14 @@ public abstract class RsBuildTaskProvider<T extends RsBuildTaskProvider.BuildTas
         CargoBuildConfiguration buildableElement = new CargoBuildConfiguration(buildConfiguration, buildEnvironment);
 
         CompletableFuture<Boolean> result = new CompletableFuture<>();
-        ProjectTaskManager.getInstance(environment.getProject()).build(buildableElement).onProcessed(taskResult ->
-            result.complete(!taskResult.hasErrors() && !taskResult.isAborted())
-        );
+        new CargoBuildTaskRunner()
+            .run(environment.getProject(),
+                new ProjectTaskContext(),
+                new ProjectModelBuildTaskImpl<>(buildableElement, true))
+            .onProcessed(taskResult ->
+                result.complete(taskResult != null && !taskResult.hasErrors() && !taskResult.isAborted())
+            )
+            .onError(error -> result.complete(false));
         try {
             return result.get();
         } catch (Exception e) {

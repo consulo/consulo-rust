@@ -8,6 +8,7 @@ package org.rust.lang.core.psi.ext;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.stubs.RsExprStmtStub;
+import consulo.language.psi.PsiElement;
 
 public final class RsStmtUtil {
     private RsStmtUtil() {

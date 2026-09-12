@@ -14,6 +14,8 @@ import org.rust.lang.core.stubs.RsModDeclItemStub;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import consulo.language.psi.PsiDirectory;
+import org.rust.lang.core.psi.RsBlock;
 
 public final class RsModDeclItemUtil {
     private RsModDeclItemUtil() {

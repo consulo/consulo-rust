@@ -41,10 +41,10 @@ import org.intellij.lang.regexp.psi.RegExpGroup;
 import org.intellij.lang.regexp.psi.RegExpNamedGroupRef;
 import jakarta.annotation.Nonnull;
 import org.rust.ide.injected.RsStringLiteralEscaper;
-import org.rust.lang.core.psi.RsTokenType;
 import org.rust.lang.core.psi.RsLitExpr;
 import org.rust.lang.core.psi.impl.RsExprImpl;
 import org.rust.lang.core.stubs.RsPlaceholderStub;
+import org.rust.lang.core.psi.RsTokenSets;
 
 public abstract class RsLitExprMixin extends RsExprImpl implements RsLitExpr, RegExpLanguageHost {
 
@@ -63,7 +63,7 @@ public abstract class RsLitExprMixin extends RsExprImpl implements RsLitExpr, Re
 
     @Override
     public boolean isValidHost() {
-        return getNode().findChildByType(RsTokenType.RS_ALL_STRING_LITERALS) != null;
+        return getNode().findChildByType(RsTokenSets.RS_ALL_STRING_LITERALS) != null;
     }
 
     @Nonnull

@@ -10,7 +10,6 @@ import consulo.language.editor.refactoring.postfixTemplate.SurroundPostfixTempla
 import consulo.language.editor.surroundWith.Surrounder;
 import consulo.language.psi.PsiElement;
 import org.rust.ide.surroundWith.expression.RsWithIfExpSurrounder;
-import org.rust.lang.utils.RsNegateUtil;
 import org.rust.lang.utils.RsBooleanExpUtils;
 
 public class ElseExpressionPostfixTemplate extends SurroundPostfixTemplateBase {

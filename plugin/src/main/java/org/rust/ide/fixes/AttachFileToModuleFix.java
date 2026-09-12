@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 import org.rust.lang.core.psi.ext.RsFileUtil;
+import consulo.localize.LocalizeValue;
+import consulo.ui.ex.awt.DialogBuilder;
 
 /**
  * Attaches a file to a Rust module.

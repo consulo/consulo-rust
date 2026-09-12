@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 import org.rust.lang.core.resolve.ref.DotExprResolveVariant;
 import org.rust.lang.core.resolve.ref.FieldResolveVariant;
 import org.rust.lang.core.resolve.ref.MethodResolveVariant;
+import consulo.util.lang.Pair;
 
 /**
  * Utility class providing static access to name resolution functions.

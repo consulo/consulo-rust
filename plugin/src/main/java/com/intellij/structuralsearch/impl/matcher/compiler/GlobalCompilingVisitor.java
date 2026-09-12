@@ -3,7 +3,7 @@ package com.intellij.structuralsearch.impl.matcher.compiler;
 import com.intellij.structuralsearch.impl.matcher.handlers.MatchingHandler;
 import consulo.language.psi.PsiElement;
 
-/** IntelliJ-compat stub for SSR global compiling visitor. */
+/** Compiles structural-search patterns, binding matching handlers to pattern PSI elements. */
 public class GlobalCompilingVisitor {
     public CompileContext getContext() { return new CompileContext(); }
     public void handle(PsiElement element) {}

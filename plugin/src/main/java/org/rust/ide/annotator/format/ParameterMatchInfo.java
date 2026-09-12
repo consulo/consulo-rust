@@ -9,6 +9,7 @@ import consulo.document.util.TextRange;
 import jakarta.annotation.Nonnull;
 
 import java.util.Objects;
+import consulo.localize.LocalizeValue;
 
 public class ParameterMatchInfo {
     @Nonnull

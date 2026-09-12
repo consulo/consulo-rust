@@ -10,7 +10,8 @@ import consulo.codeEditor.EditorEx;
 import consulo.codeEditor.HighlighterIterator;
 import consulo.language.ast.TokenSet;
 import org.rust.lang.core.psi.RsElementTypes;
-import org.rust.lang.core.psi.RsTokenSetUtil;
+import consulo.language.ast.IElementType;
+import org.rust.lang.core.psi.RsTokenType;
 
 public final class AngleBraceHandler implements BraceHandler {
 

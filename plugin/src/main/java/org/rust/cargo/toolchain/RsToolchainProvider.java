@@ -5,11 +5,14 @@
 
 package org.rust.cargo.toolchain;
 
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ExtensionAPI;
 import consulo.component.extension.ExtensionPointName;
 import jakarta.annotation.Nullable;
 
 import java.nio.file.Path;
 
+@ExtensionAPI(ComponentScope.APPLICATION)
 public interface RsToolchainProvider {
 
     @Nullable

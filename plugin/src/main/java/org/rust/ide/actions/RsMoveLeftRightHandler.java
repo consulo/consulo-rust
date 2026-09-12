@@ -5,6 +5,7 @@
 
 package org.rust.ide.actions;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.moveLeftRight.MoveElementLeftRightHandler;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
@@ -14,7 +15,10 @@ import org.rust.lang.core.psi.ext.RsTypeParameterListUtil;
 
 import java.util.Collections;
 import java.util.List;
+import consulo.language.Language;
+import org.rust.lang.RsLanguage;
 
+@ExtensionImpl
 public class RsMoveLeftRightHandler implements MoveElementLeftRightHandler {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 

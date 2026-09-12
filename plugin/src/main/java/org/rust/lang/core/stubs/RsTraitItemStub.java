@@ -13,6 +13,7 @@ import org.rust.lang.core.psi.RsTraitItem;
 import org.rust.lang.core.psi.impl.RsTraitItemImpl;
 import org.rust.stdext.BitFlagsBuilder;
 import java.io.IOException;
+import org.rust.lang.core.psi.RsElementTypes;
 
 public class RsTraitItemStub extends RsAttrProcMacroOwnerStubBase<RsTraitItem> implements RsNamedStub {
     @Nullable private final String name;

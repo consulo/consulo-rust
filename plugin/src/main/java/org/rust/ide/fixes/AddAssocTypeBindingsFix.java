@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import consulo.language.psi.PsiElement;
+import consulo.localize.LocalizeValue;
 
 public class AddAssocTypeBindingsFix extends RsQuickFixBase<RsElement> {
     @SafeFieldForPreview

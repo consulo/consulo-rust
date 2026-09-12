@@ -17,10 +17,9 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import java.util.Iterator;
+import org.rust.lang.doc.psi.RsDocComment;
+import org.rust.lang.doc.psi.ext.RsDocPsiElementUtil;
 
-/**
- * Some converted Java code references PsiElementExt instead of PsiElementUtil.
- */
 public final class PsiElementExt {
 
     private PsiElementExt() {

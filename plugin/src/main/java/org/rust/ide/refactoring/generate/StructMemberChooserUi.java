@@ -14,6 +14,8 @@ import org.rust.openapiext.OpenApiUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import consulo.language.editor.generation.MemberChooserObjectBase;
+import consulo.language.icon.IconDescriptorUpdaters;
 
 public interface StructMemberChooserUi {
     @Nullable

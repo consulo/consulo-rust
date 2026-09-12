@@ -5,6 +5,7 @@
 
 package org.rust.cargo.toolchain.wsl;
 
+import consulo.annotation.component.ExtensionImpl;
 import com.intellij.execution.wsl.WSLDistribution;
 import jakarta.annotation.Nonnull;
 import org.rust.cargo.toolchain.flavors.RsToolchainFlavor;
@@ -17,6 +18,7 @@ import java.util.stream.Stream;
 /**
  * WSL toolchain flavor — Consulo doesn't ship with WSL support, so this flavor is disabled.
  */
+@ExtensionImpl(id = "rust.wslToolchainFlavor")
 public class RsWslToolchainFlavor extends RsToolchainFlavor {
 
     @Nonnull

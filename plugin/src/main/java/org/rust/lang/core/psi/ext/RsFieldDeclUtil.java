@@ -14,6 +14,7 @@ import org.rust.lang.core.types.ty.Ty;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.rust.lang.core.psi.RsPsiUtilUtil;
 
 public final class RsFieldDeclUtil {
     private RsFieldDeclUtil() {

@@ -14,7 +14,6 @@ import consulo.execution.ui.console.Filter;
 import consulo.execution.runner.ExecutionEnvironment;
 import consulo.execution.runner.ProgramRunner;
 import consulo.execution.test.action.ToggleAutoTestAction;
-import consulo.component.PropertiesComponent;
 import consulo.project.ui.notification.NotificationType;
 import com.intellij.openapi.options.advanced.AdvancedSettings;
 import consulo.project.Project;
@@ -37,6 +36,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import consulo.application.ApplicationPropertiesComponent;
+import consulo.execution.ui.console.ConsoleView;
+import consulo.platform.Platform;
+import consulo.process.ExecutionException;
+import consulo.process.ProcessHandler;
+import org.rust.ide.notifications.NotificationUtils;
 
 public class CargoTestRunState extends CargoRunStateBase {
 
@@ -68,7 +73,7 @@ public class CargoTestRunState extends CargoRunStateBase {
                 || rustcVersion.getSemver().compareTo(RUSTC_1_70_BETA) < 0));
             EnvironmentVariablesData environmentVariables;
             if (requiresRustcBootstrap) {
-                if (!consulo.application.Application.get().getInstance(consulo.component.PropertiesComponent.class).getBoolean(DO_NOT_SHOW_KEY, false)) {
+                if (!ApplicationPropertiesComponent.getInstance().getBoolean(DO_NOT_SHOW_KEY, false)) {
                     showRustcBootstrapWarning(getProject());
                 }
                 EnvironmentVariablesData oldVariables = commandLine.getEnvironmentVariables();
@@ -79,7 +84,7 @@ public class CargoTestRunState extends CargoRunStateBase {
                 environmentVariables = commandLine.getEnvironmentVariables();
             }
 
-            // TODO: always pass `withSudo` when `com.intellij.execution.process.ElevationService` supports error stream redirection
+            // TODO: always pass `withSudo` once elevated execution supports error stream redirection
             // https://github.com/intellij-rust/intellij-rust/issues/7320
             if (commandLine.getWithSudo()) {
                 String message;
@@ -157,7 +162,7 @@ public class CargoTestRunState extends CargoRunStateBase {
             }
         );
 
-        consulo.application.Application.get().getInstance(consulo.component.PropertiesComponent.class).setValue(DO_NOT_SHOW_KEY, true);
+        ApplicationPropertiesComponent.getInstance().setValue(DO_NOT_SHOW_KEY, true);
     }
 
     private static void showConfirmationInfo(@Nonnull Project project) {

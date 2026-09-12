@@ -15,6 +15,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
+import consulo.ui.image.Image;
 
 public abstract class RsRunAnythingItem extends RunAnythingItemBase {
 

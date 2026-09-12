@@ -22,6 +22,7 @@ import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
 import org.rust.lang.core.psi.ext.RsElementUtil;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.openapiext.OpenApiUtil;
 
 public class CargoExecutableRunConfigurationProducer extends CargoRunConfigurationProducer {
 

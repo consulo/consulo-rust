@@ -1,5 +1,5 @@
 package com.intellij.util.text;
-/** IntelliJ-compat stub — Levenshtein distance. */
+/** Levenshtein edit distance between two character sequences. */
 public final class EditDistance {
     private EditDistance() {}
     public static int levenshtein(CharSequence s1, CharSequence s2, boolean caseSensitive) {

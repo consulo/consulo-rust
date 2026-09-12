@@ -9,11 +9,11 @@ import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.ide.fixes.SimplifyBooleanExpressionFix;
 import org.rust.ide.utils.BooleanExprSimplifier;
-import org.rust.ide.utils.PurityUtil;
 import org.rust.lang.core.psi.RsExpr;
 import org.rust.lang.core.psi.RsVisitor;
 import org.rust.ide.utils.ExprUtil;
 import consulo.annotation.component.ExtensionImpl;
+import consulo.localize.LocalizeValue;
 
 /**
  * Simplify pure boolean expressions

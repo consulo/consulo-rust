@@ -8,6 +8,7 @@ package org.rust.lang.core.macros;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,11 +27,13 @@ public final class MacroExpansionManagerUtil {
         return project.getService(MacroExpansionManager.class);
     }
 
-    @Nonnull
+    /**
+     * Returns the manager only when it is already loaded, so that callers running under a write action
+     * or during indexing do not trigger its creation.
+     */
+    @Nullable
     public static MacroExpansionManager getMacroExpansionManagerIfCreated(@Nonnull Project project) {
-        MacroExpansionManager service = project.getInstance(MacroExpansionManager.class);
-        if (service != null) return service;
-        return getMacroExpansionManager(project);
+        return project.getInstanceIfCreated(MacroExpansionManager.class);
     }
 
     @Nonnull

@@ -55,6 +55,11 @@ import org.rust.lang.core.psi.ext.RsElement;
 import java.util.*;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.localize.LocalizeValue;
+import consulo.project.Project;
+import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
+import org.rust.cargo.toolchain.RsToolchainBase;
 
 public class RsExternalLinterInspection extends GlobalSimpleInspectionTool {
 
@@ -175,12 +180,13 @@ public class RsExternalLinterInspection extends GlobalSimpleInspectionTool {
     ) {
         return ReadAction.compute(() -> {
             consulo.project.Project project = cargoProject.getProject();
-            Object toolchain = RsProjectSettingsServiceUtil.getToolchain(project);
+            RsToolchainBase toolchain = RsProjectSettingsServiceUtil.getToolchain(project);
             if (toolchain == null) return null;
             return RsExternalLinterUtils.checkLazily(
                 toolchain,
                 project,
                 disposable,
+                CargoCommandConfiguration.getWorkingDirectory(cargoProject),
                 CargoCheckArgs.forCargoProject(cargoProject)
             );
         });

@@ -10,7 +10,7 @@ import javax.swing.JPanel;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-/** IntelliJ-compat stub — commit-dialog boolean option. */
+/** Boolean option shown in the commit dialog, backed by a getter/setter pair. */
 public class BooleanCommitOption implements RefreshableOnComponent {
     private final JCheckBox checkBox;
     private final Supplier<Boolean> getter;

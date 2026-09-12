@@ -18,6 +18,7 @@ import org.rust.lang.core.psi.RsTypeReference;
 import org.rust.lang.core.types.ty.Ty;
 
 import java.util.Collections;
+import consulo.localize.LocalizeValue;
 
 /**
  * Adds type ascription after the given element.

@@ -16,6 +16,7 @@ import org.rust.openapiext.OpenApiUtil;
 
 import java.util.List;
 import consulo.language.psi.PsiFile;
+import consulo.document.util.TextRange;
 
 public final class PsiModificationUtil {
     public static final PsiModificationUtil INSTANCE = new PsiModificationUtil();

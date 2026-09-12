@@ -33,7 +33,11 @@ import org.rust.lang.core.psi.ext.RsDocAndAttributeOwner;
 import org.rust.lang.core.psi.ext.RsDocAndAttributeOwnerUtil;
 import org.rust.ide.refactoring.changeSignature.ChangeSignatureImpl;
 import org.rust.lang.core.psi.ext.RsMod;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.localize.LocalizeValue;
+import consulo.navigation.ItemPresentation;
 
+@ExtensionImpl(id = "Rust")
 public class RsChangeSignatureUsageProcessor implements ChangeSignatureUsageProcessor {
 
     @Nonnull

@@ -9,7 +9,7 @@ import consulo.execution.configuration.EnvironmentVariablesData;
 import consulo.process.cmd.GeneralCommandLine;
 import com.intellij.execution.configurations.PtyCommandLine;
 import com.intellij.execution.wsl.WslPath;
-import com.intellij.util.net.HttpConfigurable;
+import consulo.http.HttpProxyManager;
 import consulo.util.lang.SemVer;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.CargoConstants;
@@ -103,7 +103,7 @@ public abstract class RsToolchainBase {
         boolean emulateTerminal,
         boolean withSudo,
         boolean patchToRemote,
-        HttpConfigurable http
+        HttpProxyManager http
     ) {
         GeneralCommandLine commandLine = CommandLineExt.newCommandLine(executable, withSudo);
         CommandLineExt.withWorkDirectory(commandLine, workingDirectory);
@@ -153,7 +153,7 @@ public abstract class RsToolchainBase {
         return createGeneralCommandLine(
             executable, workingDirectory, redirectInputFrom, backtraceMode,
             environmentVariables, parameters, emulateTerminal, withSudo,
-            true, HttpConfigurable.getInstance()
+            true, HttpProxyManager.getInstance()
         );
     }
 

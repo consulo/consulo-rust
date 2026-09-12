@@ -23,6 +23,7 @@ import org.rust.cargo.toolchain.CargoCommandLine;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import consulo.process.ExecutionException;
 
 /**
  * Bridge class delegating to {@link RunConfigUtil}.

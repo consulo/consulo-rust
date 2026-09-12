@@ -27,6 +27,8 @@ import org.rust.openapiext.EditorExt;
 
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import consulo.language.pattern.PatternCondition;
+import org.rust.lang.core.crate.Crate;
 
 public class RsFnMainCompletionProvider extends RsCompletionProvider {
     public static final RsFnMainCompletionProvider INSTANCE = new RsFnMainCompletionProvider();

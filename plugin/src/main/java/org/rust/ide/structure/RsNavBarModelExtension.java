@@ -5,6 +5,7 @@
 
 package org.rust.ide.structure;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.ide.navigationToolbar.StructureAwareNavBarModelExtension;
 import consulo.fileEditor.structureView.StructureViewModel;
 import consulo.language.Language;
@@ -23,10 +24,13 @@ import org.rust.lang.core.psi.ext.RsAbstractable;
 import org.rust.lang.core.psi.ext.RsElement;
 
 import javax.swing.*;
+import consulo.language.icon.IconDescriptorUpdaters;
+import consulo.ui.image.Image;
 
 /**
  * Shows nav bar for items from structure view {@link RsStructureViewModel}
  */
+@ExtensionImpl
 public class RsNavBarModelExtension extends StructureAwareNavBarModelExtension {
 
     @Override

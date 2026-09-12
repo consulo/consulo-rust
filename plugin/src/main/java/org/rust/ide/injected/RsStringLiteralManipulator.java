@@ -12,7 +12,9 @@ import org.rust.lang.core.psi.RsLitExpr;
 import org.rust.lang.core.psi.RsLiteralKind;
 import org.rust.lang.core.psi.RsLiteralKindUtil;
 import org.rust.lang.core.psi.RsPsiFactory;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsStringLiteralManipulator extends AbstractElementManipulator<RsLitExpr> {
 
     @Override

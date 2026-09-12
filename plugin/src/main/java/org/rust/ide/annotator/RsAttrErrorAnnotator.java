@@ -23,7 +23,6 @@ import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.types.ty.TyInteger;
 import org.rust.lang.utils.RsDiagnostic;
 import org.rust.cargo.toolchain.impl.RustcVersion;
-import org.rust.lang.utils.RsErrorCodeUtil;
 import org.rust.stdext.StdextUtil;
 
 import java.util.*;
@@ -31,6 +30,7 @@ import org.rust.lang.core.psi.ext.RsLitExprUtil;
 import org.rust.lang.core.psi.RsLiteralKindUtil;
 import org.rust.lang.core.psi.ext.RsElementExtUtil;
 import org.rust.lang.core.psi.ext.RsDocAndAttributeOwnerUtil;
+import org.rust.lang.core.psi.BuiltinAttributes;
 
 public class RsAttrErrorAnnotator extends AnnotatorBase {
     @Override

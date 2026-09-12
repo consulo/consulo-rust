@@ -46,6 +46,13 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 import consulo.language.psi.PsiFile;
+import consulo.language.icon.IconDescriptorUpdaters;
+import consulo.language.psi.PsiDirectory;
+import consulo.language.psi.PsiElement;
+import consulo.ui.ex.awt.util.StringHtmlUtil;
+import consulo.ui.image.Image;
+import consulo.util.io.FileUtil;
+import org.rust.openapiext.OpenApiUtil;
 
 public class RsMoveTopLevelItemsDialog extends RefactoringDialog {
 

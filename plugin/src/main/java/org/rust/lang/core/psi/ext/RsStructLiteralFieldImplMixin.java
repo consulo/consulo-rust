@@ -10,6 +10,7 @@ import consulo.language.ast.ASTNode;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.RsStructLiteralField;
 import org.rust.lang.core.resolve.ref.RsReference;
+import org.rust.lang.core.resolve.ref.RsStructExprFieldReferenceImpl;
 
 public abstract class RsStructLiteralFieldImplMixin extends RsElementImpl implements RsStructLiteralField {
 

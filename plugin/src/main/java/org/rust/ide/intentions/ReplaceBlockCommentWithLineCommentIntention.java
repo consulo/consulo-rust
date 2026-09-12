@@ -15,9 +15,11 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.ide.utils.PsiModificationUtil;
-import org.rust.lang.core.parser.RustParserDefinition;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.ext.PsiElementExt;
+import org.rust.lang.core.psi.RsTokenType;
+import consulo.language.ast.IElementType;
+import consulo.localize.LocalizeValue;
 
 public class ReplaceBlockCommentWithLineCommentIntention extends RsElementBaseIntentionAction<PsiComment> {
 
@@ -51,7 +53,7 @@ public class ReplaceBlockCommentWithLineCommentIntention extends RsElementBaseIn
     public PsiComment findApplicableContext(@Nonnull Project project, @Nonnull Editor editor, @Nonnull PsiElement element) {
         PsiComment comment = PsiElementExt.ancestorOrSelf(element, PsiComment.class);
         if (comment == null) return null;
-        if (((consulo.language.ast.IElementType) comment.getTokenType()) != RustParserDefinition.BLOCK_COMMENT) return null;
+        if (((IElementType) comment.getTokenType()) != RsTokenType.BLOCK_COMMENT) return null;
         if (!PsiModificationUtil.canReplace(comment)) return null;
         return comment;
     }

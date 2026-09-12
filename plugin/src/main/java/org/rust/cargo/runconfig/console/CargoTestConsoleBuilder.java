@@ -16,6 +16,8 @@ import org.rust.cargo.runconfig.test.CargoTestConsoleProperties;
 
 import java.util.ArrayList;
 import java.util.List;
+import consulo.execution.test.sm.runner.SMTRunnerConsoleProperties;
+import consulo.execution.ui.console.ConsoleState;
 
 public class CargoTestConsoleBuilder extends TextConsoleBuilder {
 

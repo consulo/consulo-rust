@@ -5,7 +5,7 @@
 
 package com.intellij.util;
 
-/** IntelliJ-compat stub. Consulo uses {@code consulo.platform.Platform}; these ID constants aren't meaningful there. */
+/** IDE product identification. Every product check reports {@code false}; the platform prefix is {@code "Consulo"}. */
 public final class PlatformUtils {
     private PlatformUtils() {}
 

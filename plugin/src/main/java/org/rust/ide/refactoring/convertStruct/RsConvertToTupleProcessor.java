@@ -23,6 +23,7 @@ import org.rust.lang.core.psi.ext.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import consulo.localize.LocalizeValue;
 
 public class RsConvertToTupleProcessor extends BaseRefactoringProcessor {
     @Nonnull

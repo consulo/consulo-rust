@@ -18,7 +18,6 @@ import consulo.usage.UsageViewDescriptor;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.ide.inspections.lints.RsLintUtils;
 import org.rust.ide.presentation.TypeRendering;
 import org.rust.ide.refactoring.ExtractSubsetUtils;
 import org.rust.ide.refactoring.RsInPlaceVariableIntroducer;
@@ -39,6 +38,7 @@ import org.rust.lang.core.psi.ext.RsFieldLookupUtil;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
+import consulo.localize.LocalizeValue;
 
 public class RsExtractStructFieldsProcessor extends BaseRefactoringProcessor {
     private static final Set<String> TRANSITIVE_ATTRIBUTES = new HashSet<>(Arrays.asList("derive", "repr"));

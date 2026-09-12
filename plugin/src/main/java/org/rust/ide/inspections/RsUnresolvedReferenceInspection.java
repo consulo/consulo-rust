@@ -30,6 +30,7 @@ import org.rust.lang.core.psi.ext.RsMod;
 import consulo.localize.LocalizeValue;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.utils.RsDiagnostic;
 
 @ExtensionImpl
 public class RsUnresolvedReferenceInspection extends RsLocalInspectionTool {
@@ -79,7 +80,7 @@ public class RsUnresolvedReferenceInspection extends RsLocalInspectionTool {
     ) {
         List<ImportCandidate> candidates = context != null ? context.getCandidates() : null;
         boolean showError = (candidates != null && !candidates.isEmpty())
-            || (!isTypeDependentPath(element) && Registry.is("org.rust.insp.unresolved.reference.type.independent"))
+            || (!isTypeDependentPath(element) && Registry.is("org.rust.insp.unresolved.reference.type.independent", true))
             || !ignoreWithoutQuickFix;
         if (!showError) return;
 

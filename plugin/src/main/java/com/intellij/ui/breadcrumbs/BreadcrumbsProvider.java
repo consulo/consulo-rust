@@ -8,7 +8,7 @@ import jakarta.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
-/** IntelliJ-compat stub: Breadcrumbs provider interface. Consulo has no equivalent in v3. */
+/** Supplies breadcrumbs for its languages: which elements to show, and their label and tooltip. */
 public interface BreadcrumbsProvider {
     Language[] getLanguages();
     boolean acceptElement(@Nonnull PsiElement e);

@@ -178,7 +178,7 @@ public class RsInlayTypeHintsProvider implements InlayHintsProvider<RsInlayTypeH
                 if (element instanceof RsLetDecl) {
                     RsLetDecl letDecl = (RsLetDecl) element;
                     if (settings.myShowForPlaceholders) {
-                        // presentTypePlaceholders - skipped for simplicity in Java conversion
+                        // TODO: present type placeholders
                     }
                     if (letDecl.getTypeReference() != null) return;
                     RsPat pat = letDecl.getPat();

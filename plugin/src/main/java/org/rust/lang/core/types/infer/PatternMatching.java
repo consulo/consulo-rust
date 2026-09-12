@@ -16,6 +16,7 @@ import org.rust.lang.core.types.ty.*;
 import org.rust.lang.core.types.ty.Mutability;
 import org.rust.lang.utils.evaluation.ConstExpr;
 import org.rust.openapiext.Testmark;
+import org.rust.lang.core.psi.ext.RsBindingModeKind;
 public final class PatternMatching {
     private PatternMatching() {}
 

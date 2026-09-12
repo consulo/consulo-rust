@@ -7,9 +7,14 @@ package org.rust.lang.core.types.ty;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import consulo.language.psi.PsiElement;
 import org.rust.lang.core.psi.RsPath;
+import org.rust.lang.core.psi.RsPathType;
 import org.rust.lang.core.psi.ext.RsElement;
+import org.rust.lang.core.psi.ext.RsMod;
+import org.rust.lang.core.psi.ext.RsPathUtil;
 import org.rust.lang.core.resolve.RsPathResolveResult;
+import org.rust.lang.core.resolve.ref.RsPathReference;
 
 import java.util.List;
 
@@ -27,24 +32,55 @@ public abstract class TyPrimitive extends Ty {
 
     @Nullable
     public static TyPrimitive fromPath(@Nonnull RsPath path) {
-        return fromPath(path, null);
+        return fromPath(path, true, null);
     }
 
     @Nullable
     public static TyPrimitive fromPath(@Nonnull RsPath path, @Nullable List<RsPathResolveResult<RsElement>> givenResolveResult) {
+        return fromPath(path, true, givenResolveResult);
+    }
+
+    /**
+     * The primitive type a path denotes, or {@code null} if it denotes something else.
+     *
+     * @param checkResolve        when {@code true}, a path that resolves to a user-declared item of the same
+     *                            name (e.g. {@code struct u8;}) denotes that item, not the primitive
+     * @param givenResolveResult  an already computed resolve result for {@code path}, to avoid resolving again
+     */
+    @Nullable
+    public static TyPrimitive fromPath(
+        @Nonnull RsPath path,
+        boolean checkResolve,
+        @Nullable List<RsPathResolveResult<RsElement>> givenResolveResult
+    ) {
         String name = path.getReferenceName();
         if (name == null) return null;
-        if (path.getPath() != null || path.getTypeQual() != null) return null;
 
-        TyPrimitive ty = fromName(name);
-        if (ty != null) {
-            // Check if it's actually a primitive or a user-defined type with the same name
-            List<RsPathResolveResult<RsElement>> resolveResult = givenResolveResult != null
-                ? givenResolveResult
-                : null; // Would normally resolve here
-            // Simplified: just return based on name
+        TyPrimitive result = fromName(name);
+        if (result == null) return null;
+
+        if (RsPathUtil.getHasColonColon(path) || path.getTypeQual() != null) return null;
+        PsiElement parent = path.getParent();
+        if (!(parent instanceof RsPathType) && !(parent instanceof RsPath)) return null;
+
+        // struct u8;
+        // let a: u8; // this is a struct "u8", not a primitive type "u8"
+        if (checkResolve) {
+            List<RsPathResolveResult<RsElement>> resolvedTo = givenResolveResult;
+            if (resolvedTo == null) {
+                RsPathReference reference = path.getReference();
+                if (reference == null) return null;
+                resolvedTo = reference.rawMultiResolve();
+            }
+            if (parent instanceof RsPathType) {
+                for (RsPathResolveResult<RsElement> resolveResult : resolvedTo) {
+                    if (!(resolveResult.getElement() instanceof RsMod)) return null;
+                }
+            }
+            if (parent instanceof RsPath && !resolvedTo.isEmpty()) return null;
         }
-        return ty;
+
+        return result;
     }
 
     @Nullable

@@ -22,6 +22,8 @@ import org.rust.lang.core.types.infer.FoldUtil;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.rust.lang.core.psi.RsTypeReference;
+import org.rust.lang.core.psi.ext.RsFieldDecl;
 
 public final class TyUtil {
     private TyUtil() {

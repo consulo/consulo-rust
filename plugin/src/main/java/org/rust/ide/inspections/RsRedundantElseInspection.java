@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 import org.rust.lang.core.psi.ext.RsLetExprUtil;
 import consulo.annotation.component.ExtensionImpl;
+import consulo.localize.LocalizeValue;
 
 /**
  * Detects redundant {@code else} statements preceded by an irrefutable pattern.

@@ -5,8 +5,9 @@ import consulo.language.editor.inlay.InlayGroup;
 import consulo.language.psi.PsiFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import consulo.language.Language;
 
-/** IntelliJ-compat stub for inlay-hints provider. */
+/** Provides inlay hints for a language, configured by settings of type {@code T}. */
 public interface InlayHintsProvider<T> {
     @Nonnull default SettingsKey<T> getKey() { throw new UnsupportedOperationException(); }
     @Nonnull default String getName() { return ""; }

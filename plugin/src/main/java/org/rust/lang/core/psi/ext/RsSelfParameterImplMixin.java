@@ -15,6 +15,7 @@ import org.rust.lang.core.psi.RsSelfParameter;
 import org.rust.lang.core.stubs.RsSelfParameterStub;
 
 import javax.swing.*;
+import consulo.ui.image.Image;
 
 public abstract class RsSelfParameterImplMixin extends RsStubbedElementImpl<RsSelfParameterStub> implements RsSelfParameter {
 

@@ -4,7 +4,6 @@ import consulo.language.psi.PsiFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
-/** IntelliJ-compat stub. */
 public abstract class AsyncDocumentFormattingService implements FormattingService {
     @Override public boolean canFormat(@Nonnull PsiFile file) { return false; }
     public abstract static class FormattingTask implements Runnable {

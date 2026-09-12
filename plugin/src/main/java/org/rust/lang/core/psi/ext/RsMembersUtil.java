@@ -15,6 +15,7 @@ import org.rust.lang.core.psi.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.rust.lang.core.macros.RsExpandedElement;
 
 public final class RsMembersUtil {
     private RsMembersUtil() {

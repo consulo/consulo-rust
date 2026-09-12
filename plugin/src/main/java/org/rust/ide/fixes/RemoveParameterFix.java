@@ -24,6 +24,7 @@ import org.rust.lang.core.psi.ext.PsiElementUtil;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
 import org.rust.lang.core.psi.RsPsiImplUtil;
 import org.rust.lang.core.psi.ext.RsPatBindingUtil;
+import consulo.localize.LocalizeValue;
 
 /**
  * Fix that removes a parameter and all its usages at call sites.

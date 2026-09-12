@@ -11,6 +11,7 @@ import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.crate.Crate;
 
 /**
  * Base interface for all Rust PSI elements.
@@ -31,7 +32,7 @@ public interface RsElement extends PsiElement, UserDataHolderEx {
         return file != null ? file.getCrateRoot() : null;
     }
 
-    @Nullable
+    @Nonnull
     default org.rust.lang.core.crate.Crate getContainingCrate() {
         return RsElementUtil.getContainingCrate(this);
     }

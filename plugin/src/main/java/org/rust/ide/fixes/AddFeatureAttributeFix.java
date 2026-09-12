@@ -19,6 +19,7 @@ import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
 
 import java.util.List;
+import consulo.localize.LocalizeValue;
 
 public class AddFeatureAttributeFix extends RsQuickFixBase<PsiElement> {
     private final String featureName;

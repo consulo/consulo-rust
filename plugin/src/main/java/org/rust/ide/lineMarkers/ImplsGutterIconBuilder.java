@@ -8,6 +8,7 @@ package org.rust.ide.lineMarkers;
 import consulo.language.editor.ui.navigation.NavigationGutterIconBuilder;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
+import consulo.ui.image.Image;
 
 /**
  * Thin wrapper over {@link NavigationGutterIconBuilder} — previously extended it to override

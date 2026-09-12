@@ -1,6 +1,9 @@
 package com.intellij.openapi.progress;
 import consulo.application.progress.ProgressIndicator;
-/** IntelliJ-compat stub. Minimal no-op progress indicator. */
+import consulo.component.ProcessCanceledException;
+import consulo.localize.LocalizeValue;
+import consulo.ui.ModalityState;
+/** Minimal no-op progress indicator tracking only running, canceled, indeterminate and fraction state. */
 public class EmptyProgressIndicator implements ProgressIndicator {
     private volatile boolean canceled = false;
     private volatile boolean running = false;

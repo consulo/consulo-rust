@@ -13,7 +13,9 @@ import org.rust.toml.CargoTomlPsiPattern;
 import org.rust.toml.Util;
 
 import java.util.List;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class CargoTomlCompletionContributor extends CompletionContributor {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.toml.lang.TomlLanguage.INSTANCE; }
 

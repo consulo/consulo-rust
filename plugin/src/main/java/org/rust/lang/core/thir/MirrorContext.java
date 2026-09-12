@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
+import consulo.language.psi.PsiElement;
+import org.rust.lang.core.psi.RsMatchArmGuard;
 
 public class MirrorContext {
     @Nonnull

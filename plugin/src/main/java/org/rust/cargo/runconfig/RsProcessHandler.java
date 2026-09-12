@@ -11,14 +11,13 @@ import com.intellij.execution.process.KillableColoredProcessHandler;
 import consulo.process.util.AnsiEscapeDecoder;
 import consulo.util.dataholder.Key;
 import consulo.process.io.BaseOutputReader;
-import com.pty4j.PtyProcess;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import consulo.process.ExecutionException;
 
-import java.nio.charset.Charset;
 
 /**
- * Same as {@link com.intellij.execution.process.KillableColoredProcessHandler}, but uses {@link RsAnsiEscapeDecoder}.
+ * Killable coloured process handler that decodes Rust's ANSI escape sequences.
  */
 public class RsProcessHandler extends KillableColoredProcessHandler implements AnsiEscapeDecoder.ColoredTextAcceptor {
     @Nullable
@@ -33,26 +32,6 @@ public class RsProcessHandler extends KillableColoredProcessHandler implements A
         setHasPty(commandLine instanceof PtyCommandLine);
         setShouldDestroyProcessRecursively(!hasPty());
         myDecoder = (processColors && !hasPty()) ? new RsAnsiEscapeDecoder() : null;
-    }
-
-    public RsProcessHandler(
-        @Nonnull Process process,
-        @Nonnull String commandRepresentation,
-        @Nonnull Charset charset,
-        boolean processColors
-    ) {
-        super(process, commandRepresentation, charset);
-        setHasPty(process instanceof PtyProcess);
-        setShouldDestroyProcessRecursively(!hasPty());
-        myDecoder = (processColors && !hasPty()) ? new RsAnsiEscapeDecoder() : null;
-    }
-
-    public RsProcessHandler(
-        @Nonnull Process process,
-        @Nonnull String commandRepresentation,
-        @Nonnull Charset charset
-    ) {
-        this(process, commandRepresentation, charset, true);
     }
 
     @Override

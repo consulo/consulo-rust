@@ -7,7 +7,10 @@ package org.rust.lang;
 
 import consulo.language.psi.PsiLanguageInjectionHost;
 import org.rust.lang.core.psi.ext.RsElement;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.TopicAPI;
 
+@TopicAPI(value = ComponentScope.PROJECT)
 public interface RsDebugInjectionListener {
 
     Class<RsDebugInjectionListener> INJECTION_TOPIC = RsDebugInjectionListener.class;

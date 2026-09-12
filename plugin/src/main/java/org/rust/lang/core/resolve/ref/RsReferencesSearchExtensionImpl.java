@@ -5,6 +5,9 @@
 
 package org.rust.lang.core.resolve.ref;
 
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.psi.PsiReference;
+import consulo.language.psi.search.ReferencesSearchQueryExecutor;
 import consulo.project.util.query.QueryExecutorBase;
 import consulo.language.psi.search.UsageSearchContext;
 import consulo.language.psi.search.ReferencesSearch;
@@ -15,14 +18,16 @@ import org.rust.lang.core.psi.RsTupleFieldDecl;
 import org.rust.lang.core.psi.ext.RsFieldsOwner;
 import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
 
-public class RsReferencesSearchExtensionImpl extends QueryExecutorBase<RsReference, ReferencesSearch.SearchParameters> {
+@ExtensionImpl
+public class RsReferencesSearchExtensionImpl extends QueryExecutorBase<PsiReference, ReferencesSearch.SearchParameters>
+    implements ReferencesSearchQueryExecutor {
 
     public RsReferencesSearchExtensionImpl() {
         super(true);
     }
 
     @Override
-    public void processQuery(@Nonnull ReferencesSearch.SearchParameters queryParameters, @Nonnull Predicate<? super RsReference> consumer) {
+    public void processQuery(@Nonnull ReferencesSearch.SearchParameters queryParameters, @Nonnull Predicate<? super PsiReference> consumer) {
         Object element = queryParameters.getElementToSearch();
         if (element instanceof RsTupleFieldDecl) {
             RsTupleFieldDecl tupleField = (RsTupleFieldDecl) element;

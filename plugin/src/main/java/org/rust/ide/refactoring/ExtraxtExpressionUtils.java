@@ -13,7 +13,6 @@ import consulo.language.psi.PsiRecursiveElementVisitor;
 import consulo.language.psi.util.PsiTreeUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.ide.utils.ExpressionUtils;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsItemElement;
@@ -21,6 +20,7 @@ import org.rust.lang.core.psi.ext.RsItemElement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.rust.ide.utils.SearchByOffset;
 
 public final class ExtraxtExpressionUtils {
     private ExtraxtExpressionUtils() {

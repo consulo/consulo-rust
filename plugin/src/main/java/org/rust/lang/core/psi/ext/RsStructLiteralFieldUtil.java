@@ -10,6 +10,7 @@ import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.RsPatBinding;
 import org.rust.lang.core.psi.RsStructLiteral;
 import org.rust.lang.core.psi.RsStructLiteralField;
+import consulo.language.psi.PsiElement;
 
 public final class RsStructLiteralFieldUtil {
     private RsStructLiteralFieldUtil() {

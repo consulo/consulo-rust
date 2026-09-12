@@ -13,6 +13,7 @@ import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.ide.utils.PsiInsertionPlace;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import consulo.localize.LocalizeValue;
 
 public class AddElseIntention extends RsElementBaseIntentionAction<PsiInsertionPlace> {
 

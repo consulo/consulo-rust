@@ -5,7 +5,6 @@
 
 package org.rust.lang.core.psi;
 
-// com.intellij.ProjectTopics is IntelliJ-only; Consulo uses listener classes directly
 import consulo.disposer.Disposable;
 import consulo.project.DumbService;
 import consulo.project.Project;
@@ -47,6 +46,7 @@ import org.rust.cargo.project.workspace.PackageOrigin;
 import org.rust.lang.RsFileType;
 import org.rust.lang.core.crate.CrateGraphService;
 import org.rust.lang.core.macros.MacroExpansionFileSystem;
+import org.rust.lang.core.macros.MacroExpansionManager;
 import org.rust.lang.core.macros.MacroExpansionManagerUtil;
 import org.rust.lang.core.macros.MacroExpansionMode;
 import org.rust.lang.core.psi.ext.*;
@@ -54,7 +54,13 @@ import org.rust.lang.core.psi.ext.RsMacroCallUtil;
 import org.rust.lang.core.resolve2.DefMapService;
 
 import java.util.List;
+import consulo.annotation.component.ServiceImpl;
+import jakarta.inject.Inject;
+import org.rust.cargo.project.model.CargoProjectsListener;
+import consulo.virtualFileSystem.VirtualFile;
+import org.rust.lang.core.crate.Crate;
 
+@ServiceImpl
 public class RsPsiManagerImpl implements RsPsiManager, Disposable {
     @Nonnull
     private final Project myProject;
@@ -62,6 +68,8 @@ public class RsPsiManagerImpl implements RsPsiManager, Disposable {
     private final SimpleModificationTracker myRustStructureModificationTracker = new SimpleModificationTracker();
     @Nonnull
     private final SimpleModificationTracker myRustStructureModificationTrackerInDependencies = new SimpleModificationTracker();
+
+    @Inject
 
     public RsPsiManagerImpl(@Nonnull Project project) {
         myProject = project;
@@ -73,7 +81,7 @@ public class RsPsiManagerImpl implements RsPsiManager, Disposable {
             }
         });
         project.getMessageBus().connect().subscribe(CargoProjectsService.CARGO_PROJECTS_TOPIC,
-            (CargoProjectsService.CargoProjectsListener) (prev, cur) -> incRustStructureModificationCount());
+            (CargoProjectsListener) (prev, cur) -> incRustStructureModificationCount());
     }
 
     @Override
@@ -130,15 +138,8 @@ public class RsPsiManagerImpl implements RsPsiManager, Disposable {
     }
 
     private boolean isMacroExpansionModeNew() {
-        Object mgr = MacroExpansionManagerUtil.getMacroExpansionManagerIfCreated(myProject);
-        if (mgr == null) return false;
-        try {
-            java.lang.reflect.Method method = mgr.getClass().getMethod("getMacroExpansionMode");
-            Object mode = method.invoke(mgr);
-            return mode instanceof MacroExpansionMode.New;
-        } catch (Exception e) {
-            return false;
-        }
+        MacroExpansionManager manager = MacroExpansionManagerUtil.getMacroExpansionManagerIfCreated(myProject);
+        return manager != null && manager.getMacroExpansionMode() instanceof MacroExpansionMode.New;
     }
 
     private class CacheInvalidator extends RsPsiTreeChangeAdapter {

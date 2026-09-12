@@ -4,6 +4,7 @@
  */
 
 package org.rust.openapiext;
+import consulo.language.psi.PsiElement;
 
 /**
  * Bridge class delegating to {@link PsiUtil}.

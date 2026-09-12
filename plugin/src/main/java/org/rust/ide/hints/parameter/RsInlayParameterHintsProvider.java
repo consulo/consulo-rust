@@ -19,8 +19,12 @@ import org.rust.lang.core.psi.ext.RsFunctionUtil;
 
 import java.util.*;
 import org.rust.lang.core.psi.ext.RsValueParameterUtil;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.Language;
+import consulo.localize.LocalizeValue;
 
 @SuppressWarnings("UnstableApiUsage")
+@ExtensionImpl
 public class RsInlayParameterHintsProvider implements InlayParameterHintsProvider {
 
     @Nonnull

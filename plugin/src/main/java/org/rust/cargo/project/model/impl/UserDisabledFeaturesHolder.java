@@ -10,7 +10,6 @@ import consulo.component.persist.Storage;
 import consulo.component.persist.StoragePathMacros;
 import consulo.component.persist.PersistentStateComponent;
 import consulo.component.persist.RoamingType;
-import com.intellij.openapi.components.Service;
 import consulo.project.Project;
 import org.jdom.Element;
 import jakarta.annotation.Nonnull;
@@ -21,6 +20,10 @@ import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import jakarta.inject.Inject;
 
 /**
  * A service needed to store {@link UserDisabledFeatures} separately from CargoProjectsServiceImpl.
@@ -28,11 +31,14 @@ import java.util.*;
 @State(name = "CargoProjectFeatures", storages = {
     @Storage(value = StoragePathMacros.WORKSPACE_FILE, roamingType = RoamingType.DISABLED)
 })
-@Service
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
 public final class UserDisabledFeaturesHolder implements PersistentStateComponent<Element> {
 
     private final Project project;
     private Map<Path, UserDisabledFeatures> loadedUserDisabledFeatures = Collections.emptyMap();
+
+    @Inject
 
     public UserDisabledFeaturesHolder(@Nonnull Project project) {
         this.project = project;

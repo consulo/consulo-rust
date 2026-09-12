@@ -8,7 +8,7 @@ package com.intellij.ui.dsl.builder;
 import javax.swing.JComponent;
 import java.util.function.Consumer;
 
-/** IntelliJ Kotlin DSL {@code Row} stub. */
+/** Form row that holds cells and controls their layout, visibility and gaps. */
 public class Row {
     public <T extends JComponent> Cell<T> cell(T component) { return new Cell<>(component); }
     public Cell<javax.swing.JLabel> label(String text) { return new Cell<>(new javax.swing.JLabel(text)); }

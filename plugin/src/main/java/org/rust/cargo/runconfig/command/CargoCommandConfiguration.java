@@ -60,10 +60,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import consulo.platform.Platform;
 
 /**
  * This class describes a Run Configuration.
- * It is basically a bunch of values which are persisted to .xml files inside .idea,
+ * It is basically a bunch of values which are persisted to .xml files in the project configuration,
  * or displayed in the GUI form. It has to be mutable to satisfy various IDE's APIs.
  */
 public class CargoCommandConfiguration extends RsCommandConfiguration
@@ -311,7 +312,8 @@ public class CargoCommandConfiguration extends RsCommandConfiguration
     }
 
     private boolean showTestToolWindow(CargoCommandLine commandLine) {
-        if (!AdvancedSettings.getBoolean(CargoTestConsoleProperties.TEST_TOOL_WINDOW_SETTING_KEY)) return false;
+        if (!AdvancedSettings.getBoolean(CargoTestConsoleProperties.TEST_TOOL_WINDOW_SETTING_KEY,
+            CargoTestConsoleProperties.TEST_TOOL_WINDOW_DEFAULT)) return false;
         if (!List.of("test", "bench").contains(commandLine.getCommand())) return false;
         if (commandLine.getAdditionalArguments().contains("--nocapture")) return false;
         if (Cargo.TEST_NOCAPTURE_ENABLED_KEY.asBoolean()) return false;

@@ -20,7 +20,6 @@ import org.rust.lang.core.resolve.KnownItems;
 import org.rust.lang.core.types.Substitution;
 import org.rust.lang.core.types.RsTypesUtil;
 // import org.rust.lang.core.types.ImplLookupUtil; // placeholder
-import org.rust.lang.core.types.infer.SubstituteUtil;
 import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyAdt;
 import org.rust.lang.core.types.ty.TyPrimitive;
@@ -29,6 +28,10 @@ import org.rust.openapiext.OpenApiUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import consulo.language.Language;
+import org.rust.lang.RsLanguage;
+import org.rust.lang.core.types.ExtensionsUtil;
+import org.rust.lang.core.types.infer.FoldUtil;
 
 public class GenerateGetterHandler extends GenerateAccessorHandler {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }

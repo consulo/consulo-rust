@@ -13,6 +13,8 @@ import org.rust.lang.core.psi.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.rust.lang.core.resolve.ref.RsPathReference;
+import org.rust.lang.core.resolve.ref.RsPathReferenceImpl;
 
 public final class RsPatUtil {
     private RsPatUtil() {

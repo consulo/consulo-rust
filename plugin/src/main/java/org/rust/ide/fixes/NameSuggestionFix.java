@@ -17,6 +17,7 @@ import org.rust.RsBundle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import consulo.localize.LocalizeValue;
 
 /**
  * Changes the text of some element to the suggested name using the provided function.

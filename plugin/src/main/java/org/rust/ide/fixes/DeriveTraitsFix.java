@@ -17,6 +17,7 @@ import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.ext.RsAttrUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsStructOrEnumItemElement;
+import consulo.localize.LocalizeValue;
 
 public class DeriveTraitsFix extends RsQuickFixBase<RsStructOrEnumItemElement> {
 

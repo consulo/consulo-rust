@@ -29,6 +29,7 @@ import org.rust.lang.utils.evaluation.PathExprResolver;
 import org.rust.lang.utils.evaluation.ConstExprUtil;
 
 import java.util.*;
+import org.rust.lang.core.resolve.ref.PathPsiSubstUtil;
 
 public class TyLowering {
     private static final RecursionGuard<PsiElement> GUARD =
@@ -397,7 +398,6 @@ public class TyLowering {
         return FoldUtil.foldTyPlaceholderWithTyInfer(be);
     }
 
-    // --- Extension functions converted to static ---
 
     @Nonnull
     public static Region resolveLifetime(@Nullable RsLifetime lifetime) {

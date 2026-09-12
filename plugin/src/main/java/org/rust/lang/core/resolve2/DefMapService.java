@@ -8,7 +8,6 @@ package org.rust.lang.core.resolve2;
 import consulo.application.progress.ProgressIndicator;
 import consulo.language.file.inject.VirtualFileWindow;
 import consulo.disposer.Disposable;
-import com.intellij.openapi.components.Service;
 import consulo.project.Project;
 import consulo.component.util.ModificationTracker;
 import consulo.virtualFileSystem.VirtualFileWithId;
@@ -37,8 +36,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.annotation.component.ComponentScope;
+import jakarta.inject.Inject;
+import org.rust.cargo.project.model.CargoProjectsListener;
+import org.rust.lang.core.psi.RsPsiTreeChangeEvent;
 
-@Service
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
 public final class DefMapService implements Disposable {
     @Nonnull
     private final Project project;
@@ -64,6 +70,8 @@ public final class DefMapService implements Disposable {
 
     private static final AtomicInteger nextNonCargoCrateId = new AtomicInteger(-1);
 
+    @Inject
+
     public DefMapService(@Nonnull Project project) {
         this.project = project;
         this.structureModificationTracker =
@@ -76,7 +84,7 @@ public final class DefMapService implements Disposable {
 
         project.getMessageBus().connect().subscribe(
             CargoProjectsService.CARGO_PROJECTS_TOPIC,
-            (CargoProjectsService.CargoProjectsListener) (oldProjects, newProjects) -> scheduleRecheckAllDefMaps()
+            (CargoProjectsListener) (oldProjects, newProjects) -> scheduleRecheckAllDefMaps()
         );
     }
 

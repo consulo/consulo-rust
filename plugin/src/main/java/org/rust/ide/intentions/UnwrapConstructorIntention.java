@@ -19,6 +19,7 @@ import org.rust.lang.core.psi.ext.PsiElementExt;
 import org.rust.lang.core.psi.ext.RsFieldsOwner;
 
 import java.util.List;
+import consulo.localize.LocalizeValue;
 
 public class UnwrapConstructorIntention extends RsElementBaseIntentionAction<UnwrapConstructorIntention.Context> {
     @Nonnull

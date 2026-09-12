@@ -1,6 +1,6 @@
 package com.intellij.openapi.ui.cellvalidators;
 import javax.swing.table.TableCellRenderer;
-/** IntelliJ-compat stub. */
+/** Table cell renderer that decorates a delegate renderer with a cell validator. */
 public class ValidatingTableCellRendererWrapper implements TableCellRenderer {
     public ValidatingTableCellRendererWrapper(TableCellRenderer delegate) {}
     public ValidatingTableCellRendererWrapper withCellValidator(Object validator) { return this; }

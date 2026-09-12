@@ -7,7 +7,6 @@ package org.rust.lang.core.macros.proc;
 
 import consulo.disposer.Disposable;
 import consulo.application.ApplicationManager;
-import com.intellij.openapi.components.Service;
 import consulo.project.Project;
 import consulo.project.ProjectManager;
 import consulo.project.event.ProjectManagerListener;
@@ -25,8 +24,13 @@ import org.rust.openapiext.OpenApiUtil;
 
 import java.nio.file.Path;
 import java.util.*;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.annotation.component.ComponentScope;
+import org.rust.cargo.project.settings.RsSettingsListener;
 
-@Service
+@ServiceAPI(ComponentScope.APPLICATION)
+@ServiceImpl
 public final class ProcMacroApplicationService implements Disposable {
 
     @Nonnull
@@ -36,10 +40,10 @@ public final class ProcMacroApplicationService implements Disposable {
         var connect = ApplicationManager.getApplication().getMessageBus().connect(this);
 
         connect.subscribe(RsProjectSettingsServiceBase.RUST_SETTINGS_TOPIC,
-            new RsProjectSettingsServiceBase.RsSettingsListener() {
+            new RsSettingsListener() {
                 @Override
-                public <T extends RsProjectSettingsServiceBase.RsProjectSettingsBase<T>> void settingsChanged(
-                    @Nonnull RsProjectSettingsServiceBase.SettingsChangedEventBase<T> e
+                public void settingsChanged(
+                    @Nonnull RsProjectSettingsServiceBase.SettingsChangedEventBase<?> e
                 ) {
                     if (e instanceof RustProjectSettingsService.SettingsChangedEvent) {
                         var event = (RustProjectSettingsService.SettingsChangedEvent) e;

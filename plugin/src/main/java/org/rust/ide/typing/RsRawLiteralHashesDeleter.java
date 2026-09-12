@@ -5,6 +5,7 @@
 
 package org.rust.ide.typing;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.codeEditor.Editor;
 import consulo.codeEditor.EditorEx;
 import consulo.codeEditor.HighlighterIterator;
@@ -13,11 +14,13 @@ import consulo.language.psi.PsiFile;
 import consulo.util.lang.Pair;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.RsLiteralKind;
-import org.rust.lang.core.psi.RsTokenType;
+import org.rust.lang.core.psi.RsTokenSets;
+import consulo.language.ast.IElementType;
 
 /**
  * Automatically deletes matching '#' characters for raw string literals.
  */
+@ExtensionImpl(id = "RsRawLiteralHashesDeleter")
 public class RsRawLiteralHashesDeleter extends RsEnableableBackspaceHandlerDelegate {
     @Nullable
     private Pair<TextRange, TextRange> myOffsets;
@@ -30,7 +33,7 @@ public class RsRawLiteralHashesDeleter extends RsEnableableBackspaceHandlerDeleg
         EditorEx editorEx = (EditorEx) editor;
         HighlighterIterator iterator = editorEx.getHighlighter().createIterator(caretOffset - 1);
 
-        if (c != '#' || !RsTokenType.RS_RAW_LITERALS.contains(((consulo.language.ast.IElementType) iterator.getTokenType()))) return false;
+        if (c != '#' || !RsTokenSets.RS_RAW_LITERALS.contains(((IElementType) iterator.getTokenType()))) return false;
 
         myOffsets = getHashesOffsets(iterator);
         return myOffsets != null;
@@ -58,7 +61,7 @@ public class RsRawLiteralHashesDeleter extends RsEnableableBackspaceHandlerDeleg
     private static Pair<TextRange, TextRange> getHashesOffsets(HighlighterIterator iterator) {
         RsLiteralKind.RsComplexLiteral literal = TypingUtil.getLiteralDumb(iterator);
         if (literal == null) return null;
-        if (!RsTokenType.RS_RAW_LITERALS.contains(literal.getNode().getElementType())) return null;
+        if (!RsTokenSets.RS_RAW_LITERALS.contains(literal.getNode().getElementType())) return null;
         TextRange openDelim = literal.getOffsets().getOpenDelim();
         TextRange closeDelim = literal.getOffsets().getCloseDelim();
         if (openDelim == null || closeDelim == null) return null;

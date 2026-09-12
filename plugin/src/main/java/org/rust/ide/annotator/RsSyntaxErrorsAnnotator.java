@@ -40,6 +40,12 @@ import org.rust.lang.core.psi.ext.RsBinaryOpUtil;
 import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
 import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
 import org.rust.lang.core.psi.ext.RsElement;
+import consulo.language.editor.annotation.AnnotationBuilder;
+import consulo.language.editor.inspection.ProblemDescriptor;
+import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.project.model.RustcInfo;
+import org.rust.cargo.toolchain.impl.RustcVersion;
+import org.rust.lang.core.types.RsTypesUtil;
 
 public class RsSyntaxErrorsAnnotator extends AnnotatorBase {
     private static final SemVer DEPRECATED_WHERE_CLAUSE_LOCATION_VERSION = ToolchainUtil.parseSemVer("1.61.0");
@@ -197,7 +203,28 @@ public class RsSyntaxErrorsAnnotator extends AnnotatorBase {
     }
 
     private static void checkFunction(@Nonnull AnnotationHolder holder, @Nonnull RsFunction fn) {
-        // Simplified function check
+        String title = RsFunctionUtil.getTitle(fn);
+        RsAbstractableOwner owner = RsFunctionUtil.getOwner(fn);
+        RsBlock block = RsFunctionUtil.getBlock(fn);
+        PsiElement defaultKw = RsFunctionUtil.getDefault(fn);
+        if (owner instanceof RsAbstractableOwner.Trait) {
+            deny(defaultKw, holder, RsBundle.message("inspection.message.cannot.have.default.qualifier9", title));
+            deny(fn.getVis(), holder, RsBundle.message("inspection.message.cannot.have.pub.qualifier2", title));
+        } else if (owner instanceof RsAbstractableOwner.Impl) {
+            require(block, holder, RsBundle.message("inspection.message.must.have.body", title), fn.getLastChild());
+            if (defaultKw != null) {
+                deny(fn.getVis(), holder, RsBundle.message("inspection.message.default.cannot.have.pub.qualifier", firstLower(title)));
+            }
+        } else if (owner == RsAbstractableOwner.Foreign) {
+            deny(defaultKw, holder, RsBundle.message("inspection.message.cannot.have.default.qualifier8", title));
+            deny(block, holder, RsBundle.message("inspection.message.cannot.have.body2", title));
+            deny(fn.getConst(), holder, RsBundle.message("inspection.message.cannot.have.const.qualifier", title));
+            deny(fn.getUnsafe(), holder, RsBundle.message("inspection.message.cannot.have.unsafe.qualifier", title));
+            deny(fn.getExternAbi(), holder, RsBundle.message("inspection.message.cannot.have.extern.abi", title));
+        } else {
+            require(block, holder, RsBundle.message("inspection.message.must.have.body2", title), fn.getLastChild());
+            deny(defaultKw, holder, RsBundle.message("inspection.message.cannot.have.default.qualifier10", title));
+        }
     }
 
     private static void checkStructItem(@Nonnull AnnotationHolder holder, @Nonnull RsStructItem struct) {
@@ -212,23 +239,202 @@ public class RsSyntaxErrorsAnnotator extends AnnotatorBase {
     }
 
     private static void checkTypeAlias(@Nonnull AnnotationHolder holder, @Nonnull RsTypeAlias ta) {
-        // Simplified type alias check
+        String title = RsBundle.message("inspection.message.type.0", ta.getIdentifier().getText());
+
+        PsiElement eq = ta.getEq();
+        List<RsWhereClause> whereClauses = ta.getWhereClauseList();
+        RsWhereClause whereClauseBeforeEq = null;
+        RsWhereClause whereClauseAfterEq = null;
+        if (eq != null && !whereClauses.isEmpty()) {
+            RsWhereClause first = whereClauses.get(0);
+            if (first.getTextRange().getStartOffset() < eq.getTextRange().getStartOffset()) {
+                whereClauseBeforeEq = first;
+            }
+            RsWhereClause last = whereClauses.get(whereClauses.size() - 1);
+            if (last.getTextRange().getStartOffset() > eq.getTextRange().getStartOffset()) {
+                whereClauseAfterEq = last;
+            }
+        }
+
+        PsiElement defaultKw = RsTypeAliasUtil.getDefault(ta);
+        RsAbstractableOwner owner = ta.getOwner();
+        if (owner instanceof RsAbstractableOwner.Trait) {
+            deny(defaultKw, holder, RsBundle.message("inspection.message.cannot.have.default.qualifier6", title));
+        } else if (owner instanceof RsAbstractableOwner.Impl) {
+            if (((RsAbstractableOwner.Impl) owner).isInherent()) {
+                deny(defaultKw, holder, RsBundle.message("inspection.message.cannot.have.default.qualifier5", title));
+            }
+            deny(ta.getTypeParamBounds(), holder, RsBundle.message("inspection.message.bounds.on.have.no.effect2", title));
+            require(ta.getTypeReference(), holder, RsBundle.message("inspection.message.should.have.body", title), ta);
+
+            CargoProject cargoProject = RsElementExtUtil.getCargoProject(ta);
+            RustcInfo rustcInfo = cargoProject != null ? cargoProject.getRustcInfo() : null;
+            RustcVersion rustcVersion = rustcInfo != null ? rustcInfo.getVersion() : null;
+            SemVer version = rustcVersion != null ? rustcVersion.getSemver() : null;
+            if (version == null || version.compareTo(DEPRECATED_WHERE_CLAUSE_LOCATION_VERSION) < 0) return;
+            deny(whereClauseBeforeEq, holder,
+                RsBundle.message("inspection.message.cannot.have.where.clause.before.type", title),
+                HighlightSeverity.WEAK_WARNING, null);
+        } else if (owner == RsAbstractableOwner.Foreign) {
+            deny(defaultKw, holder, RsBundle.message("inspection.message.cannot.have.default.qualifier4", title));
+            deny(ta.getTypeParameterList(), holder, RsBundle.message("inspection.message.cannot.have.generic.parameters", title));
+            deny(whereClauses.isEmpty() ? null : whereClauses.get(0), holder,
+                RsBundle.message("inspection.message.cannot.have.where.clause", title));
+            deny(ta.getTypeParamBounds(), holder, RsBundle.message("inspection.message.bounds.on.have.no.effect", title));
+            denyRange(ta.getTypeReference(), holder, RsBundle.message("inspection.message.cannot.have.body", title), ta);
+        } else {
+            deny(defaultKw, holder, RsBundle.message("inspection.message.cannot.have.default.qualifier7", title));
+            deny(ta.getTypeParamBounds(), holder, RsBundle.message("inspection.message.bounds.on.have.no.effect3", title));
+            require(ta.getTypeReference(), holder, RsBundle.message("inspection.message.should.have.body2", title), ta);
+            deny(whereClauseAfterEq, holder, RsBundle.message("inspection.message.cannot.have.where.clause.after.type", title));
+        }
     }
 
     private static void checkConstant(@Nonnull AnnotationHolder holder, @Nonnull RsConstant constant) {
-        // Simplified constant check
+        String name = RsConstantUtil.getNameLikeElement(constant).getText();
+        String title = constant.getStatic() != null
+            ? RsBundle.message("inspection.message.static.constant", name)
+            : RsBundle.message("inspection.message.constant", name);
+        PsiElement defaultKw = RsConstantUtil.getDefault(constant);
+        RsAbstractableOwner owner = constant.getOwner();
+        if (owner == RsAbstractableOwner.Foreign) {
+            deny(defaultKw, holder, RsBundle.message("inspection.message.cannot.have.default.qualifier2", title));
+            require(constant.getStatic(), holder,
+                RsBundle.message("inspection.message.only.static.constants.are.allowed.in.extern.blocks"), constant.getConst());
+            denyRange(constant.getExpr(), holder,
+                RsBundle.message("inspection.message.static.constants.in.extern.blocks.cannot.have.values"),
+                constant.getEq(), constant.getExpr());
+        } else if (owner instanceof RsAbstractableOwner.Trait) {
+            deny(constant.getVis(), holder, RsBundle.message("inspection.message.cannot.have.pub.qualifier", title));
+            deny(defaultKw, holder, RsBundle.message("inspection.message.cannot.have.default.qualifier", title));
+            deny(constant.getStatic(), holder, RsBundle.message("inspection.message.static.constants.are.not.allowed.in.traits"));
+        } else if (owner instanceof RsAbstractableOwner.Impl) {
+            deny(constant.getStatic(), holder, RsBundle.message("inspection.message.static.constants.are.not.allowed.in.impl.blocks"));
+            require(constant.getExpr(), holder, RsBundle.message("inspection.message.must.have.value", title), constant);
+        } else {
+            deny(defaultKw, holder, RsBundle.message("inspection.message.cannot.have.default.qualifier3", title));
+            require(constant.getExpr(), holder, RsBundle.message("inspection.message.must.have.value2", title), constant);
+        }
+        checkConstantType(holder, constant);
+    }
+
+    private static void checkConstantType(@Nonnull AnnotationHolder holder, @Nonnull RsConstant element) {
+        if (element.getColon() != null || element.getTypeReference() != null) return;
+        PsiElement nameElement = RsConstantUtil.getNameLikeElement(element);
+        String typeText = RsConstantUtil.isConst(element) ? "const" : "static";
+        String message = RsBundle.message("inspection.message.missing.type.for.item", typeText);
+
+        AnnotationBuilder annotation =
+            holder.newAnnotation(HighlightSeverity.ERROR, message).range(nameElement);
+
+        RsExpr expr = element.getExpr();
+        if (expr != null) {
+            annotation = annotation.withFix(new AddTypeFix(nameElement, RsTypesUtil.getType(expr)));
+        }
+
+        annotation.create();
     }
 
     private static void checkValueParameterList(@Nonnull AnnotationHolder holder, @Nonnull RsValueParameterList params) {
-        // Simplified check
+        if (!(params.getParent() instanceof RsFunction fn)) return;
+        RsVariadic variadic = params.getVariadic();
+        PsiElement dot3 = variadic != null ? variadic.getDotdotdot() : null;
+        RsAbstractableOwner owner = RsFunctionUtil.getOwner(fn);
+        if (owner instanceof RsAbstractableOwner.Trait || owner instanceof RsAbstractableOwner.Impl) {
+            deny(dot3, holder, RsBundle.message("inspection.message.cannot.be.variadic2", RsFunctionUtil.getTitle(fn)));
+        } else if (owner == RsAbstractableOwner.Foreign) {
+            deny(params.getSelfParameter(), holder,
+                RsBundle.message("inspection.message.cannot.have.self.parameter", RsFunctionUtil.getTitle(fn)));
+            checkDot3Parameter(holder, dot3);
+        } else {
+            deny(params.getSelfParameter(), holder,
+                RsBundle.message("inspection.message.cannot.have.self.parameter2", RsFunctionUtil.getTitle(fn)));
+            checkVariadic(holder, fn, dot3);
+        }
+    }
+
+    private static void checkVariadic(@Nonnull AnnotationHolder holder, @Nonnull RsFunction fn, @Nullable PsiElement dot3) {
+        if (dot3 == null) return;
+        if (fn.getUnsafe() != null && "C".equals(RsFunctionUtil.getActualAbiName(fn))) {
+            CompilerFeature.getC_VARIADIC().check(holder, dot3, "C-variadic functions");
+        } else {
+            deny(dot3, holder, RsBundle.message("inspection.message.cannot.be.variadic", RsFunctionUtil.getTitle(fn)));
+        }
+    }
+
+    private static void checkDot3Parameter(@Nonnull AnnotationHolder holder, @Nullable PsiElement dot3) {
+        if (dot3 == null) return;
+        PsiElement next = PsiTreeUtil.nextVisibleLeaf(dot3);
+        if (next == null) return;
+        if (!")".equals(next.getText())) {
+            holder.newAnnotation(HighlightSeverity.ERROR,
+                    RsBundle.message("inspection.message.must.be.last.in.argument.list.for.variadic.function"))
+                .range(next).create();
+        }
     }
 
     private static void checkValueParameter(@Nonnull AnnotationHolder holder, @Nonnull RsValueParameter param) {
-        // Simplified check
+        PsiElement grandParent = param.getParent() != null ? param.getParent().getParent() : null;
+        if (grandParent instanceof RsFunction fn) {
+            checkValueParameterInFunction(fn, param, holder);
+        }
+    }
+
+    private static void checkValueParameterInFunction(@Nonnull RsFunction fn, @Nonnull RsValueParameter param, @Nonnull AnnotationHolder holder) {
+        RsPat pat = param.getPat();
+        RsAbstractableOwner owner = RsFunctionUtil.getOwner(fn);
+        if (owner == RsAbstractableOwner.Foreign) {
+            require(pat, holder,
+                RsBundle.message("inspection.message.cannot.have.anonymous.parameters", RsFunctionUtil.getTitle(fn)), param);
+        } else if (owner instanceof RsAbstractableOwner.Trait) {
+            if (pat == null) {
+                String message = RsBundle.message("inspection.message.anonymous.functions.parameters.are.deprecated.rfc");
+                SubstituteTextFix fix = SubstituteTextFix.replace(
+                    RsBundle.message("intention.name.add.dummy.parameter.name"),
+                    param.getContainingFile(),
+                    param.getTextRange(),
+                    "_: " + param.getText()
+                );
+                ProblemDescriptor descriptor =
+                    InspectionManager.getInstance(param.getProject())
+                        .createProblemDescriptor(param, message, fix, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, true);
+                holder.newAnnotation(HighlightSeverity.WARNING, message)
+                    .newLocalQuickFix(fix, descriptor).registerFix().create();
+            }
+        } else {
+            require(pat, holder,
+                RsBundle.message("inspection.message.cannot.have.anonymous.parameters2", RsFunctionUtil.getTitle(fn)), param);
+        }
     }
 
     private static void checkTypeParameterList(@Nonnull AnnotationHolder holder, @Nonnull RsTypeParameterList element) {
-        // Simplified check
+        PsiElement parent = element.getParent();
+        List<RsTypeParameter> typeParameters = element.getTypeParameterList();
+        if (parent instanceof RsImplItem || parent instanceof RsFunction) {
+            for (RsTypeParameter p : typeParameters) {
+                RsTypeReference defaultValue = p.getTypeReference();
+                if (defaultValue != null) {
+                    holder.newAnnotation(HighlightSeverity.ERROR, RsBundle.message(
+                            "inspection.message.defaults.for.type.parameters.are.only.allowed.in.struct.enum.type.or.trait.definitions"))
+                        .range(defaultValue).create();
+                }
+            }
+        } else {
+            int lastNotDefaultIndex = 0;
+            for (int i = 0; i < typeParameters.size(); i++) {
+                if (typeParameters.get(i).getTypeReference() == null) lastNotDefaultIndex = i;
+            }
+            for (int i = 0; i < lastNotDefaultIndex && i < typeParameters.size(); i++) {
+                RsTypeParameter p = typeParameters.get(i);
+                if (p.getTypeReference() != null) {
+                    holder.newAnnotation(HighlightSeverity.ERROR,
+                            RsBundle.message("inspection.message.type.parameters.with.default.must.be.trailing"))
+                        .range(p).create();
+                }
+            }
+        }
+
+        checkTypeList(element, "parameters", holder);
     }
 
     private static void checkTypeParameter(@Nonnull AnnotationHolder holder, @Nonnull RsTypeParameter item) {
@@ -238,7 +444,62 @@ public class RsSyntaxErrorsAnnotator extends AnnotatorBase {
     }
 
     private static void checkTypeArgumentList(@Nonnull AnnotationHolder holder, @Nonnull RsTypeArgumentList args) {
-        // Simplified check
+        checkTypeList(args, "arguments", holder);
+
+        List<RsAssocTypeBinding> bindings = args.getAssocTypeBindingList();
+        if (bindings.isEmpty()) return;
+        int startOfAssocTypeBindings = bindings.get(0).getTextOffset();
+
+        List<PsiElement> generics = new ArrayList<>();
+        generics.addAll(args.getLifetimeList());
+        generics.addAll(args.getTypeReferenceList());
+        generics.addAll(args.getExprList());
+        for (PsiElement generic : generics) {
+            if (generic.getTextOffset() > startOfAssocTypeBindings) {
+                holder.newAnnotation(HighlightSeverity.ERROR,
+                        RsBundle.message("inspection.message.generic.arguments.must.come.before.first.constraint"))
+                    .range(generic).create();
+            }
+        }
+    }
+
+    private static void checkTypeList(@Nonnull PsiElement typeList, @Nonnull String elementsName, @Nonnull AnnotationHolder holder) {
+        TypeKind kind = TypeKind.LIFETIME;
+        for (PsiElement child = typeList.getFirstChild(); child != null; child = child.getNextSibling()) {
+            TypeKind newKind = TypeKind.forType(child);
+            if (newKind == null) continue;
+            if (newKind.canStandAfter(kind)) {
+                kind = newKind;
+            } else {
+                String newStateName = newKind.getPresentableName();
+                newStateName = newStateName.substring(0, 1).toUpperCase() + newStateName.substring(1);
+                holder.newAnnotation(HighlightSeverity.ERROR, RsBundle.message(
+                        "inspection.message.must.be.declared.prior.to", newStateName, elementsName, kind.getPresentableName(), elementsName))
+                    .range(child).create();
+            }
+        }
+    }
+
+    private enum TypeKind {
+        LIFETIME,
+        TYPE,
+        CONST;
+
+        String getPresentableName() {
+            return name().toLowerCase();
+        }
+
+        boolean canStandAfter(@Nonnull TypeKind prev) {
+            return this != LIFETIME || prev == LIFETIME;
+        }
+
+        @Nullable
+        static TypeKind forType(@Nonnull PsiElement seekingElement) {
+            if (seekingElement instanceof RsLifetimeParameter || seekingElement instanceof RsLifetime) return LIFETIME;
+            if (seekingElement instanceof RsTypeParameter || seekingElement instanceof RsTypeReference) return TYPE;
+            if (seekingElement instanceof RsConstParameter || seekingElement instanceof RsExpr) return CONST;
+            return null;
+        }
     }
 
     private static void checkImplItem(@Nonnull AnnotationHolder holder, @Nonnull RsImplItem item) {
@@ -302,7 +563,23 @@ public class RsSyntaxErrorsAnnotator extends AnnotatorBase {
     }
 
     private static void checkPatRange(@Nonnull AnnotationHolder holder, @Nonnull RsPatRange element) {
-        // Simplified check
+        RsPatConst start = RsPatRangeUtil.getStart(element);
+        RsPatConst end = RsPatRangeUtil.getEnd(element);
+        if (element.getDotdot() != null) {
+            if (start == null && end == null) {
+                deny(element.getDotdot(), holder, RsBundle.message("inspection.message.unexpected3"));
+            }
+        } else if (element.getDotdoteq() != null) {
+            if (start == null && end == null) {
+                deny(element.getDotdoteq(), holder, RsBundle.message("inspection.message.unexpected2"));
+            }
+        } else if (element.getDotdotdot() != null) {
+            if (start == null && end == null) {
+                deny(element.getDotdotdot(), holder, RsBundle.message("inspection.message.unexpected"));
+            } else if (start == null) {
+                deny(element.getDotdotdot(), holder, RsBundle.message("inspection.message.range.to.patterns.with.are.not.allowed"));
+            }
+        }
     }
 
     private static void checkTraitType(@Nonnull AnnotationHolder holder, @Nonnull RsTraitType element) {
@@ -393,6 +670,49 @@ public class RsSyntaxErrorsAnnotator extends AnnotatorBase {
         @Nonnull String message
     ) {
         deny(el, holder, message, HighlightSeverity.ERROR, null);
+    }
+
+    /** Reports {@code message} over {@code highlightElements} when {@code el} is absent. */
+    private static void require(
+        @Nullable PsiElement el,
+        @Nonnull AnnotationHolder holder,
+        @Nonnull String message,
+        @Nullable PsiElement... highlightElements
+    ) {
+        if (el != null) return;
+        TextRange range = combinedRange(highlightElements);
+        if (range == null) return;
+        holder.newAnnotation(HighlightSeverity.ERROR, message).range(range).create();
+    }
+
+    /** Reports {@code message} over {@code highlightElements} when {@code el} is present. */
+    private static void denyRange(
+        @Nullable PsiElement el,
+        @Nonnull AnnotationHolder holder,
+        @Nonnull String message,
+        @Nullable PsiElement... highlightElements
+    ) {
+        if (el == null) return;
+        TextRange range = combinedRange(highlightElements);
+        holder.newAnnotation(HighlightSeverity.ERROR, message)
+            .range(range != null ? range : el.getTextRange())
+            .create();
+    }
+
+    @Nullable
+    private static TextRange combinedRange(@Nullable PsiElement... elements) {
+        TextRange result = null;
+        if (elements == null) return null;
+        for (PsiElement element : elements) {
+            if (element == null) continue;
+            result = result == null ? element.getTextRange() : result.union(element.getTextRange());
+        }
+        return result;
+    }
+
+    @Nonnull
+    private static String firstLower(@Nonnull String text) {
+        return text.isEmpty() ? text : Character.toLowerCase(text.charAt(0)) + text.substring(1);
     }
 
     private static void deny(

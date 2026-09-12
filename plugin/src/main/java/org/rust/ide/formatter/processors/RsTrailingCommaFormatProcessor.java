@@ -5,6 +5,7 @@
 
 package org.rust.ide.formatter.processors;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.document.Document;
 import consulo.document.util.TextRange;
 import consulo.language.psi.PsiDocumentManager;
@@ -25,6 +26,7 @@ import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.RsStructItem;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
 
+@ExtensionImpl
 public class RsTrailingCommaFormatProcessor implements PostFormatProcessor {
 
     @Nonnull

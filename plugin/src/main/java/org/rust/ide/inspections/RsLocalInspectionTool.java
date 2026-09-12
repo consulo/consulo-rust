@@ -16,6 +16,10 @@ import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
 import org.rust.lang.core.psi.RsFile;
 import org.rust.lang.core.psi.RsVisitor;
 import org.rust.openapiext.OpenApiUtil;
+import consulo.language.Language;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.localize.LocalizeValue;
+import org.rust.lang.RsLanguage;
 
 public abstract class RsLocalInspectionTool extends LocalInspectionTool {
 

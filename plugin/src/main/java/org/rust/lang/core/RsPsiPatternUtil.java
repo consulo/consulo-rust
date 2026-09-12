@@ -19,6 +19,7 @@ import consulo.language.util.ProcessingContext;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
+import consulo.language.psi.util.PsiTreeUtil;
 
 public final class RsPsiPatternUtil {
     private RsPsiPatternUtil() {}

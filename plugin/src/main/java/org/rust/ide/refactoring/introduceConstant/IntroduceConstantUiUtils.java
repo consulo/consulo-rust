@@ -35,6 +35,8 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import consulo.dataContext.DataManager;
+import consulo.document.util.TextRange;
 
 public final class IntroduceConstantUiUtils {
 

@@ -16,6 +16,11 @@ import org.rust.lang.core.psi.ext.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import consulo.language.psi.PsiFile;
+import consulo.project.Project;
+import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.ext.RsMetaItemUtil;
+import org.rust.lang.core.stubs.RsPathStub;
 
 public final class RsExpandedElementUtil {
     private RsExpandedElementUtil() {}
@@ -338,15 +343,18 @@ public final class RsExpandedElementUtil {
         return elementOffset;
     }
 
+    /**
+     * The range inside the macro call body that the given range of the expansion came from, or {@code null}
+     * if it did not come from a single contiguous range of the same length.
+     */
     @Nullable
-    public static RsPossibleMacroCall mapRangeFromExpansionToCallBodyStrict(
+    public static TextRange mapRangeFromExpansionToCallBodyStrict(
         @Nonnull RsPossibleMacroCall call,
         @Nonnull TextRange range
     ) {
-        // Simplified version - returns the call if the range maps successfully
         List<TextRange> mapped = mapRangeFromExpansionToCallBody(call, range);
         if (mapped.size() == 1 && mapped.get(0).getLength() == range.getLength()) {
-            return call;
+            return mapped.get(0);
         }
         return null;
     }

@@ -6,11 +6,14 @@
 package org.rust.openapiext;
 
 import consulo.disposer.Disposable;
-import com.intellij.openapi.components.Service;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.annotation.component.ComponentScope;
 
-@Service
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
 public final class RsPluginDisposable implements Disposable {
     @Nonnull
     public static Disposable getInstance(@Nonnull Project project) {

@@ -51,6 +51,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import consulo.project.ui.notification.Notification;
+import consulo.ui.ex.toolWindow.ToolWindow;
+import org.rust.cargo.runconfig.RunConfigUtil;
+import org.rust.cargo.runconfig.target.TargetUtil;
 
 public final class CargoBuildManager {
     public static final CargoBuildManager INSTANCE = new CargoBuildManager();
@@ -199,8 +203,7 @@ public final class CargoBuildManager {
                 return;
             }
 
-            //noinspection deprecation
-            com.intellij.openapi.application.TransactionGuard.submitTransactionLater(context.getProject(), () -> {
+            context.getProject().getApplication().invokeLater(() -> {
                 synchronized (processCreationLock) {
                     boolean isCanceled = context.getIndicator() != null && context.getIndicator().isCanceled();
                     if (isCanceled) {
@@ -210,7 +213,7 @@ public final class CargoBuildManager {
                     OpenApiUtil.saveAllDocuments();
                     doExecute.accept(context);
                 }
-            });
+            }, context.getProject().getDisposed());
         });
 
         return context.getResult();
@@ -330,7 +333,7 @@ public final class CargoBuildManager {
         if (messageType == NotificationType.ERROR) {
             ToolWindowManager manager = ToolWindowManager.getInstance(project);
             ApplicationManager.getApplication().invokeLater(() ->
-                manager.notifyByBalloon(BuildContentManager.TOOL_WINDOW_ID, consulo.ui.NotificationType.valueOf(messageType.name()), notificationContent)
+                manager.notifyByBalloon(BuildContentManager.TOOL_WINDOW_ID, messageType.toUI(), notificationContent)
             );
         }
 

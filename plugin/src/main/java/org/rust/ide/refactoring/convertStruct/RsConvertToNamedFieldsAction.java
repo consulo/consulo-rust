@@ -38,6 +38,7 @@ import consulo.annotation.component.ActionImpl;
 import consulo.annotation.component.ActionParentRef;
 import consulo.annotation.component.ActionRefAnchor;
 import consulo.annotation.component.ActionRef;
+import org.rust.lang.core.psi.RsTupleFieldDecl;
 
 @ActionImpl(
     id = "Rust.RsConvertToNamedFields",

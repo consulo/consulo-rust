@@ -3,7 +3,7 @@ package com.intellij.execution.wsl;
 import java.util.ArrayList;
 import java.util.List;
 
-/** IntelliJ-compat stub — describes WSL-specific patching of a command line. */
+/** Options describing WSL-specific patching of a command line. */
 public final class WSLCommandLineOptions {
     private boolean sudo;
     private String remoteWorkingDirectory;

@@ -24,13 +24,17 @@ import org.rust.lang.core.psi.RsStructItem;
 import org.rust.lang.core.psi.RsTraitAlias;
 import org.rust.lang.core.psi.RsTraitItem;
 import org.rust.lang.core.psi.RsTypeAlias;
+import consulo.rust.icon.RustIconGroup;
+import consulo.ui.image.Image;
+import consulo.language.psi.PsiFile;
+import jakarta.annotation.Nullable;
+import org.rust.lang.RsConstants;
+import org.rust.lang.core.psi.RsFile;
+import org.rust.cargo.CargoConstants;
+import org.rust.cargo.project.workspace.CargoWorkspace;
 
 /**
- * Maps Rust PSI element classes to icons. Consulo calls this via the
- * {@code consulo.language.icon.IconDescriptorUpdater} extension point whenever an icon is needed.
- *
- * Replaces the IntelliJ pattern {@code psiElement.getIcon(flags)} which relied on
- * {@code PsiElement implements Iconable} — not the case in Consulo.
+ * Supplies the icon for every Rust PSI element, and for the Cargo manifest and lock files.
  */
 @ExtensionImpl
 public class RsIconDescriptorUpdater implements IconDescriptorUpdater {
@@ -38,31 +42,67 @@ public class RsIconDescriptorUpdater implements IconDescriptorUpdater {
     @Override
     public void updateIcon(@Nonnull IconDescriptor iconDescriptor, @Nonnull PsiElement element, int flags) {
         if (element instanceof RsFunction) {
-            iconDescriptor.setMainIcon(RsIcons.FUNCTION);
+            iconDescriptor.setMainIcon(RustIconGroup.nodesFunction());
         } else if (element instanceof RsStructItem) {
-            iconDescriptor.setMainIcon(RsIcons.STRUCT);
+            iconDescriptor.setMainIcon(RustIconGroup.nodesStruct());
         } else if (element instanceof RsTraitItem) {
-            iconDescriptor.setMainIcon(RsIcons.TRAIT);
+            iconDescriptor.setMainIcon(RustIconGroup.nodesTrait());
         } else if (element instanceof RsTraitAlias) {
-            iconDescriptor.setMainIcon(RsIcons.TYPE_ALIAS);
+            iconDescriptor.setMainIcon(RustIconGroup.nodesTypealias());
         } else if (element instanceof RsEnumItem) {
-            iconDescriptor.setMainIcon(RsIcons.ENUM);
+            iconDescriptor.setMainIcon(RustIconGroup.nodesEnum());
         } else if (element instanceof RsEnumVariant) {
-            iconDescriptor.setMainIcon(RsIcons.ENUM_VARIANT);
+            iconDescriptor.setMainIcon(RustIconGroup.nodesEnumvariant());
         } else if (element instanceof RsImplItem) {
-            iconDescriptor.setMainIcon(RsIcons.IMPL);
+            iconDescriptor.setMainIcon(RustIconGroup.nodesImpl());
         } else if (element instanceof RsModItem || element instanceof RsModDeclItem) {
-            iconDescriptor.setMainIcon(RsIcons.MODULE);
+            iconDescriptor.setMainIcon(RustIconGroup.nodesModule());
         } else if (element instanceof RsConstant) {
-            iconDescriptor.setMainIcon(RsIcons.CONSTANT);
+            iconDescriptor.setMainIcon(RustIconGroup.nodesConstant());
         } else if (element instanceof RsTypeAlias) {
-            iconDescriptor.setMainIcon(RsIcons.TYPE_ALIAS);
+            iconDescriptor.setMainIcon(RustIconGroup.nodesTypealias());
         } else if (element instanceof RsMacro) {
-            iconDescriptor.setMainIcon(RsIcons.MACRO);
+            iconDescriptor.setMainIcon(RustIconGroup.nodesMacro());
         } else if (element instanceof RsFieldDecl) {
-            iconDescriptor.setMainIcon(RsIcons.FIELD);
+            iconDescriptor.setMainIcon(RustIconGroup.nodesField());
         } else if (element instanceof RsPatBinding) {
-            iconDescriptor.setMainIcon(RsIcons.BINDING);
+            iconDescriptor.setMainIcon(RustIconGroup.nodesField());
+        } else if (element instanceof RsFile) {
+            Image fileIcon = fileIcon((RsFile) element);
+            if (fileIcon != null) {
+                iconDescriptor.setMainIcon(fileIcon);
+            }
+        } else if (element instanceof PsiFile) {
+            Image manifestIcon = manifestIcon(((PsiFile) element).getName());
+            if (manifestIcon != null) {
+                iconDescriptor.setMainIcon(manifestIcon);
+            }
         }
+    }
+
+    @Nullable
+    private static Image fileIcon(@Nonnull RsFile file) {
+        String name = file.getName();
+        if (RsConstants.MOD_RS_FILE.equals(name)) {
+            return RustIconGroup.rustmod();
+        }
+        if ((RsConstants.MAIN_RS_FILE.equals(name) || RsConstants.LIB_RS_FILE.equals(name)) && file.isCrateRoot()) {
+            return RustIconGroup.rustmain();
+        }
+        if (file.isCrateRoot() && file.getCrate().getKind() == CargoWorkspace.TargetKind.CustomBuild.INSTANCE) {
+            return RustIconGroup.rustbuild();
+        }
+        return RustIconGroup.rustfile();
+    }
+
+    @Nullable
+    private static Image manifestIcon(@Nonnull String fileName) {
+        if (CargoConstants.MANIFEST_FILE.equals(fileName) || CargoConstants.XARGO_MANIFEST_FILE.equals(fileName)) {
+            return RustIconGroup.cargo();
+        }
+        if (CargoConstants.LOCK_FILE.equals(fileName)) {
+            return RustIconGroup.cargolock();
+        }
+        return null;
     }
 }

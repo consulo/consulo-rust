@@ -9,7 +9,6 @@ import consulo.language.ast.ASTNode;
 import jakarta.annotation.Nonnull;
 
 /**
- * <p>
  * Contains utility methods for Rust formatting processors.
  */
 public final class Util {

@@ -33,6 +33,8 @@ import java.util.stream.StreamSupport;
 
 import static org.rust.ide.refactoring.ExtraxtExpressionUtils.findOccurrences;
 import static org.rust.ide.refactoring.ExtraxtExpressionUiUtils.showOccurrencesChooser;
+import consulo.language.psi.PsiNamedElement;
+import org.rust.ide.refactoring.ExtraxtExpressionUtils;
 
 public final class IntroduceParameterImpl {
 

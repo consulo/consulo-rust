@@ -15,7 +15,6 @@ import org.rust.lang.core.resolve.Namespace;
 import org.rust.lang.core.resolve2.CrateDefMap;
 import org.rust.lang.core.resolve2.ModData;
 import org.rust.lang.core.resolve2.RsModInfo;
-import org.rust.lang.core.resolve2.ModInfoUtil;
 
 import java.util.List;
 import java.util.Set;
@@ -23,6 +22,7 @@ import java.util.function.Predicate;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
+import org.rust.lang.core.resolve2.FacadeResolveUtil;
 
 public class ImportContext {
     /** Info of mod in which auto-import or completion is called */

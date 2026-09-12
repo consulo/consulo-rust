@@ -5,6 +5,7 @@
 
 package org.rust.cargo.toolchain.flavors;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.util.io.FileUtil;
 import consulo.process.local.EnvironmentUtil;
 import org.rust.stdext.PathUtil;
@@ -13,7 +14,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.stream.Stream;
+import consulo.application.util.UserHomeFileUtil;
 
+@ExtensionImpl(id = "rust.cargoToolchainFlavor", order = "first")
 public class CargoToolchainFlavor extends RsToolchainFlavor {
     @Override
     protected Stream<Path> getHomePathCandidates() {

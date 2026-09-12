@@ -14,6 +14,7 @@ import org.rust.lang.core.psi.RsOuterAttr;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.ext.RsStructOrEnumItemElement;
 import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import consulo.localize.LocalizeValue;
 
 public class AddDeriveIntention extends RsElementBaseIntentionAction<AddDeriveIntention.Context> {
 

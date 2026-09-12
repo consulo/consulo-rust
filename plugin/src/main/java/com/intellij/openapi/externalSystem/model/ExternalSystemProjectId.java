@@ -2,7 +2,7 @@ package com.intellij.openapi.externalSystem.model;
 
 import consulo.externalSystem.model.ProjectSystemId;
 
-/** IntelliJ-compat stub — identifies an external-system project. */
+/** Identifies an external-system project by its system id and project path. */
 public final class ExternalSystemProjectId {
     private final ProjectSystemId systemId;
     private final String externalProjectPath;

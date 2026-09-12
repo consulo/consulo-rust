@@ -12,6 +12,7 @@ import org.rust.lang.core.psi.*;
 
 import java.util.Collection;
 import java.util.Collections;
+import consulo.language.psi.search.ReferencesSearch;
 
 public final class RsSearchableUtil {
     private RsSearchableUtil() {}

@@ -3,7 +3,7 @@ import javax.swing.Icon;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
-/** IntelliJ-compat stub — horizontal compound icon. */
+/** Compound icon that lays its child icons out in a horizontal row. */
 public class RowIcon implements Icon {
     private final Icon[] icons;
     public RowIcon(Icon... icons) { this.icons = icons; }

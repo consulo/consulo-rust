@@ -36,6 +36,9 @@ import org.rust.openapiext.Testmark;
 import java.util.*;
 
 import static org.rust.lang.core.PsiElementPatternExtUtil.psiElement;
+import consulo.language.editor.completion.CompletionUtilCore;
+import org.rust.lang.core.psi.RsEnumBody;
+import org.rust.lang.core.psi.RsEnumVariant;
 
 public class RsCommonCompletionProvider extends RsCompletionProvider {
     public static final RsCommonCompletionProvider INSTANCE = new RsCommonCompletionProvider();

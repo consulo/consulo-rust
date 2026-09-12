@@ -5,6 +5,7 @@
 
 package org.rust.ide.hints.codeVision;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.codeVision.CodeVisionRelativeOrdering;
 import consulo.language.editor.impl.codeVision.ReferencesCodeVisionProvider;
 import consulo.application.util.registry.Registry;
@@ -22,7 +23,9 @@ import org.rust.lang.core.psi.ext.*;
 
 import java.util.Collections;
 import java.util.List;
+import org.rust.lang.core.psi.ext.RsSearchableUtil;
 
+@ExtensionImpl
 public class RsReferenceCodeVisionProvider extends ReferencesCodeVisionProvider {
 
     public static final String ID = "rust.references";
@@ -37,7 +40,7 @@ public class RsReferenceCodeVisionProvider extends ReferencesCodeVisionProvider 
 
     @Override
     public boolean acceptsElement(@Nonnull PsiElement element) {
-        if (!CODE_VISION_USAGE_KEY.asBoolean()) return false;
+        if (!CODE_VISION_USAGE_KEY.asBoolean(true)) return false;
 
         if (element instanceof RsAbstractable) {
             if (((RsAbstractable) element).getOwnerBySyntaxOnly().isImplOrTrait()) {

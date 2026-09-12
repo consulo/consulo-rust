@@ -26,7 +26,11 @@ import org.rust.lang.core.psi.ext.RsElementUtil;
 import consulo.ui.image.Image;
 import java.util.Collection;
 import java.util.Collections;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.ext.RsConstantUtil;
 
+@ExtensionImpl
 public class RsTraitItemImplLineMarkerProvider extends RelatedItemLineMarkerProvider {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 

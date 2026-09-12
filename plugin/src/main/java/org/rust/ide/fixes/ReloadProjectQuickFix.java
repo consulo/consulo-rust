@@ -11,7 +11,6 @@ import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.ide.notifications.TrustedProjectNotificationUtil;
 import org.rust.openapiext.SaveAllDocumentsUtil;
 
 public class ReloadProjectQuickFix implements LocalQuickFix {
@@ -24,7 +23,6 @@ public class ReloadProjectQuickFix implements LocalQuickFix {
 
     @Override
     public void applyFix(@Nonnull Project project, @Nonnull ProblemDescriptor descriptor) {
-        if (!TrustedProjectNotificationUtil.confirmLoadingUntrustedProject(project)) return;
         SaveAllDocumentsUtil.saveAllDocuments();
         CargoProjectServiceUtil.getCargoProjects(project).refreshAllProjects();
     }

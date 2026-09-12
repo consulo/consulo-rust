@@ -17,6 +17,7 @@ import org.rust.lang.core.psi.RsUnaryExpr;
 import org.rust.lang.core.psi.RsVisitor;
 import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
 import consulo.annotation.component.ExtensionImpl;
+import consulo.localize.LocalizeValue;
 
 /**
  * Checks for use of the non-existent =*, =! and =- operators that are probably typos but can be compiled.

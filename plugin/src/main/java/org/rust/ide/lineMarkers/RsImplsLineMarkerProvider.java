@@ -16,7 +16,7 @@ import jakarta.annotation.Nullable;
 
 import org.rust.RsBundle;
 import org.rust.ide.icons.RsIcons;
-import org.rust.ide.navigation.goto_.RsGoToImplRenderer;
+import org.rust.ide.navigation.goto_.RsGoToImplPresentationProvider;
 import org.rust.lang.core.psi.RsEnumItem;
 import org.rust.lang.core.psi.RsStructItem;
 import org.rust.lang.core.psi.RsTraitItem;
@@ -27,7 +27,14 @@ import javax.swing.Icon;
 import java.util.Collection;
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsElement;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.application.util.query.CollectionQuery;
+import consulo.language.Language;
+import consulo.localize.LocalizeValue;
+import consulo.ui.image.Image;
+import org.rust.lang.RsLanguage;
 
+@ExtensionImpl
 public class RsImplsLineMarkerProvider extends LineMarkerProviderDescriptor {
 
     @Nonnull
@@ -69,7 +76,7 @@ public class RsImplsLineMarkerProvider extends LineMarkerProviderDescriptor {
             LineMarkerInfo<PsiElement> info = (LineMarkerInfo<PsiElement>) (LineMarkerInfo) ImplsGutterIconBuilder.create(el.getText(), getIcon())
                 .setTargets(targets)
                 .setTooltipText(RsBundle.message("gutter.rust.implemented.item.tooltip"))
-                .setCellRenderer(new RsGoToImplRenderer())
+                .setPresentationProvider(RsGoToImplPresentationProvider.INSTANCE)
                 .createLineMarkerInfo(el);
             result.add(info);
         }

@@ -8,6 +8,7 @@ package org.rust.ide.intentions;
 import org.rust.RsBundle;
 import org.rust.ide.refactoring.RsBaseEditorRefactoringAction;
 import org.rust.ide.refactoring.convertStruct.RsConvertToNamedFieldsAction;
+import consulo.localize.LocalizeValue;
 
 public class ConvertToStructIntention extends RsRefactoringAdaptorIntention {
     @Override

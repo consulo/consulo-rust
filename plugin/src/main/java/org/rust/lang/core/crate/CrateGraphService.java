@@ -11,6 +11,8 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import java.util.List;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ComponentScope;
 
 /**
  * Describes the project model in terms of <i>crates</i>. Should be preferred to
@@ -43,6 +45,7 @@ import java.util.List;
  * We need to avoid cyclic dependencies because we need DAG in order to do topological sorting
  * of crates, so we just remove cyclic {@code [dev-dependencies]} from the graph for now.
  */
+@ServiceAPI(ComponentScope.PROJECT)
 public interface CrateGraphService {
     /**
      * <a href="https://en.wikipedia.org/wiki/Topological_sorting">Topological sorted</a>

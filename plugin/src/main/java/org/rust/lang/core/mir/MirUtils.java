@@ -15,6 +15,7 @@ import org.rust.lang.core.thir.LocalVar;
 import org.rust.lang.core.types.regions.Scope;
 import org.rust.lang.core.types.regions.ScopeTree;
 import org.rust.lang.core.types.ty.*;
+import org.rust.lang.core.types.ty.Mutability;
 
 public final class MirUtils {
     private MirUtils() {

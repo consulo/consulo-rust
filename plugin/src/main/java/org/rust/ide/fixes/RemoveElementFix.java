@@ -11,6 +11,7 @@ import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
+import consulo.localize.LocalizeValue;
 
 public class RemoveElementFix extends RsQuickFixBase<PsiElement> {
 

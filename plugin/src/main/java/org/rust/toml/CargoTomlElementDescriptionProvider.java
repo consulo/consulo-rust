@@ -5,6 +5,7 @@
 
 package org.rust.toml;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.highlight.HighlightUsagesDescriptionLocation;
 import consulo.language.psi.ElementDescriptionLocation;
 import consulo.language.psi.ElementDescriptionProvider;
@@ -17,6 +18,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.toml.lang.psi.TomlKeySegment;
 
+@ExtensionImpl
 public class CargoTomlElementDescriptionProvider implements ElementDescriptionProvider {
 
     @Nullable

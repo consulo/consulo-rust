@@ -30,6 +30,11 @@ import org.rust.openapiext.SmartPointerExtUtil;
 import java.util.*;
 
 import static org.rust.lang.core.PsiElementPatternExtUtil.psiElement;
+import consulo.language.psi.PsiWhiteSpace;
+import consulo.language.psi.SmartPsiElementPointer;
+import consulo.util.lang.ref.Ref;
+import org.rust.ide.utils.template.RsTemplateBuilder;
+import org.rust.lang.core.resolve.ImplLookup;
 
 public class RsLambdaExprCompletionProvider extends RsCompletionProvider {
     public static final RsLambdaExprCompletionProvider INSTANCE = new RsLambdaExprCompletionProvider();

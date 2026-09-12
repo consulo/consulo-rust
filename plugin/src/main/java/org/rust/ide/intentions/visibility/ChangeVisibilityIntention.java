@@ -20,6 +20,7 @@ import org.rust.openapiext.PsiElementExtUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
 import consulo.language.psi.util.PsiTreeUtil;
+import consulo.localize.LocalizeValue;
 
 public abstract class ChangeVisibilityIntention extends RsElementBaseIntentionAction<ChangeVisibilityIntention.Context> {
     @Nonnull

@@ -7,7 +7,7 @@ import jakarta.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
-/** IntelliJ-compat stub. */
+/** Presents a suggested refactoring: signature-change model and values for new parameters. */
 public abstract class SuggestedRefactoringUI {
     @Nonnull
     public SignatureChangePresentationModel buildSignatureChangePresentation(

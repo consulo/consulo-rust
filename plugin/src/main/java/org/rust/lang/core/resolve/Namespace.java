@@ -16,6 +16,7 @@ import org.rust.lang.core.stubs.*;
 
 import java.util.EnumSet;
 import java.util.Set;
+import org.rust.lang.core.resolve.ref.RsPathReference;
 
 public enum Namespace {
     Types("type"),
@@ -132,11 +133,19 @@ public enum Namespace {
         return TYPES_N_VALUES;
     }
 
-    @Nullable
+    /** The namespaces the items imported by {@code useSpeck} live in. */
+    @Nonnull
     public static Set<Namespace> getUseSpeckNamespaces(@Nonnull RsUseSpeck useSpeck) {
         RsPath path = useSpeck.getPath();
-        if (path == null) return null;
-        // Simplified: resolve and collect namespaces
-        return null; // This needs to be implemented with proper reference resolution
+        if (path == null) return EnumSet.noneOf(Namespace.class);
+        RsPathReference reference = path.getReference();
+        if (reference == null) return EnumSet.noneOf(Namespace.class);
+        Set<Namespace> result = EnumSet.noneOf(Namespace.class);
+        for (RsElement element : reference.multiResolveIfVisible()) {
+            if (element instanceof RsNamedElement) {
+                result.addAll(getNamespaces((RsNamedElement) element));
+            }
+        }
+        return result;
     }
 }

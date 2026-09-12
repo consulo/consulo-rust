@@ -15,11 +15,18 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.docs.RsDocumentationProvider;
 import org.rust.ide.icons.RsIcons;
+import org.rust.cargo.project.workspace.CargoWorkspace;
 import org.rust.lang.core.psi.RsExternCrateItem;
 import org.rust.lang.core.psi.ext.RsElementUtil;
 
 import javax.swing.Icon;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.Language;
+import consulo.localize.LocalizeValue;
+import consulo.ui.image.Image;
+import org.rust.lang.RsLanguage;
 
+@ExtensionImpl
 public class RsCrateDocLineMarkerProvider extends LineMarkerProviderDescriptor {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 
@@ -45,19 +52,23 @@ public class RsCrateDocLineMarkerProvider extends LineMarkerProviderDescriptor {
         if (externCrate.getCrate() != element) return null;
         String crateName = externCrate.getName();
         if (crateName == null) return null;
-        Object pkg = RsElementUtil.getContainingCargoPackage(externCrate);
+        CargoWorkspace.Package pkg = RsElementUtil.getContainingCargoPackage(externCrate);
         if (pkg == null) return null;
-        // Simplified: we'd need to access the dependency via the package
-        // For now, just create the line marker with basic info
+        CargoWorkspace.Target crate = pkg.findDependency(crateName);
+        if (crate == null) return null;
+        CargoWorkspace.Package cratePkg = crate.getPkg();
+        if (cratePkg.getSource() == null) return null;
+
         String baseUrl = RsDocumentationProvider.getExternalDocumentationBaseUrl();
+        String url = baseUrl + cratePkg.getName() + "/" + cratePkg.getVersion() + "/" + crate.getNormName();
 
         return RsLineMarkerInfoUtils.create(
             element,
             element.getTextRange(),
             getIcon(),
-            (e, event) -> BrowserUtil.browse(baseUrl + crateName),
+            (e, event) -> BrowserUtil.browse(url),
             GutterIconRenderer.Alignment.LEFT,
-            () -> RsBundle.message("gutter.rust.open.documentation.for", crateName)
+            () -> RsBundle.message("gutter.rust.open.documentation.for", cratePkg.getNormName())
         );
     }
 }

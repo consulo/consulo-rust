@@ -5,6 +5,7 @@
 
 package org.rust.ide.search;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.psi.PsiElement;
 import consulo.usage.UsageTarget;
 import consulo.usage.UsageType;
@@ -14,6 +15,7 @@ import org.rust.lang.core.psi.*;
 
 import java.util.List;
 
+@ExtensionImpl
 public class RsUsageTypeProvider implements UsageTypeProviderEx {
 
     public static final RsUsageTypeProvider INSTANCE = new RsUsageTypeProvider();

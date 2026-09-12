@@ -37,7 +37,9 @@ import org.rust.lang.core.psi.ext.RsElement;
 import java.util.*;
 
 import static org.rust.lang.core.PsiElementPatternExtUtil.or;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl(id = "RsCompletionContributor", order = "after RsKeywordCompletionContributor")
 public class RsCompletionContributor extends CompletionContributor {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 
@@ -99,7 +101,6 @@ public class RsCompletionContributor extends CompletionContributor {
 
     public static CompletionResultSet withRustSorter(CompletionParameters parameters, CompletionResultSet result) {
         CompletionSorterImpl sorter = (CompletionSorterImpl) CompletionSorter.defaultSorter(parameters, result.getPrefixMatcher());
-        // CompletionSorterImpl.withoutClassifiers is IntelliJ-only; liftShorter removal skipped
         for (AnchoredWeigherGroup weigherGroup : RS_COMPLETION_WEIGHERS_GROUPED) {
             sorter = sorter.weighAfter(weigherGroup.myAnchor, weigherGroup.myWeighers);
         }

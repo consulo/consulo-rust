@@ -4,6 +4,9 @@
  */
 
 package org.rust.lang.core.types.infer;
+import org.rust.lang.core.psi.RsFunction;
+import org.rust.lang.core.psi.RsSelfParameter;
+import org.rust.lang.core.types.ty.Ty;
 
 public final class InferExtUtil {
     private InferExtUtil() {

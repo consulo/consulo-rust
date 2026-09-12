@@ -22,7 +22,6 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.fixes.ChangeToFieldShorthandFix;
 import org.rust.ide.fixes.DeleteUseSpeckUtil;
-import org.rust.ide.fixes.UpdateMutableUtil;
 import org.rust.ide.refactoring.RsInlineUsageViewDescriptor;
 import org.rust.ide.refactoring.RsNameSuggestions;
 import org.rust.ide.refactoring.inlineTypeAlias.RsInlineTypeAliasProcessor;
@@ -36,7 +35,6 @@ import org.rust.lang.core.resolve.NameResolution;
 import org.rust.lang.core.resolve.ref.RsReference;
 import org.rust.lang.core.types.Substitution;
 import org.rust.lang.core.types.ExtensionsUtil;
-import org.rust.lang.core.types.LivenessUtil;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.stdext.StdextUtil;
 
@@ -45,6 +43,9 @@ import java.util.stream.Collectors;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
+import consulo.localize.LocalizeValue;
+import consulo.util.lang.ref.SimpleReference;
+import org.rust.lang.core.macros.RsExpandedElement;
 
 public class RsInlineFunctionProcessor extends BaseRefactoringProcessor {
     @Nonnull

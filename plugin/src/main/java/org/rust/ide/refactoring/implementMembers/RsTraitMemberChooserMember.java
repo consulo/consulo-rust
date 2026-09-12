@@ -18,6 +18,8 @@ import org.rust.lang.core.psi.RsTypeAlias;
 import org.rust.lang.core.psi.ext.RsAbstractable;
 
 import javax.swing.*;
+import consulo.language.icon.IconDescriptorUpdaters;
+import consulo.ui.ex.ColoredTextContainer;
 
 public class RsTraitMemberChooserMember implements ClassMember {
     @Nonnull

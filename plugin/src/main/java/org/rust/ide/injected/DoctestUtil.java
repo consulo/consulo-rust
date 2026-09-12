@@ -4,6 +4,7 @@
  */
 
 package org.rust.ide.injected;
+import org.rust.lang.core.psi.RsFunction;
 
 public final class DoctestUtil {
     private DoctestUtil() {

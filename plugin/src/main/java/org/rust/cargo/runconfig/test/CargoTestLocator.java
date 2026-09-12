@@ -31,6 +31,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import consulo.navigation.OpenFileDescriptorFactory;
+import org.rust.cargo.project.model.impl.CargoProjectsServiceImplUtil;
+import org.rust.lang.core.psi.ext.RsQualifiedNamedElementUtil;
 
 public final class CargoTestLocator implements SMTestLocator {
 

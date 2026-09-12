@@ -1,5 +1,5 @@
 package com.intellij.ide;
-/** IntelliJ-compat stub. */
+/** Availability flags for the legacy new-project wizard; it is always available and enabled. */
 public final class NewProjectWizardLegacy {
     private NewProjectWizardLegacy() {}
     public static boolean isAvailable() { return true; }

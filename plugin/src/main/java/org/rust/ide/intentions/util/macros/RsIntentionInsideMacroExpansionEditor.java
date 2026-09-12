@@ -18,7 +18,7 @@ import consulo.codeEditor.VisualPosition;
 import consulo.document.Document;
 import consulo.document.RangeMarker;
 import com.intellij.openapi.editor.impl.EmptySoftWrapModel;
-import com.intellij.openapi.editor.impl.ImaginaryEditor;
+import consulo.codeEditor.imaginary.ImaginaryEditor;
 import consulo.language.psi.PsiFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;

@@ -26,6 +26,13 @@ import org.rust.lang.core.types.ty.TyUnknown;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import consulo.language.ast.ASTNode;
+import consulo.language.ast.TokenSet;
+import org.rust.cargo.project.workspace.CargoWorkspace;
+import org.rust.lang.core.CompilerFeature;
+import org.rust.lang.core.FeatureAvailability;
+import org.rust.lang.core.stubs.common.RsMetaItemPsiOrStub;
+import org.rust.lang.core.stubs.common.RsPathPsiOrStub;
 
 public final class RsFunctionUtil {
     private RsFunctionUtil() {

@@ -20,7 +20,6 @@ import org.rust.cargo.project.workspace.CargoWorkspace;
 import org.rust.lang.core.RsPsiPattern;
 import org.rust.lang.core.completion.CompletionUtilsUtil;
 import org.rust.lang.core.completion.RsCompletionProvider;
-import org.rust.lang.core.psi.RsTokenType;
 import org.rust.lang.core.psi.RsLitExpr;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.PsiElementExt;
@@ -28,6 +27,7 @@ import org.rust.toml.Util;
 import org.rust.toml.resolve.CargoTomlNameResolution;
 import org.toml.lang.psi.TomlFile;
 import org.toml.lang.psi.TomlKeySegment;
+import org.rust.lang.core.psi.RsTokenSets;
 
 /**
  * Provides completion for cargo features in Rust cfg attributes.
@@ -70,7 +70,7 @@ public class RsCfgFeatureCompletionProvider extends RsCompletionProvider {
             PsiElement leaf = CompletionUtilsUtil.getElementOfType(context, PsiElement.class);
             if (leaf == null) return;
             boolean hasQuotes = leaf.getParent() instanceof RsLitExpr
-                && RsTokenType.RS_ALL_STRING_LITERALS.contains(RsElementUtil.getElementType(leaf));
+                && RsTokenSets.RS_ALL_STRING_LITERALS.contains(RsElementUtil.getElementType(leaf));
 
             if (!hasQuotes) {
                 context.getDocument().insertString(context.getStartOffset(), "\"");

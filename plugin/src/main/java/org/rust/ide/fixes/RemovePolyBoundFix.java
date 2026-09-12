@@ -12,6 +12,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsPolybound;
 import org.rust.lang.core.psi.ext.RsPolyboundUtil;
+import consulo.localize.LocalizeValue;
 
 public class RemovePolyBoundFix extends RsQuickFixBase<RsPolybound> {
 

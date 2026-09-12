@@ -16,6 +16,7 @@ import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.RsStructLiteral;
 import org.rust.lang.core.psi.RsStructLiteralBody;
 import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import consulo.localize.LocalizeValue;
 
 public class AddStructFieldsLiteralIntention extends RsElementBaseIntentionAction<AddStructFieldsLiteralIntention.Context> {
 

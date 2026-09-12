@@ -22,6 +22,7 @@ import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import consulo.localize.LocalizeValue;
 
 public class ConvertFunctionToClosureIntention extends RsElementBaseIntentionAction<ConvertFunctionToClosureIntention.Context> {
 

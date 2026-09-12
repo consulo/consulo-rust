@@ -21,6 +21,7 @@ import org.rust.lang.core.psi.ext.PsiElementExt;
 import org.rust.lang.core.psi.ext.RsBlockUtil;
 import org.rust.openapiext.EditorExt;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import consulo.localize.LocalizeValue;
 
 public class WrapLambdaExprIntention extends RsElementBaseIntentionAction<RsExpr> {
     @Nonnull

@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.rust.lang.core.PsiElementPatternExtUtil.withSuperParent;
+import consulo.language.pattern.PatternCondition;
 
 public class RsPrimitiveTypeCompletionProvider extends RsCompletionProvider {
     public static final RsPrimitiveTypeCompletionProvider INSTANCE = new RsPrimitiveTypeCompletionProvider();

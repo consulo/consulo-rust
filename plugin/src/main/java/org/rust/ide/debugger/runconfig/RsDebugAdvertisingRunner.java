@@ -4,6 +4,7 @@
  */
 
 package org.rust.ide.debugger.runconfig;
+import consulo.annotation.component.ExtensionImpl;
 import consulo.application.ApplicationManager;
 import consulo.ide.impl.idea.ide.plugins.PluginManagerCore;
 import consulo.ide.IdeBundle;
@@ -11,8 +12,6 @@ import consulo.ide.IdeBundle;
 import consulo.execution.configuration.RunProfile;
 import consulo.execution.debug.DefaultDebugExecutor;
 import consulo.execution.runner.ExecutionEnvironment;
-import com.intellij.ide.plugins.InstalledPluginsState;
-import consulo.container.plugin.PluginManager;
 import com.intellij.openapi.application.ApplicationNamesInfo;
 import consulo.container.plugin.PluginId;
 import consulo.project.Project;
@@ -27,6 +26,7 @@ import org.rust.openapiext.OpenApiUtil;
 
 import java.util.Set;
 
+@ExtensionImpl
 public class RsDebugAdvertisingRunner extends RsDefaultProgramRunnerBase {
 
     public static final String RUNNER_ID = "RsDebugAdvertisingRunner";
@@ -38,7 +38,7 @@ public class RsDebugAdvertisingRunner extends RsDefaultProgramRunnerBase {
         if (!(profile instanceof CargoCommandConfiguration)) return false;
         if (!isSupportedPlatform()) return false;
         if (RunConfigUtil.getHasRemoteTarget((CargoCommandConfiguration) profile)) return false;
-        // Consulo has no NativeDebuggingSupportPlugin advertisement surface; never advertise.
+        // Never advertise the native debugging plugin.
         return false;
     }
 
@@ -89,12 +89,7 @@ public class RsDebugAdvertisingRunner extends RsDefaultProgramRunnerBase {
 
             @Override
             public void doOkAction(Project project, PluginId pluginId) {
-                // `installAndEnable(project, setOf(pluginId), false) {}` from
-                // `com.intellij.openapi.updateSettings.impl.pluginsAdvertisement`. That entry
-                // point is not exposed via a Java-accessible class on the platform-IDEA-IU 233
-                // distribution shipped under deps/ — fall through silently. The dialog still
-                // shows "Install" / "Enable" / "Restart" actions; user can install/enable via
-                // Settings | Plugins.
+                // Nothing to do: the plugin is installed from Settings | Plugins.
             }
         },
         ENABLE {
@@ -110,12 +105,7 @@ public class RsDebugAdvertisingRunner extends RsDefaultProgramRunnerBase {
 
             @Override
             public void doOkAction(Project project, PluginId pluginId) {
-                // `installAndEnable(project, setOf(pluginId), false) {}` from
-                // `com.intellij.openapi.updateSettings.impl.pluginsAdvertisement`. That entry
-                // point is not exposed via a Java-accessible class on the platform-IDEA-IU 233
-                // distribution shipped under deps/ — fall through silently. The dialog still
-                // shows "Install" / "Enable" / "Restart" actions; user can install/enable via
-                // Settings | Plugins.
+                // Nothing to do: the plugin is enabled from Settings | Plugins.
             }
         },
         RESTART {

@@ -5,6 +5,7 @@
 
 package org.rust.lang.core.macros;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.virtualFileSystem.fileType.FileType;
 import consulo.ide.impl.idea.openapi.fileTypes.impl.FileTypeOverrider;
 import consulo.virtualFileSystem.VirtualFile;
@@ -19,6 +20,7 @@ import org.rust.lang.RsFileType;
  * know that any file in {@link MacroExpansionFileSystem} is {@link RsFileType}
  */
 @SuppressWarnings("UnstableApiUsage")
+@ExtensionImpl
 public class RsFileTypeOverriderForMacroExpansionFileSystem implements FileTypeOverrider {
     @Nullable
     @Override

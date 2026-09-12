@@ -16,14 +16,19 @@ import consulo.language.psi.PsiWhiteSpace;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.lang.core.psi.RsTokenType;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsItemElement;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
+import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.RsTokenSets;
+import consulo.language.Language;
+import consulo.localize.LocalizeValue;
+import org.rust.lang.RsLanguage;
 
+@ExtensionImpl
 public class RsInspectionSuppressor implements InspectionSuppressor {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 
@@ -71,7 +76,7 @@ public class RsInspectionSuppressor implements InspectionSuppressor {
             }
             PsiElement next = psi.getNextSibling();
             if (next == null) break;
-            if (RsTokenType.RS_COMMENTS.contains(next.getNode().getElementType()) || next instanceof PsiWhiteSpace) {
+            if (RsTokenSets.RS_COMMENTS.contains(next.getNode().getElementType()) || next instanceof PsiWhiteSpace) {
                 psi = next;
             } else {
                 break;

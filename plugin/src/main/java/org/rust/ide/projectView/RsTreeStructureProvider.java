@@ -5,6 +5,7 @@
 
 package org.rust.ide.projectView;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.project.ui.view.tree.TreeStructureProvider;
 import consulo.project.ui.view.tree.ViewSettings;
 import consulo.project.ui.view.tree.PsiFileNode;
@@ -24,6 +25,7 @@ import java.util.List;
 /**
  * Moves {@code mod.rs} files and crate roots on top
  */
+@ExtensionImpl
 public class RsTreeStructureProvider implements TreeStructureProvider, DumbAware {
 
     @Nonnull

@@ -60,7 +60,10 @@ import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
 import consulo.language.psi.PsiFile;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.codeEditor.Caret;
 
+@ExtensionImpl(id = "rust.moveTopLevelItems", order = "first, before moveJavaFileOrDir, before moveFileOrDir, before rust.moveFilesOrDirectories")
 public class RsMoveTopLevelItemsHandler extends MoveHandlerDelegate {
 
     public boolean supportsLanguage(@Nonnull Language language) {

@@ -5,6 +5,7 @@
 
 package org.rust.ide.wordSelection;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.action.ExtendWordSelectionHandlerBase;
 import consulo.language.editor.action.SelectWordUtil;
 import consulo.codeEditor.Editor;
@@ -16,16 +17,17 @@ import jakarta.annotation.Nullable;
 import org.rust.lang.core.lexer.RsEscapesLexer;
 import org.rust.lang.core.psi.RsLiteralKind;
 
-import org.rust.lang.core.psi.RsTokenType;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.rust.lang.core.psi.RsTokenSets;
 
+@ExtensionImpl
 public class RsStringLiteralSelectionHandler extends ExtendWordSelectionHandlerBase {
     @Override
     public boolean canSelect(@Nonnull PsiElement e) {
-        return RsTokenType.RS_ALL_STRING_LITERALS.contains(PsiElementUtil.getElementType(e));
+        return RsTokenSets.RS_ALL_STRING_LITERALS.contains(PsiElementUtil.getElementType(e));
     }
 
     @Override

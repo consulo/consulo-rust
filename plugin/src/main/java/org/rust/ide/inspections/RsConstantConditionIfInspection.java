@@ -23,6 +23,7 @@ import org.rust.lang.utils.evaluation.ConstExprEvaluator;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.PsiElementUtil;
 import consulo.annotation.component.ExtensionImpl;
+import consulo.localize.LocalizeValue;
 
 /**
  * See also RsRedundantElseInspection.

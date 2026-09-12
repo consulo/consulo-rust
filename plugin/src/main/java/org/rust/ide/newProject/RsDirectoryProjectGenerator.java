@@ -26,6 +26,7 @@ import org.rust.openapiext.OpenApiUtil;
 import org.rust.stdext.RsResult;
 
 import javax.swing.*;
+import consulo.ui.image.Image;
 
 // We implement `CustomStepProjectGenerator` as well to correctly show settings UI
 // because otherwise PyCharm doesn't add peer's component into project settings panel

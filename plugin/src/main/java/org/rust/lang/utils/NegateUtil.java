@@ -4,6 +4,8 @@
  */
 
 package org.rust.lang.utils;
+import consulo.language.psi.PsiElement;
+import org.rust.lang.core.psi.RsBinaryExpr;
 
 public final class NegateUtil {
     private NegateUtil() {

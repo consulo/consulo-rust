@@ -13,17 +13,19 @@ import org.rust.lang.core.types.Substitution;
 import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.consts.CtConstParameter;
 import org.rust.lang.core.types.consts.CtValue;
-import org.rust.lang.core.types.LifetimeUtil;
 import org.rust.lang.core.types.SubstitutionUtil;
 import org.rust.lang.core.types.regions.ReEarlyBound;
 import org.rust.lang.core.types.regions.Region;
 import org.rust.lang.core.types.ty.TyTypeParameter;
 import org.rust.lang.core.psi.RsExpr;
 import org.rust.lang.core.psi.RsTypeArgumentList;
-import org.rust.lang.core.psi.ext.RsStubbedElementUtil;
 import org.rust.lang.utils.evaluation.ConstExpr;
 import org.rust.lang.utils.evaluation.ConstExprEvaluator;
-import org.rust.lang.core.types.LifetimeUtil;
+import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.RsTypeReferenceUtil;
+import org.rust.lang.core.types.ExtensionsUtil;
+import org.rust.lang.core.types.infer.FoldUtil;
+import org.rust.lang.core.types.infer.TyLowering;
 
 public class TypeSubstitutingPsiRenderer extends RsPsiRenderer {
 

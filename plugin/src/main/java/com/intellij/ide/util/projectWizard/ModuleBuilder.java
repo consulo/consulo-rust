@@ -9,7 +9,7 @@ import consulo.module.content.layer.ModifiableRootModel;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
-/** IntelliJ-compat stub. */
+/** Builds a module: supplies the wizard options step, module type and root-model setup. */
 public abstract class ModuleBuilder {
     protected String myName;
     protected String myModuleFilePath;

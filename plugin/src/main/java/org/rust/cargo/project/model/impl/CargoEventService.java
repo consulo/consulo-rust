@@ -5,7 +5,6 @@
 
 package org.rust.cargo.project.model.impl;
 
-import com.intellij.openapi.components.Service;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -16,15 +15,22 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.annotation.component.ComponentScope;
+import jakarta.inject.Inject;
 
 /**
  * Keeps timestamps of previous cargo metadata invocation for each cargo project
  * to check changes in Cargo.lock should be skipped and avoid unnecessary project loading.
  */
-@Service
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
 public final class CargoEventService {
 
     private final ConcurrentMap<Path, Long> metadataCallTimestamps = new ConcurrentHashMap<>();
+
+    @Inject
 
     public CargoEventService(@Nonnull Project project) {
         project.getMessageBus().connect().subscribe(

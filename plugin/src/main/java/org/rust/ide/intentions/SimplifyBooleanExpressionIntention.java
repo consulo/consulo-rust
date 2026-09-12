@@ -15,6 +15,7 @@ import org.rust.ide.utils.BooleanExprSimplifier;
 import org.rust.ide.utils.PsiModificationUtil;
 import org.rust.lang.core.psi.RsExpr;
 import org.rust.lang.core.psi.ext.PsiElementExt;
+import consulo.localize.LocalizeValue;
 
 public class SimplifyBooleanExpressionIntention extends RsElementBaseIntentionAction<RsExpr> {
     @Nonnull

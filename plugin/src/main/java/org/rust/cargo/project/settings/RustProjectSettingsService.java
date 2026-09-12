@@ -19,13 +19,22 @@ import org.rust.cargo.toolchain.RsToolchainBase;
 import org.rust.cargo.toolchain.RsToolchainProvider;
 
 import java.nio.file.Paths;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.annotation.component.ComponentScope;
+import jakarta.inject.Inject;
+import consulo.util.xml.serializer.annotation.Transient;
 
 @State(name = "RustProjectSettings", storages = {
     @Storage(StoragePathMacros.WORKSPACE_FILE),
     @Storage(value = "misc.xml", deprecated = true)
 })
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
 public class RustProjectSettingsService
     extends RsProjectSettingsServiceBase<RustProjectSettingsService.RustProjectSettings> {
+
+    @Inject
 
     public RustProjectSettingsService(@Nonnull Project project) {
         super(project, new RustProjectSettings());
@@ -52,15 +61,27 @@ public class RustProjectSettingsService
     public boolean getDoctestInjectionEnabled() { return getState().doctestInjectionEnabled; }
 
     public static class RustProjectSettings extends RsProjectSettingsBase<RustProjectSettings> {
+        @AffectsCargoMetadata
         public String toolchainHomeDirectory;
         public boolean autoShowErrorsInEditor = true;
         public boolean autoUpdateEnabled = true;
+        /**
+         * Stdlib is normally located through rustup; this is the escape hatch for toolchains
+         * that were not installed with rustup.
+         */
+        @AffectsCargoMetadata
         public String explicitPathToStdlib;
+        @AffectsHighlighting
         public boolean compileAllTargets = true;
         public boolean useOffline = false;
         public MacroExpansionEngine macroExpansionEngine = MacroExpansionEngine.NEW;
+        @AffectsHighlighting
         public boolean doctestInjectionEnabled = true;
 
+        /**
+         * Derived from {@link #toolchainHomeDirectory}; only that path is persisted.
+         */
+        @Transient
         @Nullable
         public RsToolchainBase getToolchain() {
             return toolchainHomeDirectory != null
@@ -68,6 +89,7 @@ public class RustProjectSettingsService
                 : null;
         }
 
+        @Transient
         public void setToolchain(@Nullable RsToolchainBase value) {
             toolchainHomeDirectory = value != null
                 ? value.getLocation().toString().replace('\\', '/')

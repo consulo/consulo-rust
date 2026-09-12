@@ -1,6 +1,6 @@
 package com.intellij.refactoring.suggested;
 import jakarta.annotation.Nonnull;
-/** IntelliJ-compat stub — part of the suggested refactoring framework. */
+/** Performs a signature change that was suggested from the user's edits. */
 public abstract class SuggestedRefactoringExecution {
     protected final SuggestedRefactoringSupport refactoringSupport;
     public SuggestedRefactoringExecution(@Nonnull SuggestedRefactoringSupport support) {

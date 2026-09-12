@@ -14,6 +14,7 @@ import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsStructItem;
+import consulo.codeEditor.action.EditorActionHandler;
 
 public class AfterFunctionOrStructEnterProcessor extends SmartEnterProcessorWithFixers.FixEnterProcessor {
 

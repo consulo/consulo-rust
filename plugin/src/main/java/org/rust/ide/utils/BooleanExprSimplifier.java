@@ -10,7 +10,6 @@ import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.types.consts.CtValue;
 import org.rust.lang.core.types.ty.TyBool;
-import org.rust.lang.utils.evaluation.EvaluateUtil;
 import org.rust.lang.utils.NegateUtil;
 
 import java.util.Set;

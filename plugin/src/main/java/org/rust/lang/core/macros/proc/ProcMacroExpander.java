@@ -37,6 +37,9 @@ import java.util.stream.Collectors;
  */
 public class ProcMacroExpander extends MacroExpander<RsProcMacroData, ProcMacroExpansionError> {
 
+    /** Time allotted to one procedural macro expansion, unless the registry key overrides it. */
+    private static final int DEFAULT_TIMEOUT_MS = 20000;
+
     public static final int EXPANDER_VERSION = 11;
     private static final SemVer MIN_RUSTC_VERSION_WITH_EXPANDER_VERSION_CHECK =
         ToolchainUtil.parseSemVer("1.70.0");
@@ -68,7 +71,7 @@ public class ProcMacroExpander extends MacroExpander<RsProcMacroData, ProcMacroE
         @Nullable RsToolchainBase toolchain,
         @Nullable ProcMacroServerPool server
     ) {
-        this(project, toolchain, server, Registry.get("org.rust.macros.proc.timeout").asInteger());
+        this(project, toolchain, server, Registry.get("org.rust.macros.proc.timeout").asInteger(DEFAULT_TIMEOUT_MS));
     }
 
     @Nonnull

@@ -23,6 +23,7 @@ import org.rust.openapiext.PsiElementExtUtil;
 import org.rust.lang.core.psi.ext.RsTypeReferenceUtil;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsElement;
+import consulo.language.psi.PsiElement;
 
 public class CallInfo {
     @Nullable

@@ -7,7 +7,6 @@ package org.rust.ide.actions;
 
 import com.google.gson.Gson;
 import consulo.process.io.ProcessIOExecutorService;
-import consulo.component.PropertiesComponent;
 import consulo.project.ui.notification.NotificationAction;
 import consulo.project.ui.notification.event.NotificationListener;
 import consulo.project.ui.notification.NotificationType;
@@ -24,7 +23,7 @@ import consulo.ui.ex.awt.DialogWrapper.DoNotAskOption;
 import consulo.ui.ex.awt.MessageDialogBuilder;
 import consulo.ui.ex.awt.Messages;
 import consulo.http.HttpRequests;
-import com.intellij.util.net.ssl.CertificateManager;
+import consulo.http.HttpCertificateManager;
 import consulo.http.HttpProxyManager;
 import consulo.ui.ex.action.LegacyDumbAwareAction;
 import jakarta.annotation.Nonnull;
@@ -42,6 +41,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import consulo.annotation.component.ActionImpl;
+import consulo.application.ApplicationPropertiesComponent;
+import consulo.localize.LocalizeValue;
+import org.rust.openapiext.OpenApiUtil;
 
 @ActionImpl(id = "Rust.ShareInPlayground")
 public class ShareInPlaygroundAction extends LegacyDumbAwareAction {
@@ -157,13 +159,13 @@ public class ShareInPlaygroundAction extends LegacyDumbAwareAction {
             .followRedirects(HttpClient.Redirect.NORMAL)
             .connectTimeout(Duration.ofMillis(10000))
             .executor(ProcessIOExecutorService.INSTANCE)
-            .sslContext(CertificateManager.getInstance().getSslContext())
+            .sslContext(HttpCertificateManager.getInstance().getSslContext())
             .proxy(HttpProxyManager.getInstance().getOnlyBySettingsSelector())
             .build();
     }
 
     private static boolean confirmShare(RsFile file, boolean hasSelection) {
-        boolean showConfirmation = consulo.application.Application.get().getInstance(consulo.component.PropertiesComponent.class).getBoolean(SHOW_SHARE_IN_PLAYGROUND_CONFIRMATION, true);
+        boolean showConfirmation = ApplicationPropertiesComponent.getInstance().getBoolean(SHOW_SHARE_IN_PLAYGROUND_CONFIRMATION, true);
         if (!showConfirmation) {
             return true;
         }
@@ -171,7 +173,7 @@ public class ShareInPlaygroundAction extends LegacyDumbAwareAction {
             @Override
             public void rememberChoice(boolean isSelected, int exitCode) {
                 if (isSelected && exitCode == Messages.OK) {
-                    consulo.application.Application.get().getInstance(consulo.component.PropertiesComponent.class).setValue(SHOW_SHARE_IN_PLAYGROUND_CONFIRMATION, false, true);
+                    ApplicationPropertiesComponent.getInstance().setValue(SHOW_SHARE_IN_PLAYGROUND_CONFIRMATION, false, true);
                 }
             }
         };

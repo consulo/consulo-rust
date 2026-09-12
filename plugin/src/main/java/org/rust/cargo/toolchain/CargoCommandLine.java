@@ -19,6 +19,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.rust.cargo.util.CargoArgsParserUtil;
 
 public class CargoCommandLine extends RsCommandLineBase {
 

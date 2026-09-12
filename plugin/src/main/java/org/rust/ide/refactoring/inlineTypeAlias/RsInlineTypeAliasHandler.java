@@ -21,7 +21,9 @@ import org.rust.lang.core.psi.RsTypeAlias;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.resolve.ref.RsReference;
 import org.rust.openapiext.OpenApiUtil;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsInlineTypeAliasHandler extends InlineActionHandler {
 
     @Override

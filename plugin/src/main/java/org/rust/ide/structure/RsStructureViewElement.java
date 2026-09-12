@@ -29,6 +29,9 @@ import org.rust.lang.core.psi.ext.RsMacroCallUtil;
 import org.rust.lang.core.psi.ext.RsItemsOwnerUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
+import consulo.platform.base.icon.PlatformIconGroup;
+import consulo.ui.image.Image;
+import org.rust.openapiext.OpenApiUtil;
 
 public class RsStructureViewElement implements StructureViewTreeElement, Queryable {
 

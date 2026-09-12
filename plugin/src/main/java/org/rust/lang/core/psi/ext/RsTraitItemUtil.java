@@ -26,6 +26,8 @@ import org.rust.openapiext.QueryExt;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.rust.lang.core.psi.ext.RsTraitRefUtil;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiReference;
 
 /**
  * functions and properties.

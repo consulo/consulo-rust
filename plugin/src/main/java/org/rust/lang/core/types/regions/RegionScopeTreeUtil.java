@@ -13,6 +13,7 @@ import org.rust.lang.core.psi.ext.RsBlockUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsInferenceContextOwner;
 import org.rust.lang.core.psi.ext.RsInferenceContextOwnerUtil;
+import org.rust.lang.core.psi.ext.RsFunctionUtil;
 
 /** Utility methods for building and querying {@link ScopeTree}s per inference context. */
 public final class RegionScopeTreeUtil {

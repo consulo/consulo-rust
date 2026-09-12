@@ -11,6 +11,7 @@ import org.rust.lang.utils.Node;
 
 import java.util.*;
 import java.util.function.IntPredicate;
+import org.rust.lang.utils.Edge;
 
 public class DataFlow {
     private DataFlow() {

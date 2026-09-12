@@ -5,6 +5,7 @@
 
 package org.rust.ide.wordSelection;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.action.ExtendWordSelectionHandlerBase;
 import consulo.language.ast.ASTNode;
 import consulo.codeEditor.Editor;
@@ -17,6 +18,7 @@ import org.rust.lang.core.psi.*;
 import java.util.Collections;
 import java.util.List;
 
+@ExtensionImpl
 public class RsListSelectionHandler extends ExtendWordSelectionHandlerBase {
     @Override
     public boolean canSelect(@Nonnull PsiElement e) {
@@ -29,9 +31,9 @@ public class RsListSelectionHandler extends ExtendWordSelectionHandlerBase {
     public List<TextRange> select(@Nonnull PsiElement e, @Nonnull CharSequence editorText, int cursorOffset, @Nonnull Editor editor) {
         ASTNode node = e.getNode();
         if (node == null) return null;
-        ASTNode startNode = node.findChildByType(RsTokenType.RS_LIST_OPEN_SYMBOLS);
+        ASTNode startNode = node.findChildByType(RsTokenSets.RS_LIST_OPEN_SYMBOLS);
         if (startNode == null) return null;
-        ASTNode endNode = node.findChildByType(RsTokenType.RS_LIST_CLOSE_SYMBOLS);
+        ASTNode endNode = node.findChildByType(RsTokenSets.RS_LIST_CLOSE_SYMBOLS);
         if (endNode == null) return null;
         TextRange range = new TextRange(startNode.getStartOffset() + 1, endNode.getStartOffset());
         return Collections.singletonList(range);

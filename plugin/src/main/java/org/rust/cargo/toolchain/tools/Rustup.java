@@ -29,6 +29,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import consulo.process.cmd.GeneralCommandLine;
+import org.rust.openapiext.OpenApiUtil;
+import org.rust.stdext.Utils;
 
 public class Rustup extends RsTool {
 

@@ -20,6 +20,7 @@ import org.rust.lang.core.psi.ext.PsiElementExt;
 import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
 import org.rust.lang.core.psi.ext.RsBinaryOpUtil;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import consulo.localize.LocalizeValue;
 
 public class SplitIfIntention extends RsElementBaseIntentionAction<SplitIfIntention.Context> {
     @Nonnull

@@ -11,8 +11,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class TyInteger extends TyPrimitive {
-    public static final TyInteger DEFAULT = I32.INSTANCE;
+public abstract class TyInteger extends TyPrimitive implements TyNumeric {
     public static final Set<String> NAMES = new HashSet<>(Arrays.asList(
         "i8", "i16", "i32", "i64", "i128", "isize",
         "u8", "u16", "u32", "u64", "u128", "usize"
@@ -20,6 +19,12 @@ public abstract class TyInteger extends TyPrimitive {
 
     protected TyInteger() {
         super();
+    }
+
+    /** The integer type an unconstrained integer literal falls back to. */
+    @Nonnull
+    public static TyInteger getDefault() {
+        return I32.INSTANCE;
     }
 
     public static final class I8 extends TyInteger {

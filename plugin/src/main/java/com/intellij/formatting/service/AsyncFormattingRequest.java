@@ -5,7 +5,7 @@ import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
 import java.util.List;
 
-/** IntelliJ-compat stub. */
+/** A formatting request served asynchronously: it carries the document and context to format and receives the formatted text or an error. */
 public interface AsyncFormattingRequest {
     Project getProject();
     Document getDocument();

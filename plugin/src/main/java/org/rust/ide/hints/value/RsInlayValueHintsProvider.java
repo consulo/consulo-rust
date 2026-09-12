@@ -40,6 +40,8 @@ import javax.swing.JPanel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.rust.lang.core.psi.ext.RsPatRangeUtil;
+import org.rust.lang.core.psi.ext.RsRangeExprUtil;
 
 @SuppressWarnings("UnstableApiUsage")
 public class RsInlayValueHintsProvider implements InlayHintsProvider<RsInlayValueHintsProvider.Settings> {

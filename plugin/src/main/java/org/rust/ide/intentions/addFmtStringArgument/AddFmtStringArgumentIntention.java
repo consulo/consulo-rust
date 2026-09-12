@@ -26,6 +26,10 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.rust.lang.core.psi.ext.RsMacroCallUtil;
+import consulo.localize.LocalizeValue;
+import consulo.undoRedo.CommandProcessor;
+import org.rust.lang.core.psi.MacroBraces;
+import org.rust.openapiext.EditorExt;
 
 public class AddFmtStringArgumentIntention extends RsElementBaseIntentionAction<AddFmtStringArgumentIntention.Context> {
 

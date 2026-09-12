@@ -15,6 +15,7 @@ import org.rust.lang.core.psi.RsMatchExpr;
 import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
 
 import java.util.List;
+import consulo.localize.LocalizeValue;
 
 public class AddWildcardArmIntention extends AddRemainingArmsIntention {
 

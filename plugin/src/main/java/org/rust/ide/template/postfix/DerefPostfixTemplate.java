@@ -10,6 +10,7 @@ import consulo.language.psi.PsiElement;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.TyPointer;
 import org.rust.lang.core.types.ty.TyReference;
+import org.rust.lang.core.types.ty.Ty;
 
 public class DerefPostfixTemplate extends StringBasedPostfixTemplate {
     public DerefPostfixTemplate(RsPostfixTemplateProvider provider) {

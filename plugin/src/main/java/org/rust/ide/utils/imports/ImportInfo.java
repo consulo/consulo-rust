@@ -15,6 +15,7 @@ import org.rust.openapiext.Testmark;
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
+import consulo.language.psi.PsiElement;
 
 /**
  * Sealed class hierarchy for import information.

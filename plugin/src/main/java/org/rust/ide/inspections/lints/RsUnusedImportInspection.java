@@ -21,7 +21,6 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.fixes.RemoveImportFix;
-import org.rust.ide.injected.DoctestUtils;
 import org.rust.ide.inspections.RsProblemsHolder;
 import org.rust.ide.inspections.RsWithMacrosInspectionVisitor;
 import org.rust.toml.CrateExt;
@@ -45,6 +44,9 @@ import org.rust.lang.core.psi.ext.RsReferenceElementBase;
 import org.rust.lang.core.psi.ext.RsMod;
 import consulo.localize.LocalizeValue;
 import consulo.annotation.component.ExtensionImpl;
+import consulo.language.editor.inspection.InspectionTool;
+import consulo.language.editor.inspection.scheme.InspectionToolWrapper;
+import org.rust.lang.core.crate.Crate;
 
 @ExtensionImpl
 public class RsUnusedImportInspection extends RsLintInspection {

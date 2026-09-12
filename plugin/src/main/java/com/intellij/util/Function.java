@@ -1,6 +1,6 @@
 package com.intellij.util;
 
-/** IntelliJ-compat Function stub mirroring com.intellij.util.Function. */
+/** Single-argument function returning a result. */
 @FunctionalInterface
 public interface Function<Param, Result> {
     Result fun(Param param);

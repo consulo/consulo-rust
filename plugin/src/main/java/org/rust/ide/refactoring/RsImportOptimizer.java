@@ -19,14 +19,20 @@ import org.rust.ide.utils.imports.UseItemWrapper;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.doc.psi.RsDocComment;
-import org.rust.stdext.SequenceExtUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import org.rust.lang.core.psi.ext.RsUseSpeckUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.document.Document;
+import consulo.language.Language;
+import consulo.language.psi.PsiElement;
+import org.rust.lang.RsLanguage;
+import org.rust.lang.core.psi.ext.RsUseGroupUtil;
 
+@ExtensionImpl
 public class RsImportOptimizer implements ImportOptimizer {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 

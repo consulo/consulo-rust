@@ -10,8 +10,13 @@ import consulo.component.persist.State;
 import consulo.component.persist.Storage;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.annotation.component.ComponentScope;
 
-@State(name = "RsProjectCodeInsightSettings", storages = @Storage("rust.xml"))
+@State(name = "RsProjectCodeInsightSettings", storages = @Storage("rust"))
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
 public class RsProjectCodeInsightSettings extends SimplePersistentStateComponent<RsProjectCodeInsightSettings.State> {
 
     public RsProjectCodeInsightSettings() {

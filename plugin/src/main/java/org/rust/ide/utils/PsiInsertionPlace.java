@@ -153,7 +153,7 @@ public interface PsiInsertionPlace {
         if (!IntentionInMacroUtil.isMutableExpansionFile(element.getContainingFile())) {
             return false;
         }
-        return false; // Simplified: macro expansion editing not fully supported in Java conversion
+        return false; // Editing inside a macro expansion is not supported
     }
 
     class Before implements PsiInsertionPlace {

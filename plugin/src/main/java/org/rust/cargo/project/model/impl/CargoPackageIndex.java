@@ -18,8 +18,9 @@ import org.rust.cargo.project.workspace.CargoWorkspace;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.*;
+import org.rust.cargo.project.model.CargoProjectsListener;
 
-public class CargoPackageIndex implements CargoProjectsService.CargoProjectsListener {
+public class CargoPackageIndex implements CargoProjectsListener {
 
     private final Project project;
     private final CargoProjectsService service;

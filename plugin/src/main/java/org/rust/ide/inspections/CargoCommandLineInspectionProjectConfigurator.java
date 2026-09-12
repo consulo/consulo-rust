@@ -26,6 +26,7 @@ import jakarta.annotation.Nonnull;
 import java.nio.file.Files;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import org.rust.cargo.project.model.CargoProjectsRefreshListener;
 
 public class CargoCommandLineInspectionProjectConfigurator implements CommandLineInspectionProjectConfigurator {
 
@@ -70,7 +71,7 @@ public class CargoCommandLineInspectionProjectConfigurator implements CommandLin
         var connection = project.getMessageBus().connect();
         connection.subscribe(
             CargoProjectsService.CARGO_PROJECTS_REFRESH_TOPIC,
-            new CargoProjectsService.CargoProjectsRefreshListener() {
+            new CargoProjectsRefreshListener() {
                 @Override
                 public void onRefreshStarted() {
                     logger.info("Cargo project model loading...");

@@ -43,6 +43,12 @@ import org.rust.ide.experiments.RsExperiments;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
+import consulo.application.ApplicationManager;
+import org.rust.cargo.project.settings.RustProjectSettingsService;
+import org.rust.cargo.toolchain.RsToolchainBase;
+import org.rust.cargo.toolchain.tools.Cargo;
+import org.rust.ide.notifications.NotificationUtils;
+import org.rust.openapiext.OpenApiUtil;
 
 public class CargoBuildTaskRunner extends ProjectTaskRunner {
     private static final Logger LOG = Logger.getInstance(CargoBuildTaskRunner.class);
@@ -52,13 +58,6 @@ public class CargoBuildTaskRunner extends ProjectTaskRunner {
     public Promise<Result> run(@Nonnull Project project, @Nonnull ProjectTaskContext context, @Nonnull ProjectTask... tasks) {
         if (project.isDisposed()) {
             return Promises.rejectedPromise("Project is already disposed");
-        }
-
-        // Check for untrusted project
-        boolean confirmed = consulo.application.ApplicationManager.getApplication()
-            .isUnitTestMode() || org.rust.ide.notifications.NotificationUtils.confirmLoadingUntrustedProject(project);
-        if (!confirmed) {
-            return Promises.rejectedPromise(RsBundle.message("untrusted.project.notification.execution.error"));
         }
 
         consulo.execution.configuration.RunConfiguration configuration = context.getRunConfiguration();

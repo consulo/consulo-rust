@@ -22,6 +22,7 @@ import org.rust.lang.core.psi.ext.RsFileUtil;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.*;
+import consulo.language.psi.PsiFile;
 
 /**
  * {@link #equals}/{@link #hashCode} are based on {@link #cargoTarget} and {@link #id} fields

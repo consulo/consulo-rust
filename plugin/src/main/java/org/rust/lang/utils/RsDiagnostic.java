@@ -31,8 +31,6 @@ import org.rust.ide.inspections.RsExperimentalChecksInspection;
 import org.rust.ide.inspections.RsProblemsHolder;
 import org.rust.ide.inspections.RsTypeCheckInspection;
 import org.rust.ide.inspections.RsWrongAssocTypeArgumentsInspection;
-import org.rust.ide.presentation.RsPsiRenderingUtil;
-import org.rust.ide.presentation.TyRenderingUtil;
 import org.rust.ide.refactoring.implementMembers.ImplementMembersFix;
 import org.rust.ide.utils.checkMatch.Pattern;
 import org.rust.ide.utils.imports.RsImportHelper;
@@ -51,6 +49,10 @@ import java.util.*;
 import static consulo.util.lang.StringUtil.pluralize;
 import org.rust.openapiext.PsiElementExtUtil;
 import org.rust.ide.presentation.TypeRendering;
+import consulo.language.editor.annotation.AnnotationBuilder;
+import org.rust.lang.core.crate.Crate;
+import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.types.infer.FoldUtil;
 
 public abstract class RsDiagnostic {
     @Nonnull

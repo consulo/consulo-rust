@@ -24,6 +24,8 @@ import java.awt.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import consulo.dataContext.DataManager;
+import consulo.language.editor.ui.PopupNavigationUtil;
 
 public final class IntroduceParameterUiUtils {
 

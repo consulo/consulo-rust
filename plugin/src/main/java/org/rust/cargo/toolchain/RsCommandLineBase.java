@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import consulo.process.ExecutionException;
 
 public abstract class RsCommandLineBase {
 

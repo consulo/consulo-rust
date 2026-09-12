@@ -16,6 +16,7 @@ import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import consulo.localize.LocalizeValue;
 
 public class AddMainFnFix extends LocalQuickFixAndIntentionActionOnPsiElement {
 

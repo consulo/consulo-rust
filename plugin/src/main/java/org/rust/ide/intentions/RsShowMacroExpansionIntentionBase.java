@@ -21,6 +21,8 @@ import org.rust.lang.core.psi.ext.RsPossibleMacroCallUtil;
 import org.rust.lang.core.psi.ext.PsiElementExt;
 import org.rust.stdext.RsResult;
 import org.rust.ide.actions.macroExpansion.MacroExpansionViewUtil;
+import consulo.localize.LocalizeValue;
+import org.rust.lang.core.macros.MacroExpansionExtUtil;
 
 public abstract class RsShowMacroExpansionIntentionBase extends RsElementBaseIntentionAction<RsPossibleMacroCall> {
 

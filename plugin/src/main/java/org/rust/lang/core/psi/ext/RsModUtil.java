@@ -18,6 +18,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.project.model.CargoProjectServiceUtil;
+import org.rust.lang.core.crate.Crate;
 
 public final class RsModUtil {
     private RsModUtil() {

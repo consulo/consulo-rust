@@ -13,6 +13,7 @@ import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.toml.lang.psi.TomlPsiFactory;
 import org.toml.lang.psi.TomlValue;
+import consulo.localize.LocalizeValue;
 
 public class UpdateCrateVersionFix extends LocalQuickFixOnPsiElement {
     private final String myVersion;

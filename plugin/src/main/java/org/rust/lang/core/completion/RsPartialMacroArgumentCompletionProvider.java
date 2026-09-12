@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.rust.lang.core.PsiElementPatternExtUtil.psiElement;
+import consulo.document.util.TextRange;
 
 /**
  * Provides completion inside a macro argument if the macro is NOT expanded successfully.

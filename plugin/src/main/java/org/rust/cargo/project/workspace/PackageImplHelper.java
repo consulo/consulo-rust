@@ -6,6 +6,7 @@
 package org.rust.cargo.project.workspace;
 
 import java.util.*;
+import org.rust.cargo.toolchain.impl.CargoMetadata;
 
 final class PackageImplHelper {
 

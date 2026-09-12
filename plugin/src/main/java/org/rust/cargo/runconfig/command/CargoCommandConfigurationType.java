@@ -5,6 +5,7 @@
 
 package org.rust.cargo.runconfig.command;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.execution.configuration.ConfigurationFactory;
 import consulo.execution.configuration.ConfigurationTypeBase;
 import consulo.execution.configuration.ConfigurationTypeUtil;
@@ -15,7 +16,9 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.icons.RsIcons;
+import consulo.localize.LocalizeValue;
 
+@ExtensionImpl
 public class CargoCommandConfigurationType extends ConfigurationTypeBase {
 
     public CargoCommandConfigurationType() {

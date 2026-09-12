@@ -20,6 +20,8 @@ import org.rust.lang.core.psi.RsPsiImplUtil;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import consulo.localize.LocalizeValue;
+import org.rust.ide.inspections.RsWrongGenericArgumentsNumberInspection;
 
 public class RemoveGenericArguments extends RsQuickFixBase<RsMethodOrPath> {
 

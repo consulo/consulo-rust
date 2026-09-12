@@ -7,6 +7,7 @@ package org.rust.lang.core.psi.ext;
 
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.*;
+import org.rust.lang.core.psi.RsMetaItem;
 
 public final class RsAttrProcMacroOwnerExtUtil {
     private RsAttrProcMacroOwnerExtUtil() {}

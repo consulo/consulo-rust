@@ -19,6 +19,7 @@ import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyAdt;
 
 import java.util.Collections;
+import consulo.language.editor.inspection.FileModifier;
 
 /**
  * Base class for converting the given expr to the type ty using a try-trait. The conversion process is

@@ -6,8 +6,7 @@
 package org.rust.lang.core.types.ty;
 
 /**
- * Stub interface for numeric types (TyInteger, TyFloat).
- * Used for instanceof checks in the IDE layer.
+ * Marker for the numeric primitive types.
  */
 public interface TyNumeric {
 }

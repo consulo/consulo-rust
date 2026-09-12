@@ -11,6 +11,7 @@ import consulo.ide.setting.ShowSettingsUtil;
 import consulo.application.dumb.DumbAware;
 import consulo.ui.ex.action.LegacyAnAction;
 import org.rust.cargo.project.configurable.RustfmtConfigurable;
+import consulo.project.Project;
 
 public class RustfmtEditSettingsAction extends LegacyAnAction implements DumbAware {
 

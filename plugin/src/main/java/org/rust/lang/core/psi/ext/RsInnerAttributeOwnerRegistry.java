@@ -42,13 +42,13 @@ public final class RsInnerAttributeOwnerRegistry {
 
     @Nonnull
     public static List<RsInnerAttr> innerAttrs(@Nonnull RsInnerAttributeOwner psi) {
-        AttrInfo info = REG.get(((PsiElement) psi).getNode().getElementType());
+        AttrInfo info = REG.get(PsiElementUtil.getElementTypeOrNull((PsiElement) psi));
         if (info == AttrInfo.DIRECT) {
             return PsiElementUtil.stubChildrenOfType(psi, RsInnerAttr.class);
         }
         if (info instanceof AttrInfo.Nested) {
             PsiElement child = PsiElementUtil.stubChildOfElementType(
-                psi, TokenSet.create(((AttrInfo.Nested) info).elementType), PsiElement.class
+                psi, ((AttrInfo.Nested) info).elementType
             );
             if (child != null) {
                 return PsiElementUtil.stubChildrenOfType(child, RsInnerAttr.class);
@@ -60,7 +60,7 @@ public final class RsInnerAttributeOwnerRegistry {
 
     @Nonnull
     private static Stream<RsAttr> allAttrs(@Nonnull RsDocAndAttributeOwner psi) {
-        AttrInfo info = REG.get(((PsiElement) psi).getNode().getElementType());
+        AttrInfo info = REG.get(PsiElementUtil.getElementTypeOrNull((PsiElement) psi));
         if (info == null || info == AttrInfo.DIRECT) {
             return PsiElementUtil.stubChildrenOfType(psi, RsAttr.class).stream();
         }

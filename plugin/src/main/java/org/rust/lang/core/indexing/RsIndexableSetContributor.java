@@ -5,16 +5,19 @@
 
 package org.rust.lang.core.indexing;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.language.psi.stub.IndexableSetContributor;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.macros.MacroExpansionManager;
+import org.rust.lang.core.macros.MacroExpansionManagerUtil;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+@ExtensionImpl
 public class RsIndexableSetContributor extends IndexableSetContributor {
 
     @Nonnull
@@ -28,7 +31,7 @@ public class RsIndexableSetContributor extends IndexableSetContributor {
     public Set<VirtualFile> getAdditionalProjectRootsToIndex(@Nonnull Project project) {
         HashSet<VirtualFile> additionalProjectRootsToIndex = new HashSet<>();
 
-        MacroExpansionManager manager = project.getInstance(MacroExpansionManager.class);
+        MacroExpansionManager manager = MacroExpansionManagerUtil.getMacroExpansionManagerIfCreated(project);
         if (manager != null) {
             VirtualFile dir = manager.getIndexableDirectory();
             if (dir != null) {

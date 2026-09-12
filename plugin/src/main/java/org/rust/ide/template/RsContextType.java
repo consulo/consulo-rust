@@ -5,31 +5,34 @@
 
 package org.rust.ide.template;
 
+import consulo.language.editor.highlight.SyntaxHighlighter;
 import consulo.language.editor.template.context.BaseTemplateContextType;
 import consulo.language.editor.template.context.TemplateActionContext;
 import consulo.language.editor.template.context.TemplateContextType;
-import consulo.language.editor.highlight.SyntaxHighlighter;
 import consulo.language.psi.PsiComment;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
-import consulo.language.psi.util.PsiTreeUtil;
 import consulo.language.psi.PsiUtilCore;
-import org.rust.RsBundle;
+import consulo.language.psi.util.PsiTreeUtil;
+import consulo.localize.LocalizeValue;
+import jakarta.annotation.Nullable;
 import org.rust.ide.highlight.RsHighlighter;
 import org.rust.lang.RsLanguage;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.doc.psi.RsDocComment;
-import org.rust.lang.core.psi.ext.RsMod;
 
+/**
+ * Base live template context type for Rust: accepts an offset only when the
+ * language at that offset is Rust and the element there is neither a comment
+ * nor part of a literal expression. Concrete subtypes narrow it further.
+ */
 public abstract class RsContextType extends BaseTemplateContextType {
 
-    protected RsContextType(String contextId, String presentableName) {
-        super(contextId, consulo.localize.LocalizeValue.of(presentableName));
-    }
-
-    protected RsContextType(String presentableName) {
-        super(presentableName, consulo.localize.LocalizeValue.of(presentableName));
+    protected RsContextType(String contextId,
+                            LocalizeValue presentableName,
+                            @Nullable Class<? extends TemplateContextType> baseContextType) {
+        super(contextId, presentableName, baseContextType);
     }
 
     @Override
@@ -53,95 +56,15 @@ public abstract class RsContextType extends BaseTemplateContextType {
         return new RsHighlighter();
     }
 
-    private static PsiElement owner(PsiElement element) {
+    /**
+     * Closest ancestor which delimits a template context: a block, a pattern,
+     * an item, an attribute, a doc comment or a macro.
+     */
+    @Nullable
+    protected static PsiElement owner(PsiElement element) {
         return PsiTreeUtil.findFirstParent(element, e ->
             e instanceof RsBlock || e instanceof RsPat || e instanceof RsItemElement || e instanceof PsiFile
                 || e instanceof RsAttr || e instanceof RsDocComment || e instanceof RsMacro || e instanceof RsMacroCall
         );
-    }
-
-    public static class Generic extends RsContextType {
-        public Generic() {
-            super(RsBundle.message("label.rust"));
-        }
-
-        @Override
-        protected boolean isInContext(PsiElement element) {
-            return true;
-        }
-    }
-
-    public static class Statement extends RsContextType {
-        public Statement() {
-            super(RsBundle.message("label.statement"));
-        }
-
-        @Override
-        protected boolean isInContext(PsiElement element) {
-            RsExprStmt stmt = PsiTreeUtil.getParentOfType(element, RsExprStmt.class, true);
-            if (stmt == null) return false;
-            return element.getTextRange().getStartOffset() == stmt.getTextRange().getStartOffset();
-        }
-    }
-
-    public static class Expression extends RsContextType {
-        public Expression() {
-            super(RsBundle.message("label.expression"));
-        }
-
-        @Override
-        protected boolean isInContext(PsiElement element) {
-            if (!(owner(element) instanceof RsBlock)) return false;
-            PsiElement parent = element.getParent();
-            if (parent instanceof RsPath && ((RsPath) parent).getColoncolon() != null) return false;
-            if (parent instanceof RsFieldLookup) return false;
-            if (parent instanceof RsMethodCall) return false;
-            if (parent instanceof RsLabel) return false;
-            return true;
-        }
-    }
-
-    public static class Item extends RsContextType {
-        public Item() {
-            super(RsBundle.message("label.item"));
-        }
-
-        @Override
-        protected boolean isInContext(PsiElement element) {
-            return owner(element) instanceof RsItemElement;
-        }
-    }
-
-    public static class Struct extends RsContextType {
-        public Struct() {
-            super(RsBundle.message("label.structure"));
-        }
-
-        @Override
-        protected boolean isInContext(PsiElement element) {
-            return PsiTreeUtil.getParentOfType(element, RsStructItem.class, true) != null;
-        }
-    }
-
-    public static class Mod extends RsContextType {
-        public Mod() {
-            super(RsBundle.message("label.module"));
-        }
-
-        @Override
-        protected boolean isInContext(PsiElement element) {
-            return owner(element) instanceof RsMod;
-        }
-    }
-
-    public static class Attribute extends RsContextType {
-        public Attribute() {
-            super(RsBundle.message("label.attribute"));
-        }
-
-        @Override
-        protected boolean isInContext(PsiElement element) {
-            return PsiTreeUtil.getParentOfType(element, RsAttr.class, true) != null;
-        }
     }
 }

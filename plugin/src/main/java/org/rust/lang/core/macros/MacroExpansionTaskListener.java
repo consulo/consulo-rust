@@ -5,7 +5,11 @@
 
 package org.rust.lang.core.macros;
 
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.TopicAPI;
 
+
+@TopicAPI(value = ComponentScope.PROJECT)
 public interface MacroExpansionTaskListener {
     void onMacroExpansionTaskFinished();
 

@@ -5,12 +5,16 @@
 
 package org.rust.ide.settings;
 
-import consulo.configurable.UnnamedConfigurable;
+import consulo.annotation.component.ExtensionImpl;
 import consulo.configurable.ConfigurationException;
+import consulo.configurable.ProjectConfigurable;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.ex.awt.JBCheckBox;
 import consulo.ui.ex.awt.VerticalFlowLayout;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+import jakarta.inject.Inject;
 import org.rust.RsBundle;
 
 import javax.swing.Box;
@@ -18,11 +22,11 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 /**
- * Auto-import settings panel for Rust. Simplified port — the IntelliJ version used
- * UiDslUnnamedConfigurable.Simple and the kotlin-ui-dsl `bind` API; here we
- * build the same checkboxes + exclude-table with plain Swing.
+ * Rust page of the editor "Auto Import" settings group: the four auto-import
+ * toggles plus the table of paths excluded from import and completion.
  */
-public class RsAutoImportOptions implements UnnamedConfigurable {
+@ExtensionImpl
+public class RsAutoImportOptions implements ProjectConfigurable {
 
     private final RsPathsExcludeTable excludeTable;
     private JBCheckBox showImportPopup;
@@ -30,8 +34,27 @@ public class RsAutoImportOptions implements UnnamedConfigurable {
     private JBCheckBox importOnPaste;
     private JBCheckBox addUnambiguousImportsOnTheFly;
 
+    @Inject
     public RsAutoImportOptions(@Nonnull Project project) {
         this.excludeTable = new RsPathsExcludeTable(project);
+    }
+
+    @Nonnull
+    @Override
+    public String getId() {
+        return "editor.preferences.import.rust";
+    }
+
+    @Nullable
+    @Override
+    public String getParentId() {
+        return "editor.preferences.import";
+    }
+
+    @Nonnull
+    @Override
+    public LocalizeValue getDisplayName() {
+        return LocalizeValue.of("Rust");
     }
 
     @Override

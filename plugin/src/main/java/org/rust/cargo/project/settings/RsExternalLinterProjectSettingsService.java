@@ -15,10 +15,18 @@ import org.rust.cargo.toolchain.RustChannel;
 
 import java.util.Collections;
 import java.util.Map;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.annotation.component.ComponentScope;
+import jakarta.inject.Inject;
 
 @State(name = "RsExternalLinterProjectSettings", storages = @Storage(StoragePathMacros.WORKSPACE_FILE))
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
 public class RsExternalLinterProjectSettingsService
     extends RsProjectSettingsServiceBase<RsExternalLinterProjectSettingsService.RsExternalLinterProjectSettings> {
+
+    @Inject
 
     public RsExternalLinterProjectSettingsService(@Nonnull Project project) {
         super(project, new RsExternalLinterProjectSettings());
@@ -39,10 +47,15 @@ public class RsExternalLinterProjectSettingsService
     public boolean getRunOnTheFly() { return getState().runOnTheFly; }
 
     public static class RsExternalLinterProjectSettings extends RsProjectSettingsBase<RsExternalLinterProjectSettings> {
+        @AffectsHighlighting
         public ExternalLinter tool = ExternalLinter.DEFAULT;
+        @AffectsHighlighting
         public String additionalArguments = "";
+        @AffectsHighlighting
         public RustChannel channel = RustChannel.DEFAULT;
+        @AffectsHighlighting
         public Map<String, String> envs = Collections.emptyMap();
+        @AffectsHighlighting
         public boolean runOnTheFly = false;
 
         @Nonnull

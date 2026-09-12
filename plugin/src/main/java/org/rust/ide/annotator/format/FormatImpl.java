@@ -25,6 +25,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.rust.lang.core.psi.RsLiteralKindUtil;
+import consulo.language.ast.ASTNode;
+import consulo.util.lang.Pair;
 
 public final class FormatImpl {
     private static final Pattern FORMAT_PARSER = Pattern.compile("\\{\\{|}}|(\\{([^}]*)}?)|(})");
@@ -48,8 +50,8 @@ public final class FormatImpl {
         if (!(kind instanceof RsLiteralKind.StringLiteral)) return null;
         RsLiteralKind.StringLiteral literalKind = (RsLiteralKind.StringLiteral) kind;
 
-        if (RsTokenType.RS_BYTE_STRING_LITERALS.contains(literalKind.getNode().getElementType())) return null;
-        if (RsTokenType.RS_CSTRING_LITERALS.contains(literalKind.getNode().getElementType())) return null;
+        if (RsTokenSets.RS_BYTE_STRING_LITERALS.contains(literalKind.getNode().getElementType())) return null;
+        if (RsTokenSets.RS_CSTRING_LITERALS.contains(literalKind.getNode().getElementType())) return null;
 
         TextRange rawTextRange = literalKind.getOffsets().getValue();
         if (rawTextRange == null) return null;
@@ -278,7 +280,7 @@ public final class FormatImpl {
     @Nullable
     public static String getArgName(@Nonnull RsFormatMacroArg arg) {
         if (arg.getEq() == null) return null;
-        consulo.language.ast.ASTNode identNode = arg.getNode().findChildByType(RsTokenType.RS_IDENTIFIER_TOKENS);
+        ASTNode identNode = arg.getNode().findChildByType(RsTokenSets.RS_IDENTIFIER_TOKENS);
         return identNode != null ? identNode.getText() : null;
     }
 

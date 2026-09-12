@@ -12,7 +12,9 @@ import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.RsMacroCall;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.ext.RsMacroCallUtil;
+import consulo.annotation.component.ExtensionImpl;
 
+@ExtensionImpl
 public class RsMacroCallManipulator extends AbstractElementManipulator<RsMacroCall> {
 
     @Override

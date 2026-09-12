@@ -17,6 +17,8 @@ import org.rust.lang.core.types.Substitution;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.rust.ide.presentation.RsPsiRendererUtil;
+import org.rust.lang.core.psi.ext.RsFieldsOwnerExtUtil;
 
 public class StructMember {
     @Nonnull

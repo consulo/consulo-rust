@@ -13,6 +13,7 @@ import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsExpr;
 import org.rust.lang.core.psi.RsPsiFactory;
 import org.rust.lang.core.psi.RsUnaryExpr;
+import consulo.localize.LocalizeValue;
 
 public class ReplaceBoxSyntaxFix extends RsQuickFixBase<RsUnaryExpr> {
 

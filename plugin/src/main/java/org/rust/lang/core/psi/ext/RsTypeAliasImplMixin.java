@@ -23,6 +23,7 @@ import org.rust.lang.core.types.ty.Ty;
 import javax.swing.*;
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsVisibilityUtil;
+import consulo.ui.image.Image;
 
 public abstract class RsTypeAliasImplMixin extends RsStubbedNamedElementImpl<RsTypeAliasStub> implements RsTypeAlias {
 

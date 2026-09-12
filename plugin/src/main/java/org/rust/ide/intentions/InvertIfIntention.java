@@ -31,6 +31,10 @@ import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsFunctionOrLambda;
 import org.rust.lang.core.psi.ext.RsLooplikeExpr;
+import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.ext.BinaryOperator;
+import org.rust.lang.core.psi.ext.LogicOp;
+import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
 
 public class InvertIfIntention extends RsElementBaseIntentionAction<InvertIfIntention.Context> {
     @Nonnull

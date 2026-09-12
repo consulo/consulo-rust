@@ -5,6 +5,8 @@
 
 package org.rust.ide.annotator;
 
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.editor.HighlightRangeExtension;
 import consulo.language.editor.inspection.ProblemHighlightType;
 import consulo.language.editor.annotation.AnnotationHolder;
 import consulo.language.editor.annotation.AnnotationSession;
@@ -22,6 +24,7 @@ import org.rust.RsBundle;
 import org.rust.cargo.project.workspace.CargoWorkspace;
 import org.rust.cargo.project.workspace.PackageOrigin;
 import org.rust.ide.fixes.*;
+import org.rust.ide.fixes.MakePublicFix;
 import org.rust.lang.core.CompilerFeature;
 import org.rust.lang.core.FeatureAvailability;
 import org.rust.lang.core.FeatureState;
@@ -31,13 +34,11 @@ import org.rust.lang.core.macros.proc.ProcMacroApplicationService;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.resolve.Namespace;
-import org.rust.lang.core.resolve.ref.RsReferenceExtUtil;
 import org.rust.lang.core.types.BoundElement;
 import org.rust.lang.core.resolve.ImplLookup;
 import org.rust.lang.core.types.RsCallable;
 import org.rust.lang.core.types.TraitRef;
 import org.rust.lang.core.types.infer.TypeInference;
-import org.rust.lang.core.types.TypeInferenceExtUtil;
 import org.rust.lang.core.types.ty.*;
 import org.rust.lang.utils.RsDiagnostic;
 import org.rust.lang.utils.RsErrorCode;
@@ -53,8 +54,20 @@ import org.rust.lang.core.psi.ext.RsPathUtil;
 import org.rust.lang.core.psi.ext.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.types.RsTypesUtil;
+import consulo.language.ast.ASTNode;
+import consulo.language.editor.annotation.AnnotationBuilder;
+import org.rust.lang.core.psi.ext.ComparisonOp;
+import org.rust.lang.core.psi.ext.EqualityOp;
+import org.rust.lang.core.resolve.ref.RsReference;
+import org.rust.lang.core.types.infer.FoldUtil;
 
-public class RsErrorAnnotator extends AnnotatorBase {
+@ExtensionImpl
+public class RsErrorAnnotator extends AnnotatorBase implements HighlightRangeExtension {
+
+    @Override
+    public boolean isForceHighlightParents(@Nonnull PsiFile file) {
+        return file instanceof RsFile;
+    }
 
     @Override
     protected void annotateInternal(@Nonnull PsiElement element, @Nonnull AnnotationHolder holder) {
@@ -303,7 +316,70 @@ public class RsErrorAnnotator extends AnnotatorBase {
     }
 
     private void checkReferenceIsPublic(RsReferenceElement ref, RsElement o, RsAnnotationHolder holder) {
-        // Simplified visibility check
+        RsReference reference = ref.getReference();
+        if (reference == null) return;
+        PsiElement highlightedElement = ref.getReferenceNameElement();
+        if (highlightedElement == null) return;
+        String referenceName = ref.getReferenceName();
+        if (referenceName == null) return;
+
+        PsiElement resolved;
+        if (ref instanceof RsStructLiteralField) {
+            resolved = null;
+            for (PsiElement candidate : reference.multiResolve()) {
+                if (candidate instanceof RsVisible) {
+                    resolved = candidate;
+                    break;
+                }
+            }
+        } else {
+            resolved = reference.resolve();
+        }
+        if (!(resolved instanceof RsVisible resolvedElement)) return;
+
+        RsMod oMod = RsElementUtil.contextStrict(o, RsMod.class);
+        if (oMod == null) return;
+        if (resolvedElement.isVisibleFrom(oMod)) return;
+
+        boolean withinOneCrate = RsElementUtil.getCrateRoot(resolvedElement) == RsElementUtil.getCrateRoot(o);
+
+        RsVisibilityOwner element;
+        if (resolvedElement instanceof RsVisibilityOwner owner) {
+            element = owner;
+        } else if (resolvedElement instanceof RsFile file) {
+            element = file.getDeclaration();
+        } else {
+            element = null;
+        }
+        if (element == null) return;
+
+        RsDiagnostic error;
+        if (element instanceof RsNamedFieldDecl field) {
+            RsStructItem struct = RsElementUtil.ancestorStrict(field, RsStructItem.class);
+            String crateRelativePath = struct != null ? struct.getCrateRelativePath() : null;
+            String structName = crateRelativePath == null ? "" :
+                (crateRelativePath.startsWith("::") ? crateRelativePath.substring(2) : crateRelativePath);
+            error = new RsDiagnostic.StructFieldAccessError(
+                highlightedElement, referenceName, structName,
+                MakePublicFix.createIfCompatible(field, field.getName(), withinOneCrate));
+        } else if (ref instanceof RsMethodCall) {
+            error = new RsDiagnostic.AccessError(
+                highlightedElement, E0624, "Method",
+                MakePublicFix.createIfCompatible(element, referenceName, withinOneCrate));
+        } else {
+            String itemType = element instanceof RsItemElement item
+                ? capitalize(item.getItemKindName())
+                : "Item";
+            error = new RsDiagnostic.AccessError(
+                highlightedElement, E0603, itemType,
+                MakePublicFix.createIfCompatible(element, referenceName, withinOneCrate));
+        }
+        RsDiagnostic.addToHolder(error, holder);
+    }
+
+    @Nonnull
+    private static String capitalize(@Nonnull String text) {
+        return text.isEmpty() ? text : Character.toUpperCase(text.charAt(0)) + text.substring(1);
     }
 
     private void checkPath(RsAnnotationHolder holder, RsPath path) {
@@ -327,11 +403,35 @@ public class RsErrorAnnotator extends AnnotatorBase {
     }
 
     private void checkTypeArgumentList(RsAnnotationHolder holder, RsTypeArgumentList args) {
-        // Simplified check
+        checkRedundantColonColon(holder, args);
     }
 
     private void checkValueParameterList(RsAnnotationHolder holder, RsValueParameterList args) {
-        // Simplified check
+        checkRedundantColonColon(holder, args);
+    }
+
+    /**
+     * {@code ::} is redundant in type position, as in {@code Vec::<i32>}. Note that {@code ::(i32) -> i32}
+     * in {@code Fn::(i32) -> i32} is parsed as a {@link RsValueParameterList}, so the token is looked up
+     * through the AST to cover both element types.
+     */
+    private static void checkRedundantColonColon(RsAnnotationHolder holder, RsElement args) {
+        ASTNode node = args.getNode().findChildByType(RsElementTypes.COLONCOLON);
+        if (node == null) return;
+        PsiElement coloncolon = node.getPsi();
+        if (!isTypePart(args)) return;
+        AnnotationBuilder annotation = holder.newWeakWarningAnnotation(
+            coloncolon, RsBundle.message("inspection.message.redundant"), new RemoveElementFix(coloncolon));
+        if (annotation == null) return;
+        annotation.highlightType(ProblemHighlightType.LIKE_UNUSED_SYMBOL).create();
+    }
+
+    private static boolean isTypePart(RsElement args) {
+        for (PsiElement ancestor = args.getParent(); ancestor != null; ancestor = ancestor.getParent()) {
+            if (ancestor instanceof RsExpr) return false;
+            if (ancestor instanceof RsTypeReference || ancestor instanceof RsTraitRef) return true;
+        }
+        return false;
     }
 
     private void checkValueArgumentList(RsAnnotationHolder holder, RsValueArgumentList args) {
@@ -339,7 +439,10 @@ public class RsErrorAnnotator extends AnnotatorBase {
     }
 
     private void checkLetDecl(RsAnnotationHolder holder, RsLetDecl letDecl) {
-        // Simplified check
+        RsPat pat = letDecl.getPat();
+        if (letDecl.getLetElseBranch() != null && pat != null && RsPatUtil.isIrrefutable(pat)) {
+            CompilerFeature.getIRREFUTABLE_LET_PATTERNS().check(holder, pat, RsBundle.message("irrefutable.let.pattern"));
+        }
     }
 
     private void checkLetElseBranch(RsAnnotationHolder holder, RsLetElseBranch elseBranch) {
@@ -347,7 +450,18 @@ public class RsErrorAnnotator extends AnnotatorBase {
     }
 
     private void checkLetExpr(RsAnnotationHolder holder, RsLetExpr element) {
-        // Simplified check
+        PsiElement parent = element.getParent();
+        if (!(parent instanceof RsCondition) && !(parent instanceof RsMatchArmGuard)) {
+            CompilerFeature.getLET_CHAINS().check(holder, element, null,
+                RsBundle.message("inspection.message.let.expressions.in.this.position.are.unstable"),
+                RsBundle.message("inspection.message.let.expressions.in.this.position.are.unstable"),
+                java.util.Collections.emptyList(), java.util.Collections.emptyList());
+        }
+
+        RsPat pat = element.getPat();
+        if (pat != null && RsPatUtil.isIrrefutable(pat)) {
+            CompilerFeature.getIRREFUTABLE_LET_PATTERNS().check(holder, pat, RsBundle.message("irrefutable.let.pattern"));
+        }
     }
 
     private void checkFieldLookup(RsAnnotationHolder holder, RsFieldLookup field) {
@@ -413,23 +527,46 @@ public class RsErrorAnnotator extends AnnotatorBase {
     }
 
     private void checkMatchArmGuard(RsAnnotationHolder holder, RsMatchArmGuard guard) {
-        // Simplified check
+        RsExpr expr = guard.getExpr();
+        if (expr instanceof RsLetExpr) {
+            CompilerFeature.getIF_LET_GUARD().check(holder, ((RsLetExpr) expr).getLet(), RsBundle.message("if.let.guard"));
+        }
     }
 
     private void checkPolybound(RsAnnotationHolder holder, RsPolybound o) {
-        // Simplified check
+        if (o.getLparen() != null && o.getBound().getLifetime() != null) {
+            holder.createErrorAnnotation(o, RsBundle.message("inspection.message.parenthesized.lifetime.bounds.are.not.supported"));
+        }
     }
 
     private void checkTildeConst(RsAnnotationHolder holder, RsTildeConst o) {
         CompilerFeature.getCONST_TRAIT_IMPL().check(holder, o, RsBundle.message("const.trait.impls"));
+        CompilerFeature.getCONST_FN_TRAIT_BOUND().check(holder, o, RsBundle.message("const.fn.trait.bound"));
     }
 
     private void checkBlockExpr(RsAnnotationHolder holder, RsBlockExpr expr) {
-        // Simplified check
+        RsLabelDecl label = expr.getLabelDecl();
+        if (label != null) {
+            CompilerFeature.getLABEL_BREAK_VALUE().check(holder, label, RsBundle.message("label.on.block"));
+        }
+
+        PsiElement constKw = expr.getConst();
+        if (constKw != null) {
+            if (expr.getParent() instanceof RsPat) {
+                CompilerFeature.getINLINE_CONST_PAT().check(holder, constKw, RsBundle.message("inline.const.pat"));
+            } else {
+                CompilerFeature.getINLINE_CONST().check(holder, constKw, RsBundle.message("inline.const"));
+            }
+        }
     }
 
     private void checkRangeExpr(RsAnnotationHolder holder, RsRangeExpr range) {
-        // Simplified check
+        PsiElement dotdotdot = range.getDotdotdot();
+        if (dotdotdot != null) {
+            // rustc has no error code for this ("error: unexpected token: `...`")
+            holder.createErrorAnnotation(dotdotdot,
+                RsBundle.message("inspection.message.syntax.deprecated.use.for.exclusive.range.or.for.inclusive.range"));
+        }
     }
 
     private void checkLitExpr(RsAnnotationHolder holder, RsLitExpr expr) {
@@ -437,7 +574,9 @@ public class RsErrorAnnotator extends AnnotatorBase {
     }
 
     private void checkLambdaExpr(RsAnnotationHolder holder, RsLambdaExpr expr) {
-        // Simplified check
+        PsiElement constKw = expr.getConst();
+        if (constKw == null) return;
+        CompilerFeature.getCONST_CLOSURES().check(holder, constKw, RsBundle.message("const.closures"));
     }
 
     private void checkBreakExpr(RsAnnotationHolder holder, RsBreakExpr expr) {
@@ -453,11 +592,26 @@ public class RsErrorAnnotator extends AnnotatorBase {
     }
 
     private void checkUnary(RsAnnotationHolder holder, RsUnaryExpr o) {
-        // Simplified check
+        PsiElement box = o.getBox();
+        if (box != null) {
+            ReplaceBoxSyntaxFix fix = new ReplaceBoxSyntaxFix(o);
+            CompilerFeature.getBOX_SYNTAX().check(holder, box, RsBundle.message("box.expression.syntax"),
+                java.util.Collections.emptyList(), java.util.Collections.singletonList(fix));
+        }
     }
 
     private void checkBinary(RsAnnotationHolder holder, RsBinaryExpr o) {
-        // Simplified check
+        if (isComparisonBinaryExpr(o) && (isComparisonBinaryExpr(o.getLeft()) || isComparisonBinaryExpr(o.getRight()))) {
+            holder.createErrorAnnotation(o,
+                RsBundle.message("inspection.message.chained.comparison.operator.require.parentheses"),
+                new AddTurbofishFix());
+        }
+    }
+
+    private static boolean isComparisonBinaryExpr(@Nullable RsExpr expr) {
+        if (!(expr instanceof RsBinaryExpr)) return false;
+        Object op = RsBinaryOpUtil.getOperatorType(((RsBinaryExpr) expr).getBinaryOp());
+        return op instanceof ComparisonOp || op instanceof EqualityOp;
     }
 
     private void checkExternAbi(RsAnnotationHolder holder, RsExternAbi abi) {
@@ -477,7 +631,18 @@ public class RsErrorAnnotator extends AnnotatorBase {
     }
 
     private void checkInferType(RsAnnotationHolder holder, RsInferType type) {
-        // Simplified check
+        PsiElement owner = RsTypeReferenceUtil.getOwner(type).getParent();
+        if (owner == null) return;
+        PsiElement ownerParent = owner.getParent();
+        PsiElement ownerGrandParent = ownerParent != null ? ownerParent.getParent() : null;
+        boolean forbidden = (owner instanceof RsValueParameter && ownerGrandParent instanceof RsFunction)
+            || (owner instanceof RsRetType && ownerParent instanceof RsFunction)
+            || owner instanceof RsConstant
+            || (owner instanceof RsFieldDecl
+                && (ownerGrandParent instanceof RsStructItem || ownerGrandParent instanceof RsEnumVariant));
+        if (forbidden) {
+            RsDiagnostic.addToHolder(new RsDiagnostic.TypePlaceholderForbiddenError(type), holder);
+        }
     }
 
     private void checkDuplicateImport(RsAnnotationHolder holder, RsUseSpeck useSpeck) {
@@ -489,7 +654,13 @@ public class RsErrorAnnotator extends AnnotatorBase {
     }
 
     private void checkExternCrate(RsAnnotationHolder holder, RsExternCrateItem externCrate) {
-        // Simplified check
+        if (externCrate.getSelf() == null) return;
+        CompilerFeature.getEXTERN_CRATE_SELF().check(holder, externCrate, RsBundle.message("extern.crate.self"));
+        if (externCrate.getAlias() == null) {
+            // rustc says "`extern crate self;` requires renaming", which is rather unclear
+            holder.createErrorAnnotation(externCrate,
+                RsBundle.message("inspection.message.extern.crate.self.requires.as.name"));
+        }
     }
 
     private void checkCallExpr(RsAnnotationHolder holder, RsCallExpr o) {
@@ -517,7 +688,22 @@ public class RsErrorAnnotator extends AnnotatorBase {
     }
 
     private static void checkEmptyFunctionReturnType(RsAnnotationHolder holder, RsFunction fn) {
-        // Simplified check
+        RsBlock block = RsFunctionUtil.getBlock(fn);
+        if (block == null) return;
+        PsiElement rbrace = block.getRbrace();
+        if (rbrace == null) return;
+        Ty returnType = RsFunctionUtil.getNormReturnType(fn);
+        if (returnType instanceof TyInfer.TyVar
+            || returnType instanceof TyUnit
+            || returnType instanceof TyAnon
+            || FoldUtil.containsTyOfClass(returnType, java.util.List.of(TyUnknown.class))) {
+            return;
+        }
+
+        RsBlockUtil.ExpandedStmtsAndTailExpr expanded = RsBlockUtil.getExpandedStmtsAndTailExpr(block);
+        if (expanded.getStatements().isEmpty() && expanded.getTailExpr() == null) {
+            RsDiagnostic.addToHolder(new RsDiagnostic.TypeError(rbrace, returnType, TyUnit.INSTANCE), holder);
+        }
     }
 
     private static void checkRecursiveAsyncFunction(RsAnnotationHolder holder, RsFunction fn) {
@@ -525,7 +711,23 @@ public class RsErrorAnnotator extends AnnotatorBase {
     }
 
     private static void checkParamAttrs(RsAnnotationHolder holder, RsOuterAttributeOwner o) {
-        // Simplified check
+        List<RsOuterAttr> outerAttrs = o.getOuterAttrList();
+        if (outerAttrs.isEmpty()) return;
+        RsOuterAttr startElement = outerAttrs.get(0);
+        RsOuterAttr endElement = outerAttrs.get(outerAttrs.size() - 1);
+        String message = RsBundle.message("inspection.message.attributes.on.function.parameters.experimental");
+        CompilerFeature paramAttrs = CompilerFeature.getPARAM_ATTRS();
+        FeatureAvailability availability = paramAttrs.availability(startElement);
+        RsDiagnostic diagnostic;
+        if (availability == NOT_AVAILABLE) {
+            diagnostic = new RsDiagnostic.ExperimentalFeature(startElement, endElement, message, java.util.Collections.emptyList());
+        } else if (availability == CAN_BE_ADDED) {
+            diagnostic = new RsDiagnostic.ExperimentalFeature(startElement, endElement, message,
+                java.util.Collections.singletonList(paramAttrs.addFeatureFix(startElement)));
+        } else {
+            return;
+        }
+        RsDiagnostic.addToHolder(diagnostic, holder);
     }
 
     private static void checkDuplicates(

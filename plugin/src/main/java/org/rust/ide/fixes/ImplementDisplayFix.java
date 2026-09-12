@@ -26,6 +26,7 @@ import org.rust.lang.core.resolve.KnownItems;
 import org.rust.lang.core.resolve.NameResolution;
 
 import java.util.Objects;
+import consulo.localize.LocalizeValue;
 
 public class ImplementDisplayFix extends RsQuickFixBase<RsStructOrEnumItemElement> {
 

@@ -18,6 +18,7 @@ import org.rust.lang.core.types.ty.Ty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import consulo.language.editor.inspection.FileModifier;
 
 /**
  * The fix applies path.derefs dereferences to the expression and then references of the mutability given by

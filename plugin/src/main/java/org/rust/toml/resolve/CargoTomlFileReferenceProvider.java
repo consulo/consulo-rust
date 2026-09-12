@@ -46,6 +46,7 @@ import org.toml.lang.psi.ext.TomlLiteralExt;
 
 import java.util.Arrays;
 import java.util.List;
+import consulo.language.psi.PsiFileSystemItem;
 
 public class CargoTomlFileReferenceProvider extends PsiReferenceProvider {
     private static final List<String> TARGET_TABLE_NAMES = Arrays.asList("lib", "bin", "test", "bench", "example");

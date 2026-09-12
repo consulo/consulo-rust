@@ -10,6 +10,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.resolve.Namespace;
 import org.rust.lang.core.resolve2.*;
+import consulo.util.lang.Pair;
 
 /**
  * Memory-optimized implementation of HashMap&lt;String, PerNs&gt;.

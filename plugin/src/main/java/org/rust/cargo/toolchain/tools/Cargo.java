@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.toml.TomlMapper;
-import com.fasterxml.jackson.module.kotlin.KotlinModule;
 import consulo.execution.configuration.EnvironmentVariablesData;
 import consulo.process.cmd.GeneralCommandLine;
 import consulo.process.event.ProcessListener;
@@ -23,7 +22,7 @@ import consulo.application.util.registry.Registry;
 import consulo.application.util.registry.RegistryValue;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.process.cmd.ParametersListUtil;
-import com.intellij.util.net.HttpConfigurable;
+import consulo.http.HttpProxyManager;
 import consulo.util.lang.SemVer;
 import jakarta.annotation.Nullable;
 
@@ -59,6 +58,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import consulo.util.io.FileUtil;
+import org.rust.cargo.project.workspace.FeatureState;
+import org.rust.openapiext.CommandLineExt;
+import org.rust.openapiext.RsProcessExecutionException;
 
 /**
  * A main gateway for executing cargo commands.
@@ -75,7 +79,7 @@ public class Cargo extends RustupComponent {
 
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        .registerModule(new KotlinModule.Builder().build());
+        .registerModule(new ParameterNamesModule());
     private static final TomlMapper TOML_MAPPER = new TomlMapper();
 
     public static final RegistryValue TEST_NOCAPTURE_ENABLED_KEY = Registry.get("org.rust.cargo.test.nocapture");
@@ -95,7 +99,7 @@ public class Cargo extends RustupComponent {
     private static final SemVer RUST_1_62 = ToolchainUtil.parseSemVer("1.62.0");
 
     @Nullable
-    private HttpConfigurable myHttp;
+    private HttpProxyManager myHttp;
 
     public Cargo(RsToolchainBase toolchain, boolean useWrapper) {
         super(useWrapper ? WRAPPER_NAME : NAME, toolchain);
@@ -404,7 +408,7 @@ public class Cargo extends RustupComponent {
             }
         }
         Path nativeHelper = RsPathManager.nativeHelper(getToolchain() instanceof RsWslToolchain);
-        if (nativeHelper != null && USE_BUILD_SCRIPT_WRAPPER.asBoolean()) {
+        if (nativeHelper != null && USE_BUILD_SCRIPT_WRAPPER.asBoolean(true)) {
             envMap.put(RsToolchainBase.RUSTC_WRAPPER, nativeHelper.toString());
         }
 
@@ -689,12 +693,12 @@ public class Cargo extends RustupComponent {
         return true;
     }
 
-    private HttpConfigurable getHttp() {
-        return myHttp != null ? myHttp : HttpConfigurable.getInstance();
+    private HttpProxyManager getHttp() {
+        return myHttp != null ? myHttp : HttpProxyManager.getInstance();
     }
 
     
-    public void setHttp(HttpConfigurable http) {
+    public void setHttp(HttpProxyManager http) {
         myHttp = http;
     }
 

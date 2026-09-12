@@ -6,10 +6,9 @@
 package org.rust.cargo;
 
 import consulo.application.ApplicationManager;
-import com.intellij.openapi.components.Service;
+import jakarta.annotation.Nullable;
 import consulo.document.Document;
 import consulo.document.FileDocumentManager;
-import consulo.document.event.FileDocumentManagerListener;
 import consulo.project.DumbService;
 import consulo.project.Project;
 import consulo.project.ProjectLocator;
@@ -27,10 +26,15 @@ import org.rust.lang.core.psi.RsFile;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.*;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.annotation.component.ComponentScope;
+import consulo.application.WriteAction;
 
-@Service
+@ServiceAPI(ComponentScope.APPLICATION)
+@ServiceImpl
 public final class RustfmtWatcher {
-    private final Set<Document> documentsToReformatLater = ContainerUtil.newConcurrentSet();
+    final Set<Document> documentsToReformatLater = ContainerUtil.newConcurrentSet();
     private boolean isSuppressed = false;
 
     public void withoutReformatting(Runnable action) {
@@ -57,11 +61,13 @@ public final class RustfmtWatcher {
         return ApplicationManager.getApplication().getService(RustfmtWatcher.class);
     }
 
-    private static RustfmtWatcher getInstanceIfCreated() {
-        return ApplicationManager.getApplication().getService(RustfmtWatcher.class);
+    /** Returns the watcher only when it is already loaded, never creating it. */
+    @Nullable
+    static RustfmtWatcher getInstanceIfCreated() {
+        return ApplicationManager.getApplication().getInstanceIfCreated(RustfmtWatcher.class);
     }
 
-    private static CargoProject findCargoProject(Document document) {
+    static CargoProject findCargoProject(Document document) {
         VirtualFile file = FileDocumentManager.getInstance().getFile(document);
         if (file == null) return null;
         Project project = ProjectLocator.getInstance().guessProjectForFile(file);
@@ -69,7 +75,7 @@ public final class RustfmtWatcher {
         return CargoProjectServiceUtil.getCargoProjects(project).findProjectForFile(file);
     }
 
-    private static void reformatDocuments(CargoProject cargoProject, List<Document> documents) {
+    static void reformatDocuments(CargoProject cargoProject, List<Document> documents) {
         Project project = cargoProject.getProject();
         if (!RsProjectSettingsServiceUtil.getRustfmtSettings(project).getRunRustfmtOnSave()) return;
         RsToolchainBase toolchain = RsProjectSettingsServiceUtil.getRustSettings(project).getToolchain();
@@ -90,55 +96,7 @@ public final class RustfmtWatcher {
         consulo.application.WriteAction.run(() -> document.setText(formattedText));
     }
 
-    public static class RustfmtListener implements FileDocumentManagerListener {
-
-        @Override
-        public void beforeAllDocumentsSaving() {
-            RustfmtWatcher watcher = getInstanceIfCreated();
-            if (watcher == null) return;
-            Set<Document> documentsToReformatLater = watcher.documentsToReformatLater;
-            List<Document> documentsToReformat = new ArrayList<>(documentsToReformatLater);
-            documentsToReformatLater.clear();
-
-            Map<CargoProject, List<Document>> grouped = new HashMap<>();
-            for (Document document : documentsToReformat) {
-                CargoProject cargoProject = findCargoProject(document);
-                grouped.computeIfAbsent(cargoProject, k -> new ArrayList<>()).add(document);
-            }
-
-            for (Map.Entry<CargoProject, List<Document>> entry : grouped.entrySet()) {
-                CargoProject cargoProject = entry.getKey();
-                if (cargoProject == null) continue;
-
-                if (DumbService.isDumb(cargoProject.getProject())) {
-                    documentsToReformatLater.addAll(entry.getValue());
-                } else {
-                    reformatDocuments(cargoProject, entry.getValue());
-                }
-            }
-        }
-
-        @Override
-        public void beforeDocumentSaving(Document document) {
-            RustfmtWatcher watcher = getInstanceIfCreated();
-            boolean suppressed = watcher != null && watcher.isSuppressed;
-            if (!suppressed) {
-                CargoProject cargoProject = findCargoProject(document);
-                if (cargoProject == null) return;
-                if (DumbService.isDumb(cargoProject.getProject())) {
-                    getInstance().reformatDocumentLater(document);
-                } else {
-                    reformatDocuments(cargoProject, List.of(document));
-                }
-            }
-        }
-
-        @Override
-        public void unsavedDocumentsDropped() {
-            RustfmtWatcher watcher = getInstanceIfCreated();
-            if (watcher != null) {
-                watcher.documentsToReformatLater.clear();
-            }
-        }
+    boolean isSuppressed() {
+        return isSuppressed;
     }
 }

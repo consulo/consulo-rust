@@ -22,6 +22,7 @@ import javax.swing.*;
 import java.util.List;
 import java.util.stream.Stream;
 import org.rust.lang.core.psi.ext.RsVisibilityUtil;
+import consulo.ui.image.Image;
 
 public abstract class RsFunctionImplMixin extends RsStubbedNamedElementImpl<RsFunctionStub>
     implements RsFunction, RsModificationTrackerOwner {

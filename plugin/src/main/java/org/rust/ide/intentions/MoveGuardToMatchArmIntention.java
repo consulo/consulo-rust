@@ -17,6 +17,7 @@ import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.PsiElementExt;
 import org.rust.lang.core.psi.ext.RsMatchArmGuardUtil;
 import org.rust.openapiext.EditorExt;
+import consulo.localize.LocalizeValue;
 
 public class MoveGuardToMatchArmIntention extends RsElementBaseIntentionAction<MoveGuardToMatchArmIntention.Context> {
     @Nonnull

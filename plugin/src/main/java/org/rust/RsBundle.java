@@ -15,9 +15,7 @@ import java.util.function.Supplier;
 /**
  * Message bundle for the Rust plugin. Loads strings from
  * {@code messages/RsBundle.properties} (and locale-specific variants) via
- * standard {@link ResourceBundle}. The IntelliJ {@code DynamicBundle} base
- * class is not available in Consulo; the interface here is the same subset
- * the rest of the plugin uses.
+ * standard {@link ResourceBundle}.
  */
 public final class RsBundle {
     public static final String BUNDLE = "messages.RsBundle";
