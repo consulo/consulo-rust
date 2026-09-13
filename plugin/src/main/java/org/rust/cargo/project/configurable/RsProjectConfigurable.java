@@ -5,48 +5,29 @@
 
 package org.rust.cargo.project.configurable;
 
-import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.annotation.component.ExtensionImpl;
-import consulo.configurable.Configurable;
-import consulo.configurable.ConfigurationException;
+import consulo.configurable.ConfigurableAdapter;
 import consulo.configurable.ProjectConfigurable;
 import consulo.configurable.StandardConfigurableIds;
-import consulo.project.Project;
-import com.intellij.openapi.ui.DialogPanel;
-import consulo.disposer.Disposer;
+import consulo.localize.LocalizeValue;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import jakarta.inject.Inject;
-import org.rust.RsBundle;
-import org.rust.cargo.api.model.CargoProject;
-import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
-import org.rust.cargo.project.settings.ui.RustProjectSettingsPanel;
-import org.rust.cargo.api.settings.RustProjectSettingsService;
-import org.rust.cargo.toolchain.RsToolchainBase;
-import org.rust.openapiext.OpenApiUtil;
+import consulo.rust.localize.RustLocalize;
 
-import java.awt.BorderLayout;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
+/**
+ * The "Rust" node in the settings tree. It carries no settings of its own — the toolchain and the
+ * standard library come from the Rust module extension's SDK, so the pages that do have settings
+ * (Cargo, Rustfmt, external linters) hang off this node as children.
+ */
 @ExtensionImpl
-public class RsProjectConfigurable extends RsConfigurableBase implements ProjectConfigurable, Configurable.NoScroll {
-
+public class RsProjectConfigurable extends ConfigurableAdapter implements ProjectConfigurable {
     /** Settings-tree id other Rust pages hang off as children. */
     public static final String ID = "language.rust";
 
-    private final Path projectDir;
-    private volatile RustProjectSettingsPanel rustProjectSettings;
-
-    @Inject
-    public RsProjectConfigurable(@Nonnull Project project) {
-        super(project, RsBundle.message("settings.rust.toolchain.name"));
-        CargoProject firstProject = CargoProjectServiceUtil.getCargoProjects(project).getAllProjects()
-            .stream().findFirst().orElse(null);
-        this.projectDir = firstProject != null && firstProject.getRootDir() != null
-            ? OpenApiUtil.getPathAsPath(firstProject.getRootDir())
-            : Paths.get(".");
+    @Nonnull
+    @Override
+    public LocalizeValue getDisplayName() {
+        return RustLocalize.settingsRustToolchainName();
     }
 
     @Nonnull
@@ -59,61 +40,5 @@ public class RsProjectConfigurable extends RsConfigurableBase implements Project
     @Override
     public String getParentId() {
         return StandardConfigurableIds.EXECUTION_GROUP;
-    }
-
-    private RustProjectSettingsPanel getRustProjectSettings() {
-        if (rustProjectSettings == null) {
-            rustProjectSettings = new RustProjectSettingsPanel(projectDir, null);
-        }
-        return rustProjectSettings;
-    }
-
-    @Nonnull
-    @Override
-    public DialogPanel createPanel() {
-        RustProjectSettingsPanel settingsPanel = getRustProjectSettings();
-        RustProjectSettingsService settings = RsProjectSettingsServiceUtil.getRustSettings(project);
-
-        DialogPanel panel = new DialogPanel(new BorderLayout());
-        panel.add(settingsPanel.getComponent(), BorderLayout.NORTH);
-
-        panel.bind(
-            () -> settingsPanel.setData(currentData(settings)),
-            () -> {
-                RustProjectSettingsPanel.Data data = settingsPanel.getData();
-                settings.modify(state -> {
-                    RsToolchainBase toolchain = data.getToolchain();
-                    state.toolchainHomeDirectory = toolchain != null ? toolchain.getLocation().toString() : null;
-                    state.explicitPathToStdlib = data.getExplicitPathToStdlib();
-                });
-            },
-            () -> !settingsPanel.getData().equals(currentData(settings)));
-
-        settingsPanel.loadToolchains();
-        return panel;
-    }
-
-    @Nonnull
-    private static RustProjectSettingsPanel.Data currentData(@Nonnull RustProjectSettingsService settings) {
-        return new RustProjectSettingsPanel.Data(RsToolchainLocator.load(settings.getState()), settings.getExplicitPathToStdlib());
-    }
-
-    @Override
-    public void disposeUIResources() {
-        super.disposeUIResources();
-        RustProjectSettingsPanel panel = rustProjectSettings;
-        if (panel != null) {
-            rustProjectSettings = null;
-            Disposer.dispose(panel);
-        }
-    }
-
-    @Override
-    public void apply() throws ConfigurationException {
-        RustProjectSettingsPanel panel = rustProjectSettings;
-        if (panel != null) {
-            panel.validateSettings();
-        }
-        super.apply();
     }
 }

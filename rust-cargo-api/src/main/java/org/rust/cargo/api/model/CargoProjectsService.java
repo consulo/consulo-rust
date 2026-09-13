@@ -58,6 +58,14 @@ public interface CargoProjectsService {
      */
     boolean attachCargoProject(@Nonnull Path manifest);
 
+    /**
+     * Like {@link #attachCargoProject}, but hands back the refresh that registers the project, so a
+     * caller can wait for it. Attaching is asynchronous: until the returned future completes,
+     * {@link #findProjectForFile} still answers {@code null} for files of the new project.
+     */
+    @Nonnull
+    java.util.concurrent.CompletableFuture<?> attachCargoProjectAsync(@Nonnull Path manifest);
+
     void attachCargoProjects(@Nonnull Path... manifests);
 
     void detachCargoProject(@Nonnull CargoProject cargoProject);

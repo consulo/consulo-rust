@@ -21,6 +21,7 @@ import jakarta.annotation.Nonnull;
  */
 public class RustNewModuleSetupStep<C extends RustNewModuleWizardContext> extends UnifiedProjectOrModuleNameStep<C> {
     private BundleBox myBundleBox;
+    private consulo.ui.RadioGroup<Boolean> myCrateTypeGroup;
 
     public RustNewModuleSetupStep(@Nonnull C context) {
         super(context);
@@ -39,6 +40,14 @@ public class RustNewModuleSetupStep<C extends RustNewModuleWizardContext> extend
         ComboBox<BundleBox.BundleBoxItem> component = myBundleBox.getComponent();
         builder.addLabeled(LocalizeValue.localizeTODO("Toolchain:"), component);
         component.selectFirst();
+
+        // cargo init offers exactly two crate kinds; the choice drives --bin vs --lib
+        myCrateTypeGroup = consulo.ui.RadioGroup.create();
+        consulo.ui.layout.HorizontalLayout crateTypeLayout = consulo.ui.layout.HorizontalLayout.create();
+        crateTypeLayout.add(myCrateTypeGroup.newButton(LocalizeValue.localizeTODO("Binary"), Boolean.TRUE));
+        crateTypeLayout.add(myCrateTypeGroup.newButton(LocalizeValue.localizeTODO("Library"), Boolean.FALSE));
+        myCrateTypeGroup.setValue(Boolean.TRUE);
+        builder.addLabeled(LocalizeValue.localizeTODO("Crate type:"), crateTypeLayout);
     }
 
     @Override
@@ -47,5 +56,7 @@ public class RustNewModuleSetupStep<C extends RustNewModuleWizardContext> extend
 
         BundleBox.BundleBoxItem selectedItem = myBundleBox.getComponent().getValue();
         context.setToolchainBundle(selectedItem == null ? null : selectedItem.getBundle());
+        Boolean binary = myCrateTypeGroup == null ? null : myCrateTypeGroup.getValue();
+        context.setBinary(binary == null || binary);
     }
 }

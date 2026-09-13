@@ -124,13 +124,20 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
         Set<VirtualFile> visited = new HashSet<>();
         List<Map.Entry<CargoWorkspace.Package, CargoProjectImpl>> lowPriority = new ArrayList<>();
 
+        consulo.logging.Logger DIAG = consulo.logging.Logger.getInstance("CARGODIAG");
         BiConsumer<VirtualFile, CargoProjectImpl> put = (file, cargoProject) -> {
-            if (file == null || !visited.add(file)) return;
+            if (file == null) { DIAG.warn("CARGODIAG put SKIPPED null dir"); return; }
+            if (!visited.add(file)) return;
+            DIAG.warn("CARGODIAG put " + file.getPath());
             index.putInfo(file, cargoProject);
         };
 
         BiConsumer<CargoWorkspace.Package, CargoProjectImpl> putPackage = (pkg, cargoProject) -> {
-            put.accept(pkg.getContentRoot(), cargoProject);
+            VirtualFile cr = pkg.getContentRoot();
+            DIAG.warn("CARGODIAG pkg " + pkg.getName() + " origin=" + pkg.getOrigin()
+                + " contentRoot=" + (cr == null ? "NULL" : cr.getPath())
+                + " targets=" + pkg.getTargets().size());
+            put.accept(cr, cargoProject);
             put.accept(pkg.getOutDir(), cargoProject);
             for (VirtualFile additionalRoot : CargoWorkspace.additionalRoots(pkg)) {
                 put.accept(additionalRoot, cargoProject);
@@ -144,9 +151,13 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
         };
 
         for (CargoProjectImpl cargoProject : projects.getCurrentState()) {
-            put.accept(cargoProject.getRootDir(), cargoProject);
+            VirtualFile diagRoot = cargoProject.getRootDir();
+            DIAG.warn("CARGODIAG project manifest=" + cargoProject.getManifest()
+                + " rootDir=" + (diagRoot == null ? "NULL" : diagRoot.getPath()));
+            put.accept(diagRoot, cargoProject);
             CargoWorkspace workspace = cargoProject.getWorkspace();
-            if (workspace == null) continue;
+            if (workspace == null) { DIAG.warn("CARGODIAG workspace is NULL -> no packages indexed"); continue; }
+            DIAG.warn("CARGODIAG workspace packages=" + workspace.getPackages().size());
             for (CargoWorkspace.Package pkg : workspace.getPackages()) {
                 if (pkg.getOrigin() == PackageOrigin.WORKSPACE) {
                     putPackage.accept(pkg, cargoProject);
@@ -191,6 +202,11 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
         if (info == noProjectMarker && canonical != null && !canonical.equals(file)) {
             info = directoryIndex.getInfoForFile(canonical);
         }
+        if (info == noProjectMarker) {
+            consulo.logging.Logger.getInstance("CARGODIAG").warn("CARGODIAG MISS " + file.getPath()
+                + " canonical=" + (canonical == null ? "null" : canonical.getPath())
+                + " projects=" + projects.getCurrentState().size());
+        }
         return info == noProjectMarker ? null : info;
     }
 
@@ -209,7 +225,22 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
     @Override
     public boolean attachCargoProject(@Nonnull Path manifest) {
         if (isExistingProject(projects.getCurrentState(), manifest)) return false;
-        modifyProjects(oldProjects -> {
+        doAttach(manifest);
+        return true;
+    }
+
+    @Nonnull
+    @Override
+    public CompletableFuture<?> attachCargoProjectAsync(@Nonnull Path manifest) {
+        if (isExistingProject(projects.getCurrentState(), manifest)) {
+            return CompletableFuture.completedFuture(projects.getCurrentState());
+        }
+        return doAttach(manifest);
+    }
+
+    @Nonnull
+    private CompletableFuture<List<CargoProjectImpl>> doAttach(@Nonnull Path manifest) {
+        return modifyProjects(oldProjects -> {
             if (isExistingProject(oldProjects, manifest)) {
                 return CompletableFuture.completedFuture(oldProjects);
             }
@@ -217,7 +248,6 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
             newProjects.add(new CargoProjectImpl(manifest, this));
             return doRefresh(newProjects);
         });
-        return true;
     }
 
     @Override

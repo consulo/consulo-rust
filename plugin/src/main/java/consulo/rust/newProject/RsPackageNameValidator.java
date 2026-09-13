@@ -3,7 +3,7 @@
  * found in the LICENSE file.
  */
 
-package org.rust.ide.newProject;
+package consulo.rust.newProject;
 
 
 import jakarta.annotation.Nullable;

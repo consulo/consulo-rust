@@ -15,6 +15,7 @@ import jakarta.annotation.Nullable;
 public class RustNewModuleWizardContext extends NewModuleWizardContextBase {
     @Nullable
     private Sdk myToolchainBundle;
+    private boolean myBinary = true;
 
     public RustNewModuleWizardContext(boolean isNewProject) {
         super(isNewProject);
@@ -27,5 +28,14 @@ public class RustNewModuleWizardContext extends NewModuleWizardContextBase {
 
     public void setToolchainBundle(@Nullable Sdk toolchainBundle) {
         myToolchainBundle = toolchainBundle;
+    }
+
+    /** {@code true} for {@code cargo init --bin}, {@code false} for {@code --lib}. */
+    public boolean isBinary() {
+        return myBinary;
+    }
+
+    public void setBinary(boolean binary) {
+        myBinary = binary;
     }
 }
