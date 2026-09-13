@@ -9,6 +9,8 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.language.icon.IconDescriptor;
 import consulo.language.icon.IconDescriptorUpdater;
 import consulo.language.psi.PsiElement;
+import consulo.platform.base.icon.PlatformIconGroup;
+import consulo.ui.image.ImageEffects;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.RsConstant;
 import org.rust.lang.core.psi.RsEnumItem;
@@ -38,7 +40,8 @@ import org.rust.cargo.api.workspace.CargoWorkspace;
  */
 @ExtensionImpl
 public class RsIconDescriptorUpdater implements IconDescriptorUpdater {
-
+    public static final Image RUST_MAIN = ImageEffects.layered(RustIconGroup.rustfile(), PlatformIconGroup.nodesRunnablemark());
+    
     @Override
     public void updateIcon(@Nonnull IconDescriptor iconDescriptor, @Nonnull PsiElement element, int flags) {
         if (element instanceof RsFunction) {
@@ -84,10 +87,10 @@ public class RsIconDescriptorUpdater implements IconDescriptorUpdater {
     private static Image fileIcon(@Nonnull RsFile file) {
         String name = file.getName();
         if (RsConstants.MOD_RS_FILE.equals(name)) {
-            return RustIconGroup.rustmod();
+            // i think we not need it
         }
         if ((RsConstants.MAIN_RS_FILE.equals(name) || RsConstants.LIB_RS_FILE.equals(name)) && file.isCrateRoot()) {
-            return RustIconGroup.rustmain();
+            return RUST_MAIN;
         }
         if (file.isCrateRoot() && file.getCrate().getKind() == CargoWorkspace.TargetKind.CustomBuild.INSTANCE) {
             return RustIconGroup.rustbuild();

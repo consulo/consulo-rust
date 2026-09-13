@@ -21,8 +21,6 @@ public final class RsIcons {
     public static final Image RUST = RustIconGroup.rust();
 
     public static final Image RUST_FILE = RustIconGroup.rustfile();
-    public static final Image MAIN_RS = RustIconGroup.rustmain();
-    public static final Image MOD_RS = RustIconGroup.rustmod();
 
     public static final Image FINAL_MARK = AllIcons.Nodes.FinalMark;
     public static final Image STATIC_MARK = AllIcons.Nodes.StaticMark;
