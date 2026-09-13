@@ -6,8 +6,7 @@
     <vendor>JetBrains</vendor>
 
     <description><![CDATA[
-        Rust language support, ported from
-        <a href="https://github.com/intellij-rust/intellij-rust">intellij-rust</a>.
+        Rust language support
     ]]></description>
 
     <localize>consulo.rust.RustLocalize</localize>
