@@ -6,7 +6,7 @@
 package org.rust.openapiext;
 
 import consulo.container.plugin.PluginManager;
-import com.intellij.util.system.CpuArch;
+import consulo.platform.CpuArchitecture;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -16,7 +16,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
-import consulo.container.boot.ContainerPathManager;
 import consulo.platform.Platform;
 
 public final class RsPathManager {
@@ -42,13 +41,13 @@ public final class RsPathManager {
         String os;
         String binaryName;
 
-        if (consulo.platform.Platform.current().os().isLinux() || isWslToolchain) {
+        if (Platform.current().os().isLinux() || isWslToolchain) {
             os = "linux";
             binaryName = INTELLIJ_RUST_NATIVE_HELPER;
-        } else if (consulo.platform.Platform.current().os().isMac()) {
+        } else if (Platform.current().os().isMac()) {
             os = "macos";
             binaryName = INTELLIJ_RUST_NATIVE_HELPER;
-        } else if (consulo.platform.Platform.current().os().isWindows()) {
+        } else if (Platform.current().os().isWindows()) {
             os = "windows";
             binaryName = INTELLIJ_RUST_NATIVE_HELPER + ".exe";
         } else {
@@ -56,9 +55,10 @@ public final class RsPathManager {
         }
 
         String arch;
-        if (CpuArch.isIntel64()) {
+        CpuArchitecture cpuArchitecture = Platform.current().jvm().arch();
+        if (cpuArchitecture == CpuArchitecture.X86_64) {
             arch = "x86-64";
-        } else if (CpuArch.isArm64()) {
+        } else if (cpuArchitecture == CpuArchitecture.AARCH64) {
             arch = "arm64";
         } else {
             return null;
