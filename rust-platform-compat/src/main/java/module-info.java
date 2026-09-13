@@ -54,7 +54,6 @@ open module consulo.rust.platform.compat {
     exports com.intellij.codeInsight.template.postfix.templates;
     exports com.intellij.codeInsight.template.postfix.templates.editable;
     exports com.intellij.codeInspection.ui;
-    exports com.intellij.execution;
     exports com.intellij.execution.configurations;
     exports com.intellij.execution.console;
     exports com.intellij.execution.process;
