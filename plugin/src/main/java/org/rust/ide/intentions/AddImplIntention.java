@@ -10,9 +10,9 @@ import consulo.project.Project;
 import consulo.language.psi.PsiElement;
 import org.rust.RsBundle;
 import org.rust.ide.utils.PsiInsertionPlace;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.ext.RsStructOrEnumItemElement;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 import consulo.localize.LocalizeValue;
 
 public class AddImplIntention extends RsElementBaseIntentionAction<AddImplIntention.Context> {
@@ -53,6 +53,6 @@ public class AddImplIntention extends RsElementBaseIntentionAction<AddImplIntent
     public void invoke(Project project, Editor editor, Context ctx) {
         PsiElement newImpl = new RsPsiFactory(project).createInherentImplItem(ctx.typeName, ctx.type.getTypeParameterList(), ctx.type.getWhereClause());
         PsiElement insertedImpl = ctx.placeForImpl.insert(newImpl);
-        org.rust.openapiext.Editor.moveCaretToOffset(editor, insertedImpl, insertedImpl.getTextRange().getEndOffset() - 1);
+        org.rust.openapiext.ui.Editor.moveCaretToOffset(editor, insertedImpl, insertedImpl.getTextRange().getEndOffset() - 1);
     }
 }

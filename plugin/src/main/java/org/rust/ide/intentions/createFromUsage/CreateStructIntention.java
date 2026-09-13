@@ -17,7 +17,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.intentions.RsElementBaseIntentionAction;
 import org.rust.ide.utils.PsiInsertionPlace;
-import org.rust.ide.utils.imports.ImportBridge;
+import org.rust.lang.core.imports.ImportBridge;
 import org.rust.ide.utils.template.EditorExt;
 import org.rust.ide.utils.template.RsTemplateBuilder;
 import org.rust.lang.core.psi.*;
@@ -25,18 +25,20 @@ import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyUnknown;
-import org.rust.openapiext.PsiExtUtil;
+import org.rust.openapiext.psi.PsiExtUtil;
 import org.rust.openapiext.SmartPointerUtil;
-import org.rust.lang.core.psi.ext.RsStructLiteralFieldUtil;
+import org.rust.lang.core.psi.ext.impl.RsStructLiteralFieldUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsPathUtil;
-import org.rust.ide.presentation.TypeRendering;
+import org.rust.lang.core.psi.ext.impl.RsPathUtil;
+import org.rust.lang.core.presentation.TypeRendering;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class CreateStructIntention extends RsElementBaseIntentionAction<CreateStructIntention.Context> {
     @Nonnull

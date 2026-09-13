@@ -14,9 +14,9 @@ import consulo.util.lang.CharSequenceSubSequence;
 import org.rust.ide.formatter.impl.RsFmtImplUtil;
 import org.rust.ide.typing.TypingUtil;
 import org.rust.lang.core.psi.RsElementTypes;
-import org.rust.lang.core.psi.RsFile;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
-import org.rust.lang.core.psi.RsTokenSets;
+import org.rust.lang.core.psi.impl.RsFile;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
+import org.rust.lang.core.psi.impl.RsTokenSets;
 import consulo.language.ast.IElementType;
 
 @ExtensionImpl(id = "RsJoinLinesHandler")

@@ -17,9 +17,11 @@ import org.rust.ide.intentions.RsElementBaseIntentionAction;
 import org.rust.ide.utils.PsiInsertionPlace;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
-import org.rust.lang.core.psi.ext.RsEnumItemUtil;
-import org.rust.lang.core.psi.ext.RsPathUtil;
+import org.rust.lang.core.psi.ext.impl.RsEnumItemUtil;
+import org.rust.lang.core.psi.ext.impl.RsPathUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class CreateEnumVariantIntention extends RsElementBaseIntentionAction<CreateEnumVariantIntention.Context> {
     @Nonnull

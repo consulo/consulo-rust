@@ -13,24 +13,24 @@ import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.project.workspace.PackageOrigin;
+import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.ide.fixes.QualifyPathFix;
 import org.rust.ide.inspections.imports.AutoImportFix;
-import org.rust.ide.utils.imports.ImportCandidate;
-import org.rust.lang.core.macros.proc.ProcMacroApplicationService;
+import org.rust.lang.core.imports.ImportCandidate;
+import org.rust.cargo.macros.ProcMacroApplicationService;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsPathUtil;
+import org.rust.lang.core.psi.ext.impl.RsPathUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
 import consulo.localize.LocalizeValue;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
-import org.rust.lang.utils.RsDiagnostic;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @ExtensionImpl
 public class RsUnresolvedReferenceInspection extends RsLocalInspectionTool {
@@ -47,7 +47,7 @@ public class RsUnresolvedReferenceInspection extends RsLocalInspectionTool {
                 if (pathInfo.myIsPathUnresolved || pathInfo.myContext != null) {
                     if (pathInfo.myIsPathUnresolved) {
                         String q = "";
-                        org.rust.lang.core.psi.RsPath qual = org.rust.lang.core.psi.ext.RsPathUtil.getQualifier(path);
+                        org.rust.lang.core.psi.RsPath qual = org.rust.lang.core.psi.ext.impl.RsPathUtil.getQualifier(path);
                         if (qual != null && qual.getReference() != null) {
                             consulo.language.psi.PsiElement rq = qual.getReference().resolve();
                             if (rq == null) {
@@ -58,7 +58,7 @@ public class RsUnresolvedReferenceInspection extends RsLocalInspectionTool {
                                 int n = -1;
                                 if (rq instanceof org.rust.lang.core.psi.ext.RsItemsOwner) {
                                     try {
-                                        n = org.rust.lang.core.psi.ext.RsItemsOwnerUtil
+                                        n = org.rust.lang.core.psi.ext.impl.RsItemsOwnerUtil
                                             .getExpandedItemsCached((org.rust.lang.core.psi.ext.RsItemsOwner) rq)
                                             .getNamed().size();
                                     } catch (Throwable ignored) {}
@@ -92,7 +92,7 @@ public class RsUnresolvedReferenceInspection extends RsLocalInspectionTool {
             public void visitExternCrateItem2(@Nonnull RsExternCrateItem externCrate) {
                 if (externCrate.getReference().multiResolve().isEmpty()
                     && externCrate.getContainingCrate().getOrigin() == PackageOrigin.WORKSPACE) {
-                    new org.rust.lang.utils.RsDiagnostic.CrateNotFoundError(
+                    new RsDiagnostic.CrateNotFoundError(
                         externCrate.getReferenceNameElement(),
                         externCrate.getReferenceName()
                     ).addToHolder(holder);

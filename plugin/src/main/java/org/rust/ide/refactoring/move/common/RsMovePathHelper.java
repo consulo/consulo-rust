@@ -13,7 +13,7 @@ import consulo.language.psi.search.ReferencesSearch;
 import consulo.language.psi.util.PsiTreeUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.ide.utils.imports.RsImportHelper;
+import org.rust.lang.core.imports.RsImportHelper;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 
@@ -23,6 +23,8 @@ import java.util.List;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class RsMovePathHelper {
 

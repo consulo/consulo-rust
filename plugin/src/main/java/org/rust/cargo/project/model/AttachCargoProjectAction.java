@@ -5,6 +5,9 @@
 
 package org.rust.cargo.project.model;
 
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.api.model.CargoProjectsService;
+
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.util.dataholder.Key;
 import consulo.language.editor.PlatformDataKeys;
@@ -20,7 +23,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.cargo.CargoConstants;
 import org.rust.cargo.project.toolwindow.CargoToolWindow;
-import org.rust.ide.notifications.RsEditorNotificationPanel;
+import org.rust.notifications.RsEditorNotificationPanel;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.nio.file.Path;

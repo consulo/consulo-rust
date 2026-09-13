@@ -14,7 +14,7 @@ import consulo.language.editor.template.Result;
 import consulo.language.editor.template.TextResult;
 import consulo.language.editor.template.macro.MacroBase;
 import consulo.util.lang.StringUtil;
-import org.rust.ide.refactoring.RsNamesValidator;
+import org.rust.lang.core.names.RsNamesValidator;
 
 import java.util.ArrayList;
 import java.util.List;

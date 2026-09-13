@@ -11,9 +11,9 @@ import consulo.language.psi.PsiElement;
 import org.rust.RsBundle;
 import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.lang.core.psi.RsOuterAttr;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.ext.RsStructOrEnumItemElement;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 import consulo.localize.LocalizeValue;
 
 public class AddDeriveIntention extends RsElementBaseIntentionAction<AddDeriveIntention.Context> {
@@ -74,6 +74,6 @@ public class AddDeriveIntention extends RsElementBaseIntentionAction<AddDeriveIn
         } else {
             offset = deriveAttr.getRbrack().getTextOffset();
         }
-        org.rust.openapiext.Editor.moveCaretToOffset(editor, deriveAttr, offset);
+        org.rust.openapiext.ui.Editor.moveCaretToOffset(editor, deriveAttr, offset);
     }
 }

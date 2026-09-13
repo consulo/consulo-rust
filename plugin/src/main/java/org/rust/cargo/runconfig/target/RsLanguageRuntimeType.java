@@ -15,7 +15,7 @@ import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.runconfig.RsCommandConfiguration;
-import org.rust.ide.icons.RsIcons;
+import org.rust.icons.RsIcons;
 
 import javax.swing.*;
 import java.util.function.Supplier;

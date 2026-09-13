@@ -13,9 +13,9 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.utils.PsiModificationUtil;
 import org.rust.lang.core.psi.RsMethodCall;
-import org.rust.lang.core.psi.RsPsiFactory;
-import org.rust.lang.core.psi.ext.PsiElementExt;
-import org.rust.lang.core.psi.ext.RsMethodCallUtil;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
+import org.rust.lang.core.psi.ext.impl.PsiElementExt;
+import org.rust.lang.core.psi.ext.impl.RsMethodCallUtil;
 import consulo.localize.LocalizeValue;
 
 public class UnwrapToTryIntention extends RsElementBaseIntentionAction<RsMethodCall> {

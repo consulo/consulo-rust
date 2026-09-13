@@ -18,34 +18,36 @@ import consulo.util.lang.SemVer;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.util.ToolchainUtil;
+import org.rust.cargo.api.util.ToolchainUtil;
 import org.rust.ide.fixes.*;
-import org.rust.ide.refactoring.RsNamesValidator;
+import org.rust.lang.core.names.RsNamesValidator;
 import org.rust.lang.core.CompilerFeature;
 import org.rust.lang.core.macros.MacroExpansion;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.types.ty.Mutability;
 import org.rust.lang.core.types.infer.TypeInference;
-import org.rust.lang.utils.RsDiagnostic;
+import org.rust.ide.inspections.RsDiagnostic;
 import org.rust.stdext.StdextUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.rust.lang.core.psi.RsLiteralKindUtil;
-import org.rust.lang.core.psi.ext.RsStructItemUtil;
-import org.rust.lang.core.psi.ext.RsTypeParameterUtil;
-import org.rust.lang.core.psi.ext.RsBinaryOpUtil;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
-import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
+import org.rust.lang.core.psi.impl.RsLiteralKindUtil;
+import org.rust.lang.core.psi.ext.impl.RsStructItemUtil;
+import org.rust.lang.core.psi.ext.impl.RsTypeParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsBinaryOpUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsBinaryExprUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import consulo.language.editor.annotation.AnnotationBuilder;
 import consulo.language.editor.inspection.ProblemDescriptor;
-import org.rust.cargo.project.model.CargoProject;
-import org.rust.cargo.project.model.RustcInfo;
-import org.rust.cargo.toolchain.impl.RustcVersion;
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.api.model.RustcInfo;
+import org.rust.cargo.api.toolchain.RustcVersion;
 import org.rust.lang.core.types.RsTypesUtil;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class RsSyntaxErrorsAnnotator extends AnnotatorBase {
     private static final SemVer DEPRECATED_WHERE_CLAUSE_LOCATION_VERSION = ToolchainUtil.parseSemVer("1.61.0");
@@ -356,7 +358,7 @@ public class RsSyntaxErrorsAnnotator extends AnnotatorBase {
     private static void checkVariadic(@Nonnull AnnotationHolder holder, @Nonnull RsFunction fn, @Nullable PsiElement dot3) {
         if (dot3 == null) return;
         if (fn.getUnsafe() != null && "C".equals(RsFunctionUtil.getActualAbiName(fn))) {
-            CompilerFeature.getC_VARIADIC().check(holder, dot3, "C-variadic functions");
+            CompilerFeatureCheck.check(CompilerFeature.getC_VARIADIC(), holder, dot3, "C-variadic functions");
         } else {
             deny(dot3, holder, RsBundle.message("inspection.message.cannot.be.variadic", RsFunctionUtil.getTitle(fn)));
         }

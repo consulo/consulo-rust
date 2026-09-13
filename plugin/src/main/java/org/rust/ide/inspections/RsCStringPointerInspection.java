@@ -8,7 +8,7 @@ package org.rust.ide.inspections;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsMethodOrFieldUtil;
+import org.rust.lang.core.psi.ext.impl.RsMethodOrFieldUtil;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.localize.LocalizeValue;
 

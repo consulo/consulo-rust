@@ -20,7 +20,7 @@ import org.rust.lang.core.psi.RsElementTypes;
 
 import java.util.ArrayDeque;
 import consulo.annotation.component.ExtensionImpl;
-import org.rust.lang.core.psi.RsTokenSets;
+import org.rust.lang.core.psi.impl.RsTokenSets;
 import consulo.language.Language;
 
 @ExtensionImpl

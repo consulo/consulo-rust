@@ -14,10 +14,11 @@ import org.rust.RsBundle;
 import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.ide.utils.PsiModificationUtil;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.PsiElementExt;
-import org.rust.lang.core.psi.ext.RsMatchArmGuardUtil;
-import org.rust.openapiext.EditorExt;
+import org.rust.lang.core.psi.ext.impl.PsiElementExt;
+import org.rust.lang.core.psi.ext.impl.RsMatchArmGuardUtil;
+import org.rust.openapiext.ui.EditorExt;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class MoveGuardToMatchArmIntention extends RsElementBaseIntentionAction<MoveGuardToMatchArmIntention.Context> {
     @Nonnull

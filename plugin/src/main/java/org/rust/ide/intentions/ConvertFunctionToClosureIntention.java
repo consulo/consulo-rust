@@ -15,13 +15,13 @@ import org.rust.ide.utils.PsiModificationUtil;
 import org.rust.lang.core.psi.RsExpr;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsLetDecl;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.RsValueParameter;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import consulo.localize.LocalizeValue;
 
 public class ConvertFunctionToClosureIntention extends RsElementBaseIntentionAction<ConvertFunctionToClosureIntention.Context> {
@@ -95,7 +95,7 @@ public class ConvertFunctionToClosureIntention extends RsElementBaseIntentionAct
         RsLetDecl replaced = (RsLetDecl) function.replace(declaration);
         PsiElement semicolon = replaced.getSemicolon();
         if (semicolon != null && editor != null) {
-            org.rust.openapiext.Editor.moveCaretToOffset(editor, replaced, semicolon.getTextRange().getEndOffset());
+            org.rust.openapiext.ui.Editor.moveCaretToOffset(editor, replaced, semicolon.getTextRange().getEndOffset());
         }
     }
 }

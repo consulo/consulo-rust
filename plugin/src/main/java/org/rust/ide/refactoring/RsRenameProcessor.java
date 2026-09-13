@@ -55,15 +55,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
-import org.rust.lang.core.psi.ext.RsStructLiteralFieldUtil;
-import org.rust.lang.core.psi.ext.RsTraitItemUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsStructLiteralFieldUtil;
+import org.rust.lang.core.psi.ext.impl.RsTraitItemUtil;
 import org.rust.lang.core.psi.ext.RsTraitOrImpl;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsReferenceElementBase;
 import org.rust.lang.core.psi.ext.RsMod;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @ExtensionImpl(id = "rsRenameProcessor", order = "first")
 public class RsRenameProcessor extends RenamePsiElementProcessor {

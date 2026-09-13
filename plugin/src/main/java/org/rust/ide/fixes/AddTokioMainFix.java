@@ -5,25 +5,25 @@
 
 package org.rust.ide.fixes;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.codeEditor.Editor;
 import consulo.document.FileDocumentManager;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.project.model.CargoProjectsUtil;
+import org.rust.cargo.api.model.CargoProjectsUtil;
 import org.rust.lang.core.psi.RsFunction;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
-import org.rust.lang.core.psi.ext.RsOuterAttributeOwnerUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsOuterAttributeOwnerUtil;
 import org.rust.openapiext.VirtualFileExtUtil;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.rust.lang.core.psi.RsPsiImplUtil;
+import org.rust.lang.core.psi.impl.RsPsiImplUtil;
 import consulo.language.psi.PsiFile;
 import consulo.document.Document;
 import consulo.language.psi.PsiElement;

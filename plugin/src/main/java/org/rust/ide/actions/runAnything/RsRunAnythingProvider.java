@@ -17,8 +17,8 @@ import consulo.dataContext.DataContext;
 import consulo.project.Project;
 import consulo.util.lang.StringUtil;
 import consulo.process.cmd.ParametersListUtil;
-import org.rust.cargo.project.model.CargoProject;
-import org.rust.cargo.util.RsCommandCompletionProvider;
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.ide.cargo.completion.RsCommandCompletionProvider;
 import org.rust.stdext.Utils;
 
 import java.nio.file.Path;

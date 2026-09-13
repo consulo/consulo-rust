@@ -28,7 +28,8 @@ import consulo.language.editor.completion.lookup.LookupElement;
 import consulo.language.editor.parameterInfo.ParameterInfoContext;
 import org.rust.ide.utils.SearchByOffset;
 import org.rust.lang.RsLanguage;
-import org.rust.lang.core.psi.ext.RsTypeReferenceUtil;
+import org.rust.lang.core.psi.ext.impl.RsTypeReferenceUtil;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @ExtensionImpl
 public class RsStructLiteralParameterInfoHandler extends RsAsyncParameterInfoHandler<RsStructLiteralBody, RsStructLiteralParameterInfoHandler.Description> {
@@ -96,7 +97,7 @@ public class RsStructLiteralParameterInfoHandler extends RsAsyncParameterInfoHan
             RsNamedFieldDecl f = namedFields.get(i);
             String name = f.getName() != null ? f.getName() : "";
             String fieldType = f.getTypeReference() != null
-                ? org.rust.lang.core.psi.ext.RsTypeReferenceUtil.substAndGetText(f.getTypeReference(), subst)
+                ? org.rust.lang.core.psi.ext.impl.RsTypeReferenceUtil.substAndGetText(f.getTypeReference(), subst)
                 : "_";
             fields[i] = new Field(name, fieldType);
         }

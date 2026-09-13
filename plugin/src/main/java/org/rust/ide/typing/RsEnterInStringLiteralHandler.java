@@ -16,10 +16,10 @@ import consulo.codeEditor.HighlighterIterator;
 import consulo.util.lang.ref.SimpleReference;
 import consulo.language.psi.PsiFile;
 import consulo.language.ast.StringEscapesTokenTypes;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 
 import java.util.regex.Pattern;
-import org.rust.lang.core.psi.RsTokenSets;
+import org.rust.lang.core.psi.impl.RsTokenSets;
 import consulo.language.ast.IElementType;
 
 @ExtensionImpl(id = "RustEnterInStringLiterals")

@@ -5,6 +5,9 @@
 
 package org.rust.cargo.project.model;
 
+import org.rust.cargo.api.model.CargoProjectsUtil;
+import org.rust.cargo.api.model.CargoProjectsService;
+
 import consulo.annotation.component.ExtensionImpl;
 import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
@@ -30,12 +33,12 @@ public class RsGeneratedSourcesWritingAccessProvider extends WritingAccessProvid
     public Collection<VirtualFile> requestWriting(VirtualFile... files) {
         CargoProjectsService cargoProjects = CargoProjectServiceUtil.getCargoProjects(project);
         return java.util.Arrays.stream(files)
-            .filter(file -> CargoProjectServiceUtil.isGeneratedFile(cargoProjects, file))
+            .filter(file -> CargoProjectsUtil.isGeneratedFile(cargoProjects, file))
             .collect(Collectors.toList());
     }
 
     @Override
     public boolean isPotentiallyWritable(@Nonnull VirtualFile file) {
-        return !CargoProjectServiceUtil.isGeneratedFile(CargoProjectServiceUtil.getCargoProjects(project), file);
+        return !CargoProjectsUtil.isGeneratedFile(project, file);
     }
 }

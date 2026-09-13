@@ -14,7 +14,7 @@ import org.rust.ide.inspections.imports.AutoImportFixFactory;
 import org.rust.lang.core.psi.RsMatchArm;
 import org.rust.lang.core.psi.RsPatBinding;
 import org.rust.lang.core.psi.RsPatIdent;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 import consulo.language.psi.util.PsiTreeUtil;
 import consulo.localize.LocalizeValue;
 

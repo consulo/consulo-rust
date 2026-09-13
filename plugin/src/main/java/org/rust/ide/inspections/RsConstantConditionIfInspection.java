@@ -20,10 +20,11 @@ import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.types.consts.CtValue;
 import org.rust.lang.utils.evaluation.ConstExprEvaluator;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 /**
  * See also RsRedundantElseInspection.

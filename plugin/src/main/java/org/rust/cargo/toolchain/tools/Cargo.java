@@ -5,6 +5,12 @@
 
 package org.rust.cargo.toolchain.tools;
 
+import org.rust.cargo.api.toolchain.ExternalLinter;
+
+import org.rust.cargo.api.toolchain.BacktraceMode;
+import org.rust.cargo.api.toolchain.RustChannel;
+
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -27,27 +33,27 @@ import consulo.util.lang.SemVer;
 import jakarta.annotation.Nullable;
 
 import org.rust.RsBundle;
-import org.rust.cargo.CargoConfig;
+import org.rust.cargo.api.CargoConfig;
 import org.rust.cargo.CargoConstants;
-import org.rust.cargo.CfgOptions;
-import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.api.CfgOptions;
+import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
-import org.rust.cargo.project.workspace.CargoWorkspace;
-import org.rust.cargo.project.workspace.CargoWorkspaceData;
-import org.rust.cargo.runconfig.buildtool.CargoPatch;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.CargoWorkspaceData;
+import org.rust.cargo.project.model.sync.CargoPatch;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 import org.rust.cargo.toolchain.*;
-import org.rust.cargo.toolchain.impl.BuildMessages;
-import org.rust.cargo.toolchain.impl.CargoMetadata;
-import org.rust.cargo.toolchain.impl.RustcMessage.CompilerMessage;
-import org.rust.cargo.toolchain.impl.RustcVersion;
+import org.rust.cargo.api.toolchain.BuildMessages;
+import org.rust.cargo.api.toolchain.CargoMetadata;
+import org.rust.cargo.api.toolchain.RustcMessage.CompilerMessage;
+import org.rust.cargo.api.toolchain.RustcVersion;
 import org.rust.cargo.toolchain.wsl.RsWslToolchain;
-import org.rust.cargo.util.ToolchainUtil;
-import org.rust.ide.actions.InstallBinaryCrateAction;
-import org.rust.ide.experiments.RsExperiments;
-import org.rust.ide.notifications.NotificationUtils;
+import org.rust.cargo.api.util.ToolchainUtil;
+import org.rust.cargo.toolchain.actions.InstallBinaryCrateAction;
+import org.rust.experiments.RsExperiments;
+import org.rust.notifications.NotificationUtils;
 import org.rust.lang.RsConstants;
 import org.rust.openapiext.*;
 import org.rust.openapiext.JsonUtils;
@@ -60,7 +66,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import consulo.util.io.FileUtil;
-import org.rust.cargo.project.workspace.FeatureState;
+import org.rust.cargo.api.workspace.FeatureState;
 import org.rust.openapiext.CommandLineExt;
 import org.rust.openapiext.RsProcessExecutionException;
 
@@ -559,7 +565,7 @@ public class Cargo extends RustupComponent {
             List<String> arguments = new ArrayList<>();
             arguments.add("--message-format=json");
             arguments.add("--no-default-features");
-            Map<String, org.rust.cargo.project.workspace.FeatureState> featureState = specific.getTarget().getPkg().getFeatureState();
+            Map<String, org.rust.cargo.api.workspace.FeatureState> featureState = specific.getTarget().getPkg().getFeatureState();
             List<String> enabledFeatures = featureState.entrySet().stream()
                 .filter(e -> e.getValue().isEnabled())
                 .map(Map.Entry::getKey)
@@ -611,7 +617,7 @@ public class Cargo extends RustupComponent {
 
     /** True when the cargo this tool runs is the rustup shim, which is what understands {@code +toolchain}. */
     private boolean supportsToolchainOverride() {
-        return org.rust.cargo.util.ToolchainUtil.hasLocalExecutable(
+        return org.rust.cargo.api.util.ToolchainUtil.hasLocalExecutable(
             getToolchain().pathToExecutable(NAME).getParent(), Rustup.NAME);
     }
 
@@ -637,7 +643,7 @@ public class Cargo extends RustupComponent {
             }
         }
         if (RsProjectSettingsServiceUtil.getRustSettings(project).getUseOffline()) {
-            CargoProject cargoProject = CargoCommandConfiguration.findCargoProject(project, patched.getAdditionalArguments(), patched.getWorkingDirectory());
+            CargoProject cargoProject = org.rust.cargo.project.model.CargoProjectLocator.findCargoProject(project, patched.getAdditionalArguments(), patched.getWorkingDirectory());
             SemVer rustcVersion = (cargoProject != null && cargoProject.getRustcInfo() != null && cargoProject.getRustcInfo().getVersion() != null)
                 ? cargoProject.getRustcInfo().getVersion().getSemver() : null;
             if (rustcVersion != null) {
@@ -744,11 +750,11 @@ public class Cargo extends RustupComponent {
         }
 
         if (commandLine.getRequiredFeatures() && FEATURES_ACCEPTING_COMMANDS.contains(commandLine.getCommand())) {
-            CargoProject cargoProject = CargoCommandConfiguration.findCargoProject(
+            CargoProject cargoProject = org.rust.cargo.project.model.CargoProjectLocator.findCargoProject(
                 project, commandLine.getAdditionalArguments(), commandLine.getWorkingDirectory()
             );
             if (cargoProject != null) {
-                CargoWorkspace.Package cargoPackage = CargoCommandConfiguration.findCargoPackage(
+                CargoWorkspace.Package cargoPackage = org.rust.cargo.project.model.CargoProjectLocator.findCargoPackage(
                     cargoProject, commandLine.getAdditionalArguments(), commandLine.getWorkingDirectory()
                 );
                 if (cargoPackage != null) {
@@ -763,7 +769,7 @@ public class Cargo extends RustupComponent {
                             pre.add(manifest.toAbsolutePath().toString());
                         }
                     }
-                    List<CargoWorkspace.Target> cargoTargets = CargoCommandConfiguration.findCargoTargets(
+                    List<CargoWorkspace.Target> cargoTargets = org.rust.cargo.project.model.CargoProjectLocator.findCargoTargets(
                         cargoPackage, commandLine.getAdditionalArguments()
                     );
                     String features = cargoTargets.stream()
@@ -825,7 +831,7 @@ public class Cargo extends RustupComponent {
         @Nullable String message,
         @Nullable SemVer minVersion
     ) {
-        RsToolchainBase toolchain = RsProjectSettingsServiceUtil.getToolchain(project);
+        RsToolchainBase toolchain = RsToolchainLocator.getToolchain(project);
         if (toolchain == null) return false;
         Cargo cargo = CargoExtUtil.cargo(toolchain);
         java.util.function.Supplier<Boolean> isNotInstalled = () -> cargo.checkBinaryCrateIsNotInstalled(crateName, minVersion);

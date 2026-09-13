@@ -11,11 +11,12 @@ import consulo.language.psi.PsiElement;
 import org.rust.RsBundle;
 import org.rust.ide.utils.PsiModificationUtil;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsSelfParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsSelfParameterUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class ConvertUFCSToMethodCallIntention extends RsElementBaseIntentionAction<ConvertUFCSToMethodCallIntention.Context> {
 

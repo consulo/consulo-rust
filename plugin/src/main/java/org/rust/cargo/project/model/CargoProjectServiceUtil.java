@@ -5,6 +5,8 @@
 
 package org.rust.cargo.project.model;
 
+import org.rust.cargo.api.model.CargoProjectsService;
+
 import java.util.concurrent.Future;
 import consulo.util.concurrent.coroutine.step.CodeExecution;
 import consulo.util.concurrent.coroutine.CoroutineScope;
@@ -26,16 +28,16 @@ import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.cargo.CargoConstants;
-import org.rust.cargo.project.settings.RustProjectSettingsService;
-import org.rust.cargo.project.workspace.CargoWorkspace;
+import org.rust.cargo.api.settings.RustProjectSettingsService;
+import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.cargo.toolchain.RsToolchainBase;
 import org.rust.cargo.toolchain.tools.Rustup;
-import org.rust.ide.notifications.NotificationUtils;
+import org.rust.notifications.NotificationUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import consulo.project.ProjectPropertiesComponent;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import consulo.logging.Logger;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,13 +75,6 @@ public final class CargoProjectServiceUtil {
         return project.getService(CargoProjectsService.class);
     }
 
-    public static boolean isGeneratedFile(@Nonnull CargoProjectsService service, @Nonnull VirtualFile file) {
-        CargoWorkspace.Package pkg = service.findPackageForFile(file);
-        if (pkg == null) return false;
-        VirtualFile outDir = pkg.getOutDir();
-        if (outDir == null) return false;
-        return VirtualFileUtil.isAncestor(outDir, file, false);
-    }
 
     public static boolean guessAndSetupRustProject(@Nonnull Project project, boolean explicitRequest) {
         boolean discover = explicitRequest;

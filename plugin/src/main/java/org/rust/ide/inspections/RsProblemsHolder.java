@@ -23,9 +23,9 @@ import jakarta.annotation.Nullable;
 import org.rust.ide.fixes.RsQuickFixBase;
 import org.rust.lang.core.macros.RsExpandedElementUtil;
 import org.rust.lang.core.macros.RangeMap;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.RsVisitor;
-import org.rust.lang.core.psi.ext.PsiElementExt;
+import org.rust.lang.core.psi.ext.impl.PsiElementExt;
 import org.rust.lang.core.psi.ext.RsElement;
 import consulo.util.lang.Pair;
 

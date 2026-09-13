@@ -15,7 +15,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.ide.utils.CallInfo;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -6,19 +6,19 @@
 package org.rust.ide.refactoring.generate;
 
 import jakarta.annotation.Nonnull;
-import org.rust.ide.presentation.PsiRenderingOptions;
-import org.rust.ide.presentation.TypeSubstitutingPsiRenderer;
+import org.rust.lang.core.presentation.PsiRenderingOptions;
+import org.rust.lang.core.presentation.TypeSubstitutingPsiRenderer;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsFieldDecl;
-import org.rust.lang.core.psi.ext.RsFieldsOwnerUtil;
-import org.rust.lang.core.psi.ext.RsStructItemUtil;
+import org.rust.lang.core.psi.ext.impl.RsFieldsOwnerUtil;
+import org.rust.lang.core.psi.ext.impl.RsStructItemUtil;
 import org.rust.lang.core.types.Substitution;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import org.rust.ide.presentation.RsPsiRendererUtil;
-import org.rust.lang.core.psi.ext.RsFieldsOwnerExtUtil;
+import org.rust.lang.core.presentation.RsPsiRendererUtil;
+import org.rust.lang.core.psi.ext.impl.RsFieldsOwnerExtUtil;
 
 public class StructMember {
     @Nonnull
@@ -70,7 +70,7 @@ public class StructMember {
     @Nonnull
     public static List<StructMember> fromStruct(@Nonnull RsStructItem structItem, @Nonnull Substitution substitution) {
         if (RsStructItemUtil.isTupleStruct(structItem)) {
-            return fromTupleList(org.rust.lang.core.psi.ext.RsFieldsOwnerExtUtil.getPositionalFields(structItem), substitution);
+            return fromTupleList(org.rust.lang.core.psi.ext.impl.RsFieldsOwnerExtUtil.getPositionalFields(structItem), substitution);
         } else {
             return fromFieldList(RsFieldsOwnerUtil.getNamedFields(structItem), substitution);
         }
@@ -114,7 +114,7 @@ public class StructMember {
             new PsiRenderingOptions(false),
             substitution
         );
-        return org.rust.ide.presentation.RsPsiRendererUtil.renderTypeReference(renderer, typeReference);
+        return org.rust.lang.core.presentation.RsPsiRendererUtil.renderTypeReference(renderer, typeReference);
     }
 
     @Override

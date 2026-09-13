@@ -5,6 +5,7 @@
 
 package org.rust.ide.formatter;
 
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.ide.impl.idea.codeInsight.actions.ReformatCodeProcessor;
 import consulo.process.cmd.GeneralCommandLine;
 import consulo.process.util.ProcessOutput;
@@ -23,14 +24,14 @@ import consulo.language.codeStyle.FormatterUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 import org.rust.cargo.toolchain.RsToolchainBase;
-import org.rust.cargo.toolchain.tools.Rustfmt;
+import org.rust.ide.rustfmt.Rustfmt;
 import org.rust.cargo.toolchain.tools.Rustup;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.openapiext.CommandLineExt;
 import org.rust.stdext.RsResult;
 
@@ -65,7 +66,7 @@ public class RustfmtFormattingService extends AsyncDocumentFormattingService {
         if (document == null) return null;
         CargoProject cargoProject = CargoProjectServiceUtil.getCargoProjects(project).findProjectForFile(file);
         if (cargoProject == null) return null;
-        RsToolchainBase toolchain = RsProjectSettingsServiceUtil.getToolchain(project);
+        RsToolchainBase toolchain = RsToolchainLocator.getToolchain(project);
         if (toolchain == null) return null;
         Rustfmt rustfmt = Rustfmt.create(toolchain);
 
@@ -76,7 +77,7 @@ public class RustfmtFormattingService extends AsyncDocumentFormattingService {
             public void run() {
                 RustfmtTestmarks.RustfmtUsed.hit();
 
-                if (Rustup.checkNeedInstallRustfmt(project, CargoCommandConfiguration.getWorkingDirectory(cargoProject))) {
+                if (Rustup.checkNeedInstallRustfmt(project, org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(cargoProject))) {
                     request.onTextReady(request.getDocumentText());
                     return;
                 }

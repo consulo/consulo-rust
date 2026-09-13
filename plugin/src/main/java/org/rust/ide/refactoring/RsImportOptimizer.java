@@ -14,15 +14,15 @@ import org.rust.ide.inspections.lints.PathUsageMap;
 import org.rust.ide.inspections.lints.RsUnusedImportInspection;
 import org.rust.ide.inspections.lints.UseSpeckUsageUtil;
 import org.rust.ide.inspections.lints.PathUsageUtil;
-import org.rust.ide.utils.imports.ImportUtils;
-import org.rust.ide.utils.imports.UseItemWrapper;
+import org.rust.lang.core.imports.ImportUtils;
+import org.rust.lang.core.imports.UseItemWrapper;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.doc.psi.RsDocComment;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsUseSpeckUtil;
+import org.rust.lang.core.psi.ext.impl.RsUseSpeckUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
 import consulo.annotation.component.ExtensionImpl;
@@ -30,7 +30,9 @@ import consulo.document.Document;
 import consulo.language.Language;
 import consulo.language.psi.PsiElement;
 import org.rust.lang.RsLanguage;
-import org.rust.lang.core.psi.ext.RsUseGroupUtil;
+import org.rust.lang.core.psi.ext.impl.RsUseGroupUtil;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @ExtensionImpl
 public class RsImportOptimizer implements ImportOptimizer {
@@ -154,7 +156,7 @@ public class RsImportOptimizer implements ImportOptimizer {
     private static boolean removeCurlyBracesIfPossible(@Nonnull RsPsiFactory psiFactory, @Nonnull RsUseSpeck useSpeck) {
         RsUseGroup useGroup = useSpeck.getUseGroup();
         if (useGroup == null) return false;
-        RsUseSpeck trivial = org.rust.lang.core.psi.ext.RsUseGroupUtil.getAsTrivial(useGroup);
+        RsUseSpeck trivial = org.rust.lang.core.psi.ext.impl.RsUseGroupUtil.getAsTrivial(useGroup);
         if (trivial == null) return false;
         String name = trivial.getText();
         String path = useSpeck.getPath() != null ? useSpeck.getPath().getText() : null;

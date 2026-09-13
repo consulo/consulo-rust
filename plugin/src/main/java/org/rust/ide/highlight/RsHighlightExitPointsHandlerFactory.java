@@ -19,12 +19,13 @@ import jakarta.annotation.Nullable;
 import org.rust.lang.core.dfa.ExitPoint;
 import org.rust.lang.core.macros.RsExpandedElementUtil;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 
 import java.util.*;
-import org.rust.lang.core.psi.ext.RsBlockExprUtil;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsBlockExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsFunctionOrLambda;
+import org.rust.lang.core.psi.impl.*;
 
 @ExtensionImpl
 public class RsHighlightExitPointsHandlerFactory extends HighlightUsagesHandlerFactoryBase {

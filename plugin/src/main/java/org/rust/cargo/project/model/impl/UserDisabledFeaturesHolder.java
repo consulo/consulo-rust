@@ -5,6 +5,8 @@
 
 package org.rust.cargo.project.model.impl;
 
+import org.rust.cargo.api.model.UserDisabledFeatures;
+
 import consulo.component.persist.State;
 import consulo.component.persist.Storage;
 import consulo.component.persist.StoragePathMacros;
@@ -14,7 +16,7 @@ import consulo.project.Project;
 import org.jdom.Element;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
 
 import java.nio.file.Path;

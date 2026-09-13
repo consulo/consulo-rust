@@ -5,6 +5,9 @@
 
 package org.rust.cargo.project.model.impl;
 
+import org.rust.cargo.api.model.UserDisabledFeatures;
+
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import org.rust.stdext.Lazy;
 import consulo.project.Project;
 import consulo.util.dataholder.UserDataHolderBase;
@@ -13,15 +16,15 @@ import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
-import org.rust.cargo.project.model.CargoProject;
-import org.rust.cargo.project.model.RustcInfo;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
-import org.rust.cargo.project.workspace.CargoWorkspace;
-import org.rust.cargo.project.workspace.PackageOrigin;
-import org.rust.cargo.project.workspace.StandardLibrary;
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.api.model.RustcInfo;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.PackageOrigin;
+import org.rust.cargo.api.workspace.StandardLibrary;
 import org.rust.cargo.toolchain.RsToolchainBase;
-import org.rust.lang.core.macros.proc.ProcMacroServerPool;
-import org.rust.cargo.util.AutoInjectedCrates;
+import org.rust.cargo.toolchain.ProcMacroExpanderPath;
+import org.rust.cargo.api.util.AutoInjectedCrates;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.openapiext.TaskResult;
@@ -94,9 +97,9 @@ public class CargoProjectImpl extends UserDataHolderBase implements CargoProject
         this.rustcInfoStatus = rustcInfoStatus;
 
         if (rustcInfo != null) {
-            RsToolchainBase toolchain = RsProjectSettingsServiceUtil.getToolchain(getProject());
+            RsToolchainBase toolchain = RsToolchainLocator.getToolchain(getProject());
             this.procMacroExpanderPath = toolchain != null
-                ? ProcMacroServerPool.findExpanderExecutablePath(toolchain, rustcInfo.getSysroot())
+                ? ProcMacroExpanderPath.find(toolchain, rustcInfo.getSysroot())
                 : null;
         } else {
             this.procMacroExpanderPath = null;
@@ -174,14 +177,14 @@ public class CargoProjectImpl extends UserDataHolderBase implements CargoProject
     private String computePresentableName() {
         CargoWorkspace ws = getWorkspace();
         if (ws != null) {
-            Path workingDir = CargoCommandConfiguration.getWorkingDirectory(this);
+            Path workingDir = org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(this);
             for (CargoWorkspace.Package pkg : ws.getPackages()) {
                 if (pkg.getOrigin() == PackageOrigin.WORKSPACE && pkg.getRootDirectory().equals(workingDir)) {
                     return pkg.getName();
                 }
             }
         }
-        Path workingDir = CargoCommandConfiguration.getWorkingDirectory(this);
+        Path workingDir = org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(this);
         return workingDir.getFileName().toString();
     }
 
@@ -190,7 +193,7 @@ public class CargoProjectImpl extends UserDataHolderBase implements CargoProject
     public VirtualFile getRootDir() {
         VirtualFile cached = rootDirCache.get();
         if (cached != null && cached.isValid()) return cached;
-        Path workingDir = CargoCommandConfiguration.getWorkingDirectory(this);
+        Path workingDir = org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(this);
         VirtualFile file = LocalFileSystem.getInstance().findFileByIoFile(workingDir.toFile());
         rootDirCache.set(file);
         return file;

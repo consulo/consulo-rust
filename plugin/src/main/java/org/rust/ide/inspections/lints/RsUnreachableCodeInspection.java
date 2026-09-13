@@ -5,6 +5,7 @@
 
 package org.rust.ide.inspections.lints;
 
+
 import consulo.document.util.Segment;
 import consulo.document.util.TextRange;
 import consulo.language.psi.PsiElement;
@@ -15,13 +16,13 @@ import org.rust.ide.inspections.RsProblemsHolder;
 import org.rust.ide.inspections.RsWithMacrosInspectionVisitor;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsVisitor;
-import org.rust.lang.core.psi.ext.RsPsiElementExtUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiElementExtUtil;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.dfa.ControlFlowGraph;
 import org.rust.openapiext.DocumentExtUtil;
 
 import java.util.*;
-import org.rust.ide.injected.RsDoctestLanguageInjector;
+import org.rust.lang.core.injected.RsDoctestLanguageInjector;
 import org.rust.stdext.Utils;
 import consulo.localize.LocalizeValue;
 import consulo.annotation.component.ExtensionImpl;

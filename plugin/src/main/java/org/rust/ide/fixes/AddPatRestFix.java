@@ -5,7 +5,7 @@
 
 package org.rust.ide.fixes;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.codeEditor.Editor;
 import consulo.project.Project;
 import consulo.language.psi.PsiElement;
@@ -15,7 +15,7 @@ import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.RsPatStruct;
 import org.rust.lang.core.psi.RsPatTupleStruct;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.ext.RsElement;
 import consulo.localize.LocalizeValue;
 

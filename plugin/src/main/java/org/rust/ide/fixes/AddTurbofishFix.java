@@ -15,14 +15,14 @@ import org.rust.RsBundle;
 import org.rust.ide.intentions.RsElementBaseIntentionAction;
 import org.rust.lang.RsFileType;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.ArithmeticOp;
+import org.rust.lang.core.psi.ext.impl.ArithmeticOp;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsBinaryExprUtil;
 import consulo.localize.LocalizeValue;
 
 public class AddTurbofishFix extends RsElementBaseIntentionAction<AddTurbofishFix.Context> {

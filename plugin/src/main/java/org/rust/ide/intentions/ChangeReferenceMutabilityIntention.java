@@ -10,12 +10,12 @@ import consulo.project.Project;
 import consulo.language.psi.PsiElement;
 import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.ide.utils.PsiModificationUtil;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.RsRefLikeType;
 import org.rust.lang.core.psi.RsTypeReference;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 import org.rust.lang.core.types.ty.Mutability;
-import org.rust.lang.core.psi.ext.RsRefLikeTypeUtil;
+import org.rust.lang.core.psi.ext.impl.RsRefLikeTypeUtil;
 import consulo.localize.LocalizeValue;
 
 public abstract class ChangeReferenceMutabilityIntention extends RsElementBaseIntentionAction<ChangeReferenceMutabilityIntention.Context> {

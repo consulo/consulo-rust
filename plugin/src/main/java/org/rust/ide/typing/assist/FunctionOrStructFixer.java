@@ -5,7 +5,7 @@
 
 package org.rust.ide.typing.assist;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.language.editor.action.SmartEnterProcessorWithFixers;
 import consulo.codeEditor.Editor;
 import consulo.language.psi.PsiElement;
@@ -14,7 +14,7 @@ import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsStructItem;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import org.rust.lang.core.types.ty.TyUnknown;
 
 import java.util.Arrays;

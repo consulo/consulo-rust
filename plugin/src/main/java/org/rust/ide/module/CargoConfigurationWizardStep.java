@@ -5,6 +5,8 @@
 
 package org.rust.ide.module;
 
+import org.rust.cargo.toolchain.RsToolchainLocator;
+
 import com.intellij.ide.util.projectWizard.ModuleBuilder.ModuleConfigurationUpdater;
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.WizardContext;
@@ -18,7 +20,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.CargoConstants;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import org.rust.cargo.project.settings.ui.RustProjectSettingsPanel;
 import org.rust.ide.newProject.ConfigurationData;
 import org.rust.ide.newProject.ui.RsNewProjectPanel;
@@ -26,7 +28,7 @@ import org.rust.openapiext.OpenApiUtil;
 
 import javax.swing.*;
 import java.util.function.Consumer;
-import org.rust.openapiext.UiUtil;
+import org.rust.openapiext.ui.UiUtil;
 import org.rust.stdext.BuilderUtil;
 
 public class CargoConfigurationWizardStep extends ModuleWizardStep {
@@ -110,7 +112,7 @@ public class CargoConfigurationWizardStep extends ModuleWizardStep {
             RustProjectSettingsPanel.Data currentData = data;
             if (currentData != null) {
                 RsProjectSettingsServiceUtil.getRustSettings(module.getProject()).modify(state -> {
-                    state.setToolchain(currentData.getToolchain());
+                    RsToolchainLocator.store(state, currentData.getToolchain());
                     state.explicitPathToStdlib = currentData.getExplicitPathToStdlib();
                 });
             }

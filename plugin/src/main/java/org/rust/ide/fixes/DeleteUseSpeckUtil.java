@@ -7,7 +7,7 @@ package org.rust.ide.fixes;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiWhiteSpace;
 import org.rust.lang.core.psi.RsUseItem;
-import org.rust.lang.core.psi.ext.RsUseSpeckUtil;
+import org.rust.lang.core.psi.ext.impl.RsUseSpeckUtil;
 
 public final class DeleteUseSpeckUtil {
     private DeleteUseSpeckUtil() {
@@ -22,7 +22,7 @@ public final class DeleteUseSpeckUtil {
             }
             parent.delete();
         } else {
-            org.rust.lang.core.psi.ext.RsUseSpeckUtil.deleteWithSurroundingComma(useSpeck);
+            org.rust.lang.core.psi.ext.impl.RsUseSpeckUtil.deleteWithSurroundingComma(useSpeck);
         }
     }
 }

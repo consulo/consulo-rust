@@ -5,15 +5,15 @@
 
 package org.rust.ide.annotator;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.language.editor.annotation.AnnotationHolder;
 import consulo.language.editor.annotation.HighlightSeverity;
 import consulo.codeEditor.EditorColors;
 import consulo.document.util.TextRange;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
-import org.rust.ide.injected.DoctestInfoUtil;
-import org.rust.ide.injected.DoctestInfo;
+import org.rust.lang.core.injected.DoctestInfoUtil;
+import org.rust.lang.core.injected.DoctestInfo;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.doc.psi.RsDocCodeFence;
 

@@ -12,8 +12,9 @@ import org.rust.RsBundle;
 import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.ide.utils.PsiInsertionPlace;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class AddElseIntention extends RsElementBaseIntentionAction<PsiInsertionPlace> {
 
@@ -54,6 +55,6 @@ public class AddElseIntention extends RsElementBaseIntentionAction<PsiInsertionP
         PsiElement elseBlock = elseBranch != null ? elseBranch.getBlock() : null;
         if (elseBlock == null) return;
         int elseBlockOffset = elseBlock.getTextOffset();
-        org.rust.openapiext.Editor.moveCaretToOffset(editor, insertedElseBlock, elseBlockOffset + 1);
+        org.rust.openapiext.ui.Editor.moveCaretToOffset(editor, insertedElseBlock, elseBlockOffset + 1);
     }
 }

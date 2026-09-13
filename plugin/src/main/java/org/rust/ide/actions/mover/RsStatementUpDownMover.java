@@ -10,8 +10,9 @@ import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiWhiteSpace;
 import consulo.language.ast.TokenSet;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
+import org.rust.lang.core.psi.impl.*;
 
 @ExtensionImpl(id = "rsStatement", order = "after rsMatchArm")
 public class RsStatementUpDownMover extends RsLineMover {

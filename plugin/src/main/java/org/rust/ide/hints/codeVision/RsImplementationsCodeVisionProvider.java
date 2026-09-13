@@ -27,10 +27,10 @@ import consulo.ui.event.ComponentEvent;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.RsTraitItem;
 import org.rust.lang.core.psi.ext.*;
-import org.rust.lang.core.psi.RsPsiUtilUtil;
+import org.rust.lang.core.psi.impl.RsPsiUtilUtil;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.ArrayList;
@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.List;
 import org.rust.lang.core.psi.ext.RsElement;
 import consulo.application.util.query.CollectionQuery;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @ExtensionImpl
 public class RsImplementationsCodeVisionProvider extends InheritorsCodeVisionProvider {

@@ -10,7 +10,7 @@ import consulo.language.ast.TokenSet;
 import org.rust.lang.core.lexer.RsLexer;
 import org.rust.lang.core.parser.RustParserDefinition;
 import org.rust.lang.core.psi.RsElementTypes;
-import org.rust.lang.core.psi.RsTokenSets;
+import org.rust.lang.core.psi.impl.RsTokenSets;
 
 public class RsWordScanner extends DefaultWordsScanner {
 

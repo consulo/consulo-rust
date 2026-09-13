@@ -14,11 +14,13 @@ import org.rust.RsBundle;
 import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
-import org.rust.lang.core.psi.PsiModificationUtils;
+import org.rust.lang.core.psi.impl.PsiModificationUtils;
 
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class MoveTypeConstraintToWhereClauseIntention extends RsElementBaseIntentionAction<RsTypeParameterList> {
     @Nonnull
@@ -81,7 +83,7 @@ public class MoveTypeConstraintToWhereClauseIntention extends RsElementBaseInten
             RsLifetimeParamBounds bounds = lp.getLifetimeParamBounds();
             if (bounds != null) bounds.delete();
         }
-        org.rust.openapiext.Editor.moveCaretToOffset(editor, addedClause, PsiElementExt.getEndOffset(addedClause));
+        org.rust.openapiext.ui.Editor.moveCaretToOffset(editor, addedClause, PsiElementExt.getEndOffset(addedClause));
     }
 
     @Nullable

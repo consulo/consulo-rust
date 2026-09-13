@@ -11,9 +11,9 @@ import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.ide.presentation.TypeRendering;
+import org.rust.lang.core.presentation.TypeRendering;
 import org.rust.ide.utils.template.EditorExt;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.RsTypeReference;
 import org.rust.lang.core.types.ty.Ty;
 

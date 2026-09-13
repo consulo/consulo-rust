@@ -14,9 +14,9 @@ import org.jdom.Element;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.project.model.CargoProject;
-import org.rust.cargo.project.model.CargoProjectsService;
-import org.rust.ide.experiments.RsExperiments;
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.api.model.CargoProjectsService;
+import org.rust.experiments.RsExperiments;
 import org.rust.openapiext.OpenApiUtil;
 import consulo.util.lang.StringUtil;
 
@@ -69,7 +69,7 @@ public abstract class RsCommandConfiguration extends LocatableConfigurationBase
             CargoProjectsService cargoProjects = CargoProjectServiceUtil.getCargoProjects(project);
             Collection<CargoProject> allProjects = cargoProjects.getAllProjects();
             if (!allProjects.isEmpty()) {
-                myWorkingDirectory = CargoCommandConfiguration.getWorkingDirectory(allProjects.iterator().next());
+                myWorkingDirectory = org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(allProjects.iterator().next());
             }
         }
     }

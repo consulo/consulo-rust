@@ -15,7 +15,8 @@ import org.rust.RsBundle;
 import org.rust.lang.core.psi.*;
 
 import java.util.List;
-import org.rust.lang.core.psi.RsLiteralKindUtil;
+import org.rust.lang.core.psi.impl.RsLiteralKindUtil;
+import org.rust.lang.core.psi.impl.*;
 
 public class RsLiteralAnnotator extends AnnotatorBase {
     @Override

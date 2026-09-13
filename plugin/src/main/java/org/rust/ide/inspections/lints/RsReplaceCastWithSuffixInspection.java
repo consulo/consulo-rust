@@ -20,10 +20,11 @@ import org.rust.lang.core.types.ty.TyInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.rust.lang.core.psi.RsLiteralKindUtil;
+import org.rust.lang.core.psi.impl.RsLiteralKindUtil;
 import consulo.localize.LocalizeValue;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.impl.*;
 
 @ExtensionImpl
 public class RsReplaceCastWithSuffixInspection extends RsLintInspection {

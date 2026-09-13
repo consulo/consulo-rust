@@ -30,7 +30,7 @@ import jakarta.annotation.Nullable;
 import org.rust.cargo.toolchain.RsToolchainBase;
 import org.rust.cargo.toolchain.RsToolchainProvider;
 import org.rust.cargo.toolchain.flavors.RsToolchainFlavor;
-import org.rust.cargo.toolchain.impl.RustcVersion;
+import org.rust.cargo.api.toolchain.RustcVersion;
 import org.rust.cargo.toolchain.tools.Cargo;
 import org.rust.cargo.toolchain.tools.Rustc;
 

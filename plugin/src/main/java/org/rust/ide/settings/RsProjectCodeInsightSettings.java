@@ -13,6 +13,7 @@ import jakarta.annotation.Nonnull;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
 import consulo.annotation.component.ComponentScope;
+import org.rust.settings.ExcludedPath;
 
 @State(name = "RsProjectCodeInsightSettings", storages = @Storage("rust"))
 @ServiceAPI(ComponentScope.PROJECT)

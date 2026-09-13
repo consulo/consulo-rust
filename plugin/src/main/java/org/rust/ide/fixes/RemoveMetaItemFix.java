@@ -13,9 +13,9 @@ import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.RsMetaItem;
 import org.rust.lang.core.psi.RsMetaItemArgs;
 import org.rust.lang.core.psi.ext.RsAttr;
-import org.rust.lang.core.psi.ext.RsAttrUtil;
-import org.rust.lang.core.psi.ext.RsElementUtil;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsAttrUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 
 public class RemoveMetaItemFix extends RemoveElementFix {
 

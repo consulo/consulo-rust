@@ -13,7 +13,7 @@ import org.rust.ide.refactoring.generate.GenerateAccessorHandler;
 import org.rust.ide.refactoring.generate.StructMember;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsImplItem;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.RsStructItem;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.resolve.KnownItems;

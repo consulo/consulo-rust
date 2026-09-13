@@ -27,6 +27,11 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>rust-platform-compat</module>
+        <module>rust-base</module>
+        <module>rust-cargo-api</module>
+        <module>rust-language-api</module>
+        <module>rust-language-impl</module>
         <module>plugin</module>
     </modules>
 </project>

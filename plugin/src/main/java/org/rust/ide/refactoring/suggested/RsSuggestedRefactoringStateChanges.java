@@ -19,7 +19,7 @@ import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsPatIdent;
 import org.rust.lang.core.psi.RsValueParameter;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -15,7 +15,7 @@ import org.rust.RsBundle;
 import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.ide.utils.PsiModificationUtil;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.PsiElementExt;
+import org.rust.lang.core.psi.ext.impl.PsiElementExt;
 
 import java.util.ArrayList;
 import java.util.List;

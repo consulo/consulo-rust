@@ -15,7 +15,7 @@ import org.rust.ide.formatter.processors.RsTrailingCommaFormatProcessor;
 import org.rust.lang.core.psi.RsBlockExpr;
 import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.RsMatchArm;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 
 import java.util.ArrayList;
 import java.util.List;

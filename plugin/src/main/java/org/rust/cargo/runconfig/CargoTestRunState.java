@@ -27,9 +27,9 @@ import org.rust.cargo.runconfig.console.CargoTestConsoleBuilder;
 import org.rust.cargo.runconfig.test.CargoTestConsoleProperties;
 import org.rust.cargo.toolchain.CargoCommandLine;
 import org.rust.cargo.toolchain.RsToolchainBase;
-import org.rust.cargo.toolchain.RustChannel;
-import org.rust.cargo.toolchain.impl.RustcVersion;
-import org.rust.cargo.util.ToolchainUtil;
+import org.rust.cargo.api.toolchain.RustChannel;
+import org.rust.cargo.api.toolchain.RustcVersion;
+import org.rust.cargo.api.util.ToolchainUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,7 +41,7 @@ import consulo.execution.ui.console.ConsoleView;
 import consulo.platform.Platform;
 import consulo.process.ExecutionException;
 import consulo.process.ProcessHandler;
-import org.rust.ide.notifications.NotificationUtils;
+import org.rust.notifications.NotificationUtils;
 
 public class CargoTestRunState extends CargoRunStateBase {
 
@@ -93,7 +93,7 @@ public class CargoTestRunState extends CargoRunStateBase {
                 } else {
                     message = RsBundle.message("notification.run.tests.as.root.unix");
                 }
-                org.rust.ide.notifications.NotificationUtils.showBalloon(getProject(), message, NotificationType.WARNING, null);
+                org.rust.notifications.NotificationUtils.showBalloon(getProject(), message, NotificationType.WARNING, null);
             }
 
             return commandLine.copy(
@@ -145,7 +145,7 @@ public class CargoTestRunState extends CargoRunStateBase {
             HtmlChunk.br(),
             HtmlChunk.link("disable", RsBundle.message("disabling.the.test.tool.window"))
         );
-        org.rust.ide.notifications.NotificationUtils.showBalloon(
+        org.rust.notifications.NotificationUtils.showBalloon(
             project,
             RsBundle.message("notification.title.potentially.inconsistent.build.test.results"),
             content,
@@ -172,7 +172,7 @@ public class CargoTestRunState extends CargoRunStateBase {
             HtmlChunk.br(),
             HtmlChunk.link("revert", RsBundle.message("revert"))
         );
-        org.rust.ide.notifications.NotificationUtils.showBalloon(
+        org.rust.notifications.NotificationUtils.showBalloon(
             project,
             "",
             content,

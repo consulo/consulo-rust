@@ -4,6 +4,7 @@
  */
 
 package org.rust.cargo.runconfig.ui;
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.ui.ex.awt.FormBuilder;
 
 import consulo.execution.ExecutionBundle;
@@ -23,21 +24,21 @@ import consulo.ui.ex.awt.JBCheckBox;
 import consulo.ui.ex.awt.JBLabel;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
-import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 import org.rust.cargo.runconfig.target.BuildTarget;
-import org.rust.cargo.toolchain.BacktraceMode;
-import org.rust.cargo.toolchain.RustChannel;
+import org.rust.cargo.api.toolchain.BacktraceMode;
+import org.rust.cargo.api.toolchain.RustChannel;
 import org.rust.cargo.toolchain.RsToolchainBase;
 import org.rust.cargo.toolchain.tools.Rustup;
 import org.rust.cargo.toolchain.wsl.RsWslToolchain;
-import org.rust.cargo.util.CargoCommandCompletionProvider;
+import org.rust.ide.cargo.completion.CargoCommandCompletionProvider;
 import org.rust.cargo.util.RsCommandLineEditor;
-import org.rust.ide.experiments.RsExperiments;
-import org.rust.openapiext.UiDslUtil;
+import org.rust.experiments.RsExperiments;
+import org.rust.openapiext.ui.UiDslUtil;
 import org.rust.openapiext.OpenApiUtil;
 
 import javax.swing.*;
@@ -122,7 +123,7 @@ public class CargoCommandConfigurationEditor extends RsCommandConfigurationEdito
         int idx = cargoProject.getSelectedIndex();
         if (idx == -1) return;
         CargoProject selectedProject = cargoProject.getItemAt(idx);
-        Path wd = CargoCommandConfiguration.getWorkingDirectory(selectedProject);
+        Path wd = org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(selectedProject);
         workingDirectory.getComponent().setText(wd != null ? wd.toString() : "");
     }
 
@@ -170,7 +171,7 @@ public class CargoCommandConfigurationEditor extends RsCommandConfigurationEdito
         configuration.setBacktrace(BacktraceMode.fromIndex(backtraceMode.getSelectedIndex()));
         configuration.setEnv(environmentVariables.getEnvData());
 
-        RsToolchainBase toolchain = RsProjectSettingsServiceUtil.getToolchain(project);
+        RsToolchainBase toolchain = RsToolchainLocator.getToolchain(project);
         if (toolchain instanceof RsWslToolchain && isRemoteTarget()) {
             throw new ConfigurationException(RsBundle.message("dialog.message.run.targets.cannot.be.used.alongside.with.wsl.toolchain"));
         }

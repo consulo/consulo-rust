@@ -13,8 +13,8 @@ import consulo.document.util.TextRange;
 import consulo.language.psi.PsiFile;
 import consulo.util.lang.Pair;
 import jakarta.annotation.Nullable;
-import org.rust.lang.core.psi.RsLiteralKind;
-import org.rust.lang.core.psi.RsTokenSets;
+import org.rust.lang.core.psi.impl.RsLiteralKind;
+import org.rust.lang.core.psi.impl.RsTokenSets;
 import consulo.language.ast.IElementType;
 
 /**

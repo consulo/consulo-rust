@@ -11,14 +11,14 @@ import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsImplItem;
 import org.rust.lang.core.psi.RsStructItem;
-import org.rust.lang.core.psi.ext.RsStructItemUtil;
-import org.rust.lang.core.psi.ext.RsTraitOrImplUtil;
+import org.rust.lang.core.psi.ext.impl.RsStructItemUtil;
+import org.rust.lang.core.psi.ext.impl.RsTraitOrImplUtil;
 import org.rust.lang.core.psi.ext.RsVisibility;
-import org.rust.lang.core.psi.ext.RsVisibilityOwnerUtil;
+import org.rust.lang.core.psi.ext.impl.RsVisibilityOwnerUtil;
 import org.rust.lang.core.types.Substitution;
 
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsVisibilityUtil;
+import org.rust.lang.core.psi.ext.impl.RsVisibilityUtil;
 
 public abstract class GenerateAccessorHandler extends BaseGenerateHandler {
 

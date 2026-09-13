@@ -18,7 +18,7 @@ import jakarta.annotation.Nullable;
 import org.rust.cargo.runconfig.command.CargoExecutableRunConfigurationProducer;
 import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.RsFunction;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import org.rust.openapiext.OpenApiUtil;
 
 import javax.swing.Icon;

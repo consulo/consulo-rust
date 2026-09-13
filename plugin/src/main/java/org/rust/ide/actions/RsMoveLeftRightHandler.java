@@ -10,8 +10,8 @@ import consulo.language.editor.moveLeftRight.MoveElementLeftRightHandler;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsArrayExprUtil;
-import org.rust.lang.core.psi.ext.RsTypeParameterListUtil;
+import org.rust.lang.core.psi.ext.impl.RsArrayExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsTypeParameterListUtil;
 
 import java.util.Collections;
 import java.util.List;

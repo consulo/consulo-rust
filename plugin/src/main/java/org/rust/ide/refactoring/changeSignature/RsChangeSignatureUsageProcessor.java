@@ -16,8 +16,8 @@ import consulo.util.collection.MultiMap;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.ide.presentation.PresentationUtils;
-import org.rust.ide.presentation.TypeRendering;
+import org.rust.lang.core.presentation.PresentationUtils;
+import org.rust.lang.core.presentation.TypeRendering;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsImplItem;
 import org.rust.lang.core.psi.ext.*;
@@ -27,15 +27,16 @@ import org.rust.stdext.CollectionExtUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsTraitItemUtil;
-import org.rust.lang.core.psi.ext.RsVisibilityUtil;
+import org.rust.lang.core.psi.ext.impl.RsTraitItemUtil;
+import org.rust.lang.core.psi.ext.impl.RsVisibilityUtil;
 import org.rust.lang.core.psi.ext.RsDocAndAttributeOwner;
-import org.rust.lang.core.psi.ext.RsDocAndAttributeOwnerUtil;
+import org.rust.lang.core.psi.ext.impl.RsDocAndAttributeOwnerUtil;
 import org.rust.ide.refactoring.changeSignature.ChangeSignatureImpl;
 import org.rust.lang.core.psi.ext.RsMod;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.localize.LocalizeValue;
 import consulo.navigation.ItemPresentation;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @ExtensionImpl(id = "Rust")
 public class RsChangeSignatureUsageProcessor implements ChangeSignatureUsageProcessor {

@@ -18,11 +18,12 @@ import consulo.language.editor.refactoring.util.CommonRefactoringUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.project.workspace.PackageOrigin;
+import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.openapiext.DataContextExtUtil;
 import org.rust.openapiext.OpenApiUtil;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class RsChangeSignatureHandler implements ChangeSignatureHandler {
 

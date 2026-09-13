@@ -5,7 +5,7 @@
 
 package org.rust.ide.refactoring.introduceConstant;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.dataContext.DataContext;
 import consulo.codeEditor.Editor;
 import consulo.project.Project;
@@ -22,10 +22,10 @@ import org.rust.RsBundle;
 import org.rust.ide.refactoring.RsInPlaceVariableIntroducer;
 import org.rust.ide.refactoring.RsNameSuggestions;
 import org.rust.ide.refactoring.SuggestedNames;
-import org.rust.ide.utils.imports.RsImportHelper;
+import org.rust.lang.core.imports.RsImportHelper;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsConstantUtil;
+import org.rust.lang.core.psi.ext.impl.RsConstantUtil;
 import org.rust.openapiext.NonBlockingUtil;
 import org.rust.openapiext.OpenApiUtil;
 
@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 import static org.rust.ide.refactoring.ExtraxtExpressionUtils.*;
 import static org.rust.ide.refactoring.ExtraxtExpressionUiUtils.*;
+import org.rust.lang.core.psi.impl.*;
 
 public class RsIntroduceConstantHandler implements RefactoringActionHandler {
 

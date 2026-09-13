@@ -11,8 +11,8 @@ import consulo.util.dataholder.Key;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.crate.Crate;
 import org.rust.toml.CrateExt;
-import org.rust.lang.core.psi.AttrCache;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.AttrCache;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.Optional;

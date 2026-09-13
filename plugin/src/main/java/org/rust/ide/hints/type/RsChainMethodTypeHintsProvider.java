@@ -34,11 +34,11 @@ import org.rust.lang.RsLanguage;
 import org.rust.lang.core.crate.Crate;
 import org.rust.lang.core.macros.MacroExpansionExtUtil;
 import org.rust.lang.core.psi.RsDotExpr;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.RsMethodCall;
 import org.rust.lang.core.psi.RsTraitItem;
-import org.rust.lang.core.psi.ext.RsCodeStatus;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsCodeStatus;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import org.rust.lang.core.resolve.ImplLookup;
 import org.rust.lang.core.types.BoundElement;
 import org.rust.lang.core.types.TraitRef;
@@ -57,10 +57,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.rust.lang.core.psi.RsTypeAlias;
-import org.rust.lang.core.psi.ext.RsGenericDeclarationUtil;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsGenericDeclarationUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 import org.rust.lang.core.resolve.KnownItems;
-import org.rust.lang.core.psi.ext.RsMethodCallUtil;
+import org.rust.lang.core.psi.ext.impl.RsMethodCallUtil;
 
 @SuppressWarnings("UnstableApiUsage")
 public class RsChainMethodTypeHintsProvider implements InlayHintsProvider<RsChainMethodTypeHintsProvider.Settings> {

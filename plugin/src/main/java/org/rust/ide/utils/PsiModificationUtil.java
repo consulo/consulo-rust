@@ -10,7 +10,7 @@ import consulo.language.file.inject.VirtualFileWindow;
 import consulo.language.psi.PsiElement;
 import consulo.language.file.light.LightVirtualFile;
 import consulo.virtualFileSystem.VirtualFile;
-import org.rust.cargo.project.model.CargoProjectsUtil;
+import org.rust.cargo.api.model.CargoProjectsUtil;
 import org.rust.lang.core.macros.RsExpandedElementUtil;
 import org.rust.openapiext.OpenApiUtil;
 

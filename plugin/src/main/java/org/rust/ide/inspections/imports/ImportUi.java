@@ -20,9 +20,9 @@ import jakarta.annotation.Nullable;
 
 import org.rust.RsBundle;
 import org.rust.cargo.icons.CargoIcons;
-import org.rust.cargo.project.workspace.PackageOrigin;
-import org.rust.ide.icons.RsIcons;
-import org.rust.ide.utils.imports.ImportCandidate;
+import org.rust.cargo.api.workspace.PackageOrigin;
+import org.rust.icons.RsIcons;
+import org.rust.lang.core.imports.ImportCandidate;
 import org.rust.openapiext.OpenApiUtil;
 
 import javax.swing.*;

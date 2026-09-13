@@ -5,7 +5,7 @@
 
 package org.rust.cargo.util;
 
-import org.rust.cargo.toolchain.impl.RustcVersion;
+import org.rust.cargo.api.toolchain.RustcVersion;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;

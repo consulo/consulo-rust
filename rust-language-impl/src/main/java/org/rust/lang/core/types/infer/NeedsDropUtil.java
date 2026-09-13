@@ -1,0 +1,136 @@
+/*
+ * Use of this source code is governed by the MIT license that can be
+ * found in the LICENSE file.
+ */
+
+package org.rust.lang.core.types.infer;
+
+import jakarta.annotation.Nonnull;
+import org.rust.lang.core.psi.RsEnumItem;
+import org.rust.lang.core.psi.RsStructItem;
+import org.rust.lang.core.psi.ext.*;
+// import removed - use constant directly
+import org.rust.lang.core.resolve.ImplLookup;
+import org.rust.lang.core.types.ExtensionsUtil;
+import org.rust.lang.core.types.Substitution;
+import org.rust.lang.core.types.ty.*;
+import org.rust.lang.utils.evaluation.ThreeValuedLogic;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.rust.lang.core.psi.RsEnumBody;
+import org.rust.lang.core.psi.RsEnumVariant;
+import org.rust.lang.core.psi.RsNamedFieldDecl;
+import org.rust.lang.core.psi.RsTupleFieldDecl;
+import org.rust.lang.core.psi.RsTypeReference;
+import org.rust.lang.core.psi.ext.impl.*;
+
+public final class NeedsDropUtil {
+    private NeedsDropUtil() {
+    }
+
+    @Nonnull
+    public static ThreeValuedLogic needsDrop(@Nonnull ImplLookup lookup, @Nonnull Ty ty, @Nonnull RsElement element) {
+        int recursionLimit = ImplLookup.DEFAULT_RECURSION_LIMIT;
+        return new NeedsDropCheck(lookup, recursionLimit).needsDrop(ty, 0);
+    }
+
+    private static class NeedsDropCheck {
+        @Nonnull
+        private final ImplLookup myImplLookup;
+        private final int myRecursionLimit;
+        @Nonnull
+        private final Map<Ty, ThreeValuedLogic> myCache = new HashMap<>();
+
+        NeedsDropCheck(@Nonnull ImplLookup implLookup, int recursionLimit) {
+            myImplLookup = implLookup;
+            myRecursionLimit = recursionLimit;
+        }
+
+        @Nonnull
+        ThreeValuedLogic needsDrop(@Nonnull Ty ty, int depth) {
+            ThreeValuedLogic cached = myCache.get(ty);
+            if (cached != null) return cached;
+            ThreeValuedLogic result = needsDropRaw(ty, depth);
+            myCache.put(ty, result);
+            return result;
+        }
+
+        @Nonnull
+        private ThreeValuedLogic needsDropRaw(@Nonnull Ty ty, int depth) {
+            if (depth > myRecursionLimit) return ThreeValuedLogic.True;
+            if (ty instanceof TyUnknown) return ThreeValuedLogic.Unknown;
+            if (ty instanceof TyAnon || ty instanceof TyTraitObject) return ThreeValuedLogic.True;
+            if (ty instanceof TyPrimitive || ty instanceof TyReference || ty instanceof TyPointer || ty instanceof TyFunctionBase) {
+                return ThreeValuedLogic.False;
+            }
+            if (myImplLookup.isDrop(ty) == ThreeValuedLogic.True) return ThreeValuedLogic.True;
+            if (myImplLookup.isCopy(ty) == ThreeValuedLogic.True) return ThreeValuedLogic.False;
+            if (ty instanceof TyAdt) return checkAdt((TyAdt) ty, depth);
+            if (ty instanceof TyTuple) return checkTuple((TyTuple) ty, depth);
+            if (ty instanceof TyArray) return needsDrop(((TyArray) ty).getBase(), depth + 1);
+            if (ty instanceof TySlice) return needsDrop(((TySlice) ty).getElementType(), depth + 1);
+            return ThreeValuedLogic.Unknown;
+        }
+
+        @Nonnull
+        private ThreeValuedLogic checkAdt(@Nonnull TyAdt ty, int depth) {
+            Object item = ty.getItem();
+            if (item == myImplLookup.getItems().getManuallyDrop()) return ThreeValuedLogic.False;
+            if (item instanceof RsStructItem) {
+                RsStructItem struct = (RsStructItem) item;
+                if (RsStructItemUtil.getKind(struct) == RsStructKind.UNION) return ThreeValuedLogic.False;
+                return checkAdtFields(struct, ty.getTypeParameterValues(), depth);
+            }
+            if (item instanceof RsEnumItem) {
+                return checkEnum((RsEnumItem) item, ty.getTypeParameterValues(), depth);
+            }
+            return ThreeValuedLogic.Unknown;
+        }
+
+        @Nonnull
+        private ThreeValuedLogic checkTuple(@Nonnull TyTuple ty, int depth) {
+            ThreeValuedLogic result = ThreeValuedLogic.False;
+            for (Ty type : ty.getTypes()) {
+                result = result.or(needsDrop(type, depth + 1));
+                if (result == ThreeValuedLogic.True) return ThreeValuedLogic.True;
+            }
+            return result;
+        }
+
+        @Nonnull
+        private ThreeValuedLogic checkEnum(@Nonnull RsEnumItem enumItem, @Nonnull Substitution substitution, int depth) {
+            ThreeValuedLogic result = ThreeValuedLogic.False;
+            org.rust.lang.core.psi.RsEnumBody body = enumItem.getEnumBody();
+            if (body == null) return ThreeValuedLogic.False;
+            for (org.rust.lang.core.psi.RsEnumVariant variant : body.getEnumVariantList()) {
+                result = result.or(checkAdtFields(variant, substitution, depth));
+                if (result == ThreeValuedLogic.True) return ThreeValuedLogic.True;
+            }
+            return result;
+        }
+
+        @Nonnull
+        private ThreeValuedLogic checkAdtFields(@Nonnull RsFieldsOwner fieldsOwner, @Nonnull Substitution substitution, int depth) {
+            ThreeValuedLogic result = ThreeValuedLogic.False;
+            List<?> fields = RsFieldsOwnerExtUtil.getFields(fieldsOwner);
+            for (Object field : fields) {
+                org.rust.lang.core.psi.RsTypeReference typeRef = null;
+                if (field instanceof org.rust.lang.core.psi.RsNamedFieldDecl) {
+                    typeRef = ((org.rust.lang.core.psi.RsNamedFieldDecl) field).getTypeReference();
+                } else if (field instanceof org.rust.lang.core.psi.RsTupleFieldDecl) {
+                    typeRef = ((org.rust.lang.core.psi.RsTupleFieldDecl) field).getTypeReference();
+                }
+                if (typeRef != null) {
+                    Ty fieldTy = FoldUtil.substitute(ExtensionsUtil.getRawType(typeRef), substitution);
+                    result = result.or(needsDrop(fieldTy, depth + 1));
+                } else {
+                    result = result.or(ThreeValuedLogic.Unknown);
+                }
+                if (result == ThreeValuedLogic.True) return ThreeValuedLogic.True;
+            }
+            return result;
+        }
+    }
+}

@@ -12,9 +12,9 @@ import consulo.language.psi.PsiElement;
 import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.RsMatchArm;
 import org.rust.lang.core.psi.RsMatchBody;
-import org.rust.lang.core.psi.RsPsiFactory;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 
 import java.util.ArrayList;
 import java.util.List;

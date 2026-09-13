@@ -9,7 +9,7 @@ import consulo.language.editor.generation.ClassMember;
 import consulo.language.editor.generation.MemberChooserObject;
 import consulo.language.editor.generation.MemberChooserObjectBase;
 import jakarta.annotation.Nonnull;
-import org.rust.ide.icons.RsIcons;
+import org.rust.icons.RsIcons;
 
 public class RsStructMemberChooserObject extends MemberChooserObjectBase implements ClassMember {
     @Nonnull

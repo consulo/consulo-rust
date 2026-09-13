@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.rust.lang.core.psi.ext.RsElement;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class AddGenericArguments extends RsQuickFixBase<RsMethodOrPath> {
     @SafeFieldForPreview

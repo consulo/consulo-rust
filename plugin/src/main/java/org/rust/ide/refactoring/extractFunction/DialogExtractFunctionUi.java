@@ -13,7 +13,7 @@ import consulo.language.editor.refactoring.ui.NameSuggestionsField;
 import consulo.ui.ex.awt.JBUI;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
-import org.rust.ide.refactoring.RsNamesValidator;
+import org.rust.lang.core.names.RsNamesValidator;
 import org.rust.lang.RsFileType;
 
 import javax.swing.*;

@@ -8,7 +8,7 @@ package org.rust.ide.module;
 import com.intellij.openapi.module.ModuleType;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
-import org.rust.ide.icons.RsIcons;
+import org.rust.icons.RsIcons;
 
 import javax.swing.*;
 import consulo.ui.image.Image;

@@ -16,7 +16,7 @@ import consulo.project.Project;
 import org.jdom.Element;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 import org.rust.cargo.toolchain.CargoCommandLine;
 

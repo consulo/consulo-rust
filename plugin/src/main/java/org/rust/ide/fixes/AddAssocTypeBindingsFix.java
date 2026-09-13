@@ -5,7 +5,7 @@
 
 package org.rust.ide.fixes;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.language.editor.inspection.FileModifier.SafeFieldForPreview;
 import consulo.codeEditor.Editor;
 import consulo.project.Project;
@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import consulo.language.psi.PsiElement;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class AddAssocTypeBindingsFix extends RsQuickFixBase<RsElement> {
     @SafeFieldForPreview

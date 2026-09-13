@@ -13,15 +13,16 @@ import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsAttr;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
-import org.rust.lang.core.psi.ext.RsUseSpeckUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsUseSpeckUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsPathUtil;
+import org.rust.lang.core.psi.ext.impl.RsPathUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class FlattenUseStatementsIntention extends RsElementBaseIntentionAction<FlattenUseStatementsIntention.Context> {
 
@@ -130,7 +131,7 @@ public class FlattenUseStatementsIntention extends RsElementBaseIntentionAction<
 
         PsiElement firstPath = paths.isEmpty() ? null : paths.get(0);
         if (firstPath != null) {
-            org.rust.openapiext.Editor.moveCaretToOffset(editor, firstPath, firstPath.getTextRange().getStartOffset() + ctx.getCursorOffset());
+            org.rust.openapiext.ui.Editor.moveCaretToOffset(editor, firstPath, firstPath.getTextRange().getStartOffset() + ctx.getCursorOffset());
         }
     }
 

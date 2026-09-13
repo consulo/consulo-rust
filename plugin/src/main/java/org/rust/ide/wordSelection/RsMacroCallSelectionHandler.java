@@ -44,8 +44,8 @@ import org.rust.lang.core.macros.MacroExpansion;
 import org.rust.lang.core.macros.RsExpandedElementUtil;
 import org.rust.lang.core.psi.RsMacroArgument;
 import org.rust.lang.core.psi.RsMacroCall;
-import org.rust.lang.core.psi.ext.RsPossibleMacroCallUtil;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsPossibleMacroCallUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;

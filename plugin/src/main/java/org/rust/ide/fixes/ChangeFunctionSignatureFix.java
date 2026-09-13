@@ -13,28 +13,30 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.annotator.FunctionCallContextUtil;
-import org.rust.ide.presentation.TypeRendering;
+import org.rust.lang.core.presentation.TypeRendering;
 import org.rust.ide.refactoring.changeSignature.*;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
-import org.rust.lang.core.psi.ext.RsValueParameterListUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsValueParameterListUtil;
 // import org.rust.lang.core.types.ImplLookupUtil; // placeholder
 import org.rust.lang.core.types.ExtensionsUtil;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyUnknown;
-import org.rust.lang.utils.RsDiagnostic;
+import org.rust.ide.inspections.RsDiagnostic;
+import org.rust.lang.utils.RsInferenceDiagnostic;
 import org.rust.stdext.CollectionExtUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import org.rust.ide.refactoring.changeSignature.ChangeSignatureImpl;
-import org.rust.lang.core.psi.ext.RsValueParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsValueParameterUtil;
 import org.rust.lang.core.types.ImplLookupUtil;
 import consulo.localize.LocalizeValue;
 import org.rust.ide.refactoring.RsNameSuggestions;
 import org.rust.ide.refactoring.changeSignature.RsChangeSignatureProcessor;
 import org.rust.stdext.Utils;
+import org.rust.lang.core.psi.impl.*;
 
 /**
  * This fix can add, remove or change the type of parameters of a function.
@@ -219,12 +221,13 @@ public class ChangeFunctionSignatureFix extends RsQuickFixBase<RsValueArgumentLi
         var context = FunctionCallContextUtil.getFunctionCallContext(arguments);
         if (context == null) return Collections.emptyList();
 
-        var diagnostics = ExtensionsUtil.getInference(arguments) != null
+        List<RsInferenceDiagnostic> diagnostics = ExtensionsUtil.getInference(arguments) != null
             ? ExtensionsUtil.getInference(arguments).getDiagnostics()
-            : Collections.<RsDiagnostic>emptyList();
+            : Collections.emptyList();
 
         Set<PsiElement> errorArguments = new HashSet<>();
-        for (RsDiagnostic d : diagnostics) {
+        for (RsInferenceDiagnostic reported : diagnostics) {
+            RsDiagnostic d = RsDiagnostic.of(reported);
             if (d instanceof RsDiagnostic.TypeError && arguments.getExprList().contains(d.getElement())) {
                 errorArguments.add(d.getElement());
             }

@@ -14,11 +14,13 @@ import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.TyReference;
-import org.rust.lang.core.psi.ext.RsSelfParameterUtil;
-import org.rust.lang.core.psi.ext.RsPatBindingUtil;
-import org.rust.lang.core.psi.ext.RsTypeReferenceUtil;
+import org.rust.lang.core.psi.ext.impl.RsSelfParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsPatBindingUtil;
+import org.rust.lang.core.psi.ext.impl.RsTypeReferenceUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class AddMutableFix extends RsQuickFixBase<RsNamedElement> {
     

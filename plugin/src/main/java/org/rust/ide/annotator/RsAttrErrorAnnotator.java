@@ -21,16 +21,18 @@ import org.rust.lang.core.psi.BuiltinAttributes.AttributeTemplate;
 import org.rust.lang.core.psi.BuiltinAttributes.BuiltinAttributeInfo;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.types.ty.TyInteger;
-import org.rust.lang.utils.RsDiagnostic;
-import org.rust.cargo.toolchain.impl.RustcVersion;
+import org.rust.ide.inspections.RsDiagnostic;
+import org.rust.cargo.api.toolchain.RustcVersion;
 import org.rust.stdext.StdextUtil;
 
 import java.util.*;
-import org.rust.lang.core.psi.ext.RsLitExprUtil;
-import org.rust.lang.core.psi.RsLiteralKindUtil;
-import org.rust.lang.core.psi.ext.RsElementExtUtil;
-import org.rust.lang.core.psi.ext.RsDocAndAttributeOwnerUtil;
+import org.rust.lang.core.psi.ext.impl.RsLitExprUtil;
+import org.rust.lang.core.psi.impl.RsLiteralKindUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementExtUtil;
+import org.rust.lang.core.psi.ext.impl.RsDocAndAttributeOwnerUtil;
 import org.rust.lang.core.psi.BuiltinAttributes;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class RsAttrErrorAnnotator extends AnnotatorBase {
     @Override
@@ -328,7 +330,7 @@ public class RsAttrErrorAnnotator extends AnnotatorBase {
         RustcVersion version = RsElementExtUtil.getCargoProject(item) != null && RsElementExtUtil.getCargoProject(item).getRustcInfo() != null
             ? RsElementExtUtil.getCargoProject(item).getRustcInfo().getVersion() : null;
         if (version == null) return;
-        if (RsDiagnostic.areUnstableFeaturesAvailable(item, version) != ThreeState.NO) return;
+        if (CompilerFeature.areUnstableFeaturesAvailable(item, version) != ThreeState.NO) return;
 
         String channelName = version.getChannel().getChannel();
         if (channelName == null) return;

@@ -5,13 +5,12 @@
 
 package org.rust.ide.inspections;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import jakarta.annotation.Nonnull;
 import org.rust.ide.fixes.AddMutableFix;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsBinaryExprUtil;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.utils.RsDiagnostic;
 
 import consulo.language.psi.PsiElement;
 import org.rust.lang.core.types.RsTypesUtil;

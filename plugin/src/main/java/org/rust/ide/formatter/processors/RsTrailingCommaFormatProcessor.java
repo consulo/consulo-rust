@@ -22,9 +22,9 @@ import org.rust.ide.formatter.impl.RsFmtImplUtil;
 import org.rust.lang.RsLanguage;
 import org.rust.lang.core.psi.RsBlockFields;
 import org.rust.lang.core.psi.RsElementTypes;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.RsStructItem;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 
 @ExtensionImpl
 public class RsTrailingCommaFormatProcessor implements PostFormatProcessor {

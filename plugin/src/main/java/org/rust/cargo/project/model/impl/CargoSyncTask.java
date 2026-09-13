@@ -5,6 +5,10 @@
 
 package org.rust.cargo.project.model.impl;
 
+import org.rust.cargo.project.workspace.StandardLibraryFactory;
+
+import org.rust.cargo.project.workspace.CargoWorkspaceFactory;
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.application.AllIcons;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
@@ -31,21 +35,21 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.RsTask;
-import org.rust.cargo.CargoConfig;
-import org.rust.cargo.CfgOptions;
-import org.rust.cargo.project.model.CargoProject;
-import org.rust.cargo.project.model.ProcessProgressListener;
-import org.rust.cargo.project.model.RustcInfo;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
-import org.rust.cargo.project.settings.RustProjectSettingsService;
-import org.rust.cargo.project.workspace.CargoWorkspace;
-import org.rust.cargo.project.workspace.PackageOrigin;
-import org.rust.cargo.project.workspace.StandardLibrary;
-import org.rust.cargo.runconfig.buildtool.CargoBuildAdapterBase;
-import org.rust.cargo.runconfig.buildtool.CargoBuildContextBase;
+import org.rust.cargo.api.CargoConfig;
+import org.rust.cargo.api.CfgOptions;
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.api.model.ProcessProgressListener;
+import org.rust.cargo.api.model.RustcInfo;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.settings.RustProjectSettingsService;
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.PackageOrigin;
+import org.rust.cargo.api.workspace.StandardLibrary;
+import org.rust.cargo.project.model.sync.CargoBuildAdapterBase;
+import org.rust.cargo.project.model.sync.CargoBuildContextBase;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 import org.rust.cargo.toolchain.RsToolchainBase;
-import org.rust.cargo.toolchain.impl.RustcVersion;
+import org.rust.cargo.api.toolchain.RustcVersion;
 import org.rust.cargo.toolchain.tools.Cargo;
 import org.rust.cargo.toolchain.tools.CargoCallType;
 import org.rust.cargo.toolchain.tools.ProjectDescription;
@@ -179,7 +183,7 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
         @Nonnull ProgressIndicator indicator,
         @Nonnull BuildProgress<BuildProgressDescriptor> syncProgress
     ) {
-        RsToolchainBase toolchain = RsProjectSettingsServiceUtil.getToolchain(rsProject);
+        RsToolchainBase toolchain = RsToolchainLocator.getToolchain(rsProject);
         if (toolchain == null) {
             // Worth saying out loud: without this the sync simply produces nothing and the editor shows
             // every reference unresolved with no explanation.
@@ -197,7 +201,7 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
                 syncProgress,
                 RsBundle.message("build.event.title.sync.project", cargoProject.getPresentableName()),
                 childProgress -> {
-                    Path workingDirectory = CargoCommandConfiguration.getWorkingDirectory(cargoProject);
+                    Path workingDirectory = org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(cargoProject);
                     if (!Files.exists(workingDirectory)) {
                         childProgress.message(
                             LocalizeValue.of(RsBundle.message("tooltip.project.directory.does.not.exist")),
@@ -262,7 +266,7 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
                         RsBundle.message("invalid.rust.toolchain.02", toolchain.getPresentableLocation()));
                 }
 
-                Path workingDirectory = CargoCommandConfiguration.getWorkingDirectory(childContext.oldCargoProject);
+                Path workingDirectory = org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(childContext.oldCargoProject);
                 Rustc rustc = Rustc.create(toolchain);
 
                 RsResult<RustcVersion, RsProcessExecutionException> versionResult =
@@ -306,7 +310,7 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
                     return new TaskResult.Err<>(
                         RsBundle.message("invalid.rust.toolchain.0", toolchain.getPresentableLocation()));
                 }
-                Path projectDirectory = CargoCommandConfiguration.getWorkingDirectory(childContext.oldCargoProject);
+                Path projectDirectory = org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(childContext.oldCargoProject);
                 Cargo cargo = Cargo.cargoOrWrapper(toolchain, projectDirectory);
                 RustcVersion rustcVersion = rustcInfo != null ? rustcInfo.getVersion() : null;
 
@@ -390,7 +394,7 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
                     cfgOptions = Rustc.create(toolchain).getCfgOptions(projectDirectory);
                 }
 
-                CargoWorkspace ws = CargoWorkspace.deserialize(
+                CargoWorkspace ws = CargoWorkspaceFactory.deserialize(
                     manifestPath, description.getWorkspaceData(), cfgOptions, cargoConfig);
                 return new TaskResult.Ok<>(ws);
             }
@@ -406,10 +410,10 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
         return context.runWithChildProgress(
             RsBundle.message("progress.text.getting.rust.stdlib"),
             childContext -> {
-                Path workingDirectory = CargoCommandConfiguration.getWorkingDirectory(cargoProject);
+                Path workingDirectory = org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(cargoProject);
                 if (cargoProject.doesProjectLooksLikeRustc()) {
                     // rust-lang/rust keeps the stdlib inside the project itself
-                    StandardLibrary std = StandardLibrary.fromPath(
+                    StandardLibrary std = StandardLibraryFactory.fromPath(
                         childContext.project,
                         workingDirectory.toString(),
                         rustcInfo,
@@ -438,7 +442,7 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
                     if (explicitPath == null) {
                         return new TaskResult.Err<>(RsBundle.message("no.explicit.stdlib.or.rustup.found"));
                     }
-                    StandardLibrary lib = StandardLibrary.fromPath(
+                    StandardLibrary lib = StandardLibraryFactory.fromPath(
                         childContext.project, explicitPath, rustcInfo, cargoConfig, false, null);
                     if (lib == null) {
                         return new TaskResult.Err<>(RsBundle.message("invalid.standard.library.0", explicitPath));
@@ -451,7 +455,7 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
                     () -> rustup.downloadStdlib(null, null)
                 );
                 if (download instanceof DownloadResult.Ok<VirtualFile> ok) {
-                    StandardLibrary lib = StandardLibrary.fromFile(
+                    StandardLibrary lib = StandardLibraryFactory.fromFile(
                         childContext.project, ok.getValue(), rustcInfo, cargoConfig, false,
                         new SyncProcessAdapter(childContext));
                     if (lib == null) {

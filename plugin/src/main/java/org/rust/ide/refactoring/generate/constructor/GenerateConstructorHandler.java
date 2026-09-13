@@ -13,10 +13,10 @@ import org.rust.ide.refactoring.generate.BaseGenerateHandler;
 import org.rust.ide.refactoring.generate.StructMember;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsImplItem;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.RsStructItem;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
-import org.rust.lang.core.psi.ext.RsStructItemUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsStructItemUtil;
 import org.rust.lang.core.types.Substitution;
 import org.rust.openapiext.OpenApiUtil;
 

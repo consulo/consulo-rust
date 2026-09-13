@@ -15,7 +15,7 @@ import org.rust.ide.fixes.RsQuickFixBase;
 import org.rust.lang.core.psi.RsFormatMacroArgument;
 import org.rust.lang.core.psi.RsMacroCall;
 import org.rust.lang.core.psi.RsVisitor;
-import org.rust.lang.core.psi.ext.RsMacroCallUtil;
+import org.rust.lang.core.psi.ext.impl.RsMacroCallUtil;
 
 import java.util.List;
 import consulo.localize.LocalizeValue;

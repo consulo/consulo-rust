@@ -10,8 +10,8 @@ import consulo.util.lang.Pair;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsBlock;
 import org.rust.lang.core.psi.RsLoopExpr;
-import org.rust.lang.core.psi.RsPsiFactory;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import consulo.localize.LocalizeValue;
 
 public class RsWithLoopSurrounder extends RsStatementsSurrounderBase.SimpleBlock<RsLoopExpr> {

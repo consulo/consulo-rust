@@ -11,7 +11,7 @@ import consulo.language.editor.completion.CompletionResultSet;
 import consulo.language.editor.completion.lookup.LookupElementBuilder;
 import consulo.language.util.ProcessingContext;
 import jakarta.annotation.Nonnull;
-import org.rust.lang.core.psi.ext.PsiElementExt;
+import org.rust.lang.core.psi.ext.impl.PsiElementExt;
 import org.rust.toml.Util;
 import org.toml.lang.psi.TomlKeySegment;
 import org.toml.lang.psi.TomlKeyValue;

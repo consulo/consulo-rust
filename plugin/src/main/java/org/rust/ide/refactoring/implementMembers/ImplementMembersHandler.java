@@ -5,7 +5,7 @@
 
 package org.rust.ide.refactoring.implementMembers;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.generation.ImplementMethodHandler;
 import consulo.codeEditor.Editor;
@@ -13,7 +13,7 @@ import consulo.project.Project;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import jakarta.annotation.Nonnull;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.RsImplItem;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.openapiext.Testmark;

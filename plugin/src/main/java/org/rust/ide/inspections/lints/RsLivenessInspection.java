@@ -9,7 +9,7 @@ import consulo.language.editor.inspection.LocalQuickFix;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
-import org.rust.cargo.project.workspace.PackageOrigin;
+import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.ide.fixes.RemoveParameterFix;
 import org.rust.ide.fixes.RemoveVariableFix;
 import org.rust.ide.fixes.RenameFix;
@@ -19,17 +19,18 @@ import org.rust.lang.core.dfa.liveness.Liveness;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.types.ExtensionsUtil;
-import org.rust.lang.core.psi.ext.RsMacroCallUtil;
+import org.rust.lang.core.psi.ext.impl.RsMacroCallUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.rust.ide.injected.RsDoctestLanguageInjector;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
-import org.rust.lang.core.psi.ext.RsMacroCallUtil;
-import org.rust.lang.core.psi.ext.RsPatBindingUtil;
+import org.rust.lang.core.injected.RsDoctestLanguageInjector;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsMacroCallUtil;
+import org.rust.lang.core.psi.ext.impl.RsPatBindingUtil;
 import consulo.localize.LocalizeValue;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @ExtensionImpl
 public class RsLivenessInspection extends RsLintInspection {

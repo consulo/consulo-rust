@@ -13,15 +13,15 @@ import org.rust.RsBundle;
 import org.rust.ide.hints.type.RsInlayTypeHintsProvider;
 import org.rust.ide.utils.CallInfo;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import org.rust.lang.core.types.SubstitutionUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 import consulo.localize.LocalizeValue;
-import org.rust.lang.core.psi.ext.RsTypeReferenceUtil;
+import org.rust.lang.core.psi.ext.impl.RsTypeReferenceUtil;
 
 @SuppressWarnings("UnstableApiUsage")
 public final class RsInlayParameterHints {
@@ -63,7 +63,7 @@ public final class RsInlayParameterHints {
                 hintNames.add(param.getPattern());
             } else {
                 String typeText = param.getTypeRef() != null
-                    ? org.rust.lang.core.psi.ext.RsTypeReferenceUtil.substAndGetText(param.getTypeRef(), SubstitutionUtil.getEmptySubstitution())
+                    ? org.rust.lang.core.psi.ext.impl.RsTypeReferenceUtil.substAndGetText(param.getTypeRef(), SubstitutionUtil.getEmptySubstitution())
                     : "_";
                 hintNames.add(typeText);
             }

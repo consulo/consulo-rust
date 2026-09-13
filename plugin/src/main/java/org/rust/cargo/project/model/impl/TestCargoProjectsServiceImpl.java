@@ -9,10 +9,10 @@ import consulo.disposer.Disposable;
 import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
 
-import org.rust.cargo.project.model.CargoProject;
-import org.rust.cargo.project.model.RustcInfo;
-import org.rust.cargo.project.workspace.CargoWorkspace;
-import org.rust.cargo.toolchain.impl.RustcVersion;
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.api.model.RustcInfo;
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.cargo.api.toolchain.RustcVersion;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.nio.file.Path;

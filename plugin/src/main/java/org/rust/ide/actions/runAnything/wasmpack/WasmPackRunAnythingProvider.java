@@ -11,14 +11,14 @@ import consulo.ide.runAnything.RunAnythingItem;
 import consulo.dataContext.DataContext;
 import consulo.project.Project;
 import org.rust.RsBundle;
-import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import org.rust.cargo.runconfig.RunConfigUtil;
 import org.rust.cargo.runconfig.wasmpack.util.WasmPackCommandCompletionProvider;
 import org.rust.cargo.toolchain.WasmPackCommandLine;
-import org.rust.cargo.util.RsCommandCompletionProvider;
+import org.rust.ide.cargo.completion.RsCommandCompletionProvider;
 import org.rust.ide.actions.runAnything.RsRunAnythingProvider;
-import org.rust.ide.icons.RsIcons;
+import org.rust.icons.RsIcons;
 
 import javax.swing.*;
 import java.nio.file.Path;

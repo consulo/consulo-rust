@@ -10,13 +10,13 @@ import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.CargoConstants;
-import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.project.workspace.CargoWorkspace;
-import org.rust.cargo.project.workspace.PackageOrigin;
-import org.rust.ide.experiments.RsExperiments;
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.PackageOrigin;
+import org.rust.experiments.RsExperiments;
 import org.rust.lang.RsFileType;
-import org.rust.lang.core.macros.proc.ProcMacroApplicationService;
+import org.rust.experiments.ProcMacroExperiments;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.*;
@@ -95,7 +95,7 @@ public final class CargoSettingsFilesService {
             }
         }
 
-        if (ProcMacroApplicationService.isAnyEnabled()) {
+        if (ProcMacroExperiments.isAnyEnabled()) {
             for (CargoWorkspace.Target target : pkg.getTargets()) {
                 if (target.getKind().isProcMacro()) {
                     VirtualFile crateRoot = target.getCrateRoot();

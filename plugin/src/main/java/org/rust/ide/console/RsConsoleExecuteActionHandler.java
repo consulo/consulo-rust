@@ -50,12 +50,12 @@ public class RsConsoleExecuteActionHandler extends ProcessBackedConsoleExecuteAc
     @Override
     public void runExecuteAction(@Nonnull LanguageConsoleView console) {
         if (!isEnabled) {
-            OpenApiUtil.showErrorHint(console.getConsoleEditor(), consoleIsNotEnabledMessage);
+            org.rust.openapiext.ui.EditorExt.showErrorHint(console.getConsoleEditor(), consoleIsNotEnabledMessage);
             return;
         }
 
         if (!canExecuteNow()) {
-            OpenApiUtil.showErrorHint(console.getConsoleEditor(), prevCommandRunningMessage);
+            org.rust.openapiext.ui.EditorExt.showErrorHint(console.getConsoleEditor(), prevCommandRunningMessage);
             return;
         }
 

@@ -11,10 +11,10 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsExpr;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.RsUnaryExpr;
-import org.rust.lang.core.psi.ext.UnaryOperator;
-import org.rust.lang.core.psi.ext.RsUnaryExprUtil;
+import org.rust.lang.core.psi.ext.impl.UnaryOperator;
+import org.rust.lang.core.psi.ext.impl.RsUnaryExprUtil;
 import consulo.localize.LocalizeValue;
 
 /**

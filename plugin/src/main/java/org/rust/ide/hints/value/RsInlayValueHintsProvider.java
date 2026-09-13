@@ -33,15 +33,15 @@ import org.rust.lang.core.psi.RsMacroCall;
 import org.rust.lang.core.psi.RsPatRange;
 import org.rust.lang.core.psi.RsRangeExpr;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsPatRangeUtil;
-import org.rust.lang.core.psi.ext.RsRangeExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsPatRangeUtil;
+import org.rust.lang.core.psi.ext.impl.RsRangeExprUtil;
 
 @SuppressWarnings("UnstableApiUsage")
 public class RsInlayValueHintsProvider implements InlayHintsProvider<RsInlayValueHintsProvider.Settings> {
@@ -130,8 +130,8 @@ public class RsInlayValueHintsProvider implements InlayHintsProvider<RsInlayValu
                 if (!(expr instanceof RsRangeExpr)) return;
                 RsRangeExpr rangeExpr = (RsRangeExpr) expr;
                 if (!RsElementUtil.isEnabledByCfg(rangeExpr)) return;
-                PsiElement end = org.rust.lang.core.psi.ext.RsRangeExprUtil.getEnd(rangeExpr);
-                PsiElement op = org.rust.lang.core.psi.ext.RsRangeExprUtil.getOp(rangeExpr);
+                PsiElement end = org.rust.lang.core.psi.ext.impl.RsRangeExprUtil.getEnd(rangeExpr);
+                PsiElement op = org.rust.lang.core.psi.ext.impl.RsRangeExprUtil.getOp(rangeExpr);
                 if (end == null || op == null) return;
                 PresentationInfo info = getPresentationInfo(end.getTextRange().getStartOffset(), op, project);
                 if (info == null) return;
@@ -142,8 +142,8 @@ public class RsInlayValueHintsProvider implements InlayHintsProvider<RsInlayValu
                 if (!(pat instanceof RsPatRange)) return;
                 RsPatRange patRange = (RsPatRange) pat;
                 if (!RsElementUtil.isEnabledByCfg(patRange)) return;
-                PsiElement end = org.rust.lang.core.psi.ext.RsPatRangeUtil.getEnd(patRange);
-                PsiElement op = org.rust.lang.core.psi.ext.RsPatRangeUtil.getOp(patRange);
+                PsiElement end = org.rust.lang.core.psi.ext.impl.RsPatRangeUtil.getEnd(patRange);
+                PsiElement op = org.rust.lang.core.psi.ext.impl.RsPatRangeUtil.getOp(patRange);
                 if (end == null || op == null) return;
                 PresentationInfo info = getPresentationInfo(end.getTextRange().getStartOffset(), op, project);
                 if (info == null) return;

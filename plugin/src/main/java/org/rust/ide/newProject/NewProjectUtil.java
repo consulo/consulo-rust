@@ -24,7 +24,7 @@ import org.rust.openapiext.OpenApiUtil;
 import org.rust.stdext.StdextUtil;
 
 import java.nio.file.Path;
-import org.rust.lang.core.psi.ext.RsPathUtil;
+import org.rust.lang.core.psi.ext.impl.RsPathUtil;
 import org.rust.openapiext.RsProcessExecutionException;
 
 /**

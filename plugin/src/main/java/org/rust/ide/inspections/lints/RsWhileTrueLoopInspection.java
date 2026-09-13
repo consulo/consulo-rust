@@ -15,16 +15,17 @@ import org.rust.RsBundle;
 import org.rust.ide.fixes.RsQuickFixBase;
 import org.rust.ide.inspections.RsProblemsHolder;
 import org.rust.ide.inspections.RsWithMacrosInspectionVisitor;
-import org.rust.lang.core.psi.ext.RsExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsExprUtil;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsPsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiElementUtil;
 
 import java.util.Collections;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
-import org.rust.lang.core.psi.ext.RsPsiElementExtUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiElementExtUtil;
 import consulo.localize.LocalizeValue;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.impl.*;
 
 /**
  * Change `while true` to `loop`.

@@ -16,7 +16,7 @@ import consulo.ui.ex.awt.JBCheckBox;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.project.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.cargo.runconfig.RsCommandConfiguration;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 import org.rust.cargo.util.RsCommandLineEditor;
@@ -43,8 +43,8 @@ public abstract class RsCommandConfigurationEditor<T extends RsCommandConfigurat
 
     @Nullable
     protected CargoWorkspace currentWorkspace() {
-        return CargoCommandConfiguration.findCargoProject(project, getCommand().getText(), getCurrentWorkingDirectory()) != null
-            ? CargoCommandConfiguration.findCargoProject(project, getCommand().getText(), getCurrentWorkingDirectory()).getWorkspace()
+        return org.rust.cargo.project.model.CargoProjectLocator.findCargoProject(project, getCommand().getText(), getCurrentWorkingDirectory()) != null
+            ? org.rust.cargo.project.model.CargoProjectLocator.findCargoProject(project, getCommand().getText(), getCurrentWorkingDirectory()).getWorkspace()
             : null;
     }
 

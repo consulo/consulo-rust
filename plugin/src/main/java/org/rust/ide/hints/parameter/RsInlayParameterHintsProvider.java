@@ -15,10 +15,10 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.RsLanguage;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 
 import java.util.*;
-import org.rust.lang.core.psi.ext.RsValueParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsValueParameterUtil;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.language.Language;
 import consulo.localize.LocalizeValue;

@@ -11,7 +11,7 @@ import org.rust.ide.fixes.ChangeTryMacroToTryOperator;
 import org.rust.lang.core.macros.MacroExpansionContextUtil;
 import org.rust.lang.core.psi.RsMacroCall;
 import org.rust.lang.core.psi.RsVisitor;
-import org.rust.lang.core.psi.ext.RsMacroCallUtil;
+import org.rust.lang.core.psi.ext.impl.RsMacroCallUtil;
 import consulo.localize.LocalizeValue;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;

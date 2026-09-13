@@ -13,8 +13,8 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsBlockUtil;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsBlockUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import org.rust.lang.core.resolve.NameResolution;
 import org.rust.lang.core.resolve.Processors;
 import org.rust.lang.core.resolve2.ItemProcessingMode;
@@ -22,11 +22,12 @@ import org.rust.openapiext.VirtualFileExtUtil;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 import org.rust.lang.core.resolve2.FacadeResolve;
 import org.rust.lang.core.psi.ext.RsMod;
-import org.rust.lang.core.psi.ext.RsFileUtil;
+import org.rust.lang.core.psi.ext.impl.RsFileUtil;
+import org.rust.lang.core.psi.impl.*;
 
 public class RsConsoleCodeFragmentContext {
 
@@ -150,6 +151,6 @@ public class RsConsoleCodeFragmentContext {
         if (crateRoot == null) return null;
         var psiFile = VirtualFileExtUtil.toPsiFile(crateRoot, project);
         if (psiFile == null) return null;
-        return org.rust.lang.core.psi.ext.RsFileUtil.getRustFile(psiFile);
+        return org.rust.lang.core.psi.ext.impl.RsFileUtil.getRustFile(psiFile);
     }
 }

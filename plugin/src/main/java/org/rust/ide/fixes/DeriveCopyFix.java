@@ -10,7 +10,7 @@ import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.project.workspace.PackageOrigin;
+import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.lang.core.psi.RsEnumItem;
 import org.rust.lang.core.psi.RsEnumVariant;
 import org.rust.lang.core.psi.RsPathExpr;
@@ -22,10 +22,11 @@ import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyAdt;
 
 import java.util.List;
-import org.rust.lang.core.psi.RsPsiImplUtil;
+import org.rust.lang.core.psi.impl.RsPsiImplUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.types.ty.TyUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class DeriveCopyFix extends RsQuickFixBase<RsPathExpr> {
 

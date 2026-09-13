@@ -8,8 +8,7 @@ package org.rust.cargo.project.model.impl;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.cargo.project.model.CargoProjectsService;
-import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
+import org.rust.cargo.api.model.CargoProjectsService;
 import java.nio.file.Path;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,7 +36,7 @@ public final class CargoEventService {
             CargoProjectsService.CARGO_PROJECTS_TOPIC,
             (service, projects) -> {
                 Set<Path> projectDirs = projects.stream()
-                    .map(CargoCommandConfiguration::getWorkingDirectory)
+                    .map(org.rust.cargo.project.model.CargoProjectLocator::getWorkingDirectory)
                     .collect(Collectors.toSet());
                 metadataCallTimestamps.keySet().retainAll(projectDirs);
             }

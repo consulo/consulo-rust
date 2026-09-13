@@ -8,12 +8,12 @@ package org.rust.ide.refactoring.move;
 import consulo.language.psi.PsiDirectory;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.cargo.project.workspace.CargoWorkspace;
-import org.rust.cargo.project.workspace.PackageOrigin;
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.lang.RsConstants;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.ext.RsMod;
-import org.rust.lang.core.psi.ext.RsModUtil;
+import org.rust.lang.core.psi.ext.impl.RsModUtil;
 import org.rust.openapiext.VirtualFileExtUtil;
 
 import java.nio.file.Path;

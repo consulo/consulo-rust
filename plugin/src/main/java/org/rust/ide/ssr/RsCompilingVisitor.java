@@ -10,7 +10,7 @@ import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisito
 import com.intellij.structuralsearch.impl.matcher.handlers.TopLevelMatchingHandler;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.lang.core.psi.RsRecursiveVisitor;
+import org.rust.lang.core.psi.impl.RsRecursiveVisitor;
 
 // TODO: implement WordOptimizer and filters
 public class RsCompilingVisitor extends RsRecursiveVisitor {

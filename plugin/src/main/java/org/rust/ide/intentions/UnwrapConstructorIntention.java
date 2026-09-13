@@ -15,7 +15,7 @@ import org.rust.ide.utils.PsiModificationUtil;
 import org.rust.lang.core.psi.RsCallExpr;
 import org.rust.lang.core.psi.RsExpr;
 import org.rust.lang.core.psi.RsPathExpr;
-import org.rust.lang.core.psi.ext.PsiElementExt;
+import org.rust.lang.core.psi.ext.impl.PsiElementExt;
 import org.rust.lang.core.psi.ext.RsFieldsOwner;
 
 import java.util.List;

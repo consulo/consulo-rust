@@ -21,7 +21,7 @@ import consulo.language.ast.TokenSet;
 import consulo.language.psi.util.PsiTreeUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.ide.injected.RsDoctestLanguageInjector;
+import org.rust.lang.core.injected.RsDoctestLanguageInjector;
 import org.rust.lang.RsLanguage;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
@@ -30,11 +30,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.rust.lang.core.psi.RsElementTypes.*;
-import org.rust.lang.core.psi.ext.RsMacroCallUtil;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsMacroCallUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.language.Language;
 import consulo.language.psi.PsiFile;
+import org.rust.lang.core.psi.impl.*;
 
 @ExtensionImpl
 public class RsFoldingBuilder extends CustomFoldingBuilder implements DumbAware {

@@ -39,7 +39,7 @@ import consulo.language.psi.util.PsiTreeUtil;
 import consulo.language.util.ProcessingContext;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.toml.lang.psi.*;
 import org.toml.lang.psi.ext.TomlLiteralKind;
 import org.toml.lang.psi.ext.TomlLiteralExt;

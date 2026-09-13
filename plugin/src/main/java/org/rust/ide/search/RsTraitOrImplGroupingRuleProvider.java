@@ -19,10 +19,10 @@ import consulo.usage.rule.SingleParentUsageGroupingRule;
 import consulo.usage.rule.UsageGroupingRule;
 
 import org.rust.RsBundle;
-import org.rust.ide.presentation.PresentationInfo;
+import org.rust.lang.core.presentation.PresentationInfo;
 import org.rust.lang.core.psi.RsImplItem;
 import org.rust.lang.core.psi.ext.RsTraitOrImpl;
-import org.rust.ide.presentation.RsPsiRendererUtil;
+import org.rust.lang.core.presentation.RsPsiRendererUtil;
 
 @ExtensionImpl(order = "before rs-function")
 public class RsTraitOrImplGroupingRuleProvider implements FileStructureGroupRuleProvider {

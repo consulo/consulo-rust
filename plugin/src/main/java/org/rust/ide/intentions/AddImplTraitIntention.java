@@ -29,12 +29,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsTraitRefUtil;
+import org.rust.lang.core.psi.ext.impl.RsTraitRefUtil;
 
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.types.BoundElement;
 import consulo.localize.LocalizeValue;
 import org.rust.openapiext.SmartPointerUtil;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class AddImplTraitIntention extends RsElementBaseIntentionAction<AddImplTraitIntention.Context> {
 

@@ -13,9 +13,9 @@ import org.rust.ide.inspections.RsProblemsHolder;
 import org.rust.ide.inspections.RsWithMacrosInspectionVisitor;
 import org.rust.lang.core.RsPsiPattern;
 import org.rust.lang.core.psi.RsLitExpr;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.RsVisitor;
-import org.rust.lang.core.psi.ext.RsLitExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsLitExprUtil;
 
 import java.util.Arrays;
 import java.util.Collections;

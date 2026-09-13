@@ -15,9 +15,9 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.fixes.DeleteUseSpeckUtil;
-import org.rust.ide.presentation.RsPsiRendererUtil;
+import org.rust.lang.core.presentation.RsPsiRendererUtil;
 import org.rust.ide.refactoring.RsInlineUsageViewDescriptor;
-import org.rust.ide.utils.imports.RsImportHelper;
+import org.rust.lang.core.imports.RsImportHelper;
 import org.rust.lang.core.macros.RsExpandedElementUtil;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
@@ -39,6 +39,8 @@ import org.rust.lang.core.types.SubstitutionUtil;
 import org.rust.lang.core.types.infer.FoldUtil;
 import org.rust.lang.core.types.infer.RsInferenceContext;
 import org.rust.lang.core.types.ty.Ty;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class RsInlineTypeAliasProcessor extends BaseRefactoringProcessor {
     @Nonnull

@@ -13,8 +13,8 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.utils.PsiInsertionPlace;
-import org.rust.ide.utils.imports.ImportBridge;
-import org.rust.ide.utils.checkMatch.Pattern;
+import org.rust.lang.core.imports.ImportBridge;
+import org.rust.lang.core.match.Pattern;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.types.RsTypesUtil;
@@ -22,6 +22,7 @@ import org.rust.lang.core.types.RsTypesUtil;
 import java.util.Collections;
 import java.util.List;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class AddRemainingArmsFix extends RsQuickFixBase<RsMatchExpr> {
     @SafeFieldForPreview

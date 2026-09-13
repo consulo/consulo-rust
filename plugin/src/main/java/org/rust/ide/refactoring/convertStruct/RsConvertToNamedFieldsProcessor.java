@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import consulo.language.psi.util.PsiTreeUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class RsConvertToNamedFieldsProcessor extends BaseRefactoringProcessor {
     @Nonnull

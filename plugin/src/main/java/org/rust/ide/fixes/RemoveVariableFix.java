@@ -12,9 +12,10 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsExprUtil;
-import org.rust.lang.core.psi.ext.RsPatBindingUtil;
+import org.rust.lang.core.psi.ext.impl.RsExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsPatBindingUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 /**
  * Fix that removes a variable.

@@ -5,7 +5,7 @@
 
 package org.rust.ide.inspections;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.codeEditor.Editor;
 import consulo.project.Project;
 import consulo.document.util.TextRange;
@@ -16,16 +16,17 @@ import org.rust.RsBundle;
 import org.rust.ide.fixes.RsQuickFixBase;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsMatchExprUtil;
-import org.rust.lang.core.psi.ext.RsStmtUtil;
+import org.rust.lang.core.psi.ext.impl.RsMatchExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsStmtUtil;
 import org.rust.openapiext.Testmark;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import consulo.localize.LocalizeValue;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.impl.*;
 
 @ExtensionImpl
 public class RsLiftInspection extends RsLocalInspectionTool {

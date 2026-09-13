@@ -25,6 +25,7 @@ import org.rust.RsBundle;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.psi.ext.RsNamedElement;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
+import org.rust.lang.core.presentation.PresentationInfo;
 
 @ExtensionImpl
 public class RsDescriptionProvider implements ElementDescriptionProvider {

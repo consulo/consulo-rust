@@ -11,11 +11,11 @@ import consulo.document.util.TextRange;
 import consulo.language.psi.PsiElement;
 import org.rust.RsBundle;
 import org.rust.ide.intentions.util.macros.InvokeInside;
-import org.rust.ide.presentation.TypeRendering;
+import org.rust.lang.core.presentation.TypeRendering;
 import org.rust.ide.utils.PsiModificationUtil;
 import org.rust.ide.utils.template.EditorExt;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.TyFunctionBase;
 import org.rust.lang.core.types.ty.TyUnit;
@@ -26,8 +26,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsValueParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsValueParameterUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class ConvertClosureToFunctionIntention extends RsElementBaseIntentionAction<ConvertClosureToFunctionIntention.Context> {
 
@@ -131,7 +132,7 @@ public class ConvertClosureToFunctionIntention extends RsElementBaseIntentionAct
             placeholderElements.addAll(placeholders);
             EditorExt.buildAndRunTemplate(editor, replaced, placeholderElements);
         } else {
-            org.rust.openapiext.Editor.moveCaretToOffset(editor, replaced, replaced.getTextRange().getEndOffset());
+            org.rust.openapiext.ui.Editor.moveCaretToOffset(editor, replaced, replaced.getTextRange().getEndOffset());
         }
     }
 

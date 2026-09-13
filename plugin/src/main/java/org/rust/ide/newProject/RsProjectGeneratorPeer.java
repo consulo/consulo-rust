@@ -16,7 +16,7 @@ import org.rust.ide.newProject.ui.RsNewProjectPanel;
 import javax.swing.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.rust.openapiext.UiUtil;
+import org.rust.openapiext.ui.UiUtil;
 import org.rust.stdext.BuilderUtil;
 
 public class RsProjectGeneratorPeer extends GeneratorPeerImpl<ConfigurationData> {

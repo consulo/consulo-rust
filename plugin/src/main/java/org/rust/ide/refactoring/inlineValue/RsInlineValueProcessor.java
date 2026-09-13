@@ -18,13 +18,14 @@ import org.rust.RsBundle;
 import org.rust.ide.refactoring.RsInlineUsageViewDescriptor;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsStructLiteralFieldUtil;
+import org.rust.lang.core.psi.ext.impl.RsStructLiteralFieldUtil;
 import org.rust.lang.core.resolve.ref.RsReference;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class RsInlineValueProcessor extends BaseRefactoringProcessor {
     @Nonnull

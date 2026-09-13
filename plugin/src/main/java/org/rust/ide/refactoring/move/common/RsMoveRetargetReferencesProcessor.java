@@ -10,17 +10,19 @@ import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.ide.refactoring.RsImportOptimizer;
-import org.rust.ide.utils.imports.ImportUtils;
+import org.rust.lang.core.imports.ImportUtils;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 
 import java.util.*;
-import org.rust.lang.core.psi.ext.RsPathUtil;
-import org.rust.lang.core.psi.ext.RsUseSpeckUtil;
+import org.rust.lang.core.psi.ext.impl.RsPathUtil;
+import org.rust.lang.core.psi.ext.impl.RsUseSpeckUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
 import consulo.language.psi.PsiElement;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class RsMoveRetargetReferencesProcessor {
 

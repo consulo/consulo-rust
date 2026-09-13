@@ -14,11 +14,11 @@ import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.ide.utils.PsiModificationUtil;
 import org.rust.lang.core.psi.RsBinaryExpr;
 import org.rust.lang.core.psi.RsElementTypes;
-import org.rust.lang.core.psi.RsPsiFactory;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsBinaryExprUtil;
 import consulo.localize.LocalizeValue;
 
 public class FlipBinaryExpressionIntention extends RsElementBaseIntentionAction<RsBinaryExpr> {

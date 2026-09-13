@@ -22,11 +22,11 @@ import consulo.language.psi.PsiFile;
 import consulo.util.lang.Pair;
 import org.rust.ide.fixes.QualifyPathFix;
 import org.rust.ide.inspections.imports.AutoImportFix;
-import org.rust.ide.settings.RsCodeInsightSettings;
-import org.rust.ide.utils.imports.ImportCandidate;
-import org.rust.ide.utils.imports.ImportCandidateUtil;
-import org.rust.ide.utils.imports.ImportContext;
-import org.rust.ide.utils.imports.ImportInfo;
+import org.rust.settings.RsCodeInsightSettings;
+import org.rust.lang.core.imports.ImportCandidate;
+import org.rust.lang.core.imports.ImportCandidateUtil;
+import org.rust.lang.core.imports.ImportContext;
+import org.rust.lang.core.imports.ImportInfo;
 import org.rust.lang.core.crate.Crate;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
@@ -36,10 +36,12 @@ import org.rust.openapiext.PsiFileExtUtil;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.util.*;
-import org.rust.lang.core.psi.ext.RsPathUtil;
+import org.rust.lang.core.psi.ext.impl.RsPathUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @ExtensionImpl
 public class RsImportCopyPasteProcessor extends CopyPastePostProcessor<RsTextBlockTransferableData> {

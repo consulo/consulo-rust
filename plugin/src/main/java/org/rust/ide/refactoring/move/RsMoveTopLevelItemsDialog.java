@@ -35,7 +35,7 @@ import org.rust.lang.RsConstants;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsItemElement;
 import org.rust.lang.core.psi.ext.RsMod;
-import org.rust.lang.core.psi.ext.RsModUtil;
+import org.rust.lang.core.psi.ext.impl.RsModUtil;
 import org.rust.openapiext.*;
 import org.rust.stdext.StdextUtil;
 
@@ -53,6 +53,7 @@ import consulo.ui.ex.awt.util.StringHtmlUtil;
 import consulo.ui.image.Image;
 import consulo.util.io.FileUtil;
 import org.rust.openapiext.OpenApiUtil;
+import org.rust.lang.core.psi.impl.*;
 
 public class RsMoveTopLevelItemsDialog extends RefactoringDialog {
 
@@ -99,7 +100,7 @@ public class RsMoveTopLevelItemsDialog extends RefactoringDialog {
 
     @Nonnull
     private TextFieldWithBrowseButton createTargetFileChooser(@Nonnull Project project) {
-        TextFieldWithBrowseButton chooser = org.rust.openapiext.OpenApiUtil.pathToRsFileTextField(
+        TextFieldWithBrowseButton chooser = org.rust.openapiext.ui.UiUtil.pathToRsFileTextField(
             getDisposable(), RsBundle.message("dialog.title.choose.destination.file"), project, this::validateButtons
         );
         chooser.setText(sourceFilePath);

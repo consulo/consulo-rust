@@ -15,7 +15,7 @@ import com.intellij.util.PlatformUtils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.ide.icons.RsIcons;
+import org.rust.icons.RsIcons;
 import consulo.localize.LocalizeValue;
 
 @ExtensionImpl

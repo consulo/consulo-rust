@@ -5,6 +5,8 @@
 
 package org.rust.cargo.runconfig.wasmpack;
 
+
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.execution.executor.Executor;
 import consulo.execution.configuration.ConfigurationFactory;
 import consulo.execution.configuration.RunConfiguration;
@@ -15,7 +17,7 @@ import consulo.project.Project;
 import consulo.process.cmd.ParametersListUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import org.rust.cargo.runconfig.RsCommandConfiguration;
 import org.rust.cargo.runconfig.ui.WasmPackCommandConfigurationEditor;
 import org.rust.cargo.toolchain.RsToolchainBase;
@@ -55,7 +57,7 @@ public class WasmPackCommandConfiguration extends RsCommandConfiguration {
     @Nullable
     @Override
     public RunProfileState getState(@Nonnull Executor executor, @Nonnull ExecutionEnvironment environment) {
-        RsToolchainBase toolchain = RsProjectSettingsServiceUtil.getToolchain(environment.getProject());
+        RsToolchainBase toolchain = RsToolchainLocator.getToolchain(environment.getProject());
         if (toolchain == null) return null;
         var wasmPack = WasmPack.create(toolchain);
         if (wasmPack == null) return null;

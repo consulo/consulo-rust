@@ -22,13 +22,14 @@ import jakarta.annotation.Nullable;
 import org.rust.ide.formatter.RsFmtContext;
 import org.rust.ide.formatter.settings.RsCodeStyleSettings;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 import org.rust.lang.core.psi.ext.RsItemElement;
 import org.rust.lang.core.psi.ext.RsNamedElement;
 
 import static org.rust.lang.core.psi.RsElementTypes.*;
 import static org.rust.lang.core.psi.RsTokenType.tokenSetOf;
 import org.rust.lang.core.psi.RsTokenType;
+import org.rust.lang.core.psi.impl.*;
 
 public final class RsSpacingUtil {
 

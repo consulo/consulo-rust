@@ -5,7 +5,7 @@
 
 package org.rust.ide.typing.paste;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.crate.Crate;

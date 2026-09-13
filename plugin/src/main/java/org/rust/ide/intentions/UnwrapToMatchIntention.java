@@ -13,13 +13,14 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.utils.PsiModificationUtil;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.PsiElementExt;
-import org.rust.lang.core.psi.ext.RsMethodCallUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementExt;
+import org.rust.lang.core.psi.ext.impl.RsMethodCallUtil;
 import org.rust.lang.core.resolve.KnownItems;
 import org.rust.lang.core.types.ty.TyAdt;
 import org.rust.lang.core.types.infer.TypeInference;
 import org.rust.lang.core.types.RsTypesUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class UnwrapToMatchIntention extends RsElementBaseIntentionAction<UnwrapToMatchIntention.Context> {
     @Nonnull

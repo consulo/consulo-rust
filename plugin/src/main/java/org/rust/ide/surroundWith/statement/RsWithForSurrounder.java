@@ -11,8 +11,8 @@ import consulo.document.util.TextRange;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsBlock;
 import org.rust.lang.core.psi.RsForExpr;
-import org.rust.lang.core.psi.RsPsiFactory;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import consulo.localize.LocalizeValue;
 
 public class RsWithForSurrounder extends RsStatementsSurrounderBase.BlockWithCondition<RsForExpr> {

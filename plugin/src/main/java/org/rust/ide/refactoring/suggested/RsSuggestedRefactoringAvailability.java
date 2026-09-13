@@ -21,7 +21,7 @@ import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsMembers;
 import org.rust.lang.core.psi.RsPatBinding;
 import org.rust.lang.core.psi.RsTraitItem;
-import org.rust.lang.core.psi.ext.RsPatBindingUtil;
+import org.rust.lang.core.psi.ext.impl.RsPatBindingUtil;
 
 public class RsSuggestedRefactoringAvailability extends SuggestedRefactoringAvailability {
 

@@ -20,6 +20,7 @@ import org.rust.RsBundle;
 import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import org.rust.settings.RsCodeInsightSettings;
 
 /**
  * Rust page of the editor "Auto Import" settings group: the four auto-import

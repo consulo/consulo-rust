@@ -13,7 +13,7 @@ import consulo.ui.ex.action.AnActionEvent;
 import consulo.project.Project;
 import consulo.util.dataholder.Key;
 import consulo.language.editor.inspection.scheme.InspectionProjectProfileManager;
-import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.runconfig.command.RunCargoCommandActionBase;
 import org.rust.cargo.runconfig.RunConfigUtil;
 import org.rust.ide.inspections.RsExternalLinterInspection;

@@ -14,7 +14,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.fixes.SubstituteTextFix;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.PsiElementExt;
+import org.rust.lang.core.psi.ext.impl.PsiElementExt;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.localize.LocalizeValue;
 

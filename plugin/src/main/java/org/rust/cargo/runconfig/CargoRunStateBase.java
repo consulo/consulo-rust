@@ -16,13 +16,13 @@ import consulo.project.Project;
 import consulo.util.lang.StringUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.runconfig.buildtool.Utils;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 import org.rust.cargo.runconfig.target.RsLanguageRuntimeConfiguration;
 import org.rust.cargo.toolchain.CargoCommandLine;
 import org.rust.cargo.toolchain.RsToolchainBase;
-import org.rust.cargo.toolchain.impl.RustcVersion;
+import org.rust.cargo.api.toolchain.RustcVersion;
 import org.rust.cargo.toolchain.tools.Cargo;
 import org.rust.cargo.toolchain.tools.CargoExtUtil;
 import org.rust.cargo.toolchain.tools.Rustc;
@@ -64,7 +64,7 @@ public abstract class CargoRunStateBase extends CommandLineState {
         myProject = environment.getProject();
         myToolchain = config.getToolchain();
         myCommandLine = config.getCmd();
-        myCargoProject = CargoCommandConfiguration.findCargoProject(
+        myCargoProject = org.rust.cargo.project.model.CargoProjectLocator.findCargoProject(
             myProject,
             myCommandLine.getAdditionalArguments(),
             myCommandLine.getWorkingDirectory()
@@ -104,7 +104,7 @@ public abstract class CargoRunStateBase extends CommandLineState {
 
     @Nullable
     private Path getWorkingDirectory() {
-        return myCargoProject != null ? CargoCommandConfiguration.getWorkingDirectory(myCargoProject) : null;
+        return myCargoProject != null ? org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(myCargoProject) : null;
     }
 
     @Nonnull

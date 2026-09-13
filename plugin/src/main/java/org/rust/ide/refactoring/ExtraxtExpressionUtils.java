@@ -5,7 +5,7 @@
 
 package org.rust.ide.refactoring;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.language.editor.PsiEquivalenceUtil;
 import consulo.codeEditor.Editor;
 import consulo.language.psi.PsiElement;
@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.rust.ide.utils.SearchByOffset;
+import org.rust.lang.core.psi.impl.*;
 
 public final class ExtraxtExpressionUtils {
     private ExtraxtExpressionUtils() {

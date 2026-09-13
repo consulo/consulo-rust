@@ -15,7 +15,7 @@ import org.rust.ide.inspections.RsProblemsHolder;
 import org.rust.ide.inspections.RsWithMacrosInspectionVisitor;
 import org.rust.lang.core.psi.RsLabelDecl;
 import org.rust.lang.core.psi.RsVisitor;
-import org.rust.lang.core.psi.ext.RsLabelDeclExtUtil;
+import org.rust.lang.core.psi.ext.impl.RsLabelDeclExtUtil;
 
 import java.util.Collections;
 import consulo.localize.LocalizeValue;

@@ -7,12 +7,12 @@ package org.rust.cargo.runconfig.wasmpack.util;
 
 import consulo.language.editor.completion.lookup.LookupElementBuilder;
 import jakarta.annotation.Nonnull;
-import org.rust.cargo.project.model.CargoProjectsService;
-import org.rust.cargo.project.workspace.CargoWorkspace;
-import org.rust.cargo.util.CmdBase;
-import org.rust.cargo.util.Opt;
-import org.rust.cargo.util.OptBuilder;
-import org.rust.cargo.util.RsCommandCompletionProvider;
+import org.rust.cargo.api.model.CargoProjectsService;
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.ide.cargo.completion.CmdBase;
+import org.rust.ide.cargo.completion.Opt;
+import org.rust.ide.cargo.completion.OptBuilder;
+import org.rust.ide.cargo.completion.RsCommandCompletionProvider;
 
 import java.util.ArrayList;
 import java.util.Arrays;

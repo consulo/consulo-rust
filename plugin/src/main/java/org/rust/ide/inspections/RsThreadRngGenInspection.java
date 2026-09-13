@@ -14,16 +14,17 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.fixes.RsQuickFixBase;
-import org.rust.ide.utils.imports.RsImportHelper;
+import org.rust.lang.core.imports.RsImportHelper;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.PsiElementExt;
+import org.rust.lang.core.psi.ext.impl.PsiElementExt;
 import org.rust.lang.core.resolve.KnownItems;
 import org.rust.lang.core.resolve.NameResolution;
 import consulo.localize.LocalizeValue;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
 import org.rust.lang.core.resolve.Namespace;
+import org.rust.lang.core.psi.impl.*;
 
 @ExtensionImpl
 public class RsThreadRngGenInspection extends RsLocalInspectionTool {

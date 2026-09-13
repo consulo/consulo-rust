@@ -12,7 +12,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.newProject.state.RsUserTemplate;
 import org.rust.ide.newProject.state.RsUserTemplatesState;
-import org.rust.openapiext.UiUtil;
+import org.rust.openapiext.ui.UiUtil;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;

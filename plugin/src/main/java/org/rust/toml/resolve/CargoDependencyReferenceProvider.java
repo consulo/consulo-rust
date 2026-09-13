@@ -14,11 +14,11 @@ import consulo.language.psi.PsiReferenceProvider;
 import consulo.language.util.ProcessingContext;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.project.model.CargoProjectsService;
-import org.rust.cargo.project.workspace.CargoWorkspace;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.cargo.api.model.CargoProjectsService;
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.openapiext.VirtualFileExtUtil;
 import org.toml.lang.psi.TomlKeySegment;
 

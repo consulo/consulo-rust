@@ -12,13 +12,13 @@ import consulo.virtualFileSystem.VirtualFile;
 import consulo.ide.impl.idea.util.indexing.LightDirectoryIndex;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.cargo.project.model.CargoProject;
-import org.rust.cargo.project.model.CargoProjectsService;
-import org.rust.cargo.project.workspace.CargoWorkspace;
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.api.model.CargoProjectsService;
+import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.*;
-import org.rust.cargo.project.model.CargoProjectsListener;
+import org.rust.cargo.api.model.CargoProjectsListener;
 
 public class CargoPackageIndex implements CargoProjectsListener {
 

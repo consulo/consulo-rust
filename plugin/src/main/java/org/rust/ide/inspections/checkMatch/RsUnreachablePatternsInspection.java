@@ -15,7 +15,7 @@ import org.rust.ide.inspections.RsProblemsHolder;
 import org.rust.ide.inspections.RsWithMacrosInspectionVisitor;
 import org.rust.ide.inspections.lints.RsLint;
 import org.rust.ide.inspections.lints.RsLintInspection;
-import org.rust.ide.utils.checkMatch.*;
+import org.rust.lang.core.match.*;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.types.RsTypesUtil;
@@ -27,12 +27,16 @@ import org.rust.lang.core.types.ty.Ty;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsMatchArmUtil;
+import org.rust.lang.core.psi.ext.impl.RsMatchArmUtil;
 import consulo.localize.LocalizeValue;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.inspection.LocalQuickFix;
-import org.rust.ide.utils.checkMatch.CheckMatchUtils;
-import org.rust.ide.utils.checkMatch.UsefulnessResult;
+import org.rust.lang.core.match.CheckMatchUtils;
+import org.rust.lang.core.match.UsefulnessResult;
+import org.rust.lang.core.match.CheckMatchUtil;
+import org.rust.lang.core.match.Pattern;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @ExtensionImpl
 public class RsUnreachablePatternsInspection extends RsLintInspection {
@@ -76,7 +80,7 @@ public class RsUnreachablePatternsInspection extends RsLintInspection {
             List<Pattern> patterns = matrix.get(i);
             RsPat armPat = armPats.get(i);
             RsFile crateRoot = (RsFile) RsElementUtil.getCrateRoot(match);
-            org.rust.ide.utils.checkMatch.UsefulnessResult useful = org.rust.ide.utils.checkMatch.CheckMatchUtils.isUseful(seen, patterns, false, crateRoot, true);
+            org.rust.lang.core.match.UsefulnessResult useful = org.rust.lang.core.match.CheckMatchUtils.isUseful(seen, patterns, false, crateRoot, true);
             if (!useful.isUseful()) {
                 RsMatchArm arm = RsElementUtil.ancestorStrict(armPat, RsMatchArm.class);
                 if (arm == null) return;

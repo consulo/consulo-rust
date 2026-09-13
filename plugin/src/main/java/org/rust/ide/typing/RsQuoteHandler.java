@@ -11,14 +11,14 @@ import consulo.codeEditor.HighlighterIterator;
 import consulo.language.ast.StringEscapesTokenTypes;
 import consulo.language.ast.IElementType;
 import consulo.util.lang.Pair;
-import org.rust.lang.core.psi.RsLiteralKind;
+import org.rust.lang.core.psi.impl.RsLiteralKind;
 import org.rust.lang.core.psi.RsElementTypes;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.action.LanguageQuoteHandler;
 import consulo.language.Language;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.RsLanguage;
-import org.rust.lang.core.psi.RsTokenSets;
+import org.rust.lang.core.psi.impl.RsTokenSets;
 import consulo.document.util.TextRange;
 
 // Remember not to auto-pair `'` in char literals because of lifetimes, which use single `'`: `'a`

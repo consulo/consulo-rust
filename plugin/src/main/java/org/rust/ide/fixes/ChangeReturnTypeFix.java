@@ -12,9 +12,9 @@ import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.project.workspace.PackageOrigin;
-import org.rust.ide.presentation.TypeRendering;
-import org.rust.ide.utils.imports.RsImportHelper;
+import org.rust.cargo.api.workspace.PackageOrigin;
+import org.rust.lang.core.presentation.TypeRendering;
+import org.rust.lang.core.imports.RsImportHelper;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.types.RsTypesUtil;
@@ -23,11 +23,13 @@ import org.rust.lang.core.types.ty.TyUnit;
 import org.rust.lang.core.types.ty.TyUnknown;
 
 import java.util.Set;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsFunctionOrLambda;
 import consulo.localize.LocalizeValue;
-import org.rust.ide.utils.imports.TypeReferencesInfo;
+import org.rust.lang.core.imports.TypeReferencesInfo;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class ChangeReturnTypeFix extends RsQuickFixBase<RsElement> {
     @SafeFieldForPreview
@@ -95,7 +97,7 @@ public class ChangeReturnTypeFix extends RsQuickFixBase<RsElement> {
         if (oldRetType != null && oldRetType.getTypeReference() != null) {
             oldTy = RsTypesUtil.getRawType(oldRetType.getTypeReference());
         }
-        org.rust.ide.utils.imports.TypeReferencesInfo info = RsImportHelper.getTypeReferencesInfoFromTys(owner, myActualTy, oldTy);
+        org.rust.lang.core.imports.TypeReferencesInfo info = RsImportHelper.getTypeReferencesInfoFromTys(owner, myActualTy, oldTy);
         String text = TypeRendering.renderInsertionSafe(myActualTy, element, Integer.MAX_VALUE, info.getToQualify(), true, false, true, true);
         RsRetType retType = new RsPsiFactory(project).createRetType(text);
 

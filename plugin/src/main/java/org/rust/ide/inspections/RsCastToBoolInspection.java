@@ -13,7 +13,6 @@ import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyBool;
 import org.rust.lang.core.types.ty.TyPrimitive;
 import org.rust.lang.core.types.ty.TyUnit;
-import org.rust.lang.utils.RsDiagnostic;
 import consulo.localize.LocalizeValue;
 import org.rust.RsBundle;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;

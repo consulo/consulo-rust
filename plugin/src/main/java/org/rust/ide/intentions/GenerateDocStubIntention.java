@@ -16,14 +16,15 @@ import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.lang.core.psi.RsValueParameter;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsGenericDeclaration;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 import org.rust.lang.core.psi.impl.RsFunctionImpl;
 import org.rust.lang.core.types.ty.Ty;
 
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
-import org.rust.lang.core.psi.ext.RsValueParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsValueParameterUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class GenerateDocStubIntention extends RsElementBaseIntentionAction<GenerateDocStubIntention.Context> {
 
@@ -97,7 +98,7 @@ public class GenerateDocStubIntention extends RsElementBaseIntentionAction<Gener
             document.insertString(insertionOffset, stub);
             docManager.commitDocument(document);
         }
-        org.rust.openapiext.Editor.moveCaretToOffset(editor, targetFunc, targetFunc.getTextRange().getStartOffset() + buffer.length() - indentOffset - 1);
+        org.rust.openapiext.ui.Editor.moveCaretToOffset(editor, targetFunc, targetFunc.getTextRange().getStartOffset() + buffer.length() - indentOffset - 1);
     }
 
     private static String generateDocumentStub(String indentation, List<RsValueParameter> params, Ty returnType) {

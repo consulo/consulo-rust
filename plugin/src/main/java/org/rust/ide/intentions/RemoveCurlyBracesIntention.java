@@ -14,11 +14,12 @@ import org.rust.RsBundle;
 import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.ide.utils.PsiModificationUtil;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.PsiElementExt;
-import org.rust.lang.core.psi.ext.RsPathUtil;
-import org.rust.lang.core.psi.ext.RsUseGroupUtil;
-import org.rust.lang.core.psi.ext.RsUseSpeckUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementExt;
+import org.rust.lang.core.psi.ext.impl.RsPathUtil;
+import org.rust.lang.core.psi.ext.impl.RsUseGroupUtil;
+import org.rust.lang.core.psi.ext.impl.RsUseSpeckUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class RemoveCurlyBracesIntention extends RsElementBaseIntentionAction<RemoveCurlyBracesIntention.Context> {
     @Nonnull

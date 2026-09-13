@@ -7,7 +7,7 @@ package org.rust.ide.utils;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.ide.presentation.TypeRendering;
+import org.rust.lang.core.presentation.TypeRendering;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.types.RsTypesUtil;
@@ -17,13 +17,14 @@ import org.rust.lang.core.types.ty.TyUnknown;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsSelfParameterUtil;
-import org.rust.lang.core.psi.ext.RsValueParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsSelfParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsValueParameterUtil;
 import org.rust.openapiext.PsiElementExtUtil;
-import org.rust.lang.core.psi.ext.RsTypeReferenceUtil;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsTypeReferenceUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import consulo.language.psi.PsiElement;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class CallInfo {
     @Nullable

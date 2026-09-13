@@ -13,12 +13,12 @@ import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsTypeAlias;
 import org.rust.lang.core.psi.RsVisitor;
 import org.rust.lang.core.psi.ext.*;
-import org.rust.lang.utils.RsDiagnostic;
 
 import java.util.List;
 import consulo.localize.LocalizeValue;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.ext.impl.*;
 
 /**
  * Inspection that detects the E0049 error.

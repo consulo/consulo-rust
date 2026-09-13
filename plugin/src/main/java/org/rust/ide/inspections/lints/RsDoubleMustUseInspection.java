@@ -18,7 +18,7 @@ import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsMetaItem;
 import org.rust.lang.core.psi.RsVisitor;
 import org.rust.lang.core.psi.ext.RsAttr;
-import org.rust.lang.core.psi.ext.RsAttrOwnerExtUtil;
+import org.rust.lang.core.psi.ext.impl.RsAttrOwnerExtUtil;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.TyAdt;
 import org.rust.lang.core.types.ty.Ty;
@@ -28,7 +28,7 @@ import java.util.List;
 import consulo.localize.LocalizeValue;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 
 /** Analogue of Clippy's double_must_use. */
 @ExtensionImpl
@@ -48,7 +48,7 @@ public class RsDoubleMustUseInspection extends RsLintInspection {
             public void visitFunction2(@Nonnull RsFunction o) {
                 String mustUseAttrName = "must_use";
                 RsMetaItem metaItemOnFunc = RsAttrOwnerExtUtil.findFirstMetaItem(o, mustUseAttrName);
-                Ty returnType = org.rust.lang.core.psi.ext.RsFunctionUtil.getNormReturnType(o);
+                Ty returnType = org.rust.lang.core.psi.ext.impl.RsFunctionUtil.getNormReturnType(o);
                 TyAdt type = returnType instanceof TyAdt ? (TyAdt) returnType : null;
                 RsMetaItem attrType = type != null ? RsAttrOwnerExtUtil.findFirstMetaItem(type.getItem(), mustUseAttrName) : null;
                 if (metaItemOnFunc != null && attrType != null) {

@@ -12,10 +12,10 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsLitExpr;
-import org.rust.lang.core.psi.RsLiteralKind;
-import org.rust.lang.core.psi.RsPsiFactory;
-import org.rust.lang.core.psi.ext.RsLitExprUtil;
-import org.rust.lang.core.psi.RsLiteralKindUtil;
+import org.rust.lang.core.psi.impl.RsLiteralKind;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
+import org.rust.lang.core.psi.ext.impl.RsLitExprUtil;
+import org.rust.lang.core.psi.impl.RsLiteralKindUtil;
 import consulo.localize.LocalizeValue;
 
 public class ConvertToUnsuffixedIntegerFix extends RsQuickFixBase<RsLitExpr> {

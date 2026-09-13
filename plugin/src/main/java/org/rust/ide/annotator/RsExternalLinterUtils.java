@@ -33,9 +33,8 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.project.workspace.PackageOrigin;
+import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.cargo.toolchain.RsToolchainBase;
-import org.rust.cargo.toolchain.impl.*;
 import org.rust.cargo.toolchain.tools.CargoCheckArgs;
 import org.rust.cargo.toolchain.tools.CargoExtUtil;
 import org.rust.ide.fixes.ApplySuggestionFix;
@@ -43,8 +42,8 @@ import org.rust.ide.inspections.lints.RsLint;
 import org.rust.ide.inspections.lints.RsSuppressQuickFix;
 import org.rust.ide.status.RsExternalLinterWidget;
 import org.rust.lang.RsConstants;
-import org.rust.lang.core.psi.RsFile;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.impl.RsFile;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import org.rust.openapiext.*;
 import org.rust.openapiext.JsonUtils;
 import org.rust.stdext.StdextUtil;
@@ -61,7 +60,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.rust.cargo.toolchain.impl.RustcMessage;
+import org.rust.cargo.api.toolchain.RustcMessage;
 import consulo.component.messagebus.MessageBus;
 import consulo.language.editor.intention.IntentionAction;
 import consulo.localize.LocalizeValue;
@@ -123,7 +122,7 @@ public final class RsExternalLinterUtils {
         @Nonnull CargoCheckArgs args
     ) {
         RsExternalLinterWidget widget = WriteAction.computeAndWait(() -> {
-            OpenApiUtil.saveAllDocumentsAsTheyAre();
+            org.rust.ide.rustfmt.RustfmtWatcher.saveAllDocumentsAsTheyAre();
             StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
             if (statusBar == null) return null;
             return statusBar.<RsExternalLinterWidget>findWidget(w -> w instanceof RsExternalLinterWidget).orElse(null);

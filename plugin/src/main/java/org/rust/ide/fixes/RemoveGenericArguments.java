@@ -13,9 +13,9 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.inspections.RsWrongGenericArgumentsOrderInspection;
 import org.rust.lang.core.psi.RsTypeArgumentList;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import org.rust.lang.core.psi.ext.RsMethodOrPath;
-import org.rust.lang.core.psi.RsPsiImplUtil;
+import org.rust.lang.core.psi.impl.RsPsiImplUtil;
 
 import java.util.ArrayList;
 import java.util.Comparator;

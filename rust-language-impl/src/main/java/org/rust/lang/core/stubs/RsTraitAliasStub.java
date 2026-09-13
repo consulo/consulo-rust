@@ -1,0 +1,44 @@
+/*
+ * Use of this source code is governed by the MIT license that can be
+ * found in the LICENSE file.
+ */
+package org.rust.lang.core.stubs;
+
+import consulo.language.psi.stub.*;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+import org.rust.lang.core.psi.RsTraitAlias;
+import java.io.IOException;
+import org.rust.lang.core.psi.impl.RsTraitAliasImpl;
+
+public class RsTraitAliasStub extends RsAttrProcMacroOwnerStubBase<RsTraitAlias> implements RsNamedStub {
+    @Nullable public final String name;
+    public final int flags;
+    @Nullable public final RsProcMacroStubInfo procMacroInfo;
+
+    public RsTraitAliasStub(@Nullable StubElement parent, @Nonnull IStubElementType elementType,
+                             @Nullable String name, int flags, @Nullable RsProcMacroStubInfo procMacroInfo) {
+        super(parent, elementType);
+        this.name = name; this.flags = flags; this.procMacroInfo = procMacroInfo;
+    }
+    @Nullable @Override public String getName() { return name; }
+    @Override protected int getFlags() { return flags; }
+    @Nullable @Override public RsProcMacroStubInfo getProcMacroInfo() { return procMacroInfo; }
+
+
+    public static final RsStubElementType<RsTraitAliasStub, RsTraitAlias> Type =
+        new RsStubElementType<RsTraitAliasStub, RsTraitAlias>("TRAIT_ALIAS") {
+            @Nonnull @Override public RsTraitAliasStub deserialize(@Nonnull StubInputStream ds, StubElement p) throws IOException {
+                return new RsTraitAliasStub(p, this, StubImplementationsKt.readNameAsString(ds), ds.readUnsignedByte(), RsProcMacroStubInfo.deserialize(ds));
+            }
+            @Override public void serialize(@Nonnull RsTraitAliasStub s, @Nonnull StubOutputStream ds) throws IOException {
+                ds.writeName(s.name); ds.writeByte(s.flags); RsProcMacroStubInfo.serialize(s.procMacroInfo, ds);
+            }
+            @Nonnull @Override public RsTraitAlias createPsi(@Nonnull RsTraitAliasStub s) { return new RsTraitAliasImpl(s, this); }
+            @Nonnull @Override public RsTraitAliasStub createStub(@Nonnull RsTraitAlias psi, @Nullable StubElement p) {
+                int flags = RsAttributeOwnerStub.extractFlags(psi);
+                return new RsTraitAliasStub(p, this, psi.getName(), flags, RsAttrProcMacroOwnerStub.extractTextAndOffset(flags, psi));
+            }
+            @Override public void indexStub(@Nonnull RsTraitAliasStub s, @Nonnull IndexSink sink) { StubIndexing.indexTraitAlias(sink, s); }
+        };
+}

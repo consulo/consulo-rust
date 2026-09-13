@@ -19,7 +19,8 @@ import org.rust.lang.core.types.ty.TyTypeParameter;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsTypeReferenceUtil;
+import org.rust.lang.core.psi.ext.impl.RsTypeReferenceUtil;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class GenericConstraints {
     @Nonnull private final List<RsLifetimeParameter> myLifetimes;

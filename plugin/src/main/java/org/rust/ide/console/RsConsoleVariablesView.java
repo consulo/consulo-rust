@@ -18,7 +18,7 @@ import consulo.ide.impl.idea.util.ui.Tree;
 import jakarta.annotation.Nonnull;
 import org.rust.ide.structure.RsStructureViewModel;
 import org.rust.lang.RsLanguage;
-import org.rust.lang.core.psi.RsReplCodeFragment;
+import org.rust.lang.core.psi.impl.RsReplCodeFragment;
 import org.rust.openapiext.VirtualFileExtUtil;
 
 public class RsConsoleVariablesView extends SimpleToolWindowPanel implements Disposable {

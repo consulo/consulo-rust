@@ -16,9 +16,9 @@ import org.rust.lang.core.psi.RsUseGroup;
 import org.rust.lang.core.psi.RsUseItem;
 import org.rust.lang.core.psi.RsUseSpeck;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsElementUtil;
-import org.rust.lang.core.psi.ext.RsUseSpeckUtil;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsUseSpeckUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 import consulo.localize.LocalizeValue;
 
 /**

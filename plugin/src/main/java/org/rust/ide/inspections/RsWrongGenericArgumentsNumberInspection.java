@@ -14,7 +14,6 @@ import org.rust.ide.fixes.AddGenericArguments;
 import org.rust.ide.fixes.RemoveGenericArguments;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
-import org.rust.lang.utils.RsDiagnostic;
 import org.rust.openapiext.SmartPointerUtil;
 
 import java.util.ArrayList;
@@ -25,6 +24,7 @@ import consulo.util.lang.Pair;
 import consulo.localize.LocalizeValue;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.ext.impl.*;
 
 /**
  * Inspection that detects the E0107 error.

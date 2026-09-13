@@ -13,7 +13,7 @@ import consulo.language.spellcheker.tokenizer.TokenConsumer;
 import consulo.language.spellcheker.tokenizer.Tokenizer;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.RsElementTypes;
-import org.rust.lang.core.psi.RsRawIdentifiers;
+import org.rust.lang.core.psi.impl.RsRawIdentifiers;
 import org.rust.lang.core.psi.ext.RsNameIdentifierOwner;
 
 // Inspired by `PsiIdentifierOwnerTokenizer`

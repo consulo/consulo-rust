@@ -9,8 +9,8 @@ import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.ToggleAction;
 import consulo.project.Project;
 import org.rust.RsBundle;
-import org.rust.cargo.project.settings.RsExternalLinterProjectSettingsService;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.settings.RsExternalLinterProjectSettingsService;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import consulo.annotation.component.ActionImpl;
 
 @ActionImpl(id = "Cargo.ToggleExternalLinterOnTheFlyAction")

@@ -16,8 +16,8 @@ import consulo.language.psi.PsiCodeFragment;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.ide.utils.imports.ImportUtils;
-import org.rust.lang.core.psi.RsExpressionCodeFragment;
+import org.rust.lang.core.imports.ImportUtils;
+import org.rust.lang.core.psi.impl.RsExpressionCodeFragment;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
 

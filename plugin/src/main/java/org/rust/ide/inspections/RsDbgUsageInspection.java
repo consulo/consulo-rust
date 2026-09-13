@@ -12,17 +12,18 @@ import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.project.workspace.PackageOrigin;
+import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.ide.fixes.RsQuickFixBase;
 import org.rust.ide.utils.PsiModificationUtil;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
-import org.rust.lang.core.psi.ext.RsMacroCallUtil;
+import org.rust.lang.core.psi.ext.impl.RsMacroCallUtil;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 import consulo.localize.LocalizeValue;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.impl.*;
 
 @ExtensionImpl
 public class RsDbgUsageInspection extends RsLocalInspectionTool {
@@ -83,7 +84,7 @@ public class RsDbgUsageInspection extends RsLocalInspectionTool {
             }
             if (editor != null && isOnTheFly) {
                 PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument());
-                org.rust.openapiext.Editor.moveCaretToOffset(editor, newExpr, Math.min(PsiElementUtil.getStartOffset(newExpr) + cursorOffsetToExpr, PsiElementUtil.getEndOffset(newExpr)));
+                org.rust.openapiext.ui.Editor.moveCaretToOffset(editor, newExpr, Math.min(PsiElementUtil.getStartOffset(newExpr) + cursorOffsetToExpr, PsiElementUtil.getEndOffset(newExpr)));
             }
         }
     }

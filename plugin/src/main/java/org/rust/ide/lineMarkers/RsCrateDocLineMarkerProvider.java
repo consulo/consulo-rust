@@ -14,10 +14,10 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.docs.RsDocumentationProvider;
-import org.rust.ide.icons.RsIcons;
-import org.rust.cargo.project.workspace.CargoWorkspace;
+import org.rust.icons.RsIcons;
+import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.lang.core.psi.RsExternCrateItem;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 
 import javax.swing.Icon;
 import consulo.annotation.component.ExtensionImpl;

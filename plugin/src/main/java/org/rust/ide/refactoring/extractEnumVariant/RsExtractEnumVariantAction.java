@@ -5,7 +5,7 @@
 
 package org.rust.ide.refactoring.extractEnumVariant;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.dataContext.DataContext;
 import consulo.codeEditor.Editor;
 import consulo.project.Project;
@@ -18,7 +18,7 @@ import org.rust.lang.core.CompilerFeature;
 import org.rust.lang.core.FeatureAvailability;
 import org.rust.lang.core.psi.RsEnumVariant;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsEnumVariantUtil;
+import org.rust.lang.core.psi.ext.impl.RsEnumVariantUtil;
 import consulo.annotation.component.ActionImpl;
 import consulo.annotation.component.ActionParentRef;
 import consulo.annotation.component.ActionRefAnchor;

@@ -5,7 +5,7 @@
 
 package org.rust.ide.fixes;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.codeEditor.Editor;
 import consulo.project.Project;
 import consulo.language.psi.PsiElement;
@@ -21,6 +21,8 @@ import org.rust.lang.core.types.RsTypesUtil;
 
 import java.util.Collections;
 import consulo.localize.LocalizeValue;
+import org.rust.ide.utils.RsDefaultValueBuilder;
+import org.rust.lang.core.psi.impl.*;
 
 public class InitializeWithDefaultValueFix extends RsQuickFixBase<RsElement> {
 

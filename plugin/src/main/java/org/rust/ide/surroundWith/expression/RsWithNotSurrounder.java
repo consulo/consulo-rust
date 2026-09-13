@@ -13,6 +13,7 @@ import org.rust.lang.core.psi.*;
 import org.rust.lang.core.types.ty.TyBool;
 import org.rust.lang.core.types.RsTypesUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class RsWithNotSurrounder extends RsExpressionSurrounderBase<RsUnaryExpr> {
 

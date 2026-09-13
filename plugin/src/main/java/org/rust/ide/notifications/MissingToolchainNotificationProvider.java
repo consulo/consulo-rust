@@ -5,6 +5,13 @@
 
 package org.rust.ide.notifications;
 
+import org.rust.cargo.project.workspace.StandardLibraryFactory;
+
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.api.model.CargoProjectsService;
+import org.rust.cargo.api.model.RustcInfo;
+
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.project.ui.notification.NotificationType;
 import consulo.fileChooser.FileChooser;
 import consulo.fileChooser.FileChooserDescriptorFactory;
@@ -19,19 +26,24 @@ import jakarta.inject.Inject;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.cargo.project.model.*;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
-import org.rust.cargo.project.workspace.StandardLibrary;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.workspace.StandardLibrary;
 import org.rust.cargo.toolchain.RsToolchainBase;
 import org.rust.cargo.toolchain.tools.Rustup;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.cargo.project.model.AttachCargoProjectAction;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.project.model.CargoProjectsListener;
-import org.rust.cargo.project.settings.RsSettingsListener;
+import org.rust.cargo.api.model.CargoProjectsListener;
+import org.rust.cargo.api.settings.RsSettingsListener;
 
 import java.util.function.Supplier;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceBase;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceBase;
+import consulo.ide.setting.ShowSettingsUtil;
+import org.rust.cargo.project.configurable.RsProjectConfigurable;
+import org.rust.notifications.NotificationUtils;
+import org.rust.notifications.RsEditorNotificationPanel;
+import org.rust.notifications.RsNotificationProvider;
 
 @ExtensionImpl
 public class MissingToolchainNotificationProvider extends RsNotificationProvider implements DumbAware {
@@ -45,7 +57,7 @@ public class MissingToolchainNotificationProvider extends RsNotificationProvider
         super(project);
 
         project.getMessageBus().connect().subscribe(
-            org.rust.cargo.project.settings.RsProjectSettingsServiceBase.RUST_SETTINGS_TOPIC,
+            org.rust.cargo.api.settings.RsProjectSettingsServiceBase.RUST_SETTINGS_TOPIC,
             new RsSettingsListener() {
                 @Override
                 public void settingsChanged(
@@ -80,7 +92,7 @@ public class MissingToolchainNotificationProvider extends RsNotificationProvider
         if (!(RsFile.isRustFile(file) || AttachCargoProjectAction.isCargoToml(file)) || isNotificationDisabled(file)) return null;
         if (CargoProjectServiceUtil.guessAndSetupRustProject(project)) return null;
 
-        RsToolchainBase toolchain = RsProjectSettingsServiceUtil.getToolchain(project);
+        RsToolchainBase toolchain = RsToolchainLocator.getToolchain(project);
         if (toolchain == null || !toolchain.looksLikeValidToolchain()) {
             return createBadToolchainPanel(file, builderFactory);
         }
@@ -109,7 +121,7 @@ public class MissingToolchainNotificationProvider extends RsNotificationProvider
         RsEditorNotificationPanel panel = new RsEditorNotificationPanel(NO_RUST_TOOLCHAIN, builderFactory.get());
         panel.setText(RsBundle.message("notification.no.toolchain.configured"));
         panel.createActionLabel(RsBundle.message("notification.action.set.up.toolchain.text"), () -> {
-            RsProjectSettingsServiceUtil.getRustSettings(myProject).configureToolchain();
+            ShowSettingsUtil.getInstance().showSettingsDialog(myProject, RsProjectConfigurable.class);
         });
         panel.createActionLabel(RsBundle.message("notification.action.do.not.show.again.text"), () -> {
             disableNotification(file);
@@ -133,7 +145,7 @@ public class MissingToolchainNotificationProvider extends RsNotificationProvider
                 myProject, null
             ).whenComplete((stdlib, throwable) -> {
                 if (throwable != null || stdlib == null) return;
-                if (StandardLibrary.fromFile(project, stdlib, rustcInfo) != null) {
+                if (StandardLibraryFactory.fromFile(project, stdlib, rustcInfo) != null) {
                     RsProjectSettingsServiceUtil.getRustSettings(myProject).modify(it -> {
                         it.explicitPathToStdlib = stdlib.getPath();
                     });

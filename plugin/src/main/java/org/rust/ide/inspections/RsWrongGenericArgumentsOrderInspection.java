@@ -13,7 +13,6 @@ import org.rust.RsBundle;
 import org.rust.ide.fixes.EncloseExprInBracesFix;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
-import org.rust.lang.utils.RsDiagnostic;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,6 +23,7 @@ import org.rust.lang.core.psi.ext.RsElement;
 import consulo.localize.LocalizeValue;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.ext.impl.*;
 
 /**
  * Inspection that detects the E0747 error.

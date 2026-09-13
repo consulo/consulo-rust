@@ -17,7 +17,7 @@ import org.rust.ide.utils.PsiModificationUtil;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 
 import java.util.List;
 

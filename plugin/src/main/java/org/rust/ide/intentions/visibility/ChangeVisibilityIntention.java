@@ -11,16 +11,18 @@ import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.project.workspace.PackageOrigin;
+import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.ide.intentions.RsElementBaseIntentionAction;
 import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.openapiext.PsiElementExtUtil;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 import consulo.language.psi.util.PsiTreeUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public abstract class ChangeVisibilityIntention extends RsElementBaseIntentionAction<ChangeVisibilityIntention.Context> {
     @Nonnull

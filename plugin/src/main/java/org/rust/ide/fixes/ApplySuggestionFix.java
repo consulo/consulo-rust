@@ -5,7 +5,7 @@
 
 package org.rust.ide.fixes;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.language.editor.inspection.LocalQuickFixAndIntentionActionOnPsiElement;
 import consulo.document.Document;
 import consulo.codeEditor.Editor;
@@ -16,7 +16,7 @@ import consulo.language.psi.PsiFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.toolchain.impl.RustcMessage;
+import org.rust.cargo.api.toolchain.RustcMessage;
 import org.rust.lang.core.psi.ext.RsElement;
 import consulo.localize.LocalizeValue;
 

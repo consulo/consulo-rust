@@ -19,7 +19,7 @@ import consulo.usage.UsageInfo;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.ide.refactoring.RsRenameProcessor;
-import org.rust.ide.utils.imports.RsImportHelper;
+import org.rust.lang.core.imports.RsImportHelper;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.types.ty.TyUnit;
@@ -29,8 +29,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import consulo.language.psi.PsiReference;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class RsExtractFunctionHandler implements RefactoringActionHandler {
 

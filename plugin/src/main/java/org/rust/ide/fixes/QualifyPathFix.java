@@ -11,11 +11,11 @@ import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.ide.utils.imports.ImportInfo;
-import org.rust.ide.utils.imports.ImportInfoUtil;
+import org.rust.lang.core.imports.ImportInfo;
+import org.rust.lang.core.imports.ImportInfoUtil;
 import org.rust.lang.core.psi.RsPath;
-import org.rust.lang.core.psi.RsPsiFactory;
-import org.rust.lang.core.psi.RsPsiImplUtil;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiImplUtil;
 import consulo.localize.LocalizeValue;
 
 /**

@@ -5,6 +5,7 @@
 
 package org.rust.cargo.project.settings.ui;
 
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.process.event.ProcessAdapter;
 import consulo.process.event.ProcessEvent;
 import com.intellij.execution.wsl.WslPath;
@@ -22,13 +23,13 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.cargo.project.RsToolchainPathChoosingComboBox;
-import org.rust.cargo.project.settings.RustProjectSettingsService;
+import org.rust.cargo.api.settings.RustProjectSettingsService;
 import org.rust.cargo.toolchain.RsToolchainBase;
 import org.rust.cargo.toolchain.RsToolchainProvider;
 import org.rust.cargo.toolchain.flavors.RsToolchainFlavor;
 import org.rust.cargo.toolchain.tools.Rustup;
 import org.rust.openapiext.UiDebouncer;
-import org.rust.openapiext.UiUtil;
+import org.rust.openapiext.ui.UiUtil;
 
 import javax.swing.*;
 import java.nio.file.Path;
@@ -131,7 +132,7 @@ public class RustProjectSettingsPanel implements Disposable {
             .getService(RustProjectSettingsService.class);
 
         Data data = new Data(
-            service != null ? service.getToolchain() : RsToolchainBase.suggest(cargoProjectDir),
+            service != null ? RsToolchainLocator.load(service.getState()) : RsToolchainBase.suggest(cargoProjectDir),
             null
         );
         setData(data);

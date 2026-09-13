@@ -17,12 +17,12 @@ import consulo.util.io.PathUtil;
 import jakarta.annotation.Nonnull;
 import org.rust.cargo.CargoConstants;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.project.model.CargoProjectsService;
-import org.rust.cargo.project.model.CargoProjectsService.CargoRefreshStatus;
+import org.rust.cargo.api.model.CargoProjectsService;
+import org.rust.cargo.api.model.CargoProjectsService.CargoRefreshStatus;
 
 import java.util.Map;
 import java.util.Set;
-import org.rust.cargo.project.model.CargoProjectsRefreshListener;
+import org.rust.cargo.api.model.CargoProjectsRefreshListener;
 
 @SuppressWarnings("UnstableApiUsage")
 public class CargoExternalSystemProjectAware implements ExternalSystemProjectAware {

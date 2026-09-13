@@ -16,7 +16,7 @@ import jakarta.annotation.Nullable;
 
 import org.rust.RsBundle;
 import org.rust.ide.newProject.RsPackageNameValidator;
-import org.rust.openapiext.UiUtil;
+import org.rust.openapiext.ui.UiUtil;
 import org.rust.openapiext.OpenApiUtil;
 
 import javax.swing.*;

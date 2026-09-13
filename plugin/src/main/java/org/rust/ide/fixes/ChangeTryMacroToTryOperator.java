@@ -11,9 +11,10 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsMacroCallUtil;
-import org.rust.lang.core.psi.ext.RsExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsMacroCallUtil;
+import org.rust.lang.core.psi.ext.impl.RsExprUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class ChangeTryMacroToTryOperator extends RsQuickFixBase<RsMacroCall> {
 

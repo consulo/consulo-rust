@@ -5,6 +5,7 @@
 
 package org.rust.ide.status;
 
+import consulo.ide.setting.ShowSettingsUtil;
 import consulo.project.Project;
 import consulo.project.ui.wm.CustomStatusBarWidget;
 import consulo.project.ui.wm.StatusBar;
@@ -15,18 +16,18 @@ import consulo.ui.ex.awt.UIUtil;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.cargo.project.configurable.RsExternalLinterConfigurable;
-import org.rust.cargo.project.settings.RsExternalLinterProjectSettingsService;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceBase;
-import org.rust.cargo.project.settings.RsSettingsListener;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceBase.SettingsChangedEventBase;
-import org.rust.cargo.toolchain.ExternalLinter;
-import org.rust.ide.icons.RsIcons;
+import org.rust.cargo.api.settings.RsExternalLinterProjectSettingsService;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceBase;
+import org.rust.cargo.api.settings.RsSettingsListener;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceBase.SettingsChangedEventBase;
+import org.rust.cargo.api.toolchain.ExternalLinter;
+import org.rust.icons.RsIcons;
 import org.rust.ide.notifications.RsExternalLinterTooltipService;
 import org.rust.openapiext.OpenApiUtil;
 
 import javax.swing.*;
 import java.awt.event.MouseEvent;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import consulo.project.ui.wm.StatusBarWidget;
 
 public class RsExternalLinterWidget extends TextPanel.WithIconAndArrows implements CustomStatusBarWidget {
@@ -89,7 +90,7 @@ public class RsExternalLinterWidget extends TextPanel.WithIconAndArrows implemen
                 @Override
                 public boolean onClick(@Nonnull MouseEvent event, int clickCount) {
                     if (!project.isDisposed()) {
-                        OpenApiUtil.showSettingsDialog(project, RsExternalLinterConfigurable.class);
+                        ShowSettingsUtil.getInstance().showSettingsDialog(project, RsExternalLinterConfigurable.class);
                     }
                     return true;
                 }

@@ -54,8 +54,6 @@
                         <goals>
                             <goal>generate-parsers</goal>
                             <goal>generate-lexers</goal>
-                            <goal>generate-icon</goal>
-                            <goal>generate-localize</goal>
                         </goals>
                     </execution>
                     <execution>
@@ -71,6 +69,31 @@
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>consulo.plugin</groupId>
+            <artifactId>consulo.rust.cargo.api</artifactId>
+            <version>3-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>consulo.plugin</groupId>
+            <artifactId>consulo.rust.language.impl</artifactId>
+            <version>3-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>consulo.plugin</groupId>
+            <artifactId>consulo.rust.language.api</artifactId>
+            <version>3-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>consulo.plugin</groupId>
+            <artifactId>consulo.rust.base</artifactId>
+            <version>3-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>consulo.plugin</groupId>
+            <artifactId>consulo.rust.platform.compat</artifactId>
+            <version>3-SNAPSHOT</version>
+        </dependency>
         <!-- Annotations and core helpers previously inherited via arch.ide-api-provided. -->
         <dependency>
             <groupId>consulo</groupId>
@@ -442,6 +465,14 @@
             <groupId>org.jetbrains</groupId>
             <artifactId>markdown-jvm</artifactId>
             <version>0.7.2</version>
+            <exclusions>
+                <!-- the platform already provides fastutil 8.5.14 via consulo-application-api;
+                     markdown-jvm would bundle an older fastutil-core and split the package -->
+                <exclusion>
+                    <groupId>it.unimi.dsi</groupId>
+                    <artifactId>fastutil-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>

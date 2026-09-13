@@ -11,17 +11,19 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.refactoring.extractTrait.RsExtractTraitProcessor;
-import org.rust.ide.utils.imports.ImportBridge;
+import org.rust.lang.core.imports.ImportBridge;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 
 import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashMap;
-import org.rust.lang.core.psi.ext.RsTraitRefUtil;
+import org.rust.lang.core.psi.ext.impl.RsTraitRefUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import consulo.language.psi.PsiElement;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class AddDefinitionToTraitFix extends RsQuickFixBase<RsAbstractable> {
 

@@ -12,11 +12,11 @@ import consulo.language.psi.search.IndexPatternBuilder;
 import consulo.language.ast.IElementType;
 import consulo.language.ast.TokenSet;
 import org.rust.lang.core.lexer.RsLexer;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 
 import static org.rust.lang.core.psi.RsTokenType.INNER_EOL_DOC_COMMENT;
 import static org.rust.lang.core.psi.RsTokenType.OUTER_EOL_DOC_COMMENT;
-import org.rust.lang.core.psi.RsTokenSets;
+import org.rust.lang.core.psi.impl.RsTokenSets;
 import org.rust.lang.core.psi.RsTokenType;
 
 @ExtensionImpl

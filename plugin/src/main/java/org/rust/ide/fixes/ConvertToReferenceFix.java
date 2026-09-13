@@ -8,7 +8,7 @@ package org.rust.ide.fixes;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.RsTypeReference;
 import consulo.localize.LocalizeValue;
 

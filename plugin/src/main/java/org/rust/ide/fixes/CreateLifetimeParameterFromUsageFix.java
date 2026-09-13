@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.rust.lang.core.psi.ext.RsElement;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class CreateLifetimeParameterFromUsageFix extends RsQuickFixBase<RsLifetime> {
 

@@ -14,17 +14,19 @@ import org.rust.RsBundle;
 import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
-import org.rust.lang.core.psi.ext.RsTypeParameterListUtil;
-import org.rust.lang.core.psi.ext.RsTypeReferenceUtil;
+import org.rust.lang.core.psi.ext.impl.RsTypeParameterListUtil;
+import org.rust.lang.core.psi.ext.impl.RsTypeReferenceUtil;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsTypeParameterUtil;
-import org.rust.lang.core.psi.ext.RsLifetimeParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsTypeParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsLifetimeParameterUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class MoveTypeConstraintToParameterListIntention extends RsElementBaseIntentionAction<RsWhereClause> {
     @Nonnull
@@ -101,7 +103,7 @@ public class MoveTypeConstraintToParameterListIntention extends RsElementBaseInt
         PsiElement newElement = new RsPsiFactory(project).createTypeParameterList(generics);
         PsiElement insertedParameterList = typeParameterList.replace(newElement);
         ctx.delete();
-        org.rust.openapiext.Editor.moveCaretToOffset(editor, insertedParameterList, PsiElementExt.getEndOffset(insertedParameterList));
+        org.rust.openapiext.ui.Editor.moveCaretToOffset(editor, insertedParameterList, PsiElementExt.getEndOffset(insertedParameterList));
     }
 
     @Nonnull

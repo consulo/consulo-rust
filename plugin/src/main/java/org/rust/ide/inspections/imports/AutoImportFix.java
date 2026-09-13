@@ -22,11 +22,11 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.fixes.RsQuickFixBase;
 import org.rust.ide.intentions.util.macros.IntentionInMacroUtil;
-import org.rust.ide.settings.RsCodeInsightSettings;
-import org.rust.ide.utils.imports.ImportCandidate;
-import org.rust.ide.utils.imports.ImportCandidatesCollector;
-import org.rust.ide.utils.imports.ImportContext;
-import org.rust.ide.utils.imports.ImportUtil;
+import org.rust.settings.RsCodeInsightSettings;
+import org.rust.lang.core.imports.ImportCandidate;
+import org.rust.lang.core.imports.ImportCandidatesCollector;
+import org.rust.lang.core.imports.ImportContext;
+import org.rust.lang.core.imports.ImportUtil;
 import org.rust.lang.core.macros.RsExpandedElementUtil;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
@@ -39,11 +39,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsPathUtil;
+import org.rust.lang.core.psi.ext.impl.RsPathUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import consulo.language.editor.inspection.QuickFix;
 import consulo.localize.LocalizeValue;
 import org.rust.lang.core.resolve.ref.MethodResolveVariant;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class AutoImportFix extends RsQuickFixBase<RsElement> implements BatchQuickFix, PriorityAction, HintAction {
 

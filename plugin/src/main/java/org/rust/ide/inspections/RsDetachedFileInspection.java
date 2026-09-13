@@ -26,7 +26,7 @@ import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import org.rust.cargo.project.model.impl.CargoSettingsFilesService;
 import org.rust.ide.fixes.AttachFileToModuleFix;
 import org.rust.ide.fixes.ReloadProjectQuickFix;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -10,7 +10,7 @@ import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.ide.injected.DoctestInfo;
+import org.rust.lang.core.injected.DoctestInfo;
 import org.rust.lang.core.crate.Crate;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
 import org.rust.lang.doc.psi.RsDocCodeFence;
@@ -19,7 +19,7 @@ import org.rust.lang.doc.psi.RsDocComment;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.*;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 
 /**
  * Utility class for doctest context detection.
@@ -44,7 +44,7 @@ public final class DoctestCtxUtil {
 
     @Nullable
     public static DocTestContext getDoctestCtx(@Nonnull RsDocCodeFence codeFence) {
-        Crate crate = org.rust.lang.core.psi.ext.RsElementUtil.getContainingCrate(codeFence);
+        Crate crate = org.rust.lang.core.psi.ext.impl.RsElementUtil.getContainingCrate(codeFence);
         if (crate == null || !crate.getAreDoctestsEnabled()) return null;
         if (DoctestInfo.hasUnbalancedCodeFencesBefore(codeFence)) return null;
 

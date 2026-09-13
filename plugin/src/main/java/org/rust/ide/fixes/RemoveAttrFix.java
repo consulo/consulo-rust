@@ -7,7 +7,7 @@ package org.rust.ide.fixes;
 
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.ext.RsAttr;
-import org.rust.lang.core.psi.ext.RsAttrUtil;
+import org.rust.lang.core.psi.ext.impl.RsAttrUtil;
 
 public class RemoveAttrFix extends RemoveElementFix {
 

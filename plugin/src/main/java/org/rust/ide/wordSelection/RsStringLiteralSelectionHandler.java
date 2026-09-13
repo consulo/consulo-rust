@@ -15,13 +15,13 @@ import consulo.language.ast.IElementType;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.lexer.RsEscapesLexer;
-import org.rust.lang.core.psi.RsLiteralKind;
+import org.rust.lang.core.psi.impl.RsLiteralKind;
 
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.rust.lang.core.psi.RsTokenSets;
+import org.rust.lang.core.psi.impl.RsTokenSets;
 
 @ExtensionImpl
 public class RsStringLiteralSelectionHandler extends ExtendWordSelectionHandlerBase {

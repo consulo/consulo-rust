@@ -24,10 +24,10 @@ import jakarta.annotation.Nullable;
 
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsExpr;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsModItem;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import org.rust.openapiext.OpenApiUtil;
 
 import javax.swing.*;

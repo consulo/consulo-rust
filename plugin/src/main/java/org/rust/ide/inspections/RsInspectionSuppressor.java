@@ -5,7 +5,7 @@
 
 package org.rust.ide.inspections;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.language.editor.inspection.AbstractBatchSuppressByNoInspectionCommentFix;
 import consulo.language.editor.inspection.InspectionSuppressor;
 import consulo.language.editor.inspection.SuppressQuickFix;
@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import consulo.annotation.component.ExtensionImpl;
-import org.rust.lang.core.psi.RsTokenSets;
+import org.rust.lang.core.psi.impl.RsTokenSets;
 import consulo.language.Language;
 import consulo.localize.LocalizeValue;
 import org.rust.lang.RsLanguage;

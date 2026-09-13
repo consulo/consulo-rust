@@ -23,10 +23,12 @@ import org.rust.openapiext.OpenApiUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsImplItemUtil;
-import org.rust.lang.core.psi.ext.RsTypeReferenceUtil;
+import org.rust.lang.core.psi.ext.impl.RsImplItemUtil;
+import org.rust.lang.core.psi.ext.impl.RsTypeReferenceUtil;
 import org.rust.lang.core.types.SubstitutionUtil;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public abstract class BaseGenerateHandler implements LanguageCodeInsightActionHandler {
 

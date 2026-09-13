@@ -14,7 +14,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.refactoring.inlineTypeAlias.RsInlineTypeAliasProcessor;
 import org.rust.ide.utils.PsiModificationUtil;
-import org.rust.ide.utils.imports.RsImportHelper;
+import org.rust.lang.core.imports.RsImportHelper;
 import org.rust.lang.core.psi.RsPath;
 import org.rust.lang.core.psi.RsTypeAlias;
 import org.rust.lang.core.psi.RsTypeReference;

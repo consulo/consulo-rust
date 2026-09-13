@@ -5,7 +5,7 @@
 
 package org.rust.ide.todo;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.language.psi.search.LightIndexPatternSearcher;
 import consulo.project.util.query.QueryExecutorBase;
@@ -17,9 +17,9 @@ import consulo.language.psi.search.IndexPatternOccurrence;
 import consulo.language.psi.search.IndexPatternProvider;
 import consulo.language.psi.search.IndexPatternSearch;
 import java.util.function.Predicate;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.RsMacroCall;
-import org.rust.lang.core.psi.RsRecursiveVisitor;
+import org.rust.lang.core.psi.impl.RsRecursiveVisitor;
 import org.rust.lang.core.psi.ext.RsElement;
 
 @ExtensionImpl

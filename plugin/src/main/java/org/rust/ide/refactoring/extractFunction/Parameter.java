@@ -5,7 +5,7 @@
 
 package org.rust.ide.refactoring.extractFunction;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.language.psi.PsiReference;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -13,15 +13,15 @@ import org.rust.lang.core.psi.RsPatBinding;
 import org.rust.lang.core.psi.RsUnaryExpr;
 import org.rust.lang.core.psi.RsValueArgumentList;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.UnaryOperator;
+import org.rust.lang.core.psi.ext.impl.UnaryOperator;
 import org.rust.lang.core.resolve.ImplLookup;
 import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyReference;
 
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsPatBindingUtil;
-import org.rust.lang.core.psi.ext.RsUnaryExprUtil;
-import org.rust.ide.presentation.TypeRendering;
+import org.rust.lang.core.psi.ext.impl.RsPatBindingUtil;
+import org.rust.lang.core.psi.ext.impl.RsUnaryExprUtil;
+import org.rust.lang.core.presentation.TypeRendering;
 import org.rust.lang.core.types.RsTypesUtil;
 
 public class Parameter {

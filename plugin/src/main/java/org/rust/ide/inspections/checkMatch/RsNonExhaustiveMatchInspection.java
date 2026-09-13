@@ -10,11 +10,11 @@ import org.rust.RsBundle;
 import org.rust.ide.inspections.RsLocalInspectionTool;
 import org.rust.ide.inspections.RsProblemsHolder;
 import org.rust.ide.inspections.RsWithMacrosInspectionVisitor;
-import org.rust.ide.utils.checkMatch.CheckMatchUtil;
-import org.rust.ide.utils.checkMatch.Pattern;
+import org.rust.lang.core.match.CheckMatchUtil;
+import org.rust.lang.core.match.Pattern;
 import org.rust.lang.core.psi.RsMatchExpr;
 import org.rust.lang.core.psi.RsVisitor;
-import org.rust.lang.utils.RsDiagnostic;
+import org.rust.ide.inspections.RsDiagnostic;
 
 import java.util.List;
 import consulo.localize.LocalizeValue;

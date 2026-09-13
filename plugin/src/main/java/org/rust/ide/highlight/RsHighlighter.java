@@ -11,11 +11,11 @@ import consulo.language.ast.StringEscapesTokenTypes;
 import consulo.language.ast.IElementType;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.ide.colors.RsColor;
+import org.rust.colors.RsColor;
 import org.rust.lang.core.lexer.RsHighlightingLexer;
 import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.RsTokenType;
-import org.rust.lang.core.psi.RsTokenSets;
+import org.rust.lang.core.psi.impl.RsTokenSets;
 import consulo.language.lexer.Lexer;
 
 public class RsHighlighter extends SyntaxHighlighterBase {

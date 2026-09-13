@@ -10,18 +10,20 @@ import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.project.workspace.PackageOrigin;
+import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyInteger;
 
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsDocAndAttributeOwnerUtil;
+import org.rust.lang.core.psi.ext.impl.RsDocAndAttributeOwnerUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import consulo.language.psi.PsiElement;
 import consulo.localize.LocalizeValue;
 import org.rust.lang.core.psi.RsMetaItem;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class ChangeReprAttributeFix extends RsQuickFixBase<RsElement> {
     

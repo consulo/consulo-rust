@@ -9,9 +9,9 @@ import consulo.language.editor.annotation.AnnotationHolder;
 import consulo.language.editor.annotation.HighlightSeverity;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
-import org.rust.ide.colors.RsColor;
+import org.rust.colors.RsColor;
 import org.rust.lang.core.psi.ext.RsAttr;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import org.rust.openapiext.OpenApiUtil;
 
 public class RsAttrHighlightingAnnotator extends AnnotatorBase {

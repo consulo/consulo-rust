@@ -19,7 +19,6 @@ import com.intellij.codeInsight.hints.ImmediateConfigurable.Case;
 import com.intellij.codeInsight.hints.InlayHintsProvider.ChangeListener;
 import consulo.language.editor.inlay.InlayPresentation;
 import com.intellij.codeInsight.hints.presentation.MenuOnClickPresentation;
-import consulo.ide.ServiceManager;
 import consulo.codeEditor.Editor;
 import consulo.project.DumbService;
 import consulo.project.Project;
@@ -48,6 +47,8 @@ import java.util.List;
 import java.util.function.Function;
 import consulo.document.util.TextRange;
 import org.rust.lang.core.psi.ext.RsElement;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @SuppressWarnings("UnstableApiUsage")
 public class RsInlayTypeHintsProvider implements InlayHintsProvider<RsInlayTypeHintsProvider.Settings> {

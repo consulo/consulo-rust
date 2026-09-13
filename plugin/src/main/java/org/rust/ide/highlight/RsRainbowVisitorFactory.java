@@ -10,7 +10,7 @@ import consulo.language.editor.rawHighlight.RainbowVisitor;
 import consulo.language.editor.rawHighlight.RainbowVisitorFactory;
 import consulo.language.psi.PsiFile;
 import jakarta.annotation.Nonnull;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 
 /**
  * Creates a fresh {@link RsRainbowVisitor} for every highlighting pass over a Rust file.

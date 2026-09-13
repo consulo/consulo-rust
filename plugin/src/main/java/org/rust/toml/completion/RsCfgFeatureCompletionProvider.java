@@ -5,7 +5,7 @@
 
 package org.rust.toml.completion;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.language.editor.completion.CompletionParameters;
 import consulo.language.editor.completion.CompletionResultSet;
 import consulo.language.editor.completion.lookup.InsertHandler;
@@ -16,18 +16,18 @@ import consulo.language.pattern.ElementPattern;
 import consulo.language.psi.PsiElement;
 import consulo.language.util.ProcessingContext;
 import jakarta.annotation.Nonnull;
-import org.rust.cargo.project.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.lang.core.RsPsiPattern;
 import org.rust.lang.core.completion.CompletionUtilsUtil;
 import org.rust.lang.core.completion.RsCompletionProvider;
 import org.rust.lang.core.psi.RsLitExpr;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.PsiElementExt;
+import org.rust.lang.core.psi.ext.impl.PsiElementExt;
 import org.rust.toml.Util;
 import org.rust.toml.resolve.CargoTomlNameResolution;
 import org.toml.lang.psi.TomlFile;
 import org.toml.lang.psi.TomlKeySegment;
-import org.rust.lang.core.psi.RsTokenSets;
+import org.rust.lang.core.psi.impl.RsTokenSets;
 
 /**
  * Provides completion for cargo features in Rust cfg attributes.

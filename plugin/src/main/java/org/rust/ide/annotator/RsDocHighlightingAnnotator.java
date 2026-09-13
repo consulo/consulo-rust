@@ -10,13 +10,13 @@ import consulo.language.editor.annotation.HighlightSeverity;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.ide.colors.RsColor;
-import org.rust.ide.injected.DoctestInfoUtil;
-import org.rust.lang.core.psi.ext.RsElementUtil;
-import org.rust.lang.core.psi.ext.RsPsiElementExt;
+import org.rust.colors.RsColor;
+import org.rust.lang.core.injected.DoctestInfoUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiElementExt;
 import org.rust.lang.doc.psi.*;
 import org.rust.openapiext.OpenApiUtil;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 
 public class RsDocHighlightingAnnotator extends AnnotatorBase {
     @Override

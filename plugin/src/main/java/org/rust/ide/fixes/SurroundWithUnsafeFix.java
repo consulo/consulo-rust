@@ -14,7 +14,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsExpr;
 import org.rust.lang.core.psi.RsExprStmt;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import consulo.localize.LocalizeValue;
 
 public class SurroundWithUnsafeFix extends RsQuickFixBase<RsExpr> {

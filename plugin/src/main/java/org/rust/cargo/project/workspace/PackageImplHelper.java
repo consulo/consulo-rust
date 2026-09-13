@@ -5,8 +5,12 @@
 
 package org.rust.cargo.project.workspace;
 
+import org.rust.cargo.api.workspace.CargoWorkspace;
+
+import org.rust.cargo.api.workspace.CargoWorkspaceData;
+
 import java.util.*;
-import org.rust.cargo.toolchain.impl.CargoMetadata;
+import org.rust.cargo.api.toolchain.CargoMetadata;
 
 final class PackageImplHelper {
 
@@ -19,7 +23,7 @@ final class PackageImplHelper {
     ) {
         Set<CargoWorkspaceData.Dependency> pkgDeps = workspaceData.getDependencies().get(pkg.getId());
         if (pkgDeps == null) pkgDeps = Collections.emptySet();
-        List<org.rust.cargo.toolchain.impl.CargoMetadata.RawDependency> pkgRawDeps =
+        List<org.rust.cargo.api.toolchain.CargoMetadata.RawDependency> pkgRawDeps =
             workspaceData.getRawDependencies().get(pkg.getId());
         if (pkgRawDeps == null) pkgRawDeps = Collections.emptyList();
 
@@ -32,8 +36,8 @@ final class PackageImplHelper {
             String depName = dep.getName() != null ? dep.getName() : depTargetName;
             String rename = !depName.equals(depTargetName) ? depName : null;
 
-            List<org.rust.cargo.toolchain.impl.CargoMetadata.RawDependency> rawDeps = new ArrayList<>();
-            for (org.rust.cargo.toolchain.impl.CargoMetadata.RawDependency rawDep : pkgRawDeps) {
+            List<org.rust.cargo.api.toolchain.CargoMetadata.RawDependency> rawDeps = new ArrayList<>();
+            for (org.rust.cargo.api.toolchain.CargoMetadata.RawDependency rawDep : pkgRawDeps) {
                 if (rawDep.getName().equals(dependencyPackage.getName())) {
                     String rawRename = rawDep.getRename() != null ? rawDep.getRename().replace('-', '_') : null;
                     if (Objects.equals(rawRename, rename)) {
@@ -61,7 +65,7 @@ final class PackageImplHelper {
             Set<String> requiredFeatures = new HashSet<>();
             String cargoFeatureDependencyPackageName = dependencyPackage.getName();
 
-            for (org.rust.cargo.toolchain.impl.CargoMetadata.RawDependency rawDep : rawDeps) {
+            for (org.rust.cargo.api.toolchain.CargoMetadata.RawDependency rawDep : rawDeps) {
                 if (rawDep.isOptional()) isOptional = true;
                 if (rawDep.isUses_default_features()) usesDefaultFeatures = true;
                 requiredFeatures.addAll(rawDep.getFeatures());

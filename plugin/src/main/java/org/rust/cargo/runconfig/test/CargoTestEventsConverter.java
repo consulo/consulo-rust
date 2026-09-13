@@ -5,6 +5,7 @@
 
 package org.rust.cargo.runconfig.test;
 
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import consulo.execution.test.TestConsoleProperties;
@@ -21,10 +22,10 @@ import jakarta.annotation.Nullable;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import org.rust.cargo.project.model.impl.CargoProjectsServiceImpl;
 import org.rust.cargo.project.model.impl.CargoProjectsServiceImplUtil;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
-import org.rust.cargo.project.workspace.CargoWorkspace;
-import org.rust.cargo.project.workspace.PackageOrigin;
-import org.rust.cargo.util.ToolchainUtil;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.PackageOrigin;
+import org.rust.cargo.api.util.ToolchainUtil;
 import org.rust.openapiext.JsonUtils;
 
 import java.io.File;
@@ -141,7 +142,7 @@ public class CargoTestEventsConverter extends OutputToGeneralTestEventsConverter
             case EXECUTABLE_NAME: {
                 String trimmed = text.trim();
                 String fileSeparator = null;
-                var toolchain = RsProjectSettingsServiceUtil.getToolchain(project);
+                var toolchain = RsToolchainLocator.getToolchain(project);
                 if (toolchain != null) {
                     fileSeparator = toolchain.getFileSeparator();
                 }

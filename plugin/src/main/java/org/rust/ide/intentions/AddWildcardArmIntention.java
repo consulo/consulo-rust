@@ -10,9 +10,9 @@ import consulo.project.Project;
 import consulo.language.psi.PsiElement;
 import org.rust.ide.fixes.AddRemainingArmsFix;
 import org.rust.ide.fixes.AddWildcardArmFix;
-import org.rust.ide.utils.checkMatch.Pattern;
+import org.rust.lang.core.match.Pattern;
 import org.rust.lang.core.psi.RsMatchExpr;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 
 import java.util.List;
 import consulo.localize.LocalizeValue;

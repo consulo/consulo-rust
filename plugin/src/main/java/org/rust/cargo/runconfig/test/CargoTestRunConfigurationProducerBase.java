@@ -5,6 +5,7 @@
 
 package org.rust.cargo.runconfig.test;
 
+
 import consulo.execution.action.ConfigurationContext;
 import consulo.language.editor.LangDataKeys;
 import consulo.util.lang.ref.SimpleReference;
@@ -16,19 +17,19 @@ import jakarta.annotation.Nullable;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import org.rust.cargo.project.model.impl.CargoProjectImpl;
 import org.rust.cargo.project.model.impl.CargoProjectsServiceImplUtil;
-import org.rust.cargo.project.workspace.CargoWorkspace;
-import org.rust.cargo.project.workspace.PackageOrigin;
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.cargo.runconfig.RunConfigUtil;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 import org.rust.cargo.runconfig.command.CargoRunConfigurationProducer;
 import org.rust.cargo.toolchain.CargoCommandLine;
-import org.rust.ide.refactoring.RsNamesValidator;
+import org.rust.lang.core.names.RsNamesValidator;
 import org.rust.lang.core.crate.Crate;
-import org.rust.lang.core.psi.ext.RsElementUtil;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsModDeclItem;
-import org.rust.lang.core.psi.RsRawIdentifiers;
+import org.rust.lang.core.psi.impl.RsRawIdentifiers;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.openapiext.VirtualFileExtUtil;
 import org.rust.stdext.Utils;
@@ -40,6 +41,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import consulo.language.psi.util.PsiTreeUtil;
 import org.rust.openapiext.PsiFileExtUtil;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public abstract class CargoTestRunConfigurationProducerBase extends CargoRunConfigurationProducer {
     @Nonnull

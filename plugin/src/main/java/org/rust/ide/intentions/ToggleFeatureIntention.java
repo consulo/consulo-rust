@@ -14,26 +14,26 @@ import consulo.language.psi.PsiFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.project.model.CargoProjectsUtil;
-import org.rust.cargo.project.workspace.CargoWorkspace;
-import org.rust.cargo.project.workspace.FeatureState;
-import org.rust.cargo.project.workspace.PackageFeature;
-import org.rust.cargo.project.workspace.PackageOrigin;
+import org.rust.cargo.api.model.CargoProjectsUtil;
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.FeatureState;
+import org.rust.cargo.api.workspace.PackageFeature;
+import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.lang.core.RsPsiPattern;
 import org.rust.lang.core.macros.RsExpandedElementUtil;
 import org.rust.lang.core.psi.RsMetaItem;
-import org.rust.lang.core.psi.ext.PsiElementExt;
+import org.rust.lang.core.psi.ext.impl.PsiElementExt;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.rust.lang.core.psi.ext.RsElementExtUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementExtUtil;
 import consulo.localize.LocalizeValue;
-import org.rust.cargo.project.model.CargoProject;
-import org.rust.lang.core.psi.ext.RsLitExprUtil;
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.lang.core.psi.ext.impl.RsLitExprUtil;
 
 public class ToggleFeatureIntention extends RsElementBaseIntentionAction<ToggleFeatureIntention.Context> implements HighPriorityAction {
     @Nonnull
@@ -104,7 +104,7 @@ public class ToggleFeatureIntention extends RsElementBaseIntentionAction<ToggleF
 
         RsElement context = (RsElement) featureMetaItem.getLitExpr();
         if (context == null) return null;
-        String featureName = org.rust.lang.core.psi.ext.RsLitExprUtil.getStringValue(featureMetaItem.getLitExpr());
+        String featureName = org.rust.lang.core.psi.ext.impl.RsLitExprUtil.getStringValue(featureMetaItem.getLitExpr());
         if (featureName == null) return null;
         Boolean isEnabled = isCargoFeatureEnabled(context, featureName);
         if (isEnabled == null) return null;
@@ -126,7 +126,7 @@ public class ToggleFeatureIntention extends RsElementBaseIntentionAction<ToggleF
     @Override
     public void invoke(@Nonnull Project project, @Nonnull Editor editor, @Nonnull Context ctx) {
         RsElement el = ctx.getElement();
-        org.rust.cargo.project.model.CargoProject cargoProject = RsElementExtUtil.getCargoProject(el);
+        org.rust.cargo.api.model.CargoProject cargoProject = RsElementExtUtil.getCargoProject(el);
         if (cargoProject == null) return;
         CargoWorkspace.Package pkg = RsElementUtil.getContainingCargoPackage(el);
         if (pkg == null) return;

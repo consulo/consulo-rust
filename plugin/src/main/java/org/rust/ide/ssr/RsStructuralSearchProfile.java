@@ -27,7 +27,7 @@ import com.intellij.structuralsearch.plugin.ui.Configuration;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.ide.experiments.RsExperiments;
+import org.rust.experiments.RsExperiments;
 import org.rust.ide.template.RsContextType;
 import org.rust.lang.RsFileType;
 import org.rust.lang.RsLanguage;
@@ -36,6 +36,7 @@ import org.rust.lang.core.psi.ext.RsGenericDeclaration;
 import org.rust.lang.core.resolve.ref.RsReference;
 import org.rust.openapiext.OpenApiUtil;
 import consulo.language.impl.parser.GeneratedParserUtilBase;
+import org.rust.lang.core.psi.impl.*;
 
 public class RsStructuralSearchProfile extends StructuralSearchProfile {
 

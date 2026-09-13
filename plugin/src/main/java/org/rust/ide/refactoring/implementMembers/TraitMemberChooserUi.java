@@ -13,7 +13,7 @@ import jakarta.annotation.Nullable;
 
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.ext.RsAbstractable;
-import org.rust.lang.core.psi.ext.TraitImplementationInfo;
+import org.rust.lang.core.psi.ext.impl.TraitImplementationInfo;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.*;

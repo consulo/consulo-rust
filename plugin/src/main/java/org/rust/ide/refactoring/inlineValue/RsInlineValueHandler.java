@@ -5,7 +5,7 @@
 
 package org.rust.ide.refactoring.inlineValue;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.language.editor.TargetElementUtil;
 import consulo.language.Language;
 import consulo.language.editor.refactoring.inline.InlineActionHandler;

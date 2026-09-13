@@ -17,7 +17,7 @@ import consulo.language.psi.util.PsiTreeUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.RsFunction;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.codeEditor.markup.GutterIconRenderer;
 import consulo.language.Language;

@@ -5,7 +5,7 @@
 
 package org.rust.ide.refactoring.convertStruct;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.dataContext.DataContext;
 import consulo.codeEditor.Editor;
 import consulo.document.event.DocumentEvent;
@@ -23,7 +23,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.refactoring.RsBaseEditorRefactoringAction;
-import org.rust.ide.refactoring.RsNamesValidator;
+import org.rust.lang.core.names.RsNamesValidator;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsFieldsOwner;
 import org.rust.lang.core.psi.ext.RsNameIdentifierOwner;

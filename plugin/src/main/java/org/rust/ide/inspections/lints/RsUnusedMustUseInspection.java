@@ -16,8 +16,8 @@ import org.rust.ide.fixes.RsQuickFixBase;
 import org.rust.ide.inspections.RsProblemsHolder;
 import org.rust.ide.inspections.RsWithMacrosInspectionVisitor;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsAttrOwnerExtUtil;
-import org.rust.lang.core.psi.ext.RsBlockUtil;
+import org.rust.lang.core.psi.ext.impl.RsAttrOwnerExtUtil;
+import org.rust.lang.core.psi.ext.impl.RsBlockUtil;
 import org.rust.lang.core.psi.ext.RsItemElement;
 import org.rust.lang.core.resolve.KnownItems;
 import org.rust.lang.core.types.RsTypesUtil;
@@ -35,6 +35,7 @@ import consulo.document.util.TextRange;
 import org.rust.ide.annotator.RsErrorAnnotator;
 import org.rust.ide.utils.template.RsTemplateBuilder;
 import org.rust.lang.core.types.BoundElement;
+import org.rust.lang.core.psi.impl.*;
 
 /** Analogue of rustc's unused_must_use. See also {@link RsDoubleMustUseInspection}. */
 @ExtensionImpl

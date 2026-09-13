@@ -16,7 +16,7 @@ import consulo.project.Project;
 import consulo.language.psi.PsiFile;
 import consulo.language.ast.IElementType;
 import jakarta.annotation.Nonnull;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 
 /**
  * Brace handler infrastructure for Rust.

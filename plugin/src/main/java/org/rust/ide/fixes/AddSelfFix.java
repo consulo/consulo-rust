@@ -14,8 +14,10 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
-import org.rust.lang.core.psi.ext.RsSelfParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsSelfParameterUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class AddSelfFix extends RsQuickFixBase<RsFunction> {
 

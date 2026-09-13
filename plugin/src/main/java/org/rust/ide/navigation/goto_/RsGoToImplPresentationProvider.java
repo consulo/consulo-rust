@@ -13,7 +13,7 @@ import consulo.language.psi.PsiElement;
 import consulo.navigation.TargetPresentation;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.ext.RsAbstractable;
-import org.rust.lang.core.psi.ext.RsAbstractableImplUtil;
+import org.rust.lang.core.psi.ext.impl.RsAbstractableImplUtil;
 import org.rust.lang.core.psi.ext.RsAbstractableOwner;
 
 /**

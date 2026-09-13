@@ -17,16 +17,25 @@ is the part worth reading before changing anything.
 ## Repository layout
 
 ```
-plugin/          the only Maven module; everything that ships
+rust-platform-compat/  unsupported Consulo API shims; see its README, the goal is to delete it
+rust-base/             language-agnostic foundations: stdext, openapiext, icons, localize
+rust-language-api/     the Rust Language, file type and naming constants
+plugin/                everything else that ships
   src/main/java/org/rust/...      ported language + IDE support
   src/main/java/consulo/rust/...  Consulo-specific integration
   src/main/resources/META-INF/plugin.xml
-legacy/          upstream modules not ported (clion, debugger, profiler, ...)
-exampleProject/  template sources for the new-project wizard
+tests/                 parser tests; a plain jar module, NOT a consulo-plugin
+legacy/                upstream modules not ported (clion, debugger, profiler, ...)
+exampleProject/        template sources for the new-project wizard
 ```
 
 `legacy/` is kept for reference only. Nothing in it is built, and none of it is
 reachable from `plugin/`.
+
+Tests cannot live in a module that produces the plugin. `PluginManager` picks its
+backend from the first `PluginManagerInternal` that `ServiceLoader` offers, so
+`consulo-test-junit-impl` has to be declared ahead of the platform dependencies or
+the light container fails with "Not initialized" before any test body runs.
 
 ## Build
 
@@ -158,11 +167,24 @@ the [IntelliJ SDK docs][sdk-docs] still describe them accurately.
 ### Packages
 
 * `org.rust.lang` — lexer, parser, PSI, name resolution, type inference.
-* `org.rust.cargo` — Cargo and rustup integration, project model, toolchain.
+* `org.rust.cargo.api` — the cargo contract the language layer is allowed to use:
+  the workspace and project model, cfg options, settings services, toolchain data.
+  Nothing here may reach into the rest of `org.rust.cargo`.
+* `org.rust.cargo` — Cargo and rustup integration: the toolchain itself, the tools
+  that run it, run configurations, the tool window.
 * `org.rust.ide` — everything the user sees: inspections, intentions,
   completion, navigation, refactoring.
 
+The language layer depends on `org.rust.cargo.api` only. Five imports in
+`lang/core/macros/proc` and three in `RustParserDefinition` still break that rule;
+they are the last thing standing between the language layer and its own module.
+
 ### PSI
+
+Interfaces live in `org.rust.lang.core.psi` and `…psi.ext`; implementations,
+mixins and the static `Util` helpers live in `…psi.impl` and `…psi.ext.impl`.
+`RustParser.bnf` names the impl packages in its `extends`, `mixin` and
+`elementTypeFactory` attributes, so moving a mixin means editing the grammar.
 
 Grammar-Kit generates an interface per rule (`RsStructItem`) and an
 implementation (`RsStructItemImpl`). Custom behaviour is added by having the
@@ -240,6 +262,11 @@ Known gaps, in the order they matter:
   and caller bounds, but the builtin-bound, projection and object-type candidate
   families are not ported.
 * **Method resolution is sensitive to index timing**, as described above.
+* **Nine parser fixtures are disabled.** They parse correctly and flag the same
+  malformed code; they differ from the recorded trees only in where an error node
+  hangs or how verbose its expected-token list is. Matching them exactly needs
+  per-frame variant tracking in `GeneratedParserUtilBase`, which every Grammar-Kit
+  language in the platform shares.
 * Several IntelliJ-only features have no Consulo equivalent and were dropped
   deliberately: trusted-project state, dynamic plugin unloading, the
   macro-expansion virtual file system's global index filter.

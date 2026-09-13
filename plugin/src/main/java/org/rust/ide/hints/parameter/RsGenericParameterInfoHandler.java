@@ -14,23 +14,24 @@ import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.ide.presentation.PsiRenderingOptions;
-import org.rust.ide.presentation.RsPsiRenderer;
-import org.rust.ide.presentation.RsPsiRendererUtil;
+import org.rust.lang.core.presentation.PsiRenderingOptions;
+import org.rust.lang.core.presentation.RsPsiRenderer;
+import org.rust.lang.core.presentation.RsPsiRendererUtil;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsTypeReferenceUtil;
-import org.rust.lang.core.psi.ext.RsTypeParameterUtil;
-import org.rust.lang.core.psi.ext.RsTraitRefUtil;
+import org.rust.lang.core.psi.ext.impl.RsTypeReferenceUtil;
+import org.rust.lang.core.psi.ext.impl.RsTypeParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsTraitRefUtil;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.language.Language;
 import consulo.language.editor.completion.lookup.LookupElement;
 import consulo.language.editor.parameterInfo.ParameterInfoContext;
 import org.rust.lang.RsLanguage;
-import org.rust.lang.core.psi.ext.RsTypeParameterListUtil;
+import org.rust.lang.core.psi.ext.impl.RsTypeParameterListUtil;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @ExtensionImpl
 public class RsGenericParameterInfoHandler extends RsAsyncParameterInfoHandler<RsTypeArgumentList, HintLine> {
@@ -65,7 +66,7 @@ public class RsGenericParameterInfoHandler extends RsAsyncParameterInfoHandler<R
         {
             RsTypeParameterList tpl = genericDeclaration.getTypeParameterList();
             paramsWithBounds = tpl != null
-                ? org.rust.lang.core.psi.ext.RsTypeParameterListUtil.getGenericParameters(tpl, false)
+                ? org.rust.lang.core.psi.ext.impl.RsTypeParameterListUtil.getGenericParameters(tpl, false)
                 : java.util.Collections.emptyList();
         }
         if (paramsWithBounds.isEmpty()) return null;

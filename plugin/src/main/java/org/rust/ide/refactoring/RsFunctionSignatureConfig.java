@@ -9,7 +9,7 @@ import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsTypeParameter;
 import org.rust.lang.core.psi.RsWherePred;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.Ty;
 

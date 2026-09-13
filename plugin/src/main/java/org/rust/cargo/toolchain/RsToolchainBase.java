@@ -5,6 +5,8 @@
 
 package org.rust.cargo.toolchain;
 
+import org.rust.cargo.api.toolchain.BacktraceMode;
+
 import consulo.execution.configuration.EnvironmentVariablesData;
 import consulo.process.cmd.GeneralCommandLine;
 import com.intellij.execution.configurations.PtyCommandLine;
@@ -16,7 +18,7 @@ import org.rust.cargo.CargoConstants;
 import org.rust.cargo.toolchain.flavors.RsToolchainFlavor;
 import org.rust.cargo.toolchain.tools.Cargo;
 import org.rust.cargo.toolchain.wsl.RsWslToolchainFlavor;
-import org.rust.cargo.util.ToolchainUtil;
+import org.rust.cargo.api.util.ToolchainUtil;
 import org.rust.openapiext.CommandLineExt;
 
 import java.io.File;

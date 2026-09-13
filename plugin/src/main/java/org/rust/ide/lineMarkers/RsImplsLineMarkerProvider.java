@@ -15,7 +15,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import org.rust.RsBundle;
-import org.rust.ide.icons.RsIcons;
+import org.rust.icons.RsIcons;
 import org.rust.ide.navigation.goto_.RsGoToImplPresentationProvider;
 import org.rust.lang.core.psi.RsEnumItem;
 import org.rust.lang.core.psi.RsStructItem;
@@ -33,6 +33,7 @@ import consulo.language.Language;
 import consulo.localize.LocalizeValue;
 import consulo.ui.image.Image;
 import org.rust.lang.RsLanguage;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @ExtensionImpl
 public class RsImplsLineMarkerProvider extends LineMarkerProviderDescriptor {

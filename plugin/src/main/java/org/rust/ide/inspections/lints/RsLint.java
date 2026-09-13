@@ -12,10 +12,11 @@ import org.rust.lang.core.psi.ext.*;
 
 import java.util.*;
 import org.rust.lang.core.types.RsTypesUtil;
-import org.rust.lang.core.psi.ext.RsDocAndAttributeOwnerUtil;
+import org.rust.lang.core.psi.ext.impl.RsDocAndAttributeOwnerUtil;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.psi.RsMetaItem;
 import org.rust.lang.core.psi.RsMetaItemArgs;
+import org.rust.lang.core.psi.ext.impl.*;
 
 /**
  * Rust lints.

@@ -5,14 +5,15 @@
 
 package org.rust.cargo.runconfig.test;
 
+
 import consulo.util.lang.StringUtil;
 import consulo.language.psi.PsiDirectory;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.cargo.project.model.CargoProject;
-import org.rust.cargo.project.workspace.CargoWorkspace;
-import org.rust.cargo.project.workspace.PackageOrigin;
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 import org.rust.cargo.toolchain.CargoCommandLine;
 import org.rust.lang.core.psi.RsFunction;
@@ -25,6 +26,7 @@ import org.rust.stdext.Utils;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class CargoTestRunConfigurationProducer extends CargoTestRunConfigurationProducerBase {
 
@@ -70,7 +72,7 @@ public class CargoTestRunConfigurationProducer extends CargoTestRunConfiguration
         Path dirPath = VirtualFileExtUtil.getPathAsPath(dir.getVirtualFile());
         CargoProject cargoProject = RsElementExtUtil.findCargoProject(dir);
         if (cargoProject == null) return null;
-        if (!dirPath.equals(CargoCommandConfiguration.getWorkingDirectory(cargoProject))) return null;
+        if (!dirPath.equals(org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(cargoProject))) return null;
         return new CargoProjectTestConfig(getCommandName(), dir, cargoProject);
     }
 

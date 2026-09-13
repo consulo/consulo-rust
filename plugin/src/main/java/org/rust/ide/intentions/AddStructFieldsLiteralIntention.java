@@ -12,10 +12,10 @@ import org.rust.RsBundle;
 import org.rust.ide.utils.PsiModificationUtil;
 import org.rust.ide.utils.StructFieldsExpander;
 import org.rust.lang.core.psi.RsElementTypes;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.RsStructLiteral;
 import org.rust.lang.core.psi.RsStructLiteralBody;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 import consulo.localize.LocalizeValue;
 
 public class AddStructFieldsLiteralIntention extends RsElementBaseIntentionAction<AddStructFieldsLiteralIntention.Context> {

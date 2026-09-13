@@ -12,11 +12,12 @@ import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.RsTokenType;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
-import org.rust.lang.core.psi.ext.RsBlockExprUtil;
-import org.rust.lang.core.psi.ext.RsBlockUtil;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsBlockExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsBlockUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import org.rust.lang.doc.psi.ext.RsDocCommentUtil;
+import org.rust.lang.core.psi.impl.*;
 
 @ExtensionImpl(id = "RsJoinRawLinesHandler")
 public class RsJoinRawLinesHandler implements JoinRawLinesHandlerDelegate {

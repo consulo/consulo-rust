@@ -40,12 +40,14 @@ import org.rust.stdext.StdextUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 import consulo.localize.LocalizeValue;
 import consulo.util.lang.ref.SimpleReference;
 import org.rust.lang.core.macros.RsExpandedElement;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class RsInlineFunctionProcessor extends BaseRefactoringProcessor {
     @Nonnull

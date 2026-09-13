@@ -28,10 +28,12 @@ import java.util.Comparator;
 import java.util.List;
 
 import static org.rust.ide.refactoring.ExtraxtExpressionUtils.*;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
-import org.rust.lang.core.psi.ext.RsStmtUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsStmtUtil;
 import consulo.language.psi.PsiNamedElement;
 import org.rust.ide.refactoring.ExtraxtExpressionUiUtils;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public final class IntroduceVariableImpl {
 

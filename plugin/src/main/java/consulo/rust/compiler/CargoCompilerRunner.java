@@ -45,10 +45,10 @@ import org.rust.cargo.util.CargoArgsParserUtil;
 import consulo.process.cmd.ParametersListUtil;
 import org.rust.cargo.toolchain.CargoCommandLine;
 import org.rust.cargo.toolchain.RsToolchainBase;
-import org.rust.cargo.toolchain.impl.RustcMessage.CargoTopMessage;
-import org.rust.cargo.toolchain.impl.RustcMessage.CompilerArtifactMessage;
-import org.rust.cargo.toolchain.impl.RustcMessage.RustcDiagnostic;
-import org.rust.cargo.toolchain.impl.RustcMessage.RustcSpan;
+import org.rust.cargo.api.toolchain.RustcMessage.CargoTopMessage;
+import org.rust.cargo.api.toolchain.RustcMessage.CompilerArtifactMessage;
+import org.rust.cargo.api.toolchain.RustcMessage.RustcDiagnostic;
+import org.rust.cargo.api.toolchain.RustcMessage.RustcSpan;
 import org.rust.cargo.toolchain.tools.Cargo;
 
 import java.io.File;
@@ -57,7 +57,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import org.rust.cargo.runconfig.RunConfigUtil;
 

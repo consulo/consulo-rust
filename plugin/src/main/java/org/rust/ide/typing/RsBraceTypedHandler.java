@@ -14,7 +14,7 @@ import consulo.virtualFileSystem.fileType.FileType;
 import consulo.project.Project;
 import consulo.language.psi.PsiFile;
 import consulo.language.ast.IElementType;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 
 public abstract class RsBraceTypedHandler extends TypedHandlerDelegate {
 

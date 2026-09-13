@@ -14,11 +14,11 @@ import org.rust.RsBundle;
 import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsOuterAttr;
-import org.rust.lang.core.psi.RsPsiFactory;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
-import org.rust.lang.core.psi.ext.RsOuterAttributeOwnerUtil;
-import org.rust.lang.core.psi.ext.RsAttrOwnerExtUtil;
-import org.rust.lang.core.psi.ext.RsDocAndAttributeOwnerUtil;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsOuterAttributeOwnerUtil;
+import org.rust.lang.core.psi.ext.impl.RsAttrOwnerExtUtil;
+import org.rust.lang.core.psi.ext.impl.RsDocAndAttributeOwnerUtil;
 import consulo.localize.LocalizeValue;
 
 public class ToggleIgnoreTestIntention extends RsElementBaseIntentionAction<ToggleIgnoreTestIntention.Context> {

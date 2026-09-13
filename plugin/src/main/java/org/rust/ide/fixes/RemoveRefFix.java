@@ -12,8 +12,8 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsExpr;
 import org.rust.lang.core.psi.RsUnaryExpr;
-import org.rust.lang.core.psi.ext.RsUnaryExprUtil;
-import org.rust.lang.core.psi.ext.UnaryOperator;
+import org.rust.lang.core.psi.ext.impl.RsUnaryExprUtil;
+import org.rust.lang.core.psi.ext.impl.UnaryOperator;
 
 import java.util.Arrays;
 import consulo.localize.LocalizeValue;

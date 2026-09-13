@@ -7,7 +7,7 @@ package org.rust.ide.fixes;
 
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
-import org.rust.ide.presentation.TypeRendering;
+import org.rust.lang.core.presentation.TypeRendering;
 import org.rust.lang.core.psi.RsExpr;
 import org.rust.lang.core.types.ty.Ty;
 import consulo.localize.LocalizeValue;

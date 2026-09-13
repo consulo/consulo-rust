@@ -17,21 +17,22 @@ import com.intellij.ui.icons.RowIcon;
 import consulo.ide.impl.idea.util.PlatformIcons;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.ide.presentation.PresentationUtil;
+import org.rust.lang.core.presentation.PresentationUtil;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 
 import javax.swing.*;
 import java.util.*;
-import org.rust.lang.core.psi.ext.RsEnumItemUtil;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
-import org.rust.lang.core.psi.ext.RsMacroCallUtil;
-import org.rust.lang.core.psi.ext.RsItemsOwnerUtil;
+import org.rust.lang.core.psi.ext.impl.RsEnumItemUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsMacroCallUtil;
+import org.rust.lang.core.psi.ext.impl.RsItemsOwnerUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
 import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.ui.image.Image;
 import org.rust.openapiext.OpenApiUtil;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class RsStructureViewElement implements StructureViewTreeElement, Queryable {
 

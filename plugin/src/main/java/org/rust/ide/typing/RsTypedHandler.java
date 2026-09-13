@@ -20,7 +20,7 @@ import consulo.language.psi.util.PsiTreeUtil;
 import consulo.util.lang.CharArrayUtil;
 import org.rust.lang.core.psi.RsDotExpr;
 import org.rust.lang.core.psi.RsElementTypes;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.RsPat;
 import consulo.language.ast.IElementType;
 import consulo.language.psi.PsiElement;

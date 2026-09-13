@@ -6,7 +6,7 @@
 package org.rust.ide.refactoring;
 import consulo.application.util.matcher.NameUtil;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.util.PsiTreeUtil;
 import jakarta.annotation.Nonnull;
@@ -22,6 +22,7 @@ import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.BoundElement;
 import org.rust.ide.inspections.lints.RsNamingInspection;
 import org.rust.lang.core.psi.RsTraitItem;
+import org.rust.lang.core.names.RsNamesValidator;
 
 public final class RsNameSuggestions {
 

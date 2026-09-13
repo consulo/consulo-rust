@@ -5,8 +5,8 @@
 
 package org.rust.cargo.util;
 
-import consulo.ide.ServiceManager;
-import org.rust.cargo.toolchain.impl.RustcVersion;
+import consulo.application.Application;
+import org.rust.cargo.api.toolchain.RustcVersion;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -30,7 +30,7 @@ public interface UnitTestRustcCacheService {
     );
 
     static <T> T cached(RustcVersion rustcVersion, BooleanSupplier cacheIf, Supplier<T> computation) {
-        return ServiceManager.getService(UnitTestRustcCacheService.class).cachedInner(rustcVersion, cacheIf, computation);
+        return Application.get().getInstance(UnitTestRustcCacheService.class).cachedInner(rustcVersion, cacheIf, computation);
     }
 
     static <T> T cached(RustcVersion rustcVersion, Supplier<T> computation) {

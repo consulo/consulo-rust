@@ -5,20 +5,19 @@
 
 package org.rust.ide.inspections;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.language.psi.PsiErrorElement;
 import consulo.language.psi.PsiFile;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.CompilerFeature;
 import org.rust.lang.core.FeatureAvailability;
 import org.rust.lang.core.crate.Crate;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsVisitor;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsItemsOwnerUtil;
-import org.rust.lang.utils.RsDiagnostic;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsItemsOwnerUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 import consulo.localize.LocalizeValue;
 import org.rust.RsBundle;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;

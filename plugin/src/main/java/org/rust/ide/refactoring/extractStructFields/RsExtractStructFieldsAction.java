@@ -5,7 +5,7 @@
 
 package org.rust.ide.refactoring.extractStructFields;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.dataContext.DataContext;
 import consulo.codeEditor.Editor;
 import consulo.project.Project;
@@ -19,7 +19,7 @@ import org.rust.ide.refactoring.generate.StructMember;
 import org.rust.ide.refactoring.generate.StructMemberChooserUi;
 import org.rust.lang.core.psi.RsStructItem;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsStructItemUtil;
+import org.rust.lang.core.psi.ext.impl.RsStructItemUtil;
 import org.rust.lang.core.types.TyFingerprint;
 
 import java.util.List;

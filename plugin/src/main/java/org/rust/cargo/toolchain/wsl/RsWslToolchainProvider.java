@@ -11,7 +11,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.toolchain.RsToolchainBase;
 import org.rust.cargo.toolchain.RsToolchainProvider;
-import org.rust.ide.experiments.RsExperiments;
+import org.rust.experiments.RsExperiments;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.nio.file.Path;

@@ -5,6 +5,7 @@
 
 package org.rust.cargo.project.configurable;
 
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.configurable.Configurable;
 import consulo.configurable.ConfigurationException;
@@ -17,11 +18,11 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import org.rust.RsBundle;
-import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import org.rust.cargo.project.settings.ui.RustProjectSettingsPanel;
-import org.rust.cargo.project.settings.RustProjectSettingsService;
+import org.rust.cargo.api.settings.RustProjectSettingsService;
 import org.rust.cargo.toolchain.RsToolchainBase;
 import org.rust.openapiext.OpenApiUtil;
 
@@ -94,7 +95,7 @@ public class RsProjectConfigurable extends RsConfigurableBase implements Project
 
     @Nonnull
     private static RustProjectSettingsPanel.Data currentData(@Nonnull RustProjectSettingsService settings) {
-        return new RustProjectSettingsPanel.Data(settings.getToolchain(), settings.getExplicitPathToStdlib());
+        return new RustProjectSettingsPanel.Data(RsToolchainLocator.load(settings.getState()), settings.getExplicitPathToStdlib());
     }
 
     @Override

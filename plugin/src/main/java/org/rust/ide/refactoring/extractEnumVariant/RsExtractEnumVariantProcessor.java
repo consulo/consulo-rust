@@ -20,15 +20,16 @@ import org.rust.RsBundle;
 import org.rust.ide.refactoring.ExtractSubsetUtils;
 import org.rust.ide.refactoring.RsInPlaceVariableIntroducer;
 import org.rust.ide.utils.GenericConstraints;
-import org.rust.ide.utils.imports.RsImportHelper;
+import org.rust.lang.core.imports.RsImportHelper;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsEnumVariantUtil;
+import org.rust.lang.core.psi.ext.impl.RsEnumVariantUtil;
 import consulo.document.util.TextRange;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class RsExtractEnumVariantProcessor extends BaseRefactoringProcessor {
     @Nonnull

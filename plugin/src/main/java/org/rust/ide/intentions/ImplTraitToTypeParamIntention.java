@@ -13,14 +13,15 @@ import org.rust.RsBundle;
 import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.ide.utils.template.EditorExt;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.openapiext.Testmark;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.RsPsiImplUtil;
+import org.rust.lang.core.psi.impl.RsPsiImplUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class ImplTraitToTypeParamIntention extends RsElementBaseIntentionAction<ImplTraitToTypeParamIntention.Context> {
 
@@ -73,7 +74,7 @@ public class ImplTraitToTypeParamIntention extends RsElementBaseIntentionAction<
         if (hasInnerImpl) {
             OuterImplTestMark.hit();
             if (RsPsiImplUtil.isIntentionPreviewElement(fnSignature)) return;
-            org.rust.openapiext.Editor.showErrorHint(editor, RsBundle.message("hint.text.please.convert.innermost.impl.trait.first"), HintManager.UNDER);
+            org.rust.openapiext.ui.Editor.showErrorHint(editor, RsBundle.message("hint.text.please.convert.innermost.impl.trait.first"), HintManager.UNDER);
             return;
         }
 

@@ -7,7 +7,7 @@ package org.rust.cargo.util;
 
 import consulo.util.lang.Pair;
 
-import org.rust.cargo.toolchain.impl.RustcVersion;
+import org.rust.cargo.api.toolchain.RustcVersion;
 
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;

@@ -10,7 +10,7 @@ import jakarta.annotation.Nonnull;
 import org.rust.ide.inspections.RsProblemsHolder;
 import org.rust.ide.inspections.RsWithMacrosInspectionVisitor;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsPatBindingUtil;
+import org.rust.lang.core.psi.ext.impl.RsPatBindingUtil;
 import consulo.localize.LocalizeValue;
 import org.rust.RsBundle;
 import consulo.annotation.component.ExtensionImpl;

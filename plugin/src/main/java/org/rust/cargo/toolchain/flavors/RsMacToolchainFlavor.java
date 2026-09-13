@@ -5,6 +5,7 @@
 
 package org.rust.cargo.toolchain.flavors;
 
+
 import consulo.annotation.component.ExtensionImpl;
 import java.nio.file.Files;
 import org.rust.stdext.PathUtil;

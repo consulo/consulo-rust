@@ -40,9 +40,9 @@ import consulo.language.psi.SyntaxTraverser;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
-import org.rust.cargo.project.workspace.PackageOrigin;
-import org.rust.cargo.util.AutoInjectedCrates;
-import org.rust.ide.presentation.PresentationInfo;
+import org.rust.cargo.api.workspace.PackageOrigin;
+import org.rust.cargo.api.util.AutoInjectedCrates;
+import org.rust.lang.core.presentation.PresentationInfo;
 import org.rust.lang.core.crate.CrateGraphService;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
@@ -60,25 +60,27 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
-import org.rust.lang.core.psi.ext.RsTraitRefUtil;
-import org.rust.lang.core.psi.ext.RsTypeReferenceUtil;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
-import org.rust.lang.core.psi.ext.RsRefLikeTypeUtil;
-import org.rust.lang.core.psi.ext.RsTypeParameterUtil;
-import org.rust.lang.core.psi.ext.RsPathUtil;
+import org.rust.lang.core.psi.ext.impl.RsTraitRefUtil;
+import org.rust.lang.core.psi.ext.impl.RsTypeReferenceUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsRefLikeTypeUtil;
+import org.rust.lang.core.psi.ext.impl.RsTypeParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsPathUtil;
 import org.rust.lang.doc.psi.RsQualifiedName;
-import org.rust.lang.core.psi.ext.RsFileUtil;
+import org.rust.lang.core.psi.ext.impl.RsFileUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
 import consulo.language.psi.PsiFile;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
-import org.rust.ide.presentation.PresentationUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
+import org.rust.lang.core.presentation.PresentationUtil;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.documentation.LanguageDocumentationProvider;
 import consulo.language.Language;
 import org.rust.lang.RsLanguage;
-import org.rust.ide.presentation.TypeRendering;
+import org.rust.lang.core.presentation.TypeRendering;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @SuppressWarnings("UnstableApiUsage")
 @ExtensionImpl
@@ -167,7 +169,7 @@ public class RsDocumentationProvider extends AbstractDocumentationProvider imple
     private void generateDoc(RsPatBinding element, StringBuilder buffer) {
         PresentationInfo presentationInfo = PresentationInfo.getPresentationInfo(element);
         if (presentationInfo == null) return;
-        String type = OpenApiUtil.getEscaped(org.rust.ide.presentation.TypeRendering.render(RsTypesUtil.getType(element)));
+        String type = OpenApiUtil.getEscaped(org.rust.lang.core.presentation.TypeRendering.render(RsTypesUtil.getType(element)));
         buffer.append(presentationInfo.getType());
         buffer.append(" ");
         buffer.append("<b>").append(presentationInfo.getName()).append("</b>");

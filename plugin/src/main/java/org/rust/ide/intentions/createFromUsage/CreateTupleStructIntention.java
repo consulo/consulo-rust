@@ -17,7 +17,7 @@ import org.rust.RsBundle;
 import org.rust.ide.inspections.lints.RsNamingInspection;
 import org.rust.ide.intentions.RsElementBaseIntentionAction;
 import org.rust.ide.utils.PsiInsertionPlace;
-import org.rust.ide.utils.imports.ImportBridge;
+import org.rust.lang.core.imports.ImportBridge;
 import org.rust.ide.utils.template.EditorExt;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
@@ -29,12 +29,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsPathUtil;
-import org.rust.ide.presentation.TypeRendering;
+import org.rust.lang.core.psi.ext.impl.RsPathUtil;
+import org.rust.lang.core.presentation.TypeRendering;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.types.ExtensionsUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class CreateTupleStructIntention extends RsElementBaseIntentionAction<CreateTupleStructIntention.Context> {
     @Nonnull
@@ -111,7 +113,7 @@ public class CreateTupleStructIntention extends RsElementBaseIntentionAction<Cre
             if (!unknownTypes.isEmpty()) {
                 EditorExt.buildAndRunTemplate(editor, inserted, (Iterable<PsiElement>)(Iterable<?>) unknownTypes);
             } else {
-                org.rust.openapiext.Editor.moveCaretToOffset(editor, fields.get(0), fields.get(0).getTextOffset());
+                org.rust.openapiext.ui.Editor.moveCaretToOffset(editor, fields.get(0), fields.get(0).getTextOffset());
             }
         } else {
             inserted.navigate(true);

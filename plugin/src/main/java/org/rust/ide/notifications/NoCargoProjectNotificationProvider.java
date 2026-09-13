@@ -5,6 +5,8 @@
 
 package org.rust.ide.notifications;
 
+import org.rust.cargo.api.model.CargoProjectsService;
+
 import consulo.language.editor.scratch.ScratchUtil;
 import consulo.fileEditor.EditorNotificationBuilder;
 import consulo.fileEditor.FileEditor;
@@ -16,13 +18,15 @@ import jakarta.inject.Inject;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.cargo.project.model.*;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.cargo.project.model.AttachCargoProjectAction;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.project.model.CargoProjectsListener;
+import org.rust.cargo.api.model.CargoProjectsListener;
 
 import java.util.function.Supplier;
+import org.rust.notifications.RsEditorNotificationPanel;
+import org.rust.notifications.RsNotificationProvider;
 
 @ExtensionImpl
 public class NoCargoProjectNotificationProvider extends RsNotificationProvider {

@@ -11,19 +11,24 @@ import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import org.rust.ide.annotator.AnnotatorBase;
 import org.rust.ide.fixes.AddFormatStringFix;
-import org.rust.ide.injected.DoctestInfoUtil;
+import org.rust.lang.core.injected.DoctestInfoUtil;
 import org.rust.lang.core.macros.MacroExpansionManagerUtil;
 import org.rust.lang.core.macros.MacroExpansionMode;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsElementUtil;
-import org.rust.lang.utils.RsDiagnostic;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
+import org.rust.ide.inspections.RsDiagnostic;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.rust.ide.injected.RsDoctestLanguageInjector;
-import org.rust.lang.core.psi.ext.RsPossibleMacroCallUtil;
+import org.rust.lang.core.injected.RsDoctestLanguageInjector;
+import org.rust.lang.core.psi.ext.impl.RsPossibleMacroCallUtil;
 import consulo.document.util.TextRange;
+import org.rust.lang.core.format.ErrorAnnotation;
+import org.rust.lang.core.format.FormatContext;
+import org.rust.lang.core.format.FormatImpl;
+import org.rust.lang.core.format.FormatParameter;
+import org.rust.lang.core.format.ParseContext;
 
 public class RsFormatMacroAnnotator extends AnnotatorBase {
     @Override
@@ -88,8 +93,9 @@ public class RsFormatMacroAnnotator extends AnnotatorBase {
     }
 
     private void addAnnotation(@Nonnull AnnotationHolder holder, @Nonnull ErrorAnnotation error, @Nonnull RsMacroCall call) {
-        if (error.getDiagnostic() != null) {
-            RsDiagnostic.addToHolder(error.getDiagnostic(), holder);
+        RsDiagnostic diagnostic = error.getDiagnostic() != null ? RsDiagnostic.of(error.getDiagnostic()) : null;
+        if (diagnostic != null) {
+            RsDiagnostic.addToHolder(diagnostic, holder);
         } else {
             holder.newAnnotation(HighlightSeverity.ERROR, error.getError())
                 .range(error.getRange())

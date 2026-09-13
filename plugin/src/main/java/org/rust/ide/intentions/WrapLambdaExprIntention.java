@@ -16,11 +16,11 @@ import org.rust.ide.utils.PsiModificationUtil;
 import org.rust.lang.core.psi.RsBlockExpr;
 import org.rust.lang.core.psi.RsExpr;
 import org.rust.lang.core.psi.RsLambdaExpr;
-import org.rust.lang.core.psi.RsPsiFactory;
-import org.rust.lang.core.psi.ext.PsiElementExt;
-import org.rust.lang.core.psi.ext.RsBlockUtil;
-import org.rust.openapiext.EditorExt;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
+import org.rust.lang.core.psi.ext.impl.PsiElementExt;
+import org.rust.lang.core.psi.ext.impl.RsBlockUtil;
+import org.rust.openapiext.ui.EditorExt;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import consulo.localize.LocalizeValue;
 
 public class WrapLambdaExprIntention extends RsElementBaseIntentionAction<RsExpr> {

@@ -13,11 +13,11 @@ import consulo.language.psi.PsiWhiteSpace;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.ide.presentation.ImportingPsiRenderer;
-import org.rust.ide.presentation.PsiRenderingOptions;
-import org.rust.ide.settings.RsCodeInsightSettings;
-import org.rust.ide.utils.imports.ImportCandidate;
-import org.rust.ide.utils.imports.ImportCandidateUtil;
+import org.rust.lang.core.presentation.ImportingPsiRenderer;
+import org.rust.lang.core.presentation.PsiRenderingOptions;
+import org.rust.settings.RsCodeInsightSettings;
+import org.rust.lang.core.imports.ImportCandidate;
+import org.rust.lang.core.imports.ImportCandidateUtil;
 import org.rust.lang.core.macros.RsExpandedElementUtil;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
@@ -30,11 +30,13 @@ import org.rust.openapiext.OpenApiUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsTraitRefUtil;
-import org.rust.lang.core.psi.RsPsiImplUtil;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsTraitRefUtil;
+import org.rust.lang.core.psi.impl.RsPsiImplUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public final class ImplementMembersImpl {
 
@@ -47,7 +49,7 @@ public final class ImplementMembersImpl {
         BoundElement<RsTraitItem> trait = traitRef != null ? RsTraitRefUtil.resolveToBoundTrait(traitRef) : null;
         if (trait == null) {
             if (editor != null) {
-                org.rust.openapiext.OpenApiUtil.showErrorHint(editor, RsBundle.message("hint.text.no.members.to.implement.have.been.found"));
+                org.rust.openapiext.ui.EditorExt.showErrorHint(editor, RsBundle.message("hint.text.no.members.to.implement.have.been.found"));
             }
             return;
         }
@@ -55,7 +57,7 @@ public final class ImplementMembersImpl {
         TraitImplementationInfo implInfo = TraitImplementationInfo.create((RsTraitItem) trait.getElement(), impl);
         if (implInfo == null || implInfo.declared.isEmpty()) {
             if (editor != null) {
-                org.rust.openapiext.OpenApiUtil.showErrorHint(editor, RsBundle.message("hint.text.no.members.to.implement.have.been.found"));
+                org.rust.openapiext.ui.EditorExt.showErrorHint(editor, RsBundle.message("hint.text.no.members.to.implement.have.been.found"));
             }
             return;
         }
@@ -194,7 +196,7 @@ public final class ImplementMembersImpl {
         simplifyConstExprs(insertedMembers);
 
         if (needToSelect != null && editor != null) {
-            org.rust.openapiext.OpenApiUtil.selectElement(needToSelect, editor);
+            org.rust.openapiext.ui.UiUtil.selectElement(needToSelect, editor);
         }
     }
 

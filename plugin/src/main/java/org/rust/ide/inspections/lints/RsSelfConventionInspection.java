@@ -24,10 +24,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsSelfParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsSelfParameterUtil;
 import consulo.localize.LocalizeValue;
 import consulo.annotation.component.ExtensionImpl;
 import org.rust.lang.core.types.ExtensionsUtil;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @ExtensionImpl
 public class RsSelfConventionInspection extends RsLintInspection {

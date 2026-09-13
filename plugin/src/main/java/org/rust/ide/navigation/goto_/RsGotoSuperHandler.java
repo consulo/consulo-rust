@@ -16,7 +16,7 @@ import consulo.language.psi.util.PsiTreeUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.openapiext.VirtualFileExtUtil;
 
@@ -28,6 +28,7 @@ import org.rust.lang.core.psi.ext.RsMod;
 import consulo.language.Language;
 import org.rust.lang.RsLanguage;
 import org.rust.lang.core.psi.RsModDeclItem;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @ExtensionImpl
 public class RsGotoSuperHandler implements GotoSuperActionHander {

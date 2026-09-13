@@ -5,6 +5,7 @@
 
 package org.rust.ide.inspections;
 
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.language.editor.inspection.LocalInspectionTool;
 import consulo.language.editor.inspection.LocalInspectionToolSession;
 import consulo.language.editor.inspection.ProblemsHolder;
@@ -12,8 +13,8 @@ import consulo.language.psi.PsiElementVisitor;
 import consulo.language.psi.PsiFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.RsVisitor;
 import org.rust.openapiext.OpenApiUtil;
 import consulo.language.Language;
@@ -75,7 +76,7 @@ public abstract class RsLocalInspectionTool extends LocalInspectionTool {
 
         boolean w = file.getCargoWorkspace() != null;
         boolean c = file.getCrateRoot() != null;
-        boolean t = RsProjectSettingsServiceUtil.getToolchain(file.getProject()) != null;
+        boolean t = RsToolchainLocator.getToolchain(file.getProject()) != null;
         return w && c && t;
     }
 

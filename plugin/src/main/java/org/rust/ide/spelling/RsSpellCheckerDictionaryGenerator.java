@@ -14,6 +14,7 @@ import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsNameIdentifierOwner;
 
 import java.util.HashSet;
+import org.rust.lang.core.psi.impl.*;
 
 public class RsSpellCheckerDictionaryGenerator extends SpellCheckerDictionaryGenerator {
 

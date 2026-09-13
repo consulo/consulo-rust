@@ -5,13 +5,15 @@
 
 package org.rust.cargo.project.workspace;
 
+import org.rust.cargo.api.workspace.CargoWorkspace;
+
 import consulo.project.Project;
 import consulo.util.dataholder.Key;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
 
 import java.util.ArrayList;

@@ -15,10 +15,10 @@ import org.rust.lang.core.psi.RsEnumItem;
 import org.rust.lang.core.psi.RsStructItem;
 import org.rust.lang.core.psi.RsTraitItem;
 import org.rust.lang.core.psi.ext.RsAbstractable;
-import org.rust.lang.core.psi.ext.RsAbstractableUtil;
-import org.rust.lang.core.psi.ext.RsStructOrEnumItemElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsAbstractableUtil;
+import org.rust.lang.core.psi.ext.impl.RsStructOrEnumItemElementUtil;
 import org.rust.openapiext.QueryExtUtil;
-import org.rust.lang.core.psi.ext.RsTraitItemUtil;
+import org.rust.lang.core.psi.ext.impl.RsTraitItemUtil;
 import consulo.application.util.function.Processor;
 import consulo.application.util.query.CollectionQuery;
 

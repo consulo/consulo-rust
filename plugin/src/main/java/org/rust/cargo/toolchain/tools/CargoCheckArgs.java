@@ -6,13 +6,13 @@
 package org.rust.cargo.toolchain.tools;
 
 import consulo.project.Project;
-import org.rust.cargo.project.model.CargoProject;
-import org.rust.cargo.project.settings.RsExternalLinterProjectSettingsService;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
-import org.rust.cargo.project.workspace.CargoWorkspace;
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.api.settings.RsExternalLinterProjectSettingsService;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
-import org.rust.cargo.toolchain.ExternalLinter;
-import org.rust.cargo.toolchain.RustChannel;
+import org.rust.cargo.api.toolchain.ExternalLinter;
+import org.rust.cargo.api.toolchain.RustChannel;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -143,7 +143,7 @@ public abstract class CargoCheckArgs {
         RsExternalLinterProjectSettingsService settings = RsProjectSettingsServiceUtil.getExternalLinterSettings(cargoProject.getProject());
         return new FullWorkspace(
             settings.getTool(),
-            CargoCommandConfiguration.getWorkingDirectory(cargoProject),
+            org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(cargoProject),
             RsProjectSettingsServiceUtil.getRustSettings(cargoProject.getProject()).getCompileAllTargets(),
             settings.getAdditionalArguments(),
             settings.getChannel(),

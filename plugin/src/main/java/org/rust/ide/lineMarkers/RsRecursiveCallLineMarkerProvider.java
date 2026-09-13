@@ -13,9 +13,9 @@ import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.ide.icons.RsIcons;
+import org.rust.icons.RsIcons;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import org.rust.lang.core.resolve.ref.RsReference;
 import org.rust.openapiext.DocumentExtUtil;
 

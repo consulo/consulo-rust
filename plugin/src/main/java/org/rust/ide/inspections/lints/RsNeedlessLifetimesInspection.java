@@ -24,17 +24,19 @@ import org.rust.openapiext.PsiElementExtUtil;
 import org.rust.stdext.CollectionExtUtil;
 
 import java.util.*;
-import org.rust.lang.core.psi.ext.RsSelfParameterUtil;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
-import org.rust.lang.core.psi.ext.RsTypeParameterUtil;
-import org.rust.lang.core.psi.ext.RsLifetimeParameterUtil;
-import org.rust.lang.core.psi.ext.RsPathUtil;
-import org.rust.lang.core.psi.ext.RsRefLikeTypeUtil;
+import org.rust.lang.core.psi.ext.impl.RsSelfParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsTypeParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsLifetimeParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsPathUtil;
+import org.rust.lang.core.psi.ext.impl.RsRefLikeTypeUtil;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 import consulo.localize.LocalizeValue;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 /**
  * Checks for lifetime annotations which can be removed by relying on lifetime elision.

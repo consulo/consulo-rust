@@ -11,13 +11,14 @@ import consulo.language.psi.PsiElement;
 import org.rust.RsBundle;
 import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.BinaryOperator;
-import org.rust.lang.core.psi.ext.LogicOp;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.BinaryOperator;
+import org.rust.lang.core.psi.ext.impl.LogicOp;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 import org.rust.lang.utils.RsBooleanExpUtils;
-import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
-import org.rust.lang.core.psi.ext.RsBinaryOpUtil;
+import org.rust.lang.core.psi.ext.impl.RsBinaryExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsBinaryOpUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class DemorgansLawIntention extends RsElementBaseIntentionAction<DemorgansLawIntention.Context> {
 

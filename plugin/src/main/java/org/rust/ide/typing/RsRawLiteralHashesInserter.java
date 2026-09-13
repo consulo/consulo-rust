@@ -19,11 +19,11 @@ import consulo.language.psi.PsiErrorElement;
 import consulo.language.psi.PsiFile;
 import consulo.util.lang.Pair;
 import jakarta.annotation.Nonnull;
-import org.rust.lang.core.psi.RsFile;
-import org.rust.lang.core.psi.RsLiteralKind;
+import org.rust.lang.core.psi.impl.RsFile;
+import org.rust.lang.core.psi.impl.RsLiteralKind;
 
 import java.util.List;
-import org.rust.lang.core.psi.RsTokenSets;
+import org.rust.lang.core.psi.impl.RsTokenSets;
 
 /**
  * Automatically inserts matching '#' characters for raw string literals.

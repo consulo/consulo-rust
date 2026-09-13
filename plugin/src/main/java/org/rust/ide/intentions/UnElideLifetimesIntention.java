@@ -25,10 +25,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsPathUtil;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsPathUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class UnElideLifetimesIntention extends RsElementBaseIntentionAction<UnElideLifetimesIntention.LifetimeContext> {
     @Nonnull
@@ -125,7 +127,7 @@ public class UnElideLifetimesIntention extends RsElementBaseIntentionAction<UnEl
                 public void visitLifetime(@Nonnull RsLifetime o) {
                     if (o.getQuoteIdentifier().getText().equals(unknownLifetime)) {
                         int start = PsiElementExt.getStartOffset(o) + 1;
-                        org.rust.openapiext.Editor.moveCaretToOffset(editor, o, start);
+                        org.rust.openapiext.ui.Editor.moveCaretToOffset(editor, o, start);
                         editor.getSelectionModel().setSelection(start, PsiElementExt.getEndOffset(o));
                     }
                 }

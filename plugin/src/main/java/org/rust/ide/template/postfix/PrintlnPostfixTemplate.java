@@ -17,6 +17,8 @@ import org.rust.lang.core.types.ty.TyUnit;
 
 import java.util.function.Predicate;
 import consulo.language.psi.PsiWhiteSpace;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class PrintlnPostfixTemplate extends PostfixTemplateWithExpressionSelector {
 

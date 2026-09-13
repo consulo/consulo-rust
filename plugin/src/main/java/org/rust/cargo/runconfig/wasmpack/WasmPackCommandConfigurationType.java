@@ -13,7 +13,7 @@ import consulo.execution.configuration.RunConfiguration;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
-import org.rust.ide.icons.RsIcons;
+import org.rust.icons.RsIcons;
 import consulo.localize.LocalizeValue;
 
 @ExtensionImpl

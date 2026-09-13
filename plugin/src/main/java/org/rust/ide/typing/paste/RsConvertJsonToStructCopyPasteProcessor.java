@@ -46,15 +46,15 @@ import consulo.language.psi.SyntaxTraverser;
 
 import org.rust.RsBundle;
 import org.rust.ide.inspections.lints.RsNamingInspection;
-import org.rust.ide.utils.imports.RsImportHelper;
+import org.rust.lang.core.imports.RsImportHelper;
 import org.rust.ide.utils.template.EditorExtUtil;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
 import org.rust.lang.core.resolve.KnownItems;
 import org.rust.lang.core.resolve2.FacadeMetaInfo;
-import org.rust.cargo.project.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.openapiext.PsiFileExtUtil;
 import org.rust.openapiext.OpenApiUtil;
 
@@ -65,7 +65,8 @@ import java.util.regex.Pattern;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.SmartPointerManager;
 import consulo.localize.LocalizeValue;
-import org.rust.lang.core.psi.RsRawIdentifiers;
+import org.rust.lang.core.psi.impl.RsRawIdentifiers;
+import org.rust.lang.core.psi.impl.*;
 
 @ExtensionImpl
 public class RsConvertJsonToStructCopyPasteProcessor extends CopyPastePostProcessor<TextBlockTransferableData> {
@@ -297,7 +298,7 @@ public class RsConvertJsonToStructCopyPasteProcessor extends CopyPastePostProces
             normalized += placeholder;
         }
 
-        return org.rust.lang.core.psi.RsRawIdentifiers.escapeIdentifierIfNeeded(normalized);
+        return org.rust.lang.core.psi.impl.RsRawIdentifiers.escapeIdentifierIfNeeded(normalized);
     }
 
     private static String createFieldName(String field, Set<String> generatedFieldNames) {

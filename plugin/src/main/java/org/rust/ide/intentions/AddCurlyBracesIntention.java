@@ -11,11 +11,11 @@ import consulo.language.psi.PsiElement;
 import org.rust.RsBundle;
 import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.lang.core.psi.RsPath;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.RsUseItem;
 import org.rust.lang.core.psi.RsUseSpeck;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
-import org.rust.lang.core.psi.ext.RsUseSpeckUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsUseSpeckUtil;
 import consulo.localize.LocalizeValue;
 
 /**
@@ -111,6 +111,6 @@ public class AddCurlyBracesIntention extends RsElementBaseIntentionAction<AddCur
         ctx.useSpeck.add(newColonColon);
         ctx.useSpeck.add(newGroup);
 
-        org.rust.openapiext.Editor.moveCaretToOffset(editor, ctx.semicolon, ctx.semicolon.getTextRange().getStartOffset() - 1);
+        org.rust.openapiext.ui.Editor.moveCaretToOffset(editor, ctx.semicolon, ctx.semicolon.getTextRange().getStartOffset() - 1);
     }
 }

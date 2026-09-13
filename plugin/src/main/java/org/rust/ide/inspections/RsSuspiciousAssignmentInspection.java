@@ -15,7 +15,7 @@ import org.rust.lang.core.psi.RsBinaryExpr;
 import org.rust.lang.core.psi.RsExpr;
 import org.rust.lang.core.psi.RsUnaryExpr;
 import org.rust.lang.core.psi.RsVisitor;
-import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsBinaryExprUtil;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.localize.LocalizeValue;
 

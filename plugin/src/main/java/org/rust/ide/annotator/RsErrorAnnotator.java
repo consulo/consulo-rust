@@ -21,8 +21,8 @@ import consulo.util.collection.SmartList;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.project.workspace.CargoWorkspace;
-import org.rust.cargo.project.workspace.PackageOrigin;
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.ide.fixes.*;
 import org.rust.ide.fixes.MakePublicFix;
 import org.rust.lang.core.CompilerFeature;
@@ -30,7 +30,7 @@ import org.rust.lang.core.FeatureAvailability;
 import org.rust.lang.core.FeatureState;
 import org.rust.lang.core.macros.MacroExpansionMode;
 import org.rust.lang.core.macros.MacroExpansionManager;
-import org.rust.lang.core.macros.proc.ProcMacroApplicationService;
+import org.rust.cargo.macros.ProcMacroApplicationService;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.resolve.Namespace;
@@ -40,7 +40,8 @@ import org.rust.lang.core.types.RsCallable;
 import org.rust.lang.core.types.TraitRef;
 import org.rust.lang.core.types.infer.TypeInference;
 import org.rust.lang.core.types.ty.*;
-import org.rust.lang.utils.RsDiagnostic;
+import org.rust.ide.inspections.RsDiagnostic;
+import org.rust.lang.utils.RsInferenceDiagnostic;
 import org.rust.lang.utils.RsErrorCode;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.stdext.StdextUtil;
@@ -49,17 +50,19 @@ import java.util.*;
 
 import static org.rust.lang.core.FeatureAvailability.*;
 import static org.rust.lang.utils.RsErrorCode.*;
-import org.rust.lang.core.psi.ext.RsTraitRefUtil;
-import org.rust.lang.core.psi.ext.RsPathUtil;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsTraitRefUtil;
+import org.rust.lang.core.psi.ext.impl.RsPathUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.types.RsTypesUtil;
 import consulo.language.ast.ASTNode;
 import consulo.language.editor.annotation.AnnotationBuilder;
-import org.rust.lang.core.psi.ext.ComparisonOp;
-import org.rust.lang.core.psi.ext.EqualityOp;
+import org.rust.lang.core.psi.ext.impl.ComparisonOp;
+import org.rust.lang.core.psi.ext.impl.EqualityOp;
 import org.rust.lang.core.resolve.ref.RsReference;
 import org.rust.lang.core.types.infer.FoldUtil;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @ExtensionImpl
 public class RsErrorAnnotator extends AnnotatorBase implements HighlightRangeExtension {
@@ -207,7 +210,7 @@ public class RsErrorAnnotator extends AnnotatorBase implements HighlightRangeExt
         if (!(expr instanceof RsLetExpr)) return;
         RsPat pat = ((RsLetExpr) expr).getPat();
         if (pat instanceof RsOrPat) {
-            CompilerFeature.getIF_WHILE_OR_PATTERNS().check(
+            CompilerFeatureCheck.check(CompilerFeature.getIF_WHILE_OR_PATTERNS(),
                 holder,
                 ((RsOrPat) pat).getPatList().get(0),
                 ((RsOrPat) pat).getPatList().get(((RsOrPat) pat).getPatList().size() - 1),
@@ -236,8 +239,9 @@ public class RsErrorAnnotator extends AnnotatorBase implements HighlightRangeExt
     }
 
     private void collectDiagnostics(RsAnnotationHolder holder, RsInferenceContextOwner element) {
-        for (RsDiagnostic diag : RsTypesUtil.getSelfInferenceResult(element).getDiagnostics()) {
-            if (diag.getInspectionClass() == getClass()) {
+        for (RsInferenceDiagnostic reported : RsTypesUtil.getSelfInferenceResult(element).getDiagnostics()) {
+            RsDiagnostic diag = RsDiagnostic.of(reported);
+            if (diag != null && diag.getInspectionClass() == getClass()) {
                 RsDiagnostic.addToHolder(diag, holder);
             }
         }
@@ -399,7 +403,7 @@ public class RsErrorAnnotator extends AnnotatorBase implements HighlightRangeExt
     }
 
     private void checkYieldExpr(RsAnnotationHolder holder, RsYieldExpr o) {
-        CompilerFeature.getGENERATORS().check(holder, o.getYield(), RsBundle.message("yield.syntax"));
+        CompilerFeatureCheck.check(CompilerFeature.getGENERATORS(), holder, o.getYield(), RsBundle.message("yield.syntax"));
     }
 
     private void checkTypeArgumentList(RsAnnotationHolder holder, RsTypeArgumentList args) {
@@ -441,18 +445,18 @@ public class RsErrorAnnotator extends AnnotatorBase implements HighlightRangeExt
     private void checkLetDecl(RsAnnotationHolder holder, RsLetDecl letDecl) {
         RsPat pat = letDecl.getPat();
         if (letDecl.getLetElseBranch() != null && pat != null && RsPatUtil.isIrrefutable(pat)) {
-            CompilerFeature.getIRREFUTABLE_LET_PATTERNS().check(holder, pat, RsBundle.message("irrefutable.let.pattern"));
+            CompilerFeatureCheck.check(CompilerFeature.getIRREFUTABLE_LET_PATTERNS(), holder, pat, RsBundle.message("irrefutable.let.pattern"));
         }
     }
 
     private void checkLetElseBranch(RsAnnotationHolder holder, RsLetElseBranch elseBranch) {
-        CompilerFeature.getLET_ELSE().check(holder, elseBranch, RsBundle.message("let.else"));
+        CompilerFeatureCheck.check(CompilerFeature.getLET_ELSE(), holder, elseBranch, RsBundle.message("let.else"));
     }
 
     private void checkLetExpr(RsAnnotationHolder holder, RsLetExpr element) {
         PsiElement parent = element.getParent();
         if (!(parent instanceof RsCondition) && !(parent instanceof RsMatchArmGuard)) {
-            CompilerFeature.getLET_CHAINS().check(holder, element, null,
+            CompilerFeatureCheck.check(CompilerFeature.getLET_CHAINS(), holder, element, null,
                 RsBundle.message("inspection.message.let.expressions.in.this.position.are.unstable"),
                 RsBundle.message("inspection.message.let.expressions.in.this.position.are.unstable"),
                 java.util.Collections.emptyList(), java.util.Collections.emptyList());
@@ -460,7 +464,7 @@ public class RsErrorAnnotator extends AnnotatorBase implements HighlightRangeExt
 
         RsPat pat = element.getPat();
         if (pat != null && RsPatUtil.isIrrefutable(pat)) {
-            CompilerFeature.getIRREFUTABLE_LET_PATTERNS().check(holder, pat, RsBundle.message("irrefutable.let.pattern"));
+            CompilerFeatureCheck.check(CompilerFeature.getIRREFUTABLE_LET_PATTERNS(), holder, pat, RsBundle.message("irrefutable.let.pattern"));
         }
     }
 
@@ -480,13 +484,13 @@ public class RsErrorAnnotator extends AnnotatorBase implements HighlightRangeExt
     }
 
     private void checkPatBox(RsAnnotationHolder holder, RsPatBox box) {
-        CompilerFeature.getBOX_PATTERNS().check(holder, box.getBox(), RsBundle.message("box.pattern.syntax"));
+        CompilerFeatureCheck.check(CompilerFeature.getBOX_PATTERNS(), holder, box.getBox(), RsBundle.message("box.pattern.syntax"));
     }
 
     private void checkPatField(RsAnnotationHolder holder, RsPatField field) {
         PsiElement box = field.getBox();
         if (box == null) return;
-        CompilerFeature.getBOX_PATTERNS().check(holder, box, RsBundle.message("box.pattern.syntax"));
+        CompilerFeatureCheck.check(CompilerFeature.getBOX_PATTERNS(), holder, box, RsBundle.message("box.pattern.syntax"));
     }
 
     private void checkPatRange(RsAnnotationHolder holder, RsPatRange range) {
@@ -529,7 +533,7 @@ public class RsErrorAnnotator extends AnnotatorBase implements HighlightRangeExt
     private void checkMatchArmGuard(RsAnnotationHolder holder, RsMatchArmGuard guard) {
         RsExpr expr = guard.getExpr();
         if (expr instanceof RsLetExpr) {
-            CompilerFeature.getIF_LET_GUARD().check(holder, ((RsLetExpr) expr).getLet(), RsBundle.message("if.let.guard"));
+            CompilerFeatureCheck.check(CompilerFeature.getIF_LET_GUARD(), holder, ((RsLetExpr) expr).getLet(), RsBundle.message("if.let.guard"));
         }
     }
 
@@ -540,22 +544,22 @@ public class RsErrorAnnotator extends AnnotatorBase implements HighlightRangeExt
     }
 
     private void checkTildeConst(RsAnnotationHolder holder, RsTildeConst o) {
-        CompilerFeature.getCONST_TRAIT_IMPL().check(holder, o, RsBundle.message("const.trait.impls"));
-        CompilerFeature.getCONST_FN_TRAIT_BOUND().check(holder, o, RsBundle.message("const.fn.trait.bound"));
+        CompilerFeatureCheck.check(CompilerFeature.getCONST_TRAIT_IMPL(), holder, o, RsBundle.message("const.trait.impls"));
+        CompilerFeatureCheck.check(CompilerFeature.getCONST_FN_TRAIT_BOUND(), holder, o, RsBundle.message("const.fn.trait.bound"));
     }
 
     private void checkBlockExpr(RsAnnotationHolder holder, RsBlockExpr expr) {
         RsLabelDecl label = expr.getLabelDecl();
         if (label != null) {
-            CompilerFeature.getLABEL_BREAK_VALUE().check(holder, label, RsBundle.message("label.on.block"));
+            CompilerFeatureCheck.check(CompilerFeature.getLABEL_BREAK_VALUE(), holder, label, RsBundle.message("label.on.block"));
         }
 
         PsiElement constKw = expr.getConst();
         if (constKw != null) {
             if (expr.getParent() instanceof RsPat) {
-                CompilerFeature.getINLINE_CONST_PAT().check(holder, constKw, RsBundle.message("inline.const.pat"));
+                CompilerFeatureCheck.check(CompilerFeature.getINLINE_CONST_PAT(), holder, constKw, RsBundle.message("inline.const.pat"));
             } else {
-                CompilerFeature.getINLINE_CONST().check(holder, constKw, RsBundle.message("inline.const"));
+                CompilerFeatureCheck.check(CompilerFeature.getINLINE_CONST(), holder, constKw, RsBundle.message("inline.const"));
             }
         }
     }
@@ -576,7 +580,7 @@ public class RsErrorAnnotator extends AnnotatorBase implements HighlightRangeExt
     private void checkLambdaExpr(RsAnnotationHolder holder, RsLambdaExpr expr) {
         PsiElement constKw = expr.getConst();
         if (constKw == null) return;
-        CompilerFeature.getCONST_CLOSURES().check(holder, constKw, RsBundle.message("const.closures"));
+        CompilerFeatureCheck.check(CompilerFeature.getCONST_CLOSURES(), holder, constKw, RsBundle.message("const.closures"));
     }
 
     private void checkBreakExpr(RsAnnotationHolder holder, RsBreakExpr expr) {
@@ -595,7 +599,7 @@ public class RsErrorAnnotator extends AnnotatorBase implements HighlightRangeExt
         PsiElement box = o.getBox();
         if (box != null) {
             ReplaceBoxSyntaxFix fix = new ReplaceBoxSyntaxFix(o);
-            CompilerFeature.getBOX_SYNTAX().check(holder, box, RsBundle.message("box.expression.syntax"),
+            CompilerFeatureCheck.check(CompilerFeature.getBOX_SYNTAX(), holder, box, RsBundle.message("box.expression.syntax"),
                 java.util.Collections.emptyList(), java.util.Collections.singletonList(fix));
         }
     }
@@ -655,7 +659,7 @@ public class RsErrorAnnotator extends AnnotatorBase implements HighlightRangeExt
 
     private void checkExternCrate(RsAnnotationHolder holder, RsExternCrateItem externCrate) {
         if (externCrate.getSelf() == null) return;
-        CompilerFeature.getEXTERN_CRATE_SELF().check(holder, externCrate, RsBundle.message("extern.crate.self"));
+        CompilerFeatureCheck.check(CompilerFeature.getEXTERN_CRATE_SELF(), holder, externCrate, RsBundle.message("extern.crate.self"));
         if (externCrate.getAlias() == null) {
             // rustc says "`extern crate self;` requires renaming", which is rather unclear
             holder.createErrorAnnotation(externCrate,
@@ -723,7 +727,7 @@ public class RsErrorAnnotator extends AnnotatorBase implements HighlightRangeExt
             diagnostic = new RsDiagnostic.ExperimentalFeature(startElement, endElement, message, java.util.Collections.emptyList());
         } else if (availability == CAN_BE_ADDED) {
             diagnostic = new RsDiagnostic.ExperimentalFeature(startElement, endElement, message,
-                java.util.Collections.singletonList(paramAttrs.addFeatureFix(startElement)));
+                java.util.Collections.singletonList(new AddFeatureAttributeFix(paramAttrs.getName(), startElement)));
         } else {
             return;
         }

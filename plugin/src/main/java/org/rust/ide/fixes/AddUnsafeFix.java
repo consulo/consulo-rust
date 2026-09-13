@@ -14,11 +14,12 @@ import consulo.language.psi.util.PsiTreeUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.ide.injected.DoctestUtil;
+import org.rust.lang.core.injected.DoctestUtil;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsAbstractableUtil;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsAbstractableUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class AddUnsafeFix extends RsQuickFixBase<PsiElement> {
     

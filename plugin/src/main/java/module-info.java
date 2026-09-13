@@ -5,6 +5,7 @@
  * @ServiceImpl, @State, etc. without per-package opens directives.
  */
 open module consulo.rust {
+    requires transitive consulo.rust.cargo.api;
     requires java.desktop;
     requires java.xml;
 
@@ -119,6 +120,11 @@ open module consulo.rust {
     // IDE (last because it pulls many transitively)
     requires consulo.ide.api;
     requires consulo.ide.impl;
+
+    requires consulo.rust.platform.compat;
+    requires consulo.rust.base;
+    requires consulo.rust.language.api;
+    requires consulo.rust.language.impl;
 
     requires org.toml.lang;
     requires com.intellij.regexp;

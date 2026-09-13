@@ -14,13 +14,13 @@ import org.rust.lang.core.CompilerFeature;
 import org.rust.lang.core.FeatureAvailability;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsPatUtil;
-import org.rust.lang.core.psi.ext.PsiElementExt;
+import org.rust.lang.core.psi.ext.impl.RsPatUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementExt;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.rust.lang.core.psi.ext.RsLetExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsLetExprUtil;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.localize.LocalizeValue;
 

@@ -11,8 +11,8 @@ import consulo.document.util.TextRange;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.RsFunction;
-import org.rust.lang.core.psi.ext.RsElementUtil;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 
 @ExtensionImpl
 public class RsFunctionDeclarationRangeHandler implements DeclarationRangeHandler<RsFunction> {

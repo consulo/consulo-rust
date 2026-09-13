@@ -10,8 +10,7 @@ import jakarta.annotation.Nonnull;
 import org.rust.ide.fixes.AddTokioMainFix;
 import org.rust.ide.fixes.RemoveElementFix;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
-import org.rust.lang.utils.RsDiagnostic;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +18,7 @@ import consulo.localize.LocalizeValue;
 import org.rust.RsBundle;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.impl.*;
 
 @ExtensionImpl
 public class RsAsyncMainFunctionInspection extends RsLocalInspectionTool {

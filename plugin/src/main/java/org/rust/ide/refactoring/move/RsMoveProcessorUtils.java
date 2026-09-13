@@ -5,15 +5,16 @@
 
 package org.rust.ide.refactoring.move;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
-import org.rust.lang.core.psi.ext.RsModUtil;
+import org.rust.lang.core.psi.ext.impl.RsModUtil;
 
 import java.util.List;
+import org.rust.lang.core.psi.impl.*;
 
 public final class RsMoveProcessorUtils {
 

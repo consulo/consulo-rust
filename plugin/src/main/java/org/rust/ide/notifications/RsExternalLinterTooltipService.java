@@ -5,6 +5,7 @@
 
 package org.rust.ide.notifications;
 
+import consulo.ide.setting.ShowSettingsUtil;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
@@ -17,12 +18,13 @@ import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
 import org.rust.RsBundle;
 import org.rust.cargo.project.configurable.RsExternalLinterConfigurable;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
-import org.rust.cargo.toolchain.ExternalLinter;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.toolchain.ExternalLinter;
 import org.rust.openapiext.OpenApiUtil;
 
 import javax.swing.JComponent;
 import javax.swing.event.HyperlinkEvent;
+import org.rust.notifications.NotificationUtils;
 
 @ServiceAPI(ComponentScope.PROJECT)
 @ServiceImpl
@@ -76,7 +78,7 @@ public final class RsExternalLinterTooltipService implements Disposable {
     private void handleLink(@Nonnull HyperlinkEvent event) {
         if (event.getEventType() != HyperlinkEvent.EventType.ACTIVATED) return;
         if (CONFIGURE_LINK.equals(event.getDescription())) {
-            OpenApiUtil.showSettingsDialog(myProject, RsExternalLinterConfigurable.class);
+            ShowSettingsUtil.getInstance().showSettingsDialog(myProject, RsExternalLinterConfigurable.class);
         }
     }
 }

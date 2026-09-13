@@ -26,11 +26,11 @@ import org.rust.lang.RsFileType;
 import org.rust.lang.core.macros.MacroExpansion;
 import org.rust.lang.core.macros.RsExpandedElementUtil;
 import org.rust.lang.core.macros.errors.GetMacroExpansionError;
-import org.rust.lang.core.psi.RsProcMacroPsiUtil;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsProcMacroPsiUtil;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.RsPsiManager;
 import org.rust.lang.core.psi.ext.*;
-import org.rust.lang.core.psi.ext.RsPossibleMacroCallUtil;
+import org.rust.lang.core.psi.ext.impl.RsPossibleMacroCallUtil;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.stdext.RsResult;
 
@@ -39,6 +39,7 @@ import java.awt.*;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import consulo.undoRedo.util.UndoUtil;
+import org.rust.lang.core.psi.ext.impl.*;
 
 /**
  * Utilities for expanding macros and displaying the expansion results.

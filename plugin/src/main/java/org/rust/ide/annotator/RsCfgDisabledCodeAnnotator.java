@@ -10,14 +10,14 @@ import consulo.language.editor.annotation.HighlightSeverity;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
-import org.rust.ide.colors.RsColor;
+import org.rust.colors.RsColor;
 import org.rust.lang.core.crate.Crate;
 import org.rust.lang.core.psi.ext.RsAttr;
-import org.rust.lang.core.psi.ext.RsAttrUtil;
+import org.rust.lang.core.psi.ext.impl.RsAttrUtil;
 import org.rust.lang.core.psi.ext.RsDocAndAttributeOwner;
-import org.rust.lang.core.psi.ext.RsDocAndAttributeOwnerUtil;
+import org.rust.lang.core.psi.ext.impl.RsDocAndAttributeOwnerUtil;
 import org.rust.openapiext.OpenApiUtil;
-import org.rust.lang.core.psi.ext.RsAttrExtUtil;
+import org.rust.lang.core.psi.ext.impl.RsAttrExtUtil;
 
 public class RsCfgDisabledCodeAnnotator extends AnnotatorBase {
 

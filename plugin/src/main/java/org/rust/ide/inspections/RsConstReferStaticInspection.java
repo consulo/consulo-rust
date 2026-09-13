@@ -7,10 +7,9 @@ package org.rust.ide.inspections;
 
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsConstContextKind;
-import org.rust.lang.core.psi.ext.RsExprUtil;
-import org.rust.lang.core.psi.ext.RsConstantUtil;
-import org.rust.lang.utils.RsDiagnostic;
+import org.rust.lang.core.psi.ext.impl.RsConstContextKind;
+import org.rust.lang.core.psi.ext.impl.RsExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsConstantUtil;
 import consulo.localize.LocalizeValue;
 import org.rust.RsBundle;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;

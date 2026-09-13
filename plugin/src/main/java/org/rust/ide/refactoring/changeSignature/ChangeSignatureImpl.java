@@ -15,7 +15,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.ide.intentions.visibility.ChangeVisibilityIntention;
 import org.rust.ide.refactoring.ExtraxtExpressionUtils;
-import org.rust.ide.utils.imports.RsImportHelper;
+import org.rust.lang.core.imports.RsImportHelper;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.ext.*;
@@ -24,11 +24,13 @@ import org.rust.lang.core.types.ty.TyUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import org.rust.lang.core.psi.ext.RsValueParameterUtil;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsValueParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import consulo.language.ast.ASTNode;
 import org.rust.lang.core.types.ty.Ty;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public final class ChangeSignatureImpl {
     private ChangeSignatureImpl() {

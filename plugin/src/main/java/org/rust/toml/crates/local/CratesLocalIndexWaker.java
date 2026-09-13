@@ -8,13 +8,13 @@ package org.rust.toml.crates.local;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.TopicImpl;
 import jakarta.annotation.Nonnull;
-import org.rust.cargo.project.model.CargoProject;
-import org.rust.cargo.project.model.CargoProjectsService;
-import org.rust.ide.experiments.RsExperiments;
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.api.model.CargoProjectsService;
+import org.rust.experiments.RsExperiments;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.Collection;
-import org.rust.cargo.project.model.CargoProjectsListener;
+import org.rust.cargo.api.model.CargoProjectsListener;
 
 /**
  * Loads the crates index and schedules its update once a Cargo project is available.

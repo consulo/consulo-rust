@@ -5,6 +5,7 @@
 
 package org.rust.toml.crates.local;
 
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.execution.configuration.EnvironmentVariablesData;
 import consulo.disposer.Disposable;
 import consulo.application.ApplicationManager;
@@ -18,8 +19,8 @@ import consulo.ui.ex.awt.util.Alarm;
 import jakarta.annotation.Nonnull;
 
 import org.rust.cargo.CargoConstants;
-import org.rust.cargo.project.model.CargoProjectsService;
-import org.rust.cargo.toolchain.BacktraceMode;
+import org.rust.cargo.api.model.CargoProjectsService;
+import org.rust.cargo.api.toolchain.BacktraceMode;
 import org.rust.cargo.toolchain.RsToolchainBase;
 import org.rust.cargo.toolchain.tools.Cargo;
 import org.rust.openapiext.CommandLineExt;
@@ -39,7 +40,7 @@ import consulo.annotation.component.ServiceImpl;
 import consulo.annotation.component.ComponentScope;
 import consulo.application.ApplicationPropertiesComponent;
 import consulo.process.cmd.GeneralCommandLine;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 
 @ServiceAPI(ComponentScope.APPLICATION)
 @ServiceImpl
@@ -150,7 +151,7 @@ public final class CratesLocalIndexUpdater implements Disposable {
         Project project = openRustProject();
         RsToolchainBase toolchain = project == null
             ? null
-            : RsProjectSettingsServiceUtil.getToolchain(project);
+            : RsToolchainLocator.getToolchain(project);
         if (toolchain == null) return false;
         return triggerCratesIoGitIndexUpdate(toolchain, disposable, projectPath);
     }

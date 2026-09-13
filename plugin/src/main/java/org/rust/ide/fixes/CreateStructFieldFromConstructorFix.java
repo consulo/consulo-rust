@@ -12,10 +12,10 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsNamedFieldDeclListUtil;
-import org.rust.lang.core.psi.ext.RsStructLiteralFieldUtil;
+import org.rust.lang.core.psi.ext.impl.RsNamedFieldDeclListUtil;
+import org.rust.lang.core.psi.ext.impl.RsStructLiteralFieldUtil;
 import org.rust.lang.core.psi.ext.RsVisibility;
-import org.rust.lang.core.psi.ext.RsVisibilityOwnerUtil;
+import org.rust.lang.core.psi.ext.impl.RsVisibilityOwnerUtil;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.infer.TypeVisitor;
 import org.rust.lang.core.types.regions.ReStatic;
@@ -24,9 +24,10 @@ import org.rust.lang.core.types.ty.*;
 
 import java.util.Collections;
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsVisibilityUtil;
+import org.rust.lang.core.psi.ext.impl.RsVisibilityUtil;
 import org.rust.lang.core.resolve.ref.RsPathReferenceImpl;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class CreateStructFieldFromConstructorFix extends RsQuickFixBase<RsStructItem> {
 

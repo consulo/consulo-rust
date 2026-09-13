@@ -5,7 +5,7 @@
 
 package org.rust.toml;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.language.editor.gutter.LineMarkerInfo;
 import consulo.language.editor.gutter.LineMarkerProviderDescriptor;
 import consulo.webBrowser.BrowserUtil;
@@ -17,7 +17,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.cargo.CargoConstants;
 import org.rust.ide.docs.RsDocumentationProvider;
-import org.rust.ide.icons.RsIcons;
+import org.rust.icons.RsIcons;
 import org.rust.ide.lineMarkers.RsLineMarkerInfoUtils;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.toml.lang.psi.*;

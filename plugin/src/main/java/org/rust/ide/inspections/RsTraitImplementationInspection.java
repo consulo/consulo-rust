@@ -8,16 +8,16 @@ package org.rust.ide.inspections;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
-import org.rust.lang.utils.RsDiagnostic;
 import consulo.language.psi.PsiElement;
 
 import java.util.*;
-import org.rust.lang.core.psi.ext.RsImplItemUtil;
-import org.rust.lang.core.psi.ext.RsTraitRefUtil;
+import org.rust.lang.core.psi.ext.impl.RsImplItemUtil;
+import org.rust.lang.core.psi.ext.impl.RsTraitRefUtil;
 import consulo.localize.LocalizeValue;
 import org.rust.RsBundle;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @ExtensionImpl
 public class RsTraitImplementationInspection extends RsLocalInspectionTool {

@@ -20,6 +20,7 @@ import org.rust.lang.core.psi.ext.*;
 import java.util.Collections;
 import java.util.List;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.ext.impl.*;
 
 /**
  * Base class for naming inspections. Implements the core logic of checking names

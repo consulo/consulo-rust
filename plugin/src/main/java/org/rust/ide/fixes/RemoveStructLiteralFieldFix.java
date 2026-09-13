@@ -12,8 +12,8 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsStructLiteralField;
-import org.rust.lang.core.psi.ext.RsElementUtil;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 import consulo.localize.LocalizeValue;
 
 public class RemoveStructLiteralFieldFix extends RsQuickFixBase<PsiElement> {

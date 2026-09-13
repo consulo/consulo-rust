@@ -10,16 +10,17 @@ import consulo.codeEditor.Editor;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.ide.presentation.TypeRendering;
+import org.rust.lang.core.presentation.TypeRendering;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsFunctionOrLambda;
-import org.rust.lang.core.psi.ext.RsTraitRefUtil;
+import org.rust.lang.core.psi.ext.impl.RsTraitRefUtil;
 import org.rust.lang.core.types.*;
 import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyAdt;
 
 import java.util.Collections;
 import consulo.language.editor.inspection.FileModifier;
+import org.rust.lang.core.psi.impl.*;
 
 /**
  * Base class for converting the given expr to the type ty using a try-trait. The conversion process is

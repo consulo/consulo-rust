@@ -12,12 +12,13 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsExprUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class ReplaceWithStdMemDropFix extends RsQuickFixBase<PsiElement> {
 

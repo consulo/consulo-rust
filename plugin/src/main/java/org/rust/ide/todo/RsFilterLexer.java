@@ -12,7 +12,7 @@ import consulo.language.psi.search.UsageSearchContext;
 import consulo.language.ast.IElementType;
 import org.rust.lang.core.lexer.RsLexer;
 import org.rust.lang.core.psi.RsElementTypes;
-import org.rust.lang.core.psi.RsTokenSets;
+import org.rust.lang.core.psi.impl.RsTokenSets;
 
 class RsFilterLexer extends BaseFilterLexer {
 

@@ -5,7 +5,7 @@
 
 package org.rust.ide.intentions.addFmtStringArgument;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo;
 import consulo.codeEditor.Editor;
 import consulo.project.Project;
@@ -25,11 +25,12 @@ import org.rust.openapiext.OpenApiUtil;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.rust.lang.core.psi.ext.RsMacroCallUtil;
+import org.rust.lang.core.psi.ext.impl.RsMacroCallUtil;
 import consulo.localize.LocalizeValue;
 import consulo.undoRedo.CommandProcessor;
 import org.rust.lang.core.psi.MacroBraces;
-import org.rust.openapiext.EditorExt;
+import org.rust.openapiext.ui.EditorExt;
+import org.rust.lang.core.psi.impl.*;
 
 public class AddFmtStringArgumentIntention extends RsElementBaseIntentionAction<AddFmtStringArgumentIntention.Context> {
 
@@ -203,7 +204,7 @@ public class AddFmtStringArgumentIntention extends RsElementBaseIntentionAction<
         OpenApiUtil.runWriteCommandAction(project, text, () -> {
             IntentionInMacroUtil.finishActionInMacroExpansionCopy(editor);
             RsMacroCall inserted = (RsMacroCall) macroCall.replace(newMacroCall);
-            org.rust.openapiext.EditorExt.moveCaretToOffset(editor, inserted, editor.getCaretModel().getOffset() + newPlaceholder.length());
+            org.rust.openapiext.ui.EditorExt.moveCaretToOffset(editor, inserted, editor.getCaretModel().getOffset() + newPlaceholder.length());
         });
     }
 

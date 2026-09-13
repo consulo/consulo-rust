@@ -11,7 +11,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsCastExpr;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import consulo.localize.LocalizeValue;
 
 public class ReplaceCastWithLiteralSuffixFix extends RsQuickFixBase<RsCastExpr> {

@@ -4,6 +4,7 @@
  */
 
 package org.rust.cargo.runconfig;
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.execution.configuration.ExternalizablePath;
 
 import consulo.execution.DefaultExecutionResult;
@@ -21,10 +22,10 @@ import consulo.virtualFileSystem.VirtualFile;
 import org.jdom.Element;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.project.model.CargoProjectsService;
-import org.rust.cargo.project.settings.RustProjectSettingsService;
+import org.rust.cargo.api.model.CargoProjectsService;
+import org.rust.cargo.api.settings.RustProjectSettingsService;
 import org.rust.cargo.project.toolwindow.CargoToolWindow;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 import org.rust.cargo.runconfig.command.CargoCommandConfigurationType;
@@ -43,7 +44,7 @@ import consulo.execution.ui.console.ConsoleView;
 import consulo.process.ExecutionException;
 import consulo.process.ProcessHandler;
 import org.rust.cargo.toolchain.RsToolchainBase;
-import org.rust.cargo.toolchain.RustChannel;
+import org.rust.cargo.api.toolchain.RustChannel;
 import org.rust.openapiext.OpenApiUtil;
 
 public final class RunConfigUtil {
@@ -102,7 +103,7 @@ public final class RunConfigUtil {
         RustProjectSettingsService settings = project.getService(RustProjectSettingsService.class);
         arguments.add("--all");
         if (settings.getCompileAllTargets()) {
-            org.rust.cargo.toolchain.RsToolchainBase toolchain = settings.getToolchain();
+            org.rust.cargo.toolchain.RsToolchainBase toolchain = RsToolchainLocator.load(settings.getState());
             boolean allTargets = false;
             if (toolchain != null) {
                 allTargets = new Cargo(toolchain).checkSupportForBuildCheckAllTargets();
@@ -129,7 +130,7 @@ public final class RunConfigUtil {
 
         for (CargoProject cargoProject : CargoProjectServiceUtil.getCargoProjects(project).getAllProjects()) {
             CargoCommandLine.forProject(cargoProject, "clean", java.util.Collections.emptyList(), false, null,
-                    org.rust.cargo.toolchain.RustChannel.DEFAULT,
+                    org.rust.cargo.api.toolchain.RustChannel.DEFAULT,
                     consulo.execution.configuration.EnvironmentVariablesData.DEFAULT)
                 .run(cargoProject, "clean", false);
         }

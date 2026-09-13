@@ -12,7 +12,7 @@ import consulo.ui.ex.awt.JBTextField;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.ide.refactoring.RsNamesValidator;
+import org.rust.lang.core.names.RsNamesValidator;
 
 import javax.swing.*;
 

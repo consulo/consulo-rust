@@ -9,9 +9,9 @@ import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsModDeclItem;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsMod;
-import org.rust.lang.core.psi.ext.RsModUtil;
+import org.rust.lang.core.psi.ext.impl.RsModUtil;
 
 import java.util.List;
 

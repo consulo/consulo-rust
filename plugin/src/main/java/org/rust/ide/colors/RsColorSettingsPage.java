@@ -15,7 +15,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.highlight.RsHighlighter;
-import org.rust.ide.icons.RsIcons;
+import org.rust.icons.RsIcons;
 
 import javax.swing.*;
 import java.io.InputStream;
@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import consulo.language.editor.highlight.SyntaxHighlighter;
 import consulo.localize.LocalizeValue;
+import org.rust.colors.RsColor;
 
 @ExtensionImpl
 public class RsColorSettingsPage implements ColorSettingsPage {

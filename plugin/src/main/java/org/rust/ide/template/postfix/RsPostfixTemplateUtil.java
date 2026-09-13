@@ -9,7 +9,7 @@ import consulo.language.editor.postfixTemplate.PostfixTemplatePsiInfo;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.RsExpr;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.utils.RsBooleanExpUtils;
 
 import java.util.function.Predicate;

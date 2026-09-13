@@ -7,7 +7,7 @@ package org.rust.ide.console;
 
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
-import org.rust.lang.core.psi.RsReplCodeFragment;
+import org.rust.lang.core.psi.impl.RsReplCodeFragment;
 import org.rust.lang.core.psi.RsUseItem;
 
 import java.util.List;

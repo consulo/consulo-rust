@@ -14,8 +14,8 @@ import consulo.language.psi.PsiElement;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.ext.RsAbstractable;
 import org.rust.lang.core.psi.ext.RsAbstractableOwner;
-import org.rust.lang.core.psi.ext.RsAbstractableOwnerUtil;
-import org.rust.lang.core.psi.ext.RsAbstractableUtil;
+import org.rust.lang.core.psi.ext.impl.RsAbstractableOwnerUtil;
+import org.rust.lang.core.psi.ext.impl.RsAbstractableUtil;
 import org.rust.lang.core.psi.ext.RsNamedElement;
 
 import java.util.ArrayList;

@@ -24,7 +24,7 @@ import org.rust.lang.utils.evaluation.ThreeValuedLogic;
 
 import java.util.Collections;
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsStmtUtil;
+import org.rust.lang.core.psi.ext.impl.RsStmtUtil;
 import org.rust.lang.core.resolve.ImplLookup;
 import consulo.localize.LocalizeValue;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;

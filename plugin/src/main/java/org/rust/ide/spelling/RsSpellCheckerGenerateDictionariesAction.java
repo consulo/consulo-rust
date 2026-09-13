@@ -14,11 +14,11 @@ import consulo.module.content.ModuleRootManager;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.ui.ex.action.LegacyAnAction;
 import jakarta.annotation.Nonnull;
-import org.rust.cargo.project.model.CargoProject;
-import org.rust.cargo.project.model.CargoProjectsService;
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.api.model.CargoProjectsService;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.project.workspace.CargoWorkspace;
-import org.rust.cargo.project.workspace.PackageOrigin;
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.PackageOrigin;
 
 import java.util.Arrays;
 import java.util.Collection;

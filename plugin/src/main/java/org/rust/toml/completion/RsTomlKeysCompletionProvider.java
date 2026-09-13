@@ -13,7 +13,7 @@ import consulo.language.psi.PsiElement;
 import consulo.language.util.ProcessingContext;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.lang.core.psi.ext.PsiElementExt;
+import org.rust.lang.core.psi.ext.impl.PsiElementExt;
 import org.rust.toml.Util;
 import org.toml.lang.psi.*;
 

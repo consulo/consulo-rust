@@ -11,7 +11,7 @@ import consulo.language.impl.psi.LeafPsiElement;
 import consulo.language.ast.IElementType;
 import consulo.util.lang.CharSequenceSubSequence;
 import consulo.util.lang.Pair;
-import org.rust.lang.core.psi.RsLiteralKind;
+import org.rust.lang.core.psi.impl.RsLiteralKind;
 
 public final class RsTypingUtils {
 

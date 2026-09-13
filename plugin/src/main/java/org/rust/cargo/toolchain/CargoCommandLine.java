@@ -5,12 +5,15 @@
 
 package org.rust.cargo.toolchain;
 
+import org.rust.cargo.api.toolchain.BacktraceMode;
+import org.rust.cargo.api.toolchain.RustChannel;
+
 import consulo.execution.RunManager;
 import consulo.execution.RunnerAndConfigurationSettings;
 import consulo.execution.configuration.EnvironmentVariablesData;
 import jakarta.annotation.Nullable;
-import org.rust.cargo.project.model.CargoProject;
-import org.rust.cargo.project.workspace.CargoWorkspace;
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.cargo.runconfig.RsCommandConfiguration;
 import org.rust.cargo.runconfig.RunConfigUtil;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
@@ -379,7 +382,7 @@ public class CargoCommandLine extends RsCommandLineBase {
     ) {
         return new CargoCommandLine(
             command,
-            CargoCommandConfiguration.getWorkingDirectory(cargoProject),
+            org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(cargoProject),
             additionalArguments,
             null,
             emulateTerminal,

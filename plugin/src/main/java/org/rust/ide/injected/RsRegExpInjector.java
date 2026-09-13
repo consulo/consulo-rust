@@ -15,8 +15,9 @@ import org.rust.lang.core.psi.*;
 
 import java.util.Collections;
 import java.util.List;
-import org.rust.lang.core.psi.RsLiteralKindUtil;
+import org.rust.lang.core.psi.impl.RsLiteralKindUtil;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.impl.*;
 
 /**
  * Injects RegExpr language to a string literals in context like

@@ -6,9 +6,9 @@
 package org.rust.cargo.project.model.impl;
 
 import jakarta.annotation.Nonnull;
-import org.rust.cargo.project.model.CargoProject;
-import org.rust.cargo.project.model.CargoProjectsService;
-import org.rust.cargo.project.workspace.CargoWorkspace;
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.api.model.CargoProjectsService;
+import org.rust.cargo.api.workspace.CargoWorkspace;
 
 import java.util.ArrayList;
 import java.util.List;

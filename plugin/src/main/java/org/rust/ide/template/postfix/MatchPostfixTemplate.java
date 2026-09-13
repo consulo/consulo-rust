@@ -11,11 +11,11 @@ import consulo.language.psi.PsiDocumentManager;
 import consulo.language.psi.PsiElement;
 import org.rust.ide.fixes.AddRemainingArmsFix;
 import org.rust.ide.fixes.AddWildcardArmFix;
-import org.rust.ide.utils.checkMatch.CheckMatchUtil;
+import org.rust.lang.core.match.CheckMatchUtil;
 import org.rust.ide.utils.template.EditorExtUtil;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import org.rust.lang.core.resolve.KnownItems;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.Ty;
@@ -27,8 +27,9 @@ import org.rust.openapiext.PsiElementExtUtil;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import consulo.project.Project;
+import org.rust.lang.core.psi.impl.*;
 
 public class MatchPostfixTemplate extends PostfixTemplateWithExpressionSelector {
 

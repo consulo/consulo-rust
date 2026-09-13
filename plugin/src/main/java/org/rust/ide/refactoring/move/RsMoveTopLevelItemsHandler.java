@@ -56,12 +56,13 @@ import org.rust.openapiext.VirtualFileExtUtil;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
 import consulo.language.psi.PsiFile;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.codeEditor.Caret;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @ExtensionImpl(id = "rust.moveTopLevelItems", order = "first, before moveJavaFileOrDir, before moveFileOrDir, before rust.moveFilesOrDirectories")
 public class RsMoveTopLevelItemsHandler extends MoveHandlerDelegate {

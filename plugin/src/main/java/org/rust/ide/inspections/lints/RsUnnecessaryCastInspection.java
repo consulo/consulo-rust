@@ -24,6 +24,7 @@ import java.util.Collections;
 import consulo.localize.LocalizeValue;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.impl.*;
 
 @ExtensionImpl
 public class RsUnnecessaryCastInspection extends RsLintInspection {

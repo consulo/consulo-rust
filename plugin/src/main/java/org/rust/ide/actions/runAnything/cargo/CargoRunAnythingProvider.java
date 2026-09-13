@@ -12,12 +12,12 @@ import consulo.dataContext.DataContext;
 import consulo.project.Project;
 import org.rust.RsBundle;
 import org.rust.cargo.icons.CargoIcons;
-import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import org.rust.cargo.runconfig.RunConfigUtil;
 import org.rust.cargo.toolchain.CargoCommandLine;
-import org.rust.cargo.util.CargoCommandCompletionProvider;
-import org.rust.cargo.util.RsCommandCompletionProvider;
+import org.rust.ide.cargo.completion.CargoCommandCompletionProvider;
+import org.rust.ide.cargo.completion.RsCommandCompletionProvider;
 import org.rust.ide.actions.runAnything.RsRunAnythingProvider;
 
 import javax.swing.*;

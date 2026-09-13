@@ -5,7 +5,7 @@
 
 package org.rust.cargo.toolchain.tools;
 
-import org.rust.cargo.project.workspace.CargoWorkspaceData;
+import org.rust.cargo.api.workspace.CargoWorkspaceData;
 
 import java.util.Objects;
 

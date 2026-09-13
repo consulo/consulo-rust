@@ -17,7 +17,7 @@ import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.RsMembers;
 import org.rust.lang.core.psi.RsStmt;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 
 import java.util.ArrayList;
 import java.util.List;

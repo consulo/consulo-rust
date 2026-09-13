@@ -11,28 +11,29 @@ import consulo.document.util.TextRange;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
-import org.rust.ide.colors.RsColor;
+import org.rust.colors.RsColor;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.types.infer.TypeInference;
 import org.rust.lang.core.types.ty.TyAdt;
 import org.rust.lang.core.types.ty.TyPointer;
 import org.rust.lang.core.types.ty.Ty;
-import org.rust.lang.utils.RsDiagnostic;
+import org.rust.ide.inspections.RsDiagnostic;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import org.rust.lang.core.psi.ext.RsBinaryOpUtil;
-import org.rust.lang.core.psi.ext.RsConstantUtil;
-import org.rust.lang.core.psi.ext.RsPossibleMacroCallUtil;
+import org.rust.lang.core.psi.ext.impl.RsBinaryOpUtil;
+import org.rust.lang.core.psi.ext.impl.RsConstantUtil;
+import org.rust.lang.core.psi.ext.impl.RsPossibleMacroCallUtil;
 import org.rust.lang.core.types.RsTypesUtil;
-import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
-import org.rust.lang.core.psi.ext.RsPathUtil;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
-import org.rust.lang.core.psi.ext.RsMacroCallUtil;
-import org.rust.lang.core.psi.ext.RsMethodCallUtil;
+import org.rust.lang.core.psi.ext.impl.RsBinaryExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsPathUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsMacroCallUtil;
+import org.rust.lang.core.psi.ext.impl.RsMethodCallUtil;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class RsUnsafeExpressionAnnotator extends AnnotatorBase {
 

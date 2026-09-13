@@ -5,6 +5,7 @@
 
 package org.rust.ide.actions;
 
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.application.CommonBundle;
 import consulo.document.Document;
@@ -27,14 +28,14 @@ import consulo.util.lang.function.PairConsumer;
 import consulo.ui.ex.awt.UIUtil;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
-import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
-import org.rust.cargo.toolchain.tools.Rustfmt;
+import org.rust.ide.rustfmt.Rustfmt;
 import org.rust.cargo.toolchain.tools.Rustup;
 import org.rust.ide.settings.RsVcsConfiguration;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.stdext.RsResult;
 
@@ -72,7 +73,7 @@ public class RustfmtCheckinFactory extends CheckinHandlerFactory {
 
                 for (FileContext ctx : applicableFiles) {
                     String path = consulo.document.FileDocumentManager.getInstance().getFile(ctx.document) != null ? consulo.document.FileDocumentManager.getInstance().getFile(ctx.document).getPath() : null;
-                    if (Rustup.checkNeedInstallRustfmt(ctx.cargoProject.getProject(), CargoCommandConfiguration.getWorkingDirectory(ctx.cargoProject))) {
+                    if (Rustup.checkNeedInstallRustfmt(ctx.cargoProject.getProject(), org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(ctx.cargoProject))) {
                         error[0] = RsBundle.message("rust.checkin.factory.fmt.rustfmt.not.installed.message");
                         errorPath[0] = path;
                         break;
@@ -174,7 +175,7 @@ public class RustfmtCheckinFactory extends CheckinHandlerFactory {
     }
 
     private FileContext fileContext(VirtualFile file, Project project) {
-        var toolchain = RsProjectSettingsServiceUtil.getToolchain(project);
+        var toolchain = RsToolchainLocator.getToolchain(project);
         if (toolchain == null) return null;
         Rustfmt rustfmt = Rustfmt.rustfmt(toolchain);
         if (rustfmt == null) return null;

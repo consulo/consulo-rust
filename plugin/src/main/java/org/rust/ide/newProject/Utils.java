@@ -5,6 +5,7 @@
 
 package org.rust.ide.newProject;
 
+
 import consulo.execution.RunManager;
 import consulo.execution.RunnerAndConfigurationSettings;
 import consulo.language.psi.PsiNavigationSupport;
@@ -25,7 +26,7 @@ import org.rust.stdext.PathUtil;
 import org.rust.stdext.RsResult;
 
 import java.nio.file.Path;
-import org.rust.lang.core.psi.ext.RsPathUtil;
+import org.rust.lang.core.psi.ext.impl.RsPathUtil;
 import org.rust.openapiext.RsProcessExecutionException;
 
 public final class Utils {

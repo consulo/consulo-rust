@@ -35,8 +35,8 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import org.rust.RsBundle;
-import org.rust.ide.refactoring.RsNamesValidator;
-import org.rust.ide.utils.imports.ImportUtils;
+import org.rust.lang.core.names.RsNamesValidator;
+import org.rust.lang.core.imports.ImportUtils;
 import org.rust.lang.RsFileType;
 import org.rust.lang.core.completion.CompletionUtil;
 import org.rust.lang.core.psi.*;
@@ -49,8 +49,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import org.rust.lang.core.psi.ext.RsValueParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsValueParameterUtil;
 import consulo.document.Document;
+import org.rust.lang.core.psi.impl.*;
 
 public final class RsChangeSignatureDialog {
 

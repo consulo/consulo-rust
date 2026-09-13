@@ -10,7 +10,7 @@ import org.rust.RsBundle;
 import org.rust.ide.refactoring.ExtraxtExpressionUtils;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsAbstractableOwner;
-import org.rust.lang.core.psi.ext.RsAbstractableUtil;
+import org.rust.lang.core.psi.ext.impl.RsAbstractableUtil;
 
 import java.util.*;
 import consulo.localize.LocalizeValue;

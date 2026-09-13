@@ -16,10 +16,11 @@ import org.rust.lang.core.psi.ext.*;
 
 import java.util.Arrays;
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsTypeReferenceUtil;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsTypeReferenceUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import consulo.language.Language;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class RsBreadcrumbsInfoProvider implements BreadcrumbsProvider {
 

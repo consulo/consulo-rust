@@ -16,7 +16,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.CargoConstants;
 import org.rust.lang.RsConstants;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 
 import java.util.Set;
 import consulo.application.ReadAction;

@@ -12,6 +12,7 @@ import org.rust.lang.core.psi.*;
 import org.rust.lang.core.types.ty.TyBool;
 import org.rust.lang.utils.NegateUtil;
 import org.rust.lang.core.types.RsTypesUtil;
+import org.rust.lang.core.psi.impl.*;
 
 public final class PostfixUtil {
 

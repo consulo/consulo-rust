@@ -10,10 +10,10 @@ import consulo.language.editor.inspection.ProblemDescriptor;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
-import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.project.workspace.FeatureState;
-import org.rust.cargo.project.workspace.PackageFeature;
+import org.rust.cargo.api.workspace.FeatureState;
+import org.rust.cargo.api.workspace.PackageFeature;
 
 import java.util.Set;
 import consulo.localize.LocalizeValue;

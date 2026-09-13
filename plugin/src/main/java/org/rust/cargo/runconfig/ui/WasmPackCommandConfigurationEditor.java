@@ -13,7 +13,7 @@ import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import org.rust.cargo.runconfig.wasmpack.WasmPackCommandConfiguration;
 import org.rust.cargo.runconfig.wasmpack.util.WasmPackCommandCompletionProvider;
 import org.rust.cargo.util.RsCommandLineEditor;
-import org.rust.openapiext.UiDslUtil;
+import org.rust.openapiext.ui.UiDslUtil;
 
 import javax.swing.*;
 

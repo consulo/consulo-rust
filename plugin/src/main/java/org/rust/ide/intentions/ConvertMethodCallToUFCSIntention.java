@@ -10,10 +10,10 @@ import consulo.project.Project;
 import consulo.language.psi.PsiElement;
 import org.rust.RsBundle;
 import org.rust.ide.inspections.imports.AutoImportFixFactory;
-import org.rust.ide.presentation.TypeRendering;
+import org.rust.lang.core.presentation.TypeRendering;
 import org.rust.ide.utils.PsiModificationUtil;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 import org.rust.lang.core.resolve.TraitImplSource;
 import org.rust.lang.core.resolve.ref.MethodResolveVariant;
 import org.rust.lang.core.types.RsTypesUtil;
@@ -21,9 +21,10 @@ import org.rust.lang.core.types.ty.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsMethodCallUtil;
-import org.rust.lang.core.psi.ext.RsSelfParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsMethodCallUtil;
+import org.rust.lang.core.psi.ext.impl.RsSelfParameterUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class ConvertMethodCallToUFCSIntention extends RsElementBaseIntentionAction<ConvertMethodCallToUFCSIntention.Context> {
 

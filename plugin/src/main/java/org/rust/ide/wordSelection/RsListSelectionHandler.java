@@ -17,6 +17,7 @@ import org.rust.lang.core.psi.*;
 
 import java.util.Collections;
 import java.util.List;
+import org.rust.lang.core.psi.impl.*;
 
 @ExtensionImpl
 public class RsListSelectionHandler extends ExtendWordSelectionHandlerBase {

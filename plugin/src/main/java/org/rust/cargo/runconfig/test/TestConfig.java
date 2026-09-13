@@ -7,7 +7,7 @@ package org.rust.cargo.runconfig.test;
 
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
-import org.rust.cargo.project.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.cargo.toolchain.CargoCommandLine;
 
 import java.util.List;

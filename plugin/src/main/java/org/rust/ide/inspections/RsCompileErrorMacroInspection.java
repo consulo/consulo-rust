@@ -7,18 +7,19 @@ package org.rust.ide.inspections;
 
 import consulo.document.util.TextRange;
 import jakarta.annotation.Nonnull;
-import org.rust.cargo.project.workspace.PackageOrigin;
+import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsMacroDefinitionBase;
-import org.rust.lang.core.psi.ext.RsMacroCallUtil;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsMacroCallUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsLitExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsLitExprUtil;
 import consulo.localize.LocalizeValue;
 import org.rust.RsBundle;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.impl.*;
 
 @ExtensionImpl
 public class RsCompileErrorMacroInspection extends RsLocalInspectionTool {

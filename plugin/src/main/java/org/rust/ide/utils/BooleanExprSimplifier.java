@@ -13,9 +13,11 @@ import org.rust.lang.core.types.ty.TyBool;
 import org.rust.lang.utils.NegateUtil;
 
 import java.util.Set;
-import org.rust.lang.core.psi.ext.RsUnaryExprUtil;
-import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsUnaryExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsBinaryExprUtil;
 import org.rust.lang.utils.evaluation.ConstExprEvaluator;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class BooleanExprSimplifier {
     private final Project myProject;

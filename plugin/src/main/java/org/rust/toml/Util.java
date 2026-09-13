@@ -5,7 +5,7 @@
 
 package org.rust.toml;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.language.editor.completion.lookup.InsertHandler;
 import consulo.language.editor.completion.lookup.InsertionContext;
 import consulo.language.editor.completion.lookup.LookupElement;
@@ -19,13 +19,13 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.cargo.CargoConstants;
-import org.rust.cargo.project.workspace.CargoWorkspace;
-import org.rust.ide.notifications.NotificationUtils;
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.notifications.NotificationUtils;
 import org.rust.lang.core.completion.CompletionUtilsUtil;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.PsiElementExt;
-import org.rust.lang.core.psi.ext.RsElementExtUtil;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementExt;
+import org.rust.lang.core.psi.ext.impl.RsElementExtUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 import org.rust.openapiext.VirtualFileExtUtil;
 import org.toml.lang.psi.*;
 import org.toml.lang.psi.ext.TomlLiteralKind;

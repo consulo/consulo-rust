@@ -10,7 +10,7 @@ import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.RsExpr;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 
 /**
  * For the given {@code expr} adds {@code as_str()}/{@code as_mut_str()} method call.

@@ -1,0 +1,264 @@
+/*
+ * Use of this source code is governed by the MIT license that can be
+ * found in the LICENSE file.
+ */
+
+package org.rust.lang.core.stubs;
+
+import consulo.util.lang.BitUtil;
+import jakarta.annotation.Nonnull;
+import org.rust.lang.core.psi.ext.RsDocAndAttributeOwner;
+import org.rust.lang.core.stubs.common.RsAttributeOwnerPsiOrStub;
+import org.rust.stdext.BitFlagsBuilder;
+import org.rust.lang.core.psi.BuiltinAttributes;
+import org.rust.lang.core.psi.RsMetaItem;
+import org.rust.lang.core.psi.RsMetaItemArgs;
+import org.rust.lang.core.psi.RsPath;
+import org.rust.lang.core.psi.ext.impl.QueryAttributes;
+import org.rust.lang.core.psi.ext.impl.RsDocAndAttributeOwnerUtil;
+import org.rust.lang.core.psi.ext.impl.RsMetaItemUtil;
+import org.rust.lang.core.psi.ext.impl.RsPathUtil;
+import org.rust.lang.core.resolve.KnownDerivableTrait;
+import org.rust.lang.core.resolve.KnownItems;
+import org.rust.lang.core.stubs.common.RsMetaItemPsiOrStub;
+
+public interface RsAttributeOwnerStub extends RsAttributeOwnerPsiOrStub<RsMetaItemStub> {
+    boolean getHasAttrs();
+    boolean getMayHaveCfg();
+    boolean getHasCfgAttr();
+    boolean getMayHaveCustomDerive();
+    boolean getMayHaveCustomAttrs();
+
+    /**
+     * Extract common attribute flags from a PSI element.
+     */
+    static int extractFlags(@Nonnull RsDocAndAttributeOwner psi) {
+        return extractFlags(psi, new CommonStubAttrFlags());
+    }
+
+    /**
+     * Walks the element's traversed-and-flattened raw attributes (including those nested under
+     * {@code #[cfg_attr(...)]}) and packs the relevant feature flags into a single int. Mirrors
+     * {@code fun RsAttributeOwnerStub.Companion.extractFlags(element, bitflagsKind)} from
+     * <p>
+     * The {@code additionalFlags} parameter selects which subclass-specific bits to set
+     * (mod, file, function, use, macro, macro2, impl); pass a {@link CommonStubAttrFlags}
+     * (or any other type) to skip subclass extras.
+     */
+    static int extractFlags(@Nonnull RsDocAndAttributeOwner psi, @Nonnull BitFlagsBuilder additionalFlags) {
+        org.rust.lang.core.psi.ext.impl.QueryAttributes<org.rust.lang.core.psi.RsMetaItem> attrs =
+            org.rust.lang.core.psi.ext.impl.RsDocAndAttributeOwnerUtil.getTraversedRawAttributes(psi, true);
+
+        boolean hasAttrs = false;
+        boolean hasCfg = false;
+        boolean hasCfgAttr = false;
+        boolean hasCustomDerive = false;
+        boolean hasCustomAttrs = false;
+        boolean hasMacroUse = false;
+        boolean hasStdlibAttrs = false;
+        boolean hasRecursionLimit = false;
+        boolean isProcMacroDef = false;
+        boolean isPreludeImport = false;
+        boolean hasMacroExport = false;
+        boolean hasMacroExportLocalInnerMacros = false;
+        boolean hasRustcBuiltinMacro = false;
+        boolean isReservationImpl = false;
+
+        java.util.Map<String, org.rust.lang.core.resolve.KnownDerivableTrait> derivable =
+            org.rust.lang.core.resolve.KnownItems.getKNOWN_DERIVABLE_TRAITS();
+        java.util.Map<String, ?> builtinAttrs = org.rust.lang.core.psi.BuiltinAttributes.RS_BUILTIN_ATTRIBUTES;
+        java.util.Set<String> builtinTools = org.rust.lang.core.psi.BuiltinAttributes.RS_BUILTIN_TOOL_ATTRIBUTES;
+
+        for (org.rust.lang.core.psi.RsMetaItem meta : attrs.getMetaItems()) {
+            hasAttrs = true;
+            org.rust.lang.core.psi.RsPath path = meta.getPath();
+            if (path == null) continue;
+            if (org.rust.lang.core.psi.ext.impl.RsPathUtil.getHasColonColon(path)) {
+                org.rust.lang.core.psi.RsPath basePath = org.rust.lang.core.psi.ext.impl.RsPathUtil.basePath(path);
+                if (basePath != path && !builtinTools.contains(basePath.getReferenceName())) {
+                    hasCustomAttrs = true;
+                }
+            } else {
+                String name = path.getReferenceName();
+                if (name == null) continue;
+                switch (name) {
+                    case "cfg":
+                        hasCfg = true;
+                        break;
+                    case "cfg_attr":
+                        hasCfgAttr = true;
+                        break;
+                    case "derive": {
+                        org.rust.lang.core.psi.RsMetaItemArgs args = meta.getMetaItemArgs();
+                        if (args != null) {
+                            for (org.rust.lang.core.psi.RsMetaItem arg : args.getMetaItemList()) {
+                                org.rust.lang.core.resolve.KnownDerivableTrait kd =
+                                    derivable.get(org.rust.lang.core.psi.ext.impl.RsMetaItemUtil.getName(arg));
+                                if (kd == null || !kd.isStd()) {
+                                    hasCustomDerive = true;
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    }
+                    case "macro_use":
+                        hasMacroUse = true;
+                        break;
+                    case "no_std":
+                    case "no_core":
+                        hasStdlibAttrs = true;
+                        break;
+                    case "recursion_limit":
+                        hasRecursionLimit = true;
+                        break;
+                    case "proc_macro":
+                    case "proc_macro_attribute":
+                    case "proc_macro_derive":
+                        isProcMacroDef = true;
+                        break;
+                    case "prelude_import":
+                        isPreludeImport = true;
+                        break;
+                    case "macro_export": {
+                        hasMacroExport = true;
+                        for (org.rust.lang.core.stubs.common.RsMetaItemPsiOrStub item : meta.getMetaItemArgsList()) {
+                            if ("local_inner_macros".equals(item.getName())) {
+                                hasMacroExportLocalInnerMacros = true;
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    case "rustc_builtin_macro":
+                        hasRustcBuiltinMacro = true;
+                        break;
+                    case "rustc_reservation_impl":
+                        isReservationImpl = true;
+                        break;
+                    default:
+                        if (!builtinAttrs.containsKey(name)) {
+                            hasCustomAttrs = true;
+                        }
+                        break;
+                }
+            }
+        }
+
+        int flags = 0;
+        flags = BitUtil.set(flags, CommonStubAttrFlags.HAS_ATTRS, hasAttrs);
+        flags = BitUtil.set(flags, CommonStubAttrFlags.MAY_HAVE_CFG, hasCfg);
+        flags = BitUtil.set(flags, CommonStubAttrFlags.HAS_CFG_ATTR, hasCfgAttr);
+        flags = BitUtil.set(flags, CommonStubAttrFlags.MAY_HAVE_CUSTOM_DERIVE, hasCustomDerive);
+        flags = BitUtil.set(flags, CommonStubAttrFlags.MAY_HAVE_CUSTOM_ATTRS, hasCustomAttrs);
+
+        if (additionalFlags instanceof ModStubAttrFlags) {
+            flags = BitUtil.set(flags, ModStubAttrFlags.MAY_HAVE_MACRO_USE, hasMacroUse);
+        } else if (additionalFlags instanceof FileStubAttrFlags) {
+            flags = BitUtil.set(flags, ModStubAttrFlags.MAY_HAVE_MACRO_USE, hasMacroUse);
+            flags = BitUtil.set(flags, FileStubAttrFlags.MAY_HAVE_STDLIB_ATTRIBUTES, hasStdlibAttrs);
+            flags = BitUtil.set(flags, FileStubAttrFlags.MAY_HAVE_RECURSION_LIMIT, hasRecursionLimit);
+        } else if (additionalFlags instanceof FunctionStubAttrFlags) {
+            flags = BitUtil.set(flags, FunctionStubAttrFlags.MAY_BE_PROC_MACRO_DEF, isProcMacroDef);
+        } else if (additionalFlags instanceof UseItemStubAttrFlags) {
+            flags = BitUtil.set(flags, UseItemStubAttrFlags.MAY_HAVE_PRELUDE_IMPORT, isPreludeImport);
+        } else if (additionalFlags instanceof MacroStubAttrFlags) {
+            flags = BitUtil.set(flags, MacroStubAttrFlags.MAY_HAVE_MACRO_EXPORT, hasMacroExport);
+            flags = BitUtil.set(flags, MacroStubAttrFlags.MAY_HAVE_MACRO_EXPORT_LOCAL_INNER_MACROS, hasMacroExportLocalInnerMacros);
+            flags = BitUtil.set(flags, MacroStubAttrFlags.MAY_HAVE_RUSTC_BUILTIN_MACRO, hasRustcBuiltinMacro);
+        } else if (additionalFlags instanceof Macro2StubAttrFlags) {
+            flags = BitUtil.set(flags, Macro2StubAttrFlags.MAY_HAVE_RUSTC_BUILTIN_MACRO, hasRustcBuiltinMacro);
+        } else if (additionalFlags instanceof ImplStubAttrFlags) {
+            flags = BitUtil.set(flags, ImplStubAttrFlags.MAY_BE_RESERVATION_IMPL, isReservationImpl);
+        }
+        // CommonStubAttrFlags or unknown -> no additional bits
+        return flags;
+    }
+
+    final class CommonStubAttrFlags extends BitFlagsBuilder {
+        public static final CommonStubAttrFlags INSTANCE = new CommonStubAttrFlags();
+
+        public static final int HAS_ATTRS = INSTANCE.nextBitMask();
+        public static final int MAY_HAVE_CFG = INSTANCE.nextBitMask();
+        public static final int HAS_CFG_ATTR = INSTANCE.nextBitMask();
+        public static final int MAY_HAVE_CUSTOM_DERIVE = INSTANCE.nextBitMask();
+        public static final int MAY_HAVE_CUSTOM_ATTRS = INSTANCE.nextBitMask();
+
+        public CommonStubAttrFlags() {
+            super(Limit.BYTE);
+        }
+    }
+
+    final class ModStubAttrFlags extends BitFlagsBuilder {
+        public static final ModStubAttrFlags INSTANCE = new ModStubAttrFlags();
+
+        public static final int MAY_HAVE_MACRO_USE = INSTANCE.nextBitMask();
+
+        public ModStubAttrFlags() {
+            super(CommonStubAttrFlags.INSTANCE, Limit.BYTE);
+        }
+    }
+
+    final class FileStubAttrFlags extends BitFlagsBuilder {
+        public static final FileStubAttrFlags INSTANCE = new FileStubAttrFlags();
+
+        public static final int MAY_HAVE_STDLIB_ATTRIBUTES = INSTANCE.nextBitMask();
+        public static final int MAY_HAVE_RECURSION_LIMIT = INSTANCE.nextBitMask();
+
+        public FileStubAttrFlags() {
+            super(ModStubAttrFlags.INSTANCE, Limit.BYTE);
+        }
+    }
+
+    final class FunctionStubAttrFlags extends BitFlagsBuilder {
+        public static final FunctionStubAttrFlags INSTANCE = new FunctionStubAttrFlags();
+
+        public static final int MAY_BE_PROC_MACRO_DEF = INSTANCE.nextBitMask();
+
+        public FunctionStubAttrFlags() {
+            super(CommonStubAttrFlags.INSTANCE, Limit.BYTE);
+        }
+    }
+
+    final class UseItemStubAttrFlags extends BitFlagsBuilder {
+        public static final UseItemStubAttrFlags INSTANCE = new UseItemStubAttrFlags();
+
+        public static final int MAY_HAVE_PRELUDE_IMPORT = INSTANCE.nextBitMask();
+
+        public UseItemStubAttrFlags() {
+            super(CommonStubAttrFlags.INSTANCE, Limit.BYTE);
+        }
+    }
+
+    final class MacroStubAttrFlags extends BitFlagsBuilder {
+        public static final MacroStubAttrFlags INSTANCE = new MacroStubAttrFlags();
+
+        public static final int MAY_HAVE_MACRO_EXPORT = INSTANCE.nextBitMask();
+        public static final int MAY_HAVE_MACRO_EXPORT_LOCAL_INNER_MACROS = INSTANCE.nextBitMask();
+        public static final int MAY_HAVE_RUSTC_BUILTIN_MACRO = INSTANCE.nextBitMask();
+
+        public MacroStubAttrFlags() {
+            super(CommonStubAttrFlags.INSTANCE, Limit.BYTE);
+        }
+    }
+
+    final class Macro2StubAttrFlags extends BitFlagsBuilder {
+        public static final Macro2StubAttrFlags INSTANCE = new Macro2StubAttrFlags();
+
+        public static final int MAY_HAVE_RUSTC_BUILTIN_MACRO = INSTANCE.nextBitMask();
+
+        public Macro2StubAttrFlags() {
+            super(CommonStubAttrFlags.INSTANCE, Limit.BYTE);
+        }
+    }
+
+    final class ImplStubAttrFlags extends BitFlagsBuilder {
+        public static final ImplStubAttrFlags INSTANCE = new ImplStubAttrFlags();
+
+        public static final int MAY_BE_RESERVATION_IMPL = INSTANCE.nextBitMask();
+
+        public ImplStubAttrFlags() {
+            super(CommonStubAttrFlags.INSTANCE, Limit.BYTE);
+        }
+    }
+}

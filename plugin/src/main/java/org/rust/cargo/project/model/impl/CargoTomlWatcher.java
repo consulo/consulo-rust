@@ -16,8 +16,8 @@ import consulo.virtualFileSystem.event.VFilePropertyChangeEvent;
 import consulo.util.io.PathUtil;
 import jakarta.annotation.Nonnull;
 import org.rust.cargo.CargoConstants;
-import org.rust.cargo.project.model.CargoProjectsService;
-import org.rust.cargo.project.workspace.PackageOrigin;
+import org.rust.cargo.api.model.CargoProjectsService;
+import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.lang.RsConstants;
 import org.rust.openapiext.OpenApiUtil;
 

@@ -8,7 +8,7 @@ package org.rust.ide.inspections;
 import consulo.language.editor.inspection.LocalQuickFix;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
-import org.rust.ide.experiments.RsExperiments;
+import org.rust.experiments.RsExperiments;
 import org.rust.ide.fixes.AddMutableFix;
 import org.rust.ide.fixes.DeriveCopyFix;
 import org.rust.ide.fixes.InitializeWithDefaultValueFix;
@@ -22,18 +22,18 @@ import org.rust.lang.core.mir.borrowck.MirBorrowCheckResult;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyReference;
-import org.rust.lang.utils.RsDiagnostic;
 import org.rust.openapiext.OpenApiUtil;
-import org.rust.lang.core.psi.ext.RsSelfParameterUtil;
-import org.rust.lang.core.psi.ext.RsMethodCallUtil;
-import org.rust.lang.core.psi.ext.RsUnaryExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsSelfParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsMethodCallUtil;
+import org.rust.lang.core.psi.ext.impl.RsUnaryExprUtil;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsElementExtUtil;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementExtUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 import org.rust.lang.core.types.ExtensionsUtil;
 import consulo.localize.LocalizeValue;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @ExtensionImpl
 public class RsBorrowCheckerInspection extends RsLocalInspectionTool {

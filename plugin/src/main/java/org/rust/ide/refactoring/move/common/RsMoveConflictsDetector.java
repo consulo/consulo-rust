@@ -21,13 +21,15 @@ import org.rust.lang.core.psi.ext.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsImplItemUtil;
+import org.rust.lang.core.psi.ext.impl.RsImplItemUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
 import consulo.language.psi.PsiFile;
 import consulo.localize.LocalizeValue;
-import org.rust.lang.core.psi.ext.RsStructLiteralFieldUtil;
+import org.rust.lang.core.psi.ext.impl.RsStructLiteralFieldUtil;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class RsMoveConflictsDetector {
 
@@ -162,7 +164,7 @@ public class RsMoveConflictsDetector {
                 }
             } else if (element instanceof RsStructLiteralField) {
                 RsStructLiteralField field = (RsStructLiteralField) element;
-                RsElement decl = org.rust.lang.core.psi.ext.RsStructLiteralFieldUtil.resolveToDeclaration(field);
+                RsElement decl = org.rust.lang.core.psi.ext.impl.RsStructLiteralFieldUtil.resolveToDeclaration(field);
                 if (decl instanceof RsVisible) {
                     checkVisibility.accept(element, (RsVisible) decl);
                 }

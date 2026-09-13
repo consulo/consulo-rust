@@ -7,7 +7,7 @@ package org.rust.cargo.toolchain;
 
 import consulo.process.cmd.GeneralCommandLine;
 import consulo.util.io.FileUtil;
-import org.rust.cargo.util.ToolchainUtil;
+import org.rust.cargo.api.util.ToolchainUtil;
 import org.rust.stdext.Utils;
 
 import java.io.File;

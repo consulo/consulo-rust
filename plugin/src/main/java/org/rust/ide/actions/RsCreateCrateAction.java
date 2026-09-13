@@ -5,6 +5,7 @@
 
 package org.rust.ide.actions;
 
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.language.editor.CommonDataKeys;
 import consulo.dataContext.DataContext;
@@ -13,7 +14,7 @@ import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
 import org.rust.cargo.CargoConstants;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import org.rust.cargo.runconfig.command.RunCargoCommandActionBase;
 import org.rust.cargo.toolchain.RsToolchainBase;
 import org.rust.cargo.toolchain.tools.Cargo;
@@ -29,7 +30,7 @@ import consulo.annotation.component.ActionParentRef;
 import consulo.annotation.component.ActionRefAnchor;
 import consulo.annotation.component.ActionRef;
 import consulo.application.util.function.Computable;
-import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.api.model.CargoProject;
 
 @ActionImpl(
     id = "Rust.NewCargoCrate",
@@ -47,7 +48,7 @@ public class RsCreateCrateAction extends RunCargoCommandActionBase {
         if (project == null) return;
         VirtualFile root = getRootFolder(dataContext);
         if (root == null) return;
-        RsToolchainBase toolchain = RsProjectSettingsServiceUtil.getToolchain(project);
+        RsToolchainBase toolchain = RsToolchainLocator.getToolchain(project);
         if (toolchain == null) return;
 
         CargoNewCrateUI ui = CargoNewCrateDialog.showCargoNewCrateUI(project, root);
@@ -70,7 +71,7 @@ public class RsCreateCrateAction extends RunCargoCommandActionBase {
         String name,
         boolean binary
     ) {
-        org.rust.cargo.project.model.CargoProject cargoProject = CargoProjectServiceUtil.getCargoProjects(project).findProjectForFile(root);
+        org.rust.cargo.api.model.CargoProject cargoProject = CargoProjectServiceUtil.getCargoProjects(project).findProjectForFile(root);
         Path workspaceRoot = cargoProject != null && cargoProject.getWorkspaceRootDir() != null
             ? OpenApiUtil.getPathAsPath(cargoProject.getWorkspaceRootDir())
             : null;

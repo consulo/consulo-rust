@@ -15,10 +15,10 @@ import org.rust.ide.fixes.RsQuickFixBase;
 import org.rust.lang.core.macros.RsExpandedElementUtil;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.MacroBraces;
-import org.rust.lang.core.psi.ext.BinaryOperator;
-import org.rust.lang.core.psi.ext.EqualityOp;
-import org.rust.lang.core.psi.ext.RsMacroCallUtil;
-import org.rust.lang.core.psi.ext.RsExprUtil;
+import org.rust.lang.core.psi.ext.impl.BinaryOperator;
+import org.rust.lang.core.psi.ext.impl.EqualityOp;
+import org.rust.lang.core.psi.ext.impl.RsMacroCallUtil;
+import org.rust.lang.core.psi.ext.impl.RsExprUtil;
 import org.rust.lang.core.resolve.ImplLookup;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.Ty;
@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import consulo.localize.LocalizeValue;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.impl.*;
 
 @ExtensionImpl
 public class RsAssertEqualInspection extends RsLocalInspectionTool {

@@ -5,6 +5,8 @@
 
 package org.rust.cargo.project.model;
 
+import org.rust.cargo.api.model.CargoProject;
+
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;

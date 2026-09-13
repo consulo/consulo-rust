@@ -5,7 +5,7 @@
 
 package org.rust.ide.typing;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.action.EnterHandlerDelegate;
 import consulo.language.editor.action.EnterHandlerDelegateAdapter;
@@ -18,7 +18,7 @@ import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import consulo.language.ast.TokenType;
 import consulo.util.lang.CharArrayUtil;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.doc.psi.RsDocKind;
 import org.rust.lang.doc.psi.ext.RsDocCommentUtil;

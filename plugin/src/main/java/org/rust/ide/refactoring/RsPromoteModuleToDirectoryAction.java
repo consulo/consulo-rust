@@ -19,11 +19,11 @@ import consulo.language.editor.refactoring.move.fileOrDirectory.MoveFilesOrDirec
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.project.workspace.CargoWorkspace.TargetKind;
+import org.rust.cargo.api.workspace.CargoWorkspace.TargetKind;
 import org.rust.lang.RsConstants;
 import org.rust.lang.RsLanguage;
 import org.rust.lang.core.crate.Crate;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.openapiext.CommandWriteActionUtilsUtil;
 import consulo.annotation.component.ActionImpl;
 import consulo.annotation.component.ActionParentRef;

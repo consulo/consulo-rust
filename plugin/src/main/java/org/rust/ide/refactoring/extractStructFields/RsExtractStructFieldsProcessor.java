@@ -18,13 +18,13 @@ import consulo.usage.UsageViewDescriptor;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.ide.presentation.TypeRendering;
+import org.rust.lang.core.presentation.TypeRendering;
 import org.rust.ide.refactoring.ExtractSubsetUtils;
 import org.rust.ide.refactoring.RsInPlaceVariableIntroducer;
 import org.rust.ide.refactoring.RsNameSuggestions;
 import org.rust.ide.refactoring.generate.StructMember;
 import org.rust.ide.utils.GenericConstraints;
-import org.rust.ide.utils.imports.RsImportHelper;
+import org.rust.lang.core.imports.RsImportHelper;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.ext.*;
@@ -32,13 +32,15 @@ import org.rust.lang.core.types.ty.Ty;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsVisibilityUtil;
+import org.rust.lang.core.psi.ext.impl.RsVisibilityUtil;
 import org.rust.ide.inspections.lints.RsNamingInspection;
-import org.rust.lang.core.psi.ext.RsFieldLookupUtil;
+import org.rust.lang.core.psi.ext.impl.RsFieldLookupUtil;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class RsExtractStructFieldsProcessor extends BaseRefactoringProcessor {
     private static final Set<String> TRANSITIVE_ATTRIBUTES = new HashSet<>(Arrays.asList("derive", "repr"));

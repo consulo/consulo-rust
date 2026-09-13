@@ -5,6 +5,7 @@
 
 package org.rust.ide.newProject;
 
+
 import com.intellij.ide.wizard.*;
 import consulo.module.Module;
 import consulo.project.Project;

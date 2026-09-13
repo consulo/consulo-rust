@@ -16,11 +16,12 @@ import java.util.function.Consumer;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 
 import java.util.Collections;
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsElementExtUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementExtUtil;
+import org.rust.lang.core.psi.impl.*;
 
 @ExtensionImpl
 public class RsHighlightAwaitHandlerFactory extends HighlightUsagesHandlerFactoryBase {

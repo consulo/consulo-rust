@@ -8,8 +8,7 @@ package org.rust.ide.inspections;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.RsMetaItem;
 import org.rust.lang.core.psi.RsVisitor;
-import org.rust.lang.core.psi.ext.RsMetaItemUtil;
-import org.rust.lang.utils.RsDiagnostic;
+import org.rust.lang.core.psi.ext.impl.RsMetaItemUtil;
 
 import java.util.Set;
 import consulo.localize.LocalizeValue;

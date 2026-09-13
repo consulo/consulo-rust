@@ -10,10 +10,11 @@ import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.RsImplItem;
 import org.rust.lang.core.psi.RsPath;
 import org.rust.lang.core.psi.ext.*;
-import org.rust.lang.core.psi.ext.RsPathUtil;
+import org.rust.lang.core.psi.ext.impl.RsPathUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
 import consulo.language.psi.PsiElement;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public final class CreateFromUsageUtils {
     private CreateFromUsageUtils() {

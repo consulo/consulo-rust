@@ -15,7 +15,7 @@ import org.rust.ide.fixes.SubstituteTextFix;
 import org.rust.lang.core.psi.RsElseBranch;
 import org.rust.lang.core.psi.RsIfExpr;
 import org.rust.lang.core.psi.RsVisitor;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.localize.LocalizeValue;
 

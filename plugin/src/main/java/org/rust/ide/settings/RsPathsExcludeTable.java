@@ -31,6 +31,9 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.rust.settings.RsCodeInsightSettings;
+import org.rust.settings.ExcludedPath;
+import org.rust.settings.ExclusionType;
 
 public class RsPathsExcludeTable extends ListTableWithButtons<RsPathsExcludeTable.Item> {
 

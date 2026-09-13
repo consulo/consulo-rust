@@ -14,7 +14,7 @@ import consulo.ui.ex.action.LegacyAnAction;
 import org.rust.RsBundle;
 import org.rust.lang.core.macros.errors.GetMacroExpansionError;
 import org.rust.lang.core.psi.ext.RsPossibleMacroCall;
-import org.rust.lang.core.psi.ext.RsPossibleMacroCallUtil;
+import org.rust.lang.core.psi.ext.impl.RsPossibleMacroCallUtil;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.stdext.RsResult;
 import consulo.language.psi.PsiElement;
@@ -67,7 +67,7 @@ public abstract class RsShowMacroExpansionActions {
         }
 
         public static void showMacroExpansionError(Editor editor, GetMacroExpansionError error) {
-            org.rust.openapiext.Editor.showErrorHint(editor, RsBundle.message("macro.expansion.error.start", error.toUserViewableMessage()));
+            org.rust.openapiext.ui.Editor.showErrorHint(editor, RsBundle.message("macro.expansion.error.start", error.toUserViewableMessage()));
         }
     }
 

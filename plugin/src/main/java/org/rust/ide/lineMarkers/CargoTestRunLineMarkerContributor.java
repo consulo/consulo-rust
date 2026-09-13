@@ -26,7 +26,7 @@ import org.rust.cargo.runconfig.test.DocTestContext;
 import org.rust.cargo.runconfig.test.DoctestCtxUtil;
 import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.RsFunction;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import org.rust.lang.core.psi.ext.RsNameIdentifierOwner;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
 import org.rust.lang.doc.psi.RsDocCodeFence;

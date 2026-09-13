@@ -19,10 +19,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsRefLikeTypeUtil;
-import org.rust.lang.core.psi.ext.RsSelfParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsRefLikeTypeUtil;
+import org.rust.lang.core.psi.ext.impl.RsSelfParameterUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class ElideLifetimesFix extends RsQuickFixBase<RsFunction> {
 

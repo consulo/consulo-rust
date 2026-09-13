@@ -13,7 +13,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsMetaItem;
 import org.rust.lang.core.psi.RsMetaItemArgs;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 
 import java.util.stream.Collectors;
 import consulo.localize.LocalizeValue;

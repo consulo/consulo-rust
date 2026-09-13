@@ -4,6 +4,7 @@
  */
 
 package org.rust.ide.inspections;
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.language.editor.inspection.scheme.InspectionToolWrapper;
 import consulo.language.editor.inspection.scheme.InspectionProfile;
 import consulo.language.editor.inspection.GlobalSimpleInspectionTool;
@@ -12,7 +13,7 @@ import consulo.language.editor.inspection.ProblemDescriptionsProcessor;
 import consulo.language.editor.inspection.GlobalInspectionContext;
 
 import org.rust.stdext.Lazy;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.language.editor.rawHighlight.HighlightInfo;
 import consulo.language.editor.inspection.LocalQuickFix;
 import consulo.language.editor.inspection.LocalQuickFixOnPsiElement;
@@ -40,16 +41,16 @@ import consulo.util.collection.ContainerUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.project.model.CargoProject;
-import org.rust.cargo.project.model.CargoProjectsUtil;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
-import org.rust.cargo.project.workspace.PackageOrigin;
-import org.rust.cargo.toolchain.impl.RustcMessage;
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.api.model.CargoProjectsUtil;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.workspace.PackageOrigin;
+import org.rust.cargo.api.toolchain.RustcMessage;
 import org.rust.cargo.toolchain.tools.CargoCheckArgs;
 import org.rust.ide.annotator.RsExternalLinterResult;
 import org.rust.ide.annotator.RsExternalLinterUtils;
 import org.rust.lang.core.crate.Crate;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.ext.RsElement;
 
 import java.util.*;
@@ -180,13 +181,13 @@ public class RsExternalLinterInspection extends GlobalSimpleInspectionTool {
     ) {
         return ReadAction.compute(() -> {
             consulo.project.Project project = cargoProject.getProject();
-            RsToolchainBase toolchain = RsProjectSettingsServiceUtil.getToolchain(project);
+            RsToolchainBase toolchain = RsToolchainLocator.getToolchain(project);
             if (toolchain == null) return null;
             return RsExternalLinterUtils.checkLazily(
                 toolchain,
                 project,
                 disposable,
-                CargoCommandConfiguration.getWorkingDirectory(cargoProject),
+                org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(cargoProject),
                 CargoCheckArgs.forCargoProject(cargoProject)
             );
         });

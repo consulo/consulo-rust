@@ -14,7 +14,7 @@ import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiWhiteSpace;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 
 import java.util.List;
 

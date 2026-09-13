@@ -33,7 +33,7 @@ import org.rust.ide.formatter.blocks.RsMultilineStringLiteralBlock;
 import static org.rust.lang.core.psi.RsElementTypes.*;
 import static org.rust.lang.core.psi.RsTokenType.tokenSetOf;
 import consulo.annotation.component.ExtensionImpl;
-import org.rust.lang.core.psi.RsTokenSets;
+import org.rust.lang.core.psi.impl.RsTokenSets;
 import consulo.language.Language;
 import consulo.language.codeStyle.CodeStyleSettings;
 import consulo.language.psi.PsiElement;

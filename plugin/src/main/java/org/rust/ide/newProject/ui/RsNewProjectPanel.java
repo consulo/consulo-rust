@@ -30,7 +30,7 @@ import org.rust.cargo.toolchain.tools.Cargo;
 import org.rust.ide.newProject.*;
 import org.rust.ide.newProject.state.RsUserTemplatesState;
 import org.rust.openapiext.UiDebouncer;
-import org.rust.openapiext.UiUtil;
+import org.rust.openapiext.ui.UiUtil;
 import org.rust.stdext.RsResult;
 
 import javax.swing.*;

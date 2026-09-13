@@ -10,7 +10,7 @@ import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.RsStructLiteralBody;
 import org.rust.lang.core.psi.RsStructLiteralField;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 
 import java.util.ArrayList;
 import java.util.List;

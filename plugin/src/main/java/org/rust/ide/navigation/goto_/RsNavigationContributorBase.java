@@ -17,11 +17,11 @@ import consulo.language.psi.search.FindSymbolParameters;
 import consulo.language.psi.stub.IdFilter;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.ide.search.RsWithMacrosScope;
+import org.rust.lang.core.search.RsWithMacrosScope;
 import org.rust.lang.core.macros.MacroExpansionUtil;
 import org.rust.lang.core.psi.ext.RsNamedElement;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import org.rust.openapiext.OpenApiUtil;
 import consulo.content.scope.SearchScope;
 

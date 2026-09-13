@@ -14,16 +14,17 @@ import org.rust.RsBundle;
 import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.ide.utils.PsiModificationUtil;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.PsiElementExt;
-import org.rust.lang.core.psi.ext.RsBlockUtil;
-import org.rust.lang.core.psi.ext.RsBlockExprUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementExt;
+import org.rust.lang.core.psi.ext.impl.RsBlockUtil;
+import org.rust.lang.core.psi.ext.impl.RsBlockExprUtil;
 import org.rust.lang.core.types.ty.TyUnit;
 import org.rust.lang.core.types.infer.TypeInference;
-import org.rust.openapiext.EditorExt;
-import org.rust.lang.core.psi.ext.RsStmtUtil;
+import org.rust.openapiext.ui.EditorExt;
+import org.rust.lang.core.psi.ext.impl.RsStmtUtil;
 import org.rust.lang.core.types.RsTypesUtil;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class UnwrapSingleExprIntention extends RsElementBaseIntentionAction<UnwrapSingleExprIntention.Context> {
     @Nonnull

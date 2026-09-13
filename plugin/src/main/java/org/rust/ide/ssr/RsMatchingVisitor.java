@@ -12,14 +12,14 @@ import com.intellij.structuralsearch.impl.matcher.handlers.SubstitutionHandler;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import org.rust.lang.core.psi.ext.RsOuterAttributeOwner;
-import org.rust.lang.core.psi.ext.RsTypeArgumentListUtil;
+import org.rust.lang.core.psi.ext.impl.RsTypeArgumentListUtil;
 
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsStructItemUtil;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
-import org.rust.lang.core.psi.ext.RsLitExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsStructItemUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsLitExprUtil;
 
 public class RsMatchingVisitor extends RsVisitor {
     @Nonnull

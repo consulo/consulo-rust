@@ -10,7 +10,7 @@ import consulo.fileEditor.structureView.tree.ActionPresentationData;
 import consulo.fileEditor.structureView.tree.Sorter;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
-import org.rust.ide.icons.RsIcons;
+import org.rust.icons.RsIcons;
 import org.rust.lang.core.psi.ext.RsVisibility;
 import org.rust.lang.core.psi.ext.RsVisible;
 

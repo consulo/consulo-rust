@@ -10,7 +10,7 @@ import consulo.language.psi.PsiElement;
 import consulo.language.ast.TokenSet;
 import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.RsMembers;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 
 @ExtensionImpl(id = "rsItem", order = "after rsStatement")

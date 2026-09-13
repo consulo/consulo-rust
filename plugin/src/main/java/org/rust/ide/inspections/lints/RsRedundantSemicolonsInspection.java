@@ -21,12 +21,12 @@ import org.rust.lang.core.psi.RsEmptyStmt;
 import org.rust.lang.core.psi.RsStmt;
 import org.rust.lang.core.psi.RsVisitor;
 import org.rust.lang.core.psi.ext.RsItemElement;
-import org.rust.lang.core.psi.ext.RsPsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiElementUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsPsiElementExtUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiElementExtUtil;
 import consulo.localize.LocalizeValue;
 import consulo.annotation.component.ExtensionImpl;
 

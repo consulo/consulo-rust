@@ -13,10 +13,11 @@ import consulo.language.psi.PsiRecursiveElementVisitor;
 import consulo.language.codeStyle.PreFormatProcessor;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.rust.lang.core.psi.impl.*;
 
 @ExtensionImpl
 public class RsStatementSemicolonFormatProcessor implements PreFormatProcessor {

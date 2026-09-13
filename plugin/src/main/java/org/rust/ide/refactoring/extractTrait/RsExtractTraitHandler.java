@@ -25,7 +25,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.refactoring.RsMemberInfo;
 import org.rust.ide.refactoring.RsMemberSelectionPanel;
-import org.rust.ide.refactoring.RsNamesValidator;
+import org.rust.lang.core.names.RsNamesValidator;
 import org.rust.lang.core.psi.RsImplItem;
 import org.rust.lang.core.psi.RsMembers;
 import org.rust.lang.core.psi.RsTraitItem;
@@ -36,7 +36,8 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class RsExtractTraitHandler implements RefactoringActionHandler {
     

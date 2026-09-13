@@ -9,7 +9,7 @@ import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsInferenceContextOwner;
 import org.rust.lang.core.types.RsTypesUtil;
-import org.rust.lang.utils.RsDiagnostic;
+import org.rust.lang.utils.RsInferenceDiagnostic;
 
 public abstract class RsDiagnosticBasedInspection extends RsLocalInspectionTool {
 
@@ -34,8 +34,9 @@ public abstract class RsDiagnosticBasedInspection extends RsLocalInspectionTool 
     }
 
     private void collectDiagnostics(@Nonnull RsProblemsHolder holder, @Nonnull RsInferenceContextOwner element) {
-        for (RsDiagnostic diagnostic : RsTypesUtil.getSelfInferenceResult(element).getDiagnostics()) {
-            if (diagnostic.getInspectionClass() == getClass()) {
+        for (RsInferenceDiagnostic reported : RsTypesUtil.getSelfInferenceResult(element).getDiagnostics()) {
+            RsDiagnostic diagnostic = RsDiagnostic.of(reported);
+            if (diagnostic != null && diagnostic.getInspectionClass() == getClass()) {
                 RsDiagnostic.addToHolder(diagnostic, holder);
             }
         }

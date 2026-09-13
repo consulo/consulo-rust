@@ -13,15 +13,15 @@ import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.cargo.project.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.cargo.runconfig.RunConfigUtil;
 import org.rust.cargo.toolchain.CargoCommandLine;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
-import org.rust.lang.core.psi.ext.RsElementUtil;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import org.rust.openapiext.OpenApiUtil;
 
 public class CargoExecutableRunConfigurationProducer extends CargoRunConfigurationProducer {

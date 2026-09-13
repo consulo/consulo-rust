@@ -18,13 +18,14 @@ import org.rust.lang.core.psi.ext.*;
 
 import java.util.Collection;
 import java.util.Collections;
-import org.rust.lang.core.psi.ext.RsSelfParameterUtil;
-import org.rust.lang.core.psi.ext.RsMacroCallUtil;
-import org.rust.lang.core.psi.ext.RsPatBindingUtil;
-import org.rust.ide.injected.RsDoctestLanguageInjector;
+import org.rust.lang.core.psi.ext.impl.RsSelfParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsMacroCallUtil;
+import org.rust.lang.core.psi.ext.impl.RsPatBindingUtil;
+import org.rust.lang.core.injected.RsDoctestLanguageInjector;
 import consulo.localize.LocalizeValue;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @ExtensionImpl
 public class RsUnusedMutInspection extends RsLintInspection {

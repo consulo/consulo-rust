@@ -12,8 +12,8 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsPatRange;
-import org.rust.lang.core.psi.RsPsiFactory;
-import org.rust.lang.core.psi.ext.RsPatRangeUtil;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
+import org.rust.lang.core.psi.ext.impl.RsPatRangeUtil;
 import consulo.localize.LocalizeValue;
 
 public class ReplaceWithInclusiveRangeFix extends RsQuickFixBase<RsPatRange> {

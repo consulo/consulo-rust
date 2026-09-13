@@ -14,21 +14,21 @@ import consulo.language.editor.ui.navigation.NavigationGutterIconBuilder;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
-import org.rust.ide.icons.RsIcons;
+import org.rust.icons.RsIcons;
 import org.rust.lang.core.psi.RsConstant;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsTraitItem;
 import org.rust.lang.core.psi.RsTypeAlias;
 import org.rust.lang.core.psi.ext.RsAbstractable;
-import org.rust.lang.core.psi.ext.RsAbstractableUtil;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsAbstractableUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 
 import consulo.ui.image.Image;
 import java.util.Collection;
 import java.util.Collections;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.localize.LocalizeValue;
-import org.rust.lang.core.psi.ext.RsConstantUtil;
+import org.rust.lang.core.psi.ext.impl.RsConstantUtil;
 
 @ExtensionImpl
 public class RsTraitItemImplLineMarkerProvider extends RelatedItemLineMarkerProvider {
@@ -64,7 +64,7 @@ public class RsTraitItemImplLineMarkerProvider extends RelatedItemLineMarkerProv
         PsiElement element;
         if (el instanceof RsConstant) {
             type = "constant";
-            element = org.rust.lang.core.psi.ext.RsConstantUtil.getNameLikeElement((RsConstant) el);
+            element = org.rust.lang.core.psi.ext.impl.RsConstantUtil.getNameLikeElement((RsConstant) el);
         } else if (el instanceof RsFunction) {
             type = "method";
             element = ((RsFunction) el).getIdentifier();

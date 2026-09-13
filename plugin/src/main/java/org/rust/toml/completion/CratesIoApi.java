@@ -17,7 +17,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import org.rust.RsBundle;
-import org.rust.ide.notifications.NotificationUtils;
+import org.rust.notifications.NotificationUtils;
 import org.rust.ide.utils.IoUtil;
 import consulo.application.util.ApplicationUtil;
 import org.rust.openapiext.OpenApiUtil;

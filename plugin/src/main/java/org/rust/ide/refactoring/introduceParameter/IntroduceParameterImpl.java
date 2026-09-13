@@ -17,7 +17,7 @@ import consulo.language.editor.refactoring.util.CommonRefactoringUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.ide.presentation.TypeRendering;
+import org.rust.lang.core.presentation.TypeRendering;
 import org.rust.ide.refactoring.RsInPlaceVariableIntroducer;
 import org.rust.ide.refactoring.RsNameSuggestions;
 import org.rust.ide.refactoring.SuggestedNames;
@@ -35,6 +35,8 @@ import static org.rust.ide.refactoring.ExtraxtExpressionUtils.findOccurrences;
 import static org.rust.ide.refactoring.ExtraxtExpressionUiUtils.showOccurrencesChooser;
 import consulo.language.psi.PsiNamedElement;
 import org.rust.ide.refactoring.ExtraxtExpressionUtils;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public final class IntroduceParameterImpl {
 

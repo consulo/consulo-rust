@@ -24,9 +24,9 @@ import org.rust.lang.RsFileType;
 import org.rust.lang.core.macros.MacroExpansion;
 import org.rust.lang.core.macros.RsExpandedElementUtil;
 import org.rust.lang.core.macros.errors.GetMacroExpansionError;
-import org.rust.lang.core.psi.RsFile;
-import org.rust.lang.core.psi.RsProcMacroPsiUtil;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsFile;
+import org.rust.lang.core.psi.impl.RsProcMacroPsiUtil;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.RsPsiManager;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.openapiext.OpenApiUtil;
@@ -40,6 +40,7 @@ import consulo.codeEditor.EditorSettings;
 import consulo.document.Document;
 import consulo.ui.ex.popup.JBPopup;
 import consulo.undoRedo.util.UndoUtil;
+import org.rust.lang.core.psi.ext.impl.*;
 
 /** Utility class for macro expansion view operations. */
 public final class MacroExpansionViewUtils {

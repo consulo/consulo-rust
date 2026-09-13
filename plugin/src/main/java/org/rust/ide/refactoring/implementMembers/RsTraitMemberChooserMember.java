@@ -11,7 +11,7 @@ import consulo.language.editor.generation.MemberChooserObjectBase;
 import consulo.ui.ex.awt.SimpleColoredComponent;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.ide.presentation.PresentationInfo;
+import org.rust.lang.core.presentation.PresentationInfo;
 import org.rust.lang.core.psi.RsConstant;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsTypeAlias;
@@ -33,7 +33,7 @@ public class RsTraitMemberChooserMember implements ClassMember {
         myBase = base;
         myMember = member;
         if (member instanceof RsFunction || member instanceof RsTypeAlias) {
-            org.rust.ide.presentation.PresentationInfo info = PresentationInfo.getPresentationInfo(member);
+            org.rust.lang.core.presentation.PresentationInfo info = PresentationInfo.getPresentationInfo(member);
             myText = info != null ? info.getProjectStructureItemText() : "";
         } else if (member instanceof RsConstant) {
             RsConstant constant = (RsConstant) member;

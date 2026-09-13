@@ -5,11 +5,18 @@
 
 package org.rust.cargo.project.workspace;
 
+import org.rust.cargo.api.workspace.FeatureState;
+import org.rust.cargo.api.workspace.CargoWorkspaceData;
+
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.PackageFeature;
+import org.rust.cargo.api.workspace.PackageOrigin;
+
 import consulo.util.dataholder.UserDataHolderBase;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.VirtualFileManager;
 import jakarta.annotation.Nullable;
-import org.rust.cargo.CfgOptions;
+import org.rust.cargo.api.CfgOptions;
 import org.rust.openapiext.CachedVirtualFile;
 
 import java.nio.file.Path;
@@ -33,7 +40,7 @@ final class PackageImpl extends UserDataHolderBase implements CargoWorkspace.Pac
     private final CargoWorkspace.Edition myEdition;
     @Nullable
     private final CfgOptions myCfgOptions;
-    /** See {@link org.rust.cargo.toolchain.impl.CargoMetadata.Package#features} */
+    /** See {@link org.rust.cargo.api.toolchain.CargoMetadata.Package#features} */
     private final Map<String, List<String>> myRawFeatures;
     private final Set<String> myCargoEnabledFeatures;
     private final Map<String, String> myEnv;

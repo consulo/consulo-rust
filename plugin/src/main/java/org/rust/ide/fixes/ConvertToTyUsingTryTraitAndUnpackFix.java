@@ -9,14 +9,15 @@ import consulo.language.editor.inspection.FileModifier.SafeFieldForPreview;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsFunctionOrLambda;
-import org.rust.lang.core.psi.ext.RsTraitRefUtil;
+import org.rust.lang.core.psi.ext.impl.RsTraitRefUtil;
 import org.rust.lang.core.resolve.KnownItems;
 import org.rust.lang.core.types.*;
 import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyAdt;
 import org.rust.lang.core.types.RsTypesUtil;
 import consulo.language.psi.PsiElement;
-import org.rust.lang.core.psi.ext.RsGenericDeclarationUtil;
+import org.rust.lang.core.psi.ext.impl.RsGenericDeclarationUtil;
+import org.rust.lang.core.psi.impl.*;
 
 /**
  * Similar to ConvertToTyUsingTryTraitFix, but also "unwraps" the result with unwrap() or ?.
@@ -75,7 +76,7 @@ public abstract class ConvertToTyUsingTryTraitAndUnpackFix extends ConvertToTyUs
         var fromTrait = items.getFrom();
         if (fromTrait == null) return false;
         Ty errArgTy = adtRetTy.getTypeArguments().get(1);
-        TraitRef traitRef = new TraitRef(errArgTy, org.rust.lang.core.psi.ext.RsGenericDeclarationUtil.withSubst(fromTrait, this.errTy));
+        TraitRef traitRef = new TraitRef(errArgTy, org.rust.lang.core.psi.ext.impl.RsGenericDeclarationUtil.withSubst(fromTrait, this.errTy));
         return lookup.select(traitRef).ok() != null;
     }
 }

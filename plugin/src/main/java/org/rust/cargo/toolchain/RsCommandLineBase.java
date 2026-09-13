@@ -19,9 +19,9 @@ import consulo.execution.runner.ProgramRunner;
 import consulo.project.ui.notification.NotificationType;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.ide.notifications.RsNotifications;
+import org.rust.notifications.RsNotifications;
 
 import java.io.File;
 import java.nio.file.Path;

@@ -11,11 +11,11 @@ import consulo.project.Project;
 import consulo.project.ui.wm.StatusBarWidgetsManager;
 import consulo.ui.UIAccess;
 import jakarta.annotation.Nonnull;
-import org.rust.cargo.project.model.CargoProject;
-import org.rust.cargo.project.model.CargoProjectsService;
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.api.model.CargoProjectsService;
 
 import java.util.Collection;
-import org.rust.cargo.project.model.CargoProjectsListener;
+import org.rust.cargo.api.model.CargoProjectsListener;
 
 @TopicImpl(ComponentScope.PROJECT)
 public class RsExternalLinterWidgetUpdater implements CargoProjectsListener {

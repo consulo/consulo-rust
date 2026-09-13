@@ -15,12 +15,13 @@ import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.ide.utils.PsiModificationUtil;
 import org.rust.ide.utils.ExprUtil;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.LogicOp;
-import org.rust.lang.core.psi.ext.PsiElementExt;
-import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
-import org.rust.lang.core.psi.ext.RsBinaryOpUtil;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.LogicOp;
+import org.rust.lang.core.psi.ext.impl.PsiElementExt;
+import org.rust.lang.core.psi.ext.impl.RsBinaryExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsBinaryOpUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class SplitIfIntention extends RsElementBaseIntentionAction<SplitIfIntention.Context> {
     @Nonnull

@@ -11,11 +11,12 @@ import org.rust.lang.core.macros.MacroExpansionHighlightingUtil;
 import org.rust.lang.core.macros.PreparedProcMacroExpansion;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsAttrProcMacroOwner;
-import org.rust.lang.core.psi.ext.RsAttrProcMacroOwnerUtil;
+import org.rust.lang.core.psi.ext.impl.RsAttrProcMacroOwnerUtil;
 import org.rust.stdext.CollectionExtUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.rust.lang.core.psi.impl.*;
 
 /**
  * This is a non-recursive element visitor, but if it faces a macro invocation, it accepts all elements

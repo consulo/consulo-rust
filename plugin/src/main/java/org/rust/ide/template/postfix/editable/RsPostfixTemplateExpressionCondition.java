@@ -14,7 +14,7 @@ import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.*;
 
 import java.util.Objects;
-import org.rust.ide.presentation.TypeRendering;
+import org.rust.lang.core.presentation.TypeRendering;
 
 public class RsPostfixTemplateExpressionCondition implements PostfixTemplateExpressionCondition<RsExpr> {
 

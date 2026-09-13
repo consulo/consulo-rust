@@ -5,9 +5,11 @@
 
 package org.rust.cargo.project.workspace;
 
+import org.rust.cargo.api.workspace.CargoWorkspace;
+
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nullable;
-import org.rust.cargo.CfgOptions;
+import org.rust.cargo.api.CfgOptions;
 import org.rust.openapiext.CachedVirtualFile;
 
 import java.util.Collections;

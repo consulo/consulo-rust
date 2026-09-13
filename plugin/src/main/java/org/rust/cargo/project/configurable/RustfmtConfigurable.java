@@ -17,12 +17,12 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import org.rust.RsBundle;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
-import org.rust.cargo.toolchain.RustChannel;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.toolchain.RustChannel;
 
 import consulo.ui.ex.awt.FormBuilder;
 import consulo.ui.ex.awt.UIUtil;
-import org.rust.cargo.project.settings.RustfmtProjectSettingsService;
+import org.rust.cargo.api.settings.RustfmtProjectSettingsService;
 
 import javax.swing.*;
 import java.awt.BorderLayout;

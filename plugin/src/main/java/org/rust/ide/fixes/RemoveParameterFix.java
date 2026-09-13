@@ -19,11 +19,11 @@ import org.rust.lang.core.psi.ext.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 // CompletionUtilsUtil removed
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
-import org.rust.lang.core.psi.RsPsiImplUtil;
-import org.rust.lang.core.psi.ext.RsPatBindingUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
+import org.rust.lang.core.psi.impl.RsPsiImplUtil;
+import org.rust.lang.core.psi.ext.impl.RsPatBindingUtil;
 import consulo.localize.LocalizeValue;
 
 /**

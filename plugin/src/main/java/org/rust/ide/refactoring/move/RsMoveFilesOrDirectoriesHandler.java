@@ -42,13 +42,13 @@ import consulo.language.editor.refactoring.util.CommonRefactoringUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.RsLanguage;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import consulo.language.psi.PsiFile;
 import consulo.annotation.component.ExtensionImpl;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 
 @ExtensionImpl(id = "rust.moveFilesOrDirectories", order = "first, before moveJavaFileOrDir, before moveFileOrDir")
 public class RsMoveFilesOrDirectoriesHandler extends MoveFilesOrDirectoriesHandler {
@@ -164,7 +164,7 @@ public class RsMoveFilesOrDirectoriesHandler extends MoveFilesOrDirectoriesHandl
             && file.getCrateRoot() != null
             && file.getCrateRelativePath() != null
             && !file.isCrateRoot()
-            && org.rust.lang.core.psi.ext.RsElementUtil.isAtLeastEdition2018(file)
+            && org.rust.lang.core.psi.ext.impl.RsElementUtil.isAtLeastEdition2018(file)
             && file.getPathAttribute() == null;
     }
 }

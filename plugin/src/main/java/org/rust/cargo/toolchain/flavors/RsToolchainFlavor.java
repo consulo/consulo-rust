@@ -12,7 +12,7 @@ import java.nio.file.Files;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.toolchain.tools.Cargo;
 import org.rust.cargo.toolchain.tools.Rustc;
-import org.rust.cargo.util.ToolchainUtil;
+import org.rust.cargo.api.util.ToolchainUtil;
 
 import java.nio.file.Path;
 import java.util.List;

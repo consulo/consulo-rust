@@ -9,19 +9,20 @@ import consulo.codeEditor.Editor;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
-import org.rust.cargo.util.AutoInjectedCrates;
+import org.rust.cargo.api.util.AutoInjectedCrates;
 import org.rust.ide.fixes.RsQuickFixBase;
-import org.rust.ide.utils.imports.ImportBridge;
+import org.rust.lang.core.imports.ImportBridge;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.RsFile.Attributes;
+import org.rust.lang.core.psi.impl.RsFile.Attributes;
 import org.rust.lang.core.types.ty.TyFloat;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.Ty;
 
 import java.util.List;
-import org.rust.lang.core.psi.RsLiteralKindUtil;
+import org.rust.lang.core.psi.impl.RsLiteralKindUtil;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 @ExtensionImpl
 public class RsApproxConstantInspection extends RsLocalInspectionTool {

@@ -20,7 +20,7 @@ import consulo.ui.ex.awt.JBSplitter;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.RsLanguage;
-import org.rust.lang.core.psi.RsReplCodeFragment;
+import org.rust.lang.core.psi.impl.RsReplCodeFragment;
 import org.rust.openapiext.VirtualFileExtUtil;
 
 import javax.swing.*;

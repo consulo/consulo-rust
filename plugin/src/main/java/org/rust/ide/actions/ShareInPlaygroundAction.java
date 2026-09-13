@@ -29,9 +29,9 @@ import consulo.ui.ex.action.LegacyDumbAwareAction;
 import jakarta.annotation.Nonnull;
 
 import org.rust.RsBundle;
-import org.rust.ide.notifications.NotificationUtils;
+import org.rust.notifications.NotificationUtils;
 import org.rust.ide.utils.IoUtil;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.openapiext.JsonUtils;
 
 import java.awt.datatransfer.StringSelection;

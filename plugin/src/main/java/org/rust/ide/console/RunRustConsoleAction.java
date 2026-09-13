@@ -13,7 +13,7 @@ import consulo.ui.ex.action.LegacyDumbAwareAction;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.cargo.runconfig.RsRunConfigurationUtil;
-import org.rust.ide.notifications.NotificationUtils;
+import org.rust.notifications.NotificationUtils;
 import consulo.annotation.component.ActionImpl;
 
 @ActionImpl(id = "Rust.ConsoleREPL")

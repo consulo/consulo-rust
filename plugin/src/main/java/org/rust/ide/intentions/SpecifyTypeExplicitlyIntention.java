@@ -11,14 +11,14 @@ import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.ide.presentation.TypeRendering;
+import org.rust.lang.core.presentation.TypeRendering;
 import org.rust.ide.utils.PsiInsertionPlace;
-import org.rust.ide.utils.imports.RsImportHelper;
-import org.rust.ide.utils.imports.TypeReferencesInfo;
+import org.rust.lang.core.imports.RsImportHelper;
+import org.rust.lang.core.imports.TypeReferencesInfo;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.PsiElementExt;
-import org.rust.lang.core.psi.ext.RsBindingModeKind;
-import org.rust.lang.core.psi.ext.RsPatBindingUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementExt;
+import org.rust.lang.core.psi.ext.impl.RsBindingModeKind;
+import org.rust.lang.core.psi.ext.impl.RsPatBindingUtil;
 import org.rust.lang.core.types.consts.CtInferVar;
 import org.rust.lang.core.types.consts.CtUnevaluated;
 import org.rust.lang.core.types.consts.CtUnknown;
@@ -35,6 +35,7 @@ import org.rust.lang.core.types.consts.Const;
 import org.rust.lang.doc.psi.RsQualifiedName;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class SpecifyTypeExplicitlyIntention extends RsElementBaseIntentionAction<SpecifyTypeExplicitlyIntention.Context> {
 

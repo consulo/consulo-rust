@@ -13,13 +13,15 @@ import consulo.language.psi.PsiElement;
 import consulo.language.psi.util.PsiTreeUtil;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
-import org.rust.ide.colors.RsColor;
+import org.rust.colors.RsColor;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class RsEdition2018KeywordsAnnotator extends AnnotatorBase {
 

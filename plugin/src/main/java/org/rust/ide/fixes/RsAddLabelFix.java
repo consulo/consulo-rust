@@ -11,7 +11,7 @@ import consulo.language.psi.util.PsiTreeUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.RsWhileExpr;
 import org.rust.lang.core.psi.ext.RsLabelReferenceOwner;
 import consulo.localize.LocalizeValue;

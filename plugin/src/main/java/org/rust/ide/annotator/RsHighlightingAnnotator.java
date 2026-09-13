@@ -17,7 +17,7 @@ import consulo.language.ast.IElementType;
 import consulo.language.ast.TokenSet;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.ide.colors.RsColor;
+import org.rust.colors.RsColor;
 import org.rust.ide.highlight.RsHighlighter;
 import org.rust.ide.todo.RsTodoSearcher;
 import org.rust.lang.core.crate.Crate;
@@ -28,14 +28,16 @@ import org.rust.lang.core.types.ty.TyPrimitive;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsStructItemUtil;
-import org.rust.lang.core.psi.ext.RsConstantUtil;
-import org.rust.lang.core.psi.ext.RsPathUtil;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
-import org.rust.lang.core.psi.ext.RsMacroCallUtil;
-import org.rust.lang.core.psi.ext.RsPatBindingUtil;
+import org.rust.lang.core.psi.ext.impl.RsStructItemUtil;
+import org.rust.lang.core.psi.ext.impl.RsConstantUtil;
+import org.rust.lang.core.psi.ext.impl.RsPathUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsMacroCallUtil;
+import org.rust.lang.core.psi.ext.impl.RsPatBindingUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class RsHighlightingAnnotator extends AnnotatorBase {
 

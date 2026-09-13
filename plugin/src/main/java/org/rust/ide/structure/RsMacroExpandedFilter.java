@@ -11,7 +11,7 @@ import consulo.fileEditor.structureView.tree.Filter;
 import consulo.fileEditor.structureView.tree.TreeElement;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
-import org.rust.ide.icons.RsIcons;
+import org.rust.icons.RsIcons;
 import org.rust.lang.core.macros.RsExpandedElementUtil;
 
 public class RsMacroExpandedFilter implements Filter {

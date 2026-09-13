@@ -5,16 +5,16 @@
 
 package org.rust.ide.fixes;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.codeEditor.Editor;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.ide.utils.imports.ImportBridge;
+import org.rust.lang.core.imports.ImportBridge;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsOuterAttr;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.resolve.KnownItems;
 import consulo.localize.LocalizeValue;

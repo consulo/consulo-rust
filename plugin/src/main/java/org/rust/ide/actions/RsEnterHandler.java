@@ -15,8 +15,8 @@ import consulo.language.editor.inject.EditorWindow;
 import consulo.ui.ex.action.IdeActions;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.ide.injected.RsDoctestLanguageInjector;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.injected.RsDoctestLanguageInjector;
+import org.rust.lang.core.psi.impl.RsFile;
 
 /**
  * This class is used to handle enter typing inside doctest language injection.

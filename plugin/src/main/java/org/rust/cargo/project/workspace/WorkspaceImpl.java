@@ -5,20 +5,29 @@
 
 package org.rust.cargo.project.workspace;
 
+import org.rust.cargo.api.workspace.StandardLibrary;
+import org.rust.cargo.api.workspace.FeatureState;
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.CargoWorkspaceData;
+import org.rust.cargo.api.workspace.PackageFeature;
+import org.rust.cargo.api.workspace.PackageOrigin;
+
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.VirtualFileManager;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
-import org.rust.cargo.CargoConfig;
-import org.rust.cargo.CfgOptions;
-import org.rust.cargo.project.model.RustcInfo;
-import org.rust.cargo.project.model.impl.UserDisabledFeatures;
+import org.rust.cargo.api.CargoConfig;
+import org.rust.cargo.api.CfgOptions;
+import org.rust.cargo.api.model.RustcInfo;
+import org.rust.cargo.api.model.UserDisabledFeatures;
 import org.rust.openapiext.CachedVirtualFile;
 
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.rust.cargo.api.workspace.FeatureGraph;
+import org.rust.cargo.api.workspace.StandardLibraryHelper;
 
 final class WorkspaceImpl implements CargoWorkspace {
 

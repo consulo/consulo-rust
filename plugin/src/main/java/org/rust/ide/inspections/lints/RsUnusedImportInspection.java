@@ -26,7 +26,7 @@ import org.rust.ide.inspections.RsWithMacrosInspectionVisitor;
 import org.rust.toml.CrateExt;
 import org.rust.lang.core.crate.impl.DoctestCrate;
 import org.rust.lang.core.macros.MacroExpansionExtUtil;
-import org.rust.lang.core.macros.proc.ProcMacroApplicationService;
+import org.rust.cargo.macros.ProcMacroApplicationService;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.resolve2.*;
@@ -34,11 +34,11 @@ import org.rust.openapiext.OpenApiUtil;
 
 import javax.swing.*;
 import java.util.*;
-import org.rust.lang.core.psi.ext.RsUseSpeckUtil;
-import org.rust.lang.core.psi.ext.RsPathUtil;
-import org.rust.ide.injected.RsDoctestLanguageInjector;
-import org.rust.lang.core.psi.RsPsiImplUtil;
-import org.rust.lang.core.psi.ext.RsTraitItemUtil;
+import org.rust.lang.core.psi.ext.impl.RsUseSpeckUtil;
+import org.rust.lang.core.psi.ext.impl.RsPathUtil;
+import org.rust.lang.core.injected.RsDoctestLanguageInjector;
+import org.rust.lang.core.psi.impl.RsPsiImplUtil;
+import org.rust.lang.core.psi.ext.impl.RsTraitItemUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsReferenceElementBase;
 import org.rust.lang.core.psi.ext.RsMod;
@@ -47,6 +47,7 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.inspection.InspectionTool;
 import consulo.language.editor.inspection.scheme.InspectionToolWrapper;
 import org.rust.lang.core.crate.Crate;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @ExtensionImpl
 public class RsUnusedImportInspection extends RsLintInspection {

@@ -5,6 +5,11 @@
 
 package org.rust.cargo.project.workspace;
 
+import org.rust.cargo.api.workspace.StandardLibrary;
+import org.rust.cargo.api.workspace.CargoWorkspaceData;
+import org.rust.cargo.api.workspace.PackageOrigin;
+
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.execution.configuration.EnvironmentVariablesData;
 import consulo.logging.Logger;
 import consulo.project.Project;
@@ -12,17 +17,17 @@ import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.cargo.CargoConstants;
-import org.rust.cargo.project.model.ProcessProgressListener;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.model.ProcessProgressListener;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import org.rust.cargo.toolchain.RsToolchainBase;
-import org.rust.cargo.toolchain.impl.CargoMetadata;
-import org.rust.cargo.toolchain.impl.CargoMetadataException;
-import org.rust.cargo.toolchain.impl.RustcVersion;
+import org.rust.cargo.api.toolchain.CargoMetadata;
+import org.rust.cargo.api.toolchain.CargoMetadataException;
+import org.rust.cargo.api.toolchain.RustcVersion;
 import org.rust.cargo.toolchain.tools.Cargo;
 import org.rust.cargo.toolchain.tools.CargoExtUtil;
-import org.rust.cargo.util.AutoInjectedCrates;
-import org.rust.cargo.util.StdLibType;
-import org.rust.cargo.util.ToolchainUtil;
+import org.rust.cargo.api.util.AutoInjectedCrates;
+import org.rust.cargo.api.util.StdLibType;
+import org.rust.cargo.api.util.ToolchainUtil;
 import org.rust.openapiext.RsPathManager;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.stdext.HashCode;
@@ -34,7 +39,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import consulo.util.io.FileUtil;
 import consulo.util.lang.SemVer;
-import org.rust.cargo.util.StdLibInfo;
+import org.rust.cargo.api.util.StdLibInfo;
 import org.rust.stdext.PathUtil;
 import org.rust.stdext.RsResult;
 
@@ -88,7 +93,7 @@ public class StdlibDataFetcher {
         collectPackageMetadata(myTestPackageSrcDir);
         // if there is a package that is not in dependencies of `test` package,
         // collect its metadata manually
-        for (org.rust.cargo.util.StdLibInfo libInfo : AutoInjectedCrates.stdlibCrates) {
+        for (org.rust.cargo.api.util.StdLibInfo libInfo : AutoInjectedCrates.stdlibCrates) {
             if (libInfo.type() == StdLibType.DEPENDENCY) continue;
             List<String> packageSrcPaths = List.of(libInfo.name(), "lib" + libInfo.name());
             VirtualFile packageSrcDir = StandardLibrary.findFirstFileByRelativePaths(mySrcDir, packageSrcPaths);
@@ -247,7 +252,7 @@ public class StdlibDataFetcher {
         @Nullable ProcessProgressListener listener,
         boolean cleanVendorDir
     ) {
-        RsToolchainBase toolchain = RsProjectSettingsServiceUtil.getToolchain(project);
+        RsToolchainBase toolchain = RsToolchainLocator.getToolchain(project);
         if (toolchain == null) return null;
         Cargo cargo = CargoExtUtil.cargo(toolchain);
 

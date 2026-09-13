@@ -15,7 +15,7 @@ import consulo.language.editor.refactoring.RefactoringBundle;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.RsExpr;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.TyNever;
 import org.rust.lang.core.types.ty.TyUnit;

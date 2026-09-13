@@ -5,6 +5,8 @@
 
 package org.rust.ide.newProject;
 
+import org.rust.cargo.toolchain.RsToolchainLocator;
+
 import com.intellij.facet.ui.ValidationResult;
 import com.intellij.ide.util.projectWizard.AbstractNewProjectStep;
 import com.intellij.ide.util.projectWizard.CustomStepProjectGenerator;
@@ -19,9 +21,9 @@ import consulo.util.io.PathUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import org.rust.cargo.toolchain.tools.Cargo;
-import org.rust.ide.icons.RsIcons;
+import org.rust.icons.RsIcons;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.stdext.RsResult;
 
@@ -88,7 +90,7 @@ public class RsDirectoryProjectGenerator extends DirectoryProjectGeneratorBase<C
         );
 
         RsProjectSettingsServiceUtil.getRustSettings(project).modify(state -> {
-            state.setToolchain(settings.getToolchain());
+            RsToolchainLocator.store(state, settings.getToolchain());
             state.explicitPathToStdlib = settings.getExplicitPathToStdlib();
         });
 

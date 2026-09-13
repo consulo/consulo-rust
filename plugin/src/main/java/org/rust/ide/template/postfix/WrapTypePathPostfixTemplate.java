@@ -14,7 +14,7 @@ import consulo.language.psi.SmartPsiElementPointer;
 import org.rust.ide.utils.template.EditorExtUtil;
 import org.rust.lang.core.parser.RustParserUtil;
 import org.rust.lang.core.psi.RsPathType;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.RsTypeReference;
 import org.rust.openapiext.PsiElementExtUtil;
 import org.rust.lang.core.psi.RsPath;

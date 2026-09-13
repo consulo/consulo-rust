@@ -14,7 +14,7 @@ import org.rust.RsBundle;
 import org.rust.ide.utils.StructFieldsExpander;
 import org.rust.lang.core.psi.RsPatStruct;
 import org.rust.lang.core.psi.RsPatTupleStruct;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import consulo.localize.LocalizeValue;
 
 public class AddStructFieldsPatFix extends RsQuickFixBase<PsiElement> {

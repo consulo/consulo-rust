@@ -13,9 +13,9 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsLambdaExpr;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.ext.RsFunctionOrLambda;
-import org.rust.lang.core.psi.ext.RsFunctionOrLambdaUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionOrLambdaUtil;
 import consulo.localize.LocalizeValue;
 
 public class MakeAsyncFix extends RsQuickFixBase<RsFunctionOrLambda> {

@@ -8,7 +8,7 @@ package org.rust.ide.surroundWith;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiWhiteSpace;
 import org.rust.lang.core.psi.RsBlock;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 
 public final class RsSurroundWithUtils {
 

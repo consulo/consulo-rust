@@ -7,10 +7,10 @@ package org.rust.ide.fixes;
 
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
-import org.rust.ide.utils.checkMatch.Pattern;
+import org.rust.lang.core.match.Pattern;
 import org.rust.lang.core.psi.RsMatchArm;
 import org.rust.lang.core.psi.RsMatchExpr;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.ext.RsElement;
 
 import java.util.Collections;

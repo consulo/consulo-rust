@@ -9,7 +9,7 @@ import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiWhiteSpace;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.RsBlock;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 
 /**
  * Utility methods for surround-with operations.

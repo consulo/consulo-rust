@@ -23,7 +23,8 @@ import org.rust.lang.core.psi.ext.*;
 
 import java.util.Collections;
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsSearchableUtil;
+import org.rust.lang.core.psi.ext.impl.RsSearchableUtil;
+import org.rust.lang.core.psi.impl.*;
 
 @ExtensionImpl
 public class RsReferenceCodeVisionProvider extends ReferencesCodeVisionProvider {
@@ -87,7 +88,7 @@ public class RsReferenceCodeVisionProvider extends ReferencesCodeVisionProvider 
             }
         }
 
-        int usageCount = org.rust.lang.core.psi.ext.RsSearchableUtil.searchReferences(namedElement, useScope).size();
+        int usageCount = org.rust.lang.core.psi.ext.impl.RsSearchableUtil.searchReferences(namedElement, useScope).size();
 
         if (element instanceof RsModDeclItem && usageCount > 0) {
             usageCount--;

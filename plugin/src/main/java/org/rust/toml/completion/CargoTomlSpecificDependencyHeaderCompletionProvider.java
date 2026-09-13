@@ -10,7 +10,7 @@ import consulo.language.editor.completion.CompletionProvider;
 import consulo.language.editor.completion.CompletionResultSet;
 import consulo.language.util.ProcessingContext;
 import jakarta.annotation.Nonnull;
-import org.rust.ide.experiments.RsExperiments;
+import org.rust.experiments.RsExperiments;
 import org.rust.openapiext.OpenApiUtil;
 
 public class CargoTomlSpecificDependencyHeaderCompletionProvider implements CompletionProvider {

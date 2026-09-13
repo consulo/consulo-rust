@@ -17,6 +17,7 @@ import org.rust.openapiext.OpenApiUtil;
 import consulo.language.Language;
 import consulo.ui.event.ComponentEvent;
 import org.rust.lang.RsLanguage;
+import org.rust.lang.core.psi.ext.impl.*;
 
 
 @ExtensionImpl

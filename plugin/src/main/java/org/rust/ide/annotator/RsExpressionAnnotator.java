@@ -22,9 +22,10 @@ import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 
 import java.util.*;
-import org.rust.lang.core.psi.ext.RsElementUtil;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 import org.rust.lang.core.resolve.ref.RsPathReferenceImpl;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class RsExpressionAnnotator extends AnnotatorBase {
     @Override

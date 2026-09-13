@@ -13,7 +13,7 @@ import org.rust.RsBundle;
 import org.rust.ide.inspections.RsProblemsHolder;
 import org.rust.ide.inspections.RsWithMacrosInspectionVisitor;
 import org.rust.lang.core.psi.RsElementTypes;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.RsMetaItem;
 import org.rust.lang.core.psi.RsMetaItemArgs;
 import io.github.z4kn4fein.semver.StringExtensionsKt;
@@ -22,11 +22,12 @@ import org.rust.lang.core.psi.RsVisitor;
 import org.rust.lang.core.psi.ext.*;
 
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsDocAndAttributeOwnerUtil;
+import org.rust.lang.core.psi.ext.impl.RsDocAndAttributeOwnerUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import consulo.localize.LocalizeValue;
 import consulo.annotation.component.ExtensionImpl;
-import org.rust.cargo.project.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @ExtensionImpl
 public class RsDeprecationInspection extends RsLintInspection {
@@ -120,7 +121,7 @@ public class RsDeprecationInspection extends RsLintInspection {
         if (since == null) return true;
         Version sinceVersion = StringExtensionsKt.toVersionOrNull(since, false);
         if (sinceVersion == null) return true;
-        org.rust.cargo.project.workspace.CargoWorkspace.Package pkg = RsElementUtil.getContainingCargoPackage(metaItem);
+        org.rust.cargo.api.workspace.CargoWorkspace.Package pkg = RsElementUtil.getContainingCargoPackage(metaItem);
         if (pkg == null) return true;
         Version currentVersion = StringExtensionsKt.toVersionOrNull(pkg.getVersion(), true);
         if (currentVersion == null) return true;

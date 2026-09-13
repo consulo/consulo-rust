@@ -4,6 +4,7 @@
  */
 
 package org.rust.ide.console;
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.ui.ex.action.ShortcutSet;
 import consulo.ui.ex.action.Shortcut;
 import consulo.ui.ex.action.CustomShortcutSet;
@@ -48,11 +49,11 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 import org.rust.cargo.toolchain.tools.Cargo;
 import org.rust.cargo.toolchain.tools.Evcxr;
-import org.rust.ide.icons.RsIcons;
+import org.rust.icons.RsIcons;
 import org.rust.openapiext.OpenApiUtil;
 
 import javax.swing.*;
@@ -304,7 +305,7 @@ public class RsConsoleRunner extends AbstractConsoleRunnerWithHistory<RsConsoleV
             throw new RuntimeException("No cargo project");
         }
         var cargoProject = iterator.next();
-        var toolchain = RsProjectSettingsServiceUtil.getToolchain(getProject());
+        var toolchain = RsToolchainLocator.getToolchain(getProject());
         if (toolchain == null) {
             throw new RuntimeException("Rust toolchain is not defined");
         }
@@ -313,7 +314,7 @@ public class RsConsoleRunner extends AbstractConsoleRunnerWithHistory<RsConsoleV
             throw new RuntimeException("Evcxr executable not found");
         }
 
-        var workingDir = CargoCommandConfiguration.getWorkingDirectory(cargoProject);
+        var workingDir = org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(cargoProject);
         return evcxr.createCommandLine(workingDir.toFile());
     }
 

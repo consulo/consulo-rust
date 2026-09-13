@@ -5,13 +5,13 @@
 
 package org.rust.ide.refactoring.implementMembers;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
-import org.rust.lang.core.psi.ext.RsConstantUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsConstantUtil;
 import jakarta.annotation.Nonnull;
-import org.rust.ide.presentation.ImportingPsiRenderer;
-import org.rust.ide.presentation.PsiRenderingOptions;
-import org.rust.ide.presentation.RsPsiRendererUtil;
-import org.rust.ide.utils.imports.ImportCandidate;
+import org.rust.lang.core.presentation.ImportingPsiRenderer;
+import org.rust.lang.core.presentation.PsiRenderingOptions;
+import org.rust.lang.core.presentation.RsPsiRendererUtil;
+import org.rust.lang.core.imports.ImportCandidate;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsAbstractable;
 import org.rust.lang.core.psi.ext.RsElement;
@@ -27,6 +27,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.rust.lang.core.types.infer.FoldUtil;
 import org.rust.lang.core.types.ty.Ty;
+import org.rust.ide.utils.RsDefaultValueBuilder;
+import org.rust.lang.core.psi.impl.*;
 
 public class MembersGenerator {
     @Nonnull

@@ -8,9 +8,9 @@ package org.rust.ide.utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.LogicOp;
-import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
-import org.rust.lang.core.psi.ext.RsExprUtil;
+import org.rust.lang.core.psi.ext.impl.LogicOp;
+import org.rust.lang.core.psi.ext.impl.RsBinaryExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsExprUtil;
 
 /**
  * Utilities for working with Rust expressions.

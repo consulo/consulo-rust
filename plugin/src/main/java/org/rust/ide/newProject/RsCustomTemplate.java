@@ -8,7 +8,7 @@ package org.rust.ide.newProject;
 
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
-import org.rust.ide.icons.RsIcons;
+import org.rust.icons.RsIcons;
 
 public class RsCustomTemplate extends RsProjectTemplate {
 

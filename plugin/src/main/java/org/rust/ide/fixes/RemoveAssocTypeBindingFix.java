@@ -15,8 +15,8 @@ import org.rust.RsBundle;
 import org.rust.lang.core.psi.RsAssocTypeBinding;
 import org.rust.lang.core.psi.RsTypeArgumentList;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsElementUtil;
-import org.rust.lang.core.psi.ext.PsiElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 import consulo.localize.LocalizeValue;
 
 public class RemoveAssocTypeBindingFix extends RsQuickFixBase<PsiElement> {

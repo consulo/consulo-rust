@@ -18,7 +18,7 @@ import org.rust.ide.status.RsExternalLinterWidget;
 import javax.swing.event.HyperlinkEvent;
 import java.util.ArrayDeque;
 import java.util.Queue;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
 import consulo.annotation.component.ComponentScope;
@@ -26,6 +26,7 @@ import jakarta.inject.Inject;
 import consulo.application.ApplicationPropertiesComponent;
 import consulo.project.ui.notification.NotificationType;
 import consulo.project.ui.wm.StatusBar;
+import org.rust.notifications.NotificationUtils;
 
 @ServiceAPI(ComponentScope.PROJECT)
 @ServiceImpl

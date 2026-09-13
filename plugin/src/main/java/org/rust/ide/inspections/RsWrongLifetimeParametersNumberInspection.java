@@ -11,10 +11,9 @@ import jakarta.annotation.Nonnull;
 import org.rust.ide.inspections.lints.RsNeedlessLifetimesInspection;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsGenericDeclaration;
-import org.rust.lang.core.psi.ext.RsGenericDeclarationUtil;
-import org.rust.lang.core.psi.ext.RsPathUtil;
+import org.rust.lang.core.psi.ext.impl.RsGenericDeclarationUtil;
+import org.rust.lang.core.psi.ext.impl.RsPathUtil;
 import org.rust.lang.core.types.ExtensionsUtil;
-import org.rust.lang.utils.RsDiagnostic;
 
 import java.util.Collection;
 import consulo.localize.LocalizeValue;

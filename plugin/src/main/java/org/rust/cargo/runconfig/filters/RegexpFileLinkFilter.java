@@ -5,6 +5,8 @@
 
 package org.rust.cargo.runconfig.filters;
 
+import org.rust.cargo.toolchain.RsToolchainLocator;
+
 import consulo.execution.ui.console.Filter;
 import consulo.execution.ui.console.OpenFileHyperlinkInfo;
 import consulo.application.dumb.DumbAware;
@@ -15,7 +17,7 @@ import org.intellij.lang.annotations.Language;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 
 import java.nio.file.Paths;
 import java.util.regex.Matcher;
@@ -165,8 +167,8 @@ public class RegexpFileLinkFilter implements Filter, DumbAware {
 
     @Nonnull
     private String getCargoRoot() {
-        Object location = RsProjectSettingsServiceUtil.getRustSettings(myProject).getToolchain() != null
-            ? RsProjectSettingsServiceUtil.getRustSettings(myProject).getToolchain().getLocation()
+        Object location = RsToolchainLocator.fromSettings(myProject) != null
+            ? RsToolchainLocator.fromSettings(myProject).getLocation()
             : null;
         return location != null ? location.toString() : "";
     }

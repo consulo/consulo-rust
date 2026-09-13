@@ -5,6 +5,14 @@
 
 package org.rust.cargo.project.model.impl;
 
+import org.rust.cargo.api.model.CargoProjectsRefreshListener;
+import org.rust.cargo.api.model.MutableUserDisabledFeatures;
+
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.api.model.CargoProjectsService;
+import org.rust.cargo.api.model.RustcInfo;
+import org.rust.cargo.api.model.UserDisabledFeatures;
+
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import consulo.annotation.component.ServiceImpl;
 import consulo.application.Application;
@@ -33,15 +41,15 @@ import org.jdom.Element;
 import org.rust.RsBundle;
 import org.rust.cargo.CargoConstants;
 import org.rust.cargo.project.model.*;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceBase;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
-import org.rust.cargo.project.settings.RsSettingsListener;
-import org.rust.cargo.project.workspace.CargoWorkspace;
-import org.rust.cargo.project.workspace.FeatureState;
-import org.rust.cargo.project.workspace.PackageFeature;
-import org.rust.cargo.project.workspace.PackageOrigin;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceBase;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.settings.RsSettingsListener;
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.FeatureState;
+import org.rust.cargo.api.workspace.PackageFeature;
+import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.cargo.toolchain.RsToolchainBase;
-import org.rust.ide.notifications.NotificationUtils;
+import org.rust.notifications.NotificationUtils;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.stdext.AsyncValue;
 

@@ -15,7 +15,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.PsiElementExt;
+import org.rust.lang.core.psi.ext.impl.PsiElementExt;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.types.ty.TyNever;
 import org.rust.lang.core.types.ty.TyUnit;
@@ -28,13 +28,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.rust.lang.core.types.RsTypesUtil;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsFunctionOrLambda;
 import org.rust.lang.core.psi.ext.RsLooplikeExpr;
 import consulo.localize.LocalizeValue;
-import org.rust.lang.core.psi.ext.BinaryOperator;
-import org.rust.lang.core.psi.ext.LogicOp;
-import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
+import org.rust.lang.core.psi.ext.impl.BinaryOperator;
+import org.rust.lang.core.psi.ext.impl.LogicOp;
+import org.rust.lang.core.psi.ext.impl.RsBinaryExprUtil;
+import org.rust.lang.core.psi.impl.*;
 
 public class InvertIfIntention extends RsElementBaseIntentionAction<InvertIfIntention.Context> {
     @Nonnull
@@ -251,8 +252,8 @@ public class InvertIfIntention extends RsElementBaseIntentionAction<InvertIfInte
                 RsExpr parenInner = ((RsParenExpr) inner).getExpr();
                 if (parenInner instanceof RsBinaryExpr) {
                     RsBinaryExpr binExpr = (RsBinaryExpr) parenInner;
-                    org.rust.lang.core.psi.ext.BinaryOperator opType = org.rust.lang.core.psi.ext.RsBinaryExprUtil.getOperatorType(binExpr);
-                    if (opType instanceof org.rust.lang.core.psi.ext.LogicOp) {
+                    org.rust.lang.core.psi.ext.impl.BinaryOperator opType = org.rust.lang.core.psi.ext.impl.RsBinaryExprUtil.getOperatorType(binExpr);
+                    if (opType instanceof org.rust.lang.core.psi.ext.impl.LogicOp) {
                         new DemorgansLawIntention().invoke(project, editor, new DemorgansLawIntention.Context(binExpr, opType));
                     }
                 }

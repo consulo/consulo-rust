@@ -6,9 +6,9 @@
 package org.rust.ide.utils;
 
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.LogicOp;
-import org.rust.lang.core.psi.ext.RsBinaryExprUtil;
-import org.rust.lang.core.psi.ext.RsExprUtil;
+import org.rust.lang.core.psi.ext.impl.LogicOp;
+import org.rust.lang.core.psi.ext.impl.RsBinaryExprUtil;
+import org.rust.lang.core.psi.ext.impl.RsExprUtil;
 
 import java.util.List;
 

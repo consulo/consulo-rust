@@ -9,8 +9,8 @@ import com.intellij.codeInsight.template.postfix.templates.StringBasedPostfixTem
 import consulo.language.psi.PsiElement;
 import org.rust.lang.core.psi.RsBinaryExpr;
 import org.rust.lang.core.psi.RsExpr;
-import org.rust.lang.core.psi.ext.RsBinaryOpUtil;
-import org.rust.lang.core.psi.ext.EqualityOp;
+import org.rust.lang.core.psi.ext.impl.RsBinaryOpUtil;
+import org.rust.lang.core.psi.ext.impl.EqualityOp;
 
 public class AssertPostfixTemplate extends StringBasedPostfixTemplate {
 

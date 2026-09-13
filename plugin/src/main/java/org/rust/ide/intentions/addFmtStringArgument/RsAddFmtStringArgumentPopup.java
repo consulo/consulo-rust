@@ -26,7 +26,7 @@ import consulo.ui.ex.awt.UIUtil;
 import jakarta.annotation.Nonnull;
 import org.rust.ide.intentions.util.macros.IntentionInMacroUtil;
 import org.rust.lang.RsFileType;
-import org.rust.lang.core.psi.RsCodeFragment;
+import org.rust.lang.core.psi.impl.RsCodeFragment;
 import org.rust.openapiext.DocumentExtUtil;
 
 import java.awt.*;

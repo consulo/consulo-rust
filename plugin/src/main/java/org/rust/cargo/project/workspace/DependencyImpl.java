@@ -5,6 +5,8 @@
 
 package org.rust.cargo.project.workspace;
 
+import org.rust.cargo.api.workspace.CargoWorkspace;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;

@@ -4,6 +4,10 @@
  */
 
 package org.rust.cargo.runconfig.command;
+
+import org.rust.cargo.api.toolchain.BacktraceMode;
+import org.rust.cargo.api.toolchain.RustChannel;
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.execution.RuntimeConfigurationWarning;
 
 import consulo.execution.executor.Executor;
@@ -38,12 +42,13 @@ import org.jdom.Element;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.project.model.CargoProjectLocator;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.project.model.CargoProjectsService;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
-import org.rust.cargo.project.workspace.CargoWorkspace;
-import org.rust.cargo.project.workspace.PackageOrigin;
+import org.rust.cargo.api.model.CargoProjectsService;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.cargo.runconfig.*;
 import org.rust.cargo.runconfig.target.BuildTarget;
 import org.rust.cargo.runconfig.target.RsLanguageRuntimeConfiguration;
@@ -326,7 +331,7 @@ public class CargoCommandConfiguration extends RsCommandConfiguration
         CleanConfiguration.Ok config = clean().getOk();
         if (config == null) return null;
         if (!showTestToolWindow(config.getCmd())) return null;
-        CargoProject cargoProject = findCargoProject(getProject(), config.getCmd().getAdditionalArguments(), config.getCmd().getWorkingDirectory());
+        CargoProject cargoProject = CargoProjectLocator.findCargoProject(getProject(), config.getCmd().getAdditionalArguments(), config.getCmd().getWorkingDirectory());
         SemVer version = cargoProject != null && cargoProject.getRustcInfo() != null && cargoProject.getRustcInfo().getVersion() != null
             ? cargoProject.getRustcInfo().getVersion().getSemver() : null;
         return new CargoTestConsoleProperties(this, executor, version);
@@ -400,7 +405,7 @@ public class CargoCommandConfiguration extends RsCommandConfiguration
             withSudo
         );
 
-        RsToolchainBase toolchain = RsProjectSettingsServiceUtil.getToolchain(getProject());
+        RsToolchainBase toolchain = RsToolchainLocator.getToolchain(getProject());
         if (toolchain == null) {
             return CleanConfiguration.error(RsBundle.message("dialog.message.no.rust.toolchain.specified"));
         }
@@ -416,108 +421,4 @@ public class CargoCommandConfiguration extends RsCommandConfiguration
         return new CleanConfiguration.Ok(cmd, toolchain);
     }
 
-    @Nullable
-    public static CargoProject findCargoProject(Project project, List<String> additionalArgs, @Nullable Path workingDirectory) {
-        CargoProjectsService cargoProjects = CargoProjectServiceUtil.getCargoProjects(project);
-        Collection<CargoProject> allProjects = cargoProjects.getAllProjects();
-        if (allProjects.size() == 1) return allProjects.iterator().next();
-
-        int idx = additionalArgs.indexOf("--manifest-path");
-        Path manifestPath = null;
-        if (idx != -1 && idx + 1 < additionalArgs.size()) {
-            manifestPath = Paths.get(additionalArgs.get(idx + 1));
-        }
-
-        List<Path> dirs = new ArrayList<>();
-        if (manifestPath != null && manifestPath.getParent() != null) dirs.add(manifestPath.getParent());
-        if (workingDirectory != null) dirs.add(workingDirectory);
-
-        for (Path dir : dirs) {
-            VirtualFile vFile = LocalFileSystem.getInstance().findFileByIoFile(dir.toFile());
-            if (vFile != null) {
-                CargoProject found = cargoProjects.findProjectForFile(vFile);
-                if (found != null) return found;
-            }
-        }
-        return null;
-    }
-
-    @Nullable
-    public static CargoProject findCargoProject(Project project, String cmd, @Nullable Path workingDirectory) {
-        return findCargoProject(project, ParametersListUtil.parse(cmd), workingDirectory);
-    }
-
-    @Nullable
-    public static CargoWorkspace.Package findCargoPackage(
-        CargoProject cargoProject,
-        List<String> additionalArgs,
-        @Nullable Path workingDirectory
-    ) {
-        CargoWorkspace workspace = cargoProject.getWorkspace();
-        if (workspace == null) return null;
-        List<CargoWorkspace.Package> packages = new ArrayList<>();
-        for (var pkg : workspace.getPackages()) {
-            if (pkg.getOrigin() == PackageOrigin.WORKSPACE) {
-                packages.add(pkg);
-            }
-        }
-        if (packages.isEmpty()) return null;
-        if (packages.size() == 1) return packages.get(0);
-
-        int idx = additionalArgs.indexOf("--package");
-        if (idx != -1 && idx + 1 < additionalArgs.size()) {
-            String packageName = additionalArgs.get(idx + 1);
-            for (var pkg : packages) {
-                if (pkg.getName().equals(packageName)) return pkg;
-            }
-        }
-
-        for (var pkg : packages) {
-            if (pkg.getRootDirectory() != null && pkg.getRootDirectory().equals(workingDirectory)) return pkg;
-        }
-        return null;
-    }
-
-    public static List<CargoWorkspace.Target> findCargoTargets(
-        CargoWorkspace.Package cargoPackage,
-        List<String> additionalArgs
-    ) {
-        List<CargoWorkspace.Target> result = new ArrayList<>();
-        for (CargoWorkspace.Target target : cargoPackage.getTargets()) {
-            CargoWorkspace.TargetKind kind = target.getKind();
-            boolean matches = false;
-            if (kind == CargoWorkspace.TargetKind.Bin.INSTANCE) {
-                matches = hasTarget(additionalArgs, "--bin", target.getName());
-            } else if (kind == CargoWorkspace.TargetKind.Test.INSTANCE) {
-                matches = hasTarget(additionalArgs, "--test", target.getName());
-            } else if (kind == CargoWorkspace.TargetKind.ExampleBin.INSTANCE) {
-                matches = hasTarget(additionalArgs, "--example", target.getName());
-            } else if (kind == CargoWorkspace.TargetKind.Bench.INSTANCE) {
-                matches = hasTarget(additionalArgs, "--bench", target.getName());
-            } else if (kind.isLib()) {
-                matches = additionalArgs.contains("--lib");
-            } else if (kind instanceof CargoWorkspace.TargetKind.ExampleLib) {
-                matches = hasTarget(additionalArgs, "--example", target.getName());
-            }
-            if (matches) result.add(target);
-        }
-        return result;
-    }
-
-    private static boolean hasTarget(List<String> args, String option, String name) {
-        if (args.contains(option + "=" + name)) return true;
-        for (int i = 0; i < args.size() - 1; i++) {
-            if (args.get(i).equals(option) && args.get(i + 1).equals(name)) return true;
-        }
-        return false;
-    }
-
-    /**
-     * Returns the working directory for a cargo project.
-     * This is the parent directory of the project's manifest file (Cargo.toml).
-     */
-    @Nonnull
-    public static Path getWorkingDirectory(@Nonnull CargoProject cargoProject) {
-        return cargoProject.getManifest().getParent();
-    }
 }

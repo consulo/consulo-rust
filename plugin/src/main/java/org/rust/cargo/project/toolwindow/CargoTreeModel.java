@@ -5,6 +5,7 @@
 
 package org.rust.cargo.project.toolwindow;
 
+
 import consulo.logging.Logger;
 import consulo.rust.icon.RustIconGroup;
 import consulo.ui.Tree;
@@ -13,9 +14,9 @@ import consulo.ui.TreeNode;
 import consulo.ui.image.Image;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.cargo.project.model.CargoProject;
-import org.rust.cargo.project.workspace.CargoWorkspace;
-import org.rust.cargo.project.workspace.PackageOrigin;
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 import org.rust.cargo.toolchain.CargoCommandLine;
 import org.rust.stdext.Utils;
@@ -76,7 +77,7 @@ public class CargoTreeModel implements TreeModel<CargoTreeNode> {
             return;
         }
 
-        Path workingDirectory = CargoCommandConfiguration.getWorkingDirectory(cargoProject);
+        Path workingDirectory = org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(cargoProject);
         List<CargoWorkspace.Package> members = new ArrayList<>();
         for (CargoWorkspace.Package pkg : workspace.getPackages()) {
             if (pkg.getOrigin() == PackageOrigin.WORKSPACE) {

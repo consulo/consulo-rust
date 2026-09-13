@@ -1,0 +1,150 @@
+/*
+ * Use of this source code is governed by the MIT license that can be
+ * found in the LICENSE file.
+ */
+
+package org.rust.lang.core.resolve;
+
+import consulo.language.psi.stub.StubElement;
+import jakarta.annotation.Nonnull;
+import org.rust.lang.core.crate.Crate;
+import org.rust.lang.core.psi.*;
+import org.rust.lang.core.psi.ext.*;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
+import org.rust.lang.core.stubs.*;
+
+import java.util.EnumSet;
+import java.util.Set;
+import org.rust.lang.core.resolve.ref.RsPathReference;
+
+public enum Namespace {
+    Types("type"),
+    Values("value"),
+    Lifetimes("lifetime"),
+    Macros("macro");
+
+    @Nonnull
+    private final String myItemName;
+
+    Namespace(@Nonnull String itemName) {
+        myItemName = itemName;
+    }
+
+    @Nonnull
+    public String getItemName() {
+        return myItemName;
+    }
+
+    @Nonnull
+    public static final Set<Namespace> TYPES = EnumSet.of(Types);
+    @Nonnull
+    public static final Set<Namespace> VALUES = EnumSet.of(Values);
+    @Nonnull
+    public static final Set<Namespace> LIFETIMES = EnumSet.of(Lifetimes);
+    @Nonnull
+    public static final Set<Namespace> MACROS_NS = EnumSet.of(Macros);
+    @Nonnull
+    public static final Set<Namespace> MACROS = MACROS_NS;
+    @Nonnull
+    public static final Set<Namespace> TYPES_N_VALUES = EnumSet.of(Types, Values);
+    @Nonnull
+    public static final Set<Namespace> TYPES_N_VALUES_N_MACROS = EnumSet.of(Types, Values, Macros);
+
+    /**
+     * https://rust-lang.github.io/rfcs/0234-variants-namespace.html
+     */
+    @Nonnull
+    public static final Set<Namespace> ENUM_VARIANT_NS = TYPES_N_VALUES;
+
+    @Nonnull
+    public static Set<Namespace> getNamespaces(@Nonnull RsNamedElement element) {
+        if (element instanceof RsMod
+            || element instanceof RsModDeclItem
+            || element instanceof RsEnumItem
+            || element instanceof RsTraitItem
+            || element instanceof RsTypeParameter
+            || element instanceof RsTypeAlias) {
+            return TYPES;
+        }
+        if (element instanceof RsPatBinding
+            || element instanceof RsConstParameter
+            || element instanceof RsConstant) {
+            return VALUES;
+        }
+        if (element instanceof RsFunction) {
+            if (RsFunctionUtil.isProcMacroDef((RsFunction) element)) {
+                return MACROS_NS;
+            }
+            return VALUES;
+        }
+        if (element instanceof RsEnumVariant) {
+            return ENUM_VARIANT_NS;
+        }
+        if (element instanceof RsStructItem) {
+            if (((RsStructItem) element).getBlockFields() == null) {
+                return TYPES_N_VALUES;
+            }
+            return TYPES;
+        }
+        if (element instanceof RsLifetimeParameter) {
+            return LIFETIMES;
+        }
+        if (element instanceof RsMacro || element instanceof RsMacro2) {
+            return MACROS_NS;
+        }
+        return TYPES_N_VALUES;
+    }
+
+    @Nonnull
+    public static Set<Namespace> getNamespaces(@Nonnull StubElement<?> stub, @Nonnull Crate crate) {
+        if (stub instanceof RsModItemStub
+            || stub instanceof RsModDeclItemStub
+            || stub instanceof RsEnumItemStub
+            || stub instanceof RsTraitItemStub
+            || stub instanceof RsTypeParameterStub
+            || stub instanceof RsTypeAliasStub) {
+            return TYPES;
+        }
+        if (stub instanceof RsConstantStub) {
+            return VALUES;
+        }
+        if (stub instanceof RsFunctionStub) {
+            if (RsFunctionUtil.IS_PROC_MACRO_DEF_PROP.getByStub((RsFunctionStub) stub, crate)) {
+                return MACROS_NS;
+            }
+            return VALUES;
+        }
+        if (stub instanceof RsEnumVariantStub) {
+            return ENUM_VARIANT_NS;
+        }
+        if (stub instanceof RsStructItemStub) {
+            if (((RsStructItemStub) stub).getBlockFields() == null) {
+                return TYPES_N_VALUES;
+            }
+            return TYPES;
+        }
+        if (stub instanceof RsLifetimeParameterStub) {
+            return LIFETIMES;
+        }
+        if (stub instanceof RsMacroStub || stub instanceof RsMacro2Stub) {
+            return MACROS_NS;
+        }
+        return TYPES_N_VALUES;
+    }
+
+    /** The namespaces the items imported by {@code useSpeck} live in. */
+    @Nonnull
+    public static Set<Namespace> getUseSpeckNamespaces(@Nonnull RsUseSpeck useSpeck) {
+        RsPath path = useSpeck.getPath();
+        if (path == null) return EnumSet.noneOf(Namespace.class);
+        RsPathReference reference = path.getReference();
+        if (reference == null) return EnumSet.noneOf(Namespace.class);
+        Set<Namespace> result = EnumSet.noneOf(Namespace.class);
+        for (RsElement element : reference.multiResolveIfVisible()) {
+            if (element instanceof RsNamedElement) {
+                result.addAll(getNamespaces((RsNamedElement) element));
+            }
+        }
+        return result;
+    }
+}

@@ -16,9 +16,9 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import org.rust.cargo.project.model.impl.CargoProjectsServiceImpl;
-import org.rust.cargo.project.workspace.CargoWorkspace;
-import org.rust.cargo.project.workspace.PackageOrigin;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.PackageOrigin;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.RsModDeclItem;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
@@ -33,7 +33,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import consulo.navigation.OpenFileDescriptorFactory;
 import org.rust.cargo.project.model.impl.CargoProjectsServiceImplUtil;
-import org.rust.lang.core.psi.ext.RsQualifiedNamedElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsQualifiedNamedElementUtil;
 
 public final class CargoTestLocator implements SMTestLocator {
 
@@ -87,7 +87,7 @@ public final class CargoTestLocator implements SMTestLocator {
                 sourceElement = null;
             }
             if (sourceElement instanceof RsQualifiedNamedElement) {
-                String elemQualName = org.rust.lang.core.psi.ext.RsQualifiedNamedElementUtil.getQualifiedName((RsQualifiedNamedElement) sourceElement);
+                String elemQualName = org.rust.lang.core.psi.ext.impl.RsQualifiedNamedElementUtil.getQualifiedName((RsQualifiedNamedElement) sourceElement);
                 if (qualifiedName.equals(elemQualName)) {
                     result.add(getLocation(project, sourceElement, lineNum));
                 }
@@ -126,13 +126,13 @@ public final class CargoTestLocator implements SMTestLocator {
 
     @Nonnull
     public static String getTestUrl(@Nonnull RsQualifiedNamedElement function) {
-        String qualifiedName = org.rust.lang.core.psi.ext.RsQualifiedNamedElementUtil.getQualifiedName(function);
+        String qualifiedName = org.rust.lang.core.psi.ext.impl.RsQualifiedNamedElementUtil.getQualifiedName(function);
         return getTestUrl(qualifiedName != null ? qualifiedName : "");
     }
 
     @Nonnull
     public static String getTestUrl(@Nonnull DocTestContext ctx) {
-        String ownerQualifiedName = org.rust.lang.core.psi.ext.RsQualifiedNamedElementUtil.getQualifiedName(ctx.getOwner());
+        String ownerQualifiedName = org.rust.lang.core.psi.ext.impl.RsQualifiedNamedElementUtil.getQualifiedName(ctx.getOwner());
         String owner = ownerQualifiedName != null ? ownerQualifiedName : "";
         return getTestUrl(owner + "#" + ctx.getLineNumber());
     }

@@ -11,6 +11,7 @@ import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiReference;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 
 

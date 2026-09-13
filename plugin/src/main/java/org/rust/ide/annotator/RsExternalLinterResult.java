@@ -6,7 +6,7 @@
 package org.rust.ide.annotator;
 
 import jakarta.annotation.Nonnull;
-import org.rust.cargo.toolchain.impl.RustcMessage;
+import org.rust.cargo.api.toolchain.RustcMessage;
 import org.rust.openapiext.JsonUtils;
 
 import java.util.ArrayList;

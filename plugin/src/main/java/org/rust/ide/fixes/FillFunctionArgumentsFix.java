@@ -5,7 +5,7 @@
 
 package org.rust.ide.fixes;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.codeEditor.Editor;
 import consulo.project.Project;
 import consulo.language.psi.PsiElement;
@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import consulo.localize.LocalizeValue;
+import org.rust.ide.utils.RsDefaultValueBuilder;
+import org.rust.lang.core.psi.impl.*;
 
 public class FillFunctionArgumentsFix extends RsQuickFixBase<PsiElement> {
 

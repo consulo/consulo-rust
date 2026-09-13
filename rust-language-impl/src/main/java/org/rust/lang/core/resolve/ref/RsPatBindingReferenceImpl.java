@@ -1,0 +1,50 @@
+/*
+ * Use of this source code is governed by the MIT license that can be
+ * found in the LICENSE file.
+ */
+
+package org.rust.lang.core.resolve.ref;
+
+import consulo.language.psi.PsiElement;
+import jakarta.annotation.Nonnull;
+import org.rust.lang.core.psi.RsNamedFieldDecl;
+import org.rust.lang.core.psi.RsPatBinding;
+import org.rust.lang.core.psi.RsPatField;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
+import org.rust.lang.core.psi.ext.RsElement;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
+import org.rust.lang.core.resolve.NameResolution;
+
+import java.util.List;
+
+public class RsPatBindingReferenceImpl extends RsReferenceCached<RsPatBinding> {
+
+    public RsPatBindingReferenceImpl(@Nonnull RsPatBinding element) {
+        super(element);
+    }
+
+    @Nonnull
+    @Override
+    protected List<RsElement> resolveInner() {
+        return NameResolution.collectResolveVariants(getElement().getReferenceName(), processor ->
+            NameResolution.processPatBindingResolveVariants(getElement(), false, processor)
+        );
+    }
+
+    @Override
+    public boolean isReferenceTo(@Nonnull PsiElement element) {
+        if (!(element instanceof RsElement)) return false;
+        if (!RsPsiJavaUtil.isConstantLike(element) && !(element instanceof RsNamedFieldDecl)) return false;
+        return super.isReferenceTo(element);
+    }
+
+    @Override
+    public PsiElement handleElementRename(@Nonnull String newName) {
+        if (!(getElement().getParent() instanceof RsPatField)) {
+            return super.handleElementRename(newName);
+        }
+        RsPsiFactory psiFactory = new RsPsiFactory(getElement().getProject(), true, false);
+        PsiElement newPatField = psiFactory.createPatFieldFull(newName, getElement().getText());
+        return getElement().replace(newPatField);
+    }
+}

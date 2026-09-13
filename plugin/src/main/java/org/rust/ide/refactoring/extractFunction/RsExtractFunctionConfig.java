@@ -19,12 +19,13 @@ import org.rust.lang.core.types.ty.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
-import org.rust.ide.presentation.TypeRendering;
-import org.rust.lang.core.psi.ext.RsStmtUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
+import org.rust.lang.core.presentation.TypeRendering;
+import org.rust.lang.core.psi.ext.impl.RsStmtUtil;
 import consulo.language.ast.IElementType;
 import consulo.language.psi.PsiReference;
 import org.rust.ide.utils.SearchByOffset;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class RsExtractFunctionConfig extends RsFunctionSignatureConfig {
     @Nonnull

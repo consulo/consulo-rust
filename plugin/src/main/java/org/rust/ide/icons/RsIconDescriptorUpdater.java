@@ -29,9 +29,9 @@ import consulo.ui.image.Image;
 import consulo.language.psi.PsiFile;
 import jakarta.annotation.Nullable;
 import org.rust.lang.RsConstants;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.cargo.CargoConstants;
-import org.rust.cargo.project.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.CargoWorkspace;
 
 /**
  * Supplies the icon for every Rust PSI element, and for the Cargo manifest and lock files.

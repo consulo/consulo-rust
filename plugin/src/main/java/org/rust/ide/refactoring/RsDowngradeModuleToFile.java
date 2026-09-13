@@ -18,7 +18,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.RsConstants;
 import org.rust.lang.RsLanguage;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.openapiext.OpenApiUtil;
 import consulo.language.psi.PsiFile;
 import consulo.annotation.component.ActionImpl;

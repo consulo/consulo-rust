@@ -17,6 +17,7 @@ import org.rust.lang.core.psi.ext.RsOuterAttributeOwner;
 
 import java.util.List;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class ReplaceIncDecOperatorFix extends RsQuickFixBase<PsiElement> {
 

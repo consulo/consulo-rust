@@ -17,13 +17,13 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import org.rust.RsBundle;
-import org.rust.cargo.project.model.CargoProjectsUtil;
-import org.rust.cargo.project.workspace.CargoWorkspace;
-import org.rust.ide.notifications.NotificationUtils;
+import org.rust.cargo.api.model.CargoProjectsUtil;
+import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.notifications.NotificationUtils;
 import org.rust.lang.RsConstants;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsElementUtil;
-import org.rust.lang.core.psi.ext.RsItemsOwnerUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsItemsOwnerUtil;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.openapiext.VirtualFileExtUtil;
 
@@ -31,9 +31,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
-import org.rust.lang.core.psi.ext.RsFileUtil;
+import org.rust.lang.core.psi.ext.impl.RsFileUtil;
 import consulo.localize.LocalizeValue;
 import consulo.ui.ex.awt.DialogBuilder;
+import org.rust.lang.core.psi.impl.*;
 
 /**
  * Attaches a file to a Rust module.
@@ -139,8 +140,8 @@ public class AttachFileToModuleFix extends LocalQuickFixOnPsiElement {
             RsFile modFile = findModule(file, project, directory.getParent() != null ? directory.getParent().findFileByRelativePath(RsConstants.MOD_RS_FILE) : null);
             if (modFile != null) modules.add(modFile);
 
-            for (Object target : ((org.rust.cargo.project.workspace.CargoWorkspace.Package) pkg).getTargets()) {
-                VirtualFile crateRoot = ((org.rust.cargo.project.workspace.CargoWorkspace.Target) target).getCrateRoot();
+            for (Object target : ((org.rust.cargo.api.workspace.CargoWorkspace.Package) pkg).getTargets()) {
+                VirtualFile crateRoot = ((org.rust.cargo.api.workspace.CargoWorkspace.Target) target).getCrateRoot();
                 if (crateRoot == null) continue;
                 if (crateRoot.getParent() == directory.getParent()) {
                     PsiFile psiFile = VirtualFileExtUtil.toPsiFile(crateRoot, project);
@@ -152,14 +153,14 @@ public class AttachFileToModuleFix extends LocalQuickFixOnPsiElement {
             RsFile modFile = findModule(file, project, directory.findFileByRelativePath(RsConstants.MOD_RS_FILE));
             if (modFile != null) modules.add(modFile);
 
-            if (((org.rust.cargo.project.workspace.CargoWorkspace.Package) pkg).getEdition().compareTo(CargoWorkspace.Edition.EDITION_2018) >= 0) {
+            if (((org.rust.cargo.api.workspace.CargoWorkspace.Package) pkg).getEdition().compareTo(CargoWorkspace.Edition.EDITION_2018) >= 0) {
                 RsFile parentModFile = findModule(file, project,
                     directory.getParent() != null ? directory.getParent().findFileByRelativePath(directory.getName() + ".rs") : null);
                 if (parentModFile != null) modules.add(parentModFile);
             }
 
-            for (Object target : ((org.rust.cargo.project.workspace.CargoWorkspace.Package) pkg).getTargets()) {
-                VirtualFile crateRoot = ((org.rust.cargo.project.workspace.CargoWorkspace.Target) target).getCrateRoot();
+            for (Object target : ((org.rust.cargo.api.workspace.CargoWorkspace.Package) pkg).getTargets()) {
+                VirtualFile crateRoot = ((org.rust.cargo.api.workspace.CargoWorkspace.Target) target).getCrateRoot();
                 if (crateRoot == null) continue;
                 if (crateRoot.getParent() == directory) {
                     PsiFile psiFile = VirtualFileExtUtil.toPsiFile(crateRoot, project);

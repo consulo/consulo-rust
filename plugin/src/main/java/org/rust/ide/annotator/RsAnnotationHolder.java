@@ -13,7 +13,7 @@ import consulo.language.editor.annotation.HighlightSeverity;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 
 public class RsAnnotationHolder {
     @Nonnull

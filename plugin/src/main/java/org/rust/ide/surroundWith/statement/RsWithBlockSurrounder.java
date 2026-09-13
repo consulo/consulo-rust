@@ -9,8 +9,8 @@ import consulo.project.Project;
 import consulo.util.lang.Pair;
 import org.rust.lang.core.psi.RsBlock;
 import org.rust.lang.core.psi.RsBlockExpr;
-import org.rust.lang.core.psi.RsPsiFactory;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import consulo.localize.LocalizeValue;
 
 public class RsWithBlockSurrounder extends RsStatementsSurrounderBase.SimpleBlock<RsBlockExpr> {

@@ -20,8 +20,10 @@ import org.rust.lang.core.types.ty.TyUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import org.rust.lang.core.psi.ext.RsElement;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class RsChangeFunctionSignatureConfig extends RsFunctionSignatureConfig {
     @Nonnull

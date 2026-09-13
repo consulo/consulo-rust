@@ -13,7 +13,7 @@ import consulo.codeEditor.Editor;
 import consulo.language.psi.PsiFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.lang.core.psi.RsFileBase;
+import org.rust.lang.core.psi.impl.RsFileBase;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.language.Language;
 import org.rust.lang.RsLanguage;

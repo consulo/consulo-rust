@@ -12,7 +12,7 @@ import consulo.util.lang.function.Condition;
 import consulo.language.psi.PsiElement;
 import org.rust.lang.core.psi.RsBlock;
 import org.rust.lang.core.psi.RsExpr;
-import org.rust.lang.core.psi.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.RsTypeReference;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.TyBool;

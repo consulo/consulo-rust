@@ -14,19 +14,18 @@ import consulo.application.progress.ProgressManager;
 import consulo.component.ProcessCanceledException;
 import org.rust.RsBundle;
 import org.rust.cargo.CargoConstants;
-import org.rust.cargo.project.model.CargoProject;
-import org.rust.cargo.project.model.CargoProjectsService;
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.api.model.CargoProjectsService;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import org.rust.cargo.project.model.impl.CargoProjectsServiceImpl;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
-import org.rust.lang.core.macros.MacroExpansionTaskListener;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import org.rust.RsProjectTaskQueueService;
 import jakarta.annotation.Nonnull;
 
 import java.nio.file.Files;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import org.rust.cargo.project.model.CargoProjectsRefreshListener;
+import org.rust.cargo.api.model.CargoProjectsRefreshListener;
 
 public class CargoCommandLineInspectionProjectConfigurator implements CommandLineInspectionProjectConfigurator {
 
@@ -67,7 +66,6 @@ public class CargoCommandLineInspectionProjectConfigurator implements CommandLin
 
         CountDownLatch refreshStarted = new CountDownLatch(1);
         CountDownLatch refreshFinished = new CountDownLatch(1);
-        CountDownLatch macroExpansionFinished = new CountDownLatch(1);
         var connection = project.getMessageBus().connect();
         connection.subscribe(
             CargoProjectsService.CARGO_PROJECTS_REFRESH_TOPIC,
@@ -82,15 +80,6 @@ public class CargoCommandLineInspectionProjectConfigurator implements CommandLin
                 public void onRefreshFinished(@Nonnull CargoProjectsService.CargoRefreshStatus status) {
                     logger.info("Cargo project model loading finished: " + status);
                     refreshFinished.countDown();
-                }
-            }
-        );
-        connection.subscribe(
-            MacroExpansionTaskListener.MACRO_EXPANSION_TASK_TOPIC,
-            new MacroExpansionTaskListener() {
-                @Override
-                public void onMacroExpansionTaskFinished() {
-                    macroExpansionFinished.countDown();
                 }
             }
         );
@@ -117,8 +106,6 @@ public class CargoCommandLineInspectionProjectConfigurator implements CommandLin
             }
         }
 
-        logger.info("Expanding Rust macros...");
-        awaitWithCheckCanceled(macroExpansionFinished);
 
         // Ensure all Rust plugin tasks has been finished
         var taskQueue = RsProjectTaskQueueService.getInstance(project);
@@ -131,7 +118,7 @@ public class CargoCommandLineInspectionProjectConfigurator implements CommandLin
                 }
             }
         }
-        logger.info("Rust macro expansion has been finished");
+        logger.info("Rust plugin tasks have been finished");
     }
 
     private static class LoggerWrapper {

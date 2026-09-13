@@ -5,7 +5,7 @@
 
 package org.rust.ide.utils.template;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.language.editor.template.Template;
 import consulo.language.editor.template.event.TemplateEditingAdapter;
 import consulo.language.inject.InjectedLanguageManager;

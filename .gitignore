@@ -3,9 +3,7 @@
 *.iml
 .DS_Store
 
-# Build output. Anchored, so a source package that happens to be called
-# `target` or `build` is not swallowed along with it.
-/target/
+target/
 /plugin/target/
 /plugin/build/
 /legacy/*/build/

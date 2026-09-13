@@ -5,6 +5,7 @@
 
 package org.rust.cargo.toolchain.tools;
 
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.process.event.ProcessListener;
 import consulo.process.util.ProcessOutput;
 import consulo.project.ui.notification.NotificationType;
@@ -14,12 +15,12 @@ import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import org.rust.cargo.toolchain.RsToolchainBase;
 import org.rust.cargo.util.DownloadResult;
-import org.rust.ide.actions.InstallComponentAction;
-import org.rust.ide.actions.InstallTargetAction;
-import org.rust.ide.notifications.NotificationUtils;
+import org.rust.cargo.toolchain.actions.InstallComponentAction;
+import org.rust.cargo.toolchain.actions.InstallTargetAction;
+import org.rust.notifications.NotificationUtils;
 import org.rust.openapiext.*;
 import org.rust.stdext.RsResult;
 
@@ -310,7 +311,7 @@ public class Rustup extends RsTool {
         String componentName,
         String componentPresentableName
     ) {
-        RsToolchainBase toolchain = RsProjectSettingsServiceUtil.getToolchain(project);
+        RsToolchainBase toolchain = RsToolchainLocator.getToolchain(project);
         if (toolchain == null) return false;
         Rustup rustup = create(toolchain, cargoProjectDirectory);
         if (rustup == null) return false;
@@ -333,7 +334,7 @@ public class Rustup extends RsTool {
         Path cargoProjectDirectory,
         String targetName
     ) {
-        RsToolchainBase toolchain = RsProjectSettingsServiceUtil.getToolchain(project);
+        RsToolchainBase toolchain = RsToolchainLocator.getToolchain(project);
         if (toolchain == null) return false;
         Rustup rustup = create(toolchain, cargoProjectDirectory);
         if (rustup == null) return false;

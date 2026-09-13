@@ -15,7 +15,7 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.refactoring.RsPromoteModuleToDirectoryAction;
 import org.rust.lang.RsConstants;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.RsModDeclItem;
 
 import java.util.List;

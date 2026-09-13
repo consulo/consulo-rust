@@ -17,7 +17,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.ide.intentions.util.macros.IntentionInMacroUtil;
 import org.rust.ide.intentions.util.macros.RsIntentionInsideMacroExpansionEditor;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import org.rust.openapiext.OpenApiUtil;
 
 /**

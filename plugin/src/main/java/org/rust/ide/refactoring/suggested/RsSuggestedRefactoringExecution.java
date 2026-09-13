@@ -21,7 +21,7 @@ import org.rust.lang.core.psi.RsFunction;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.rust.lang.core.psi.ext.RsValueParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsValueParameterUtil;
 
 public class RsSuggestedRefactoringExecution extends SuggestedRefactoringExecution {
 

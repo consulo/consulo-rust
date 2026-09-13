@@ -6,7 +6,7 @@
 package org.rust.toml.resolve;
 import consulo.language.psi.PsiReferenceProvider;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.PsiReference;
@@ -35,10 +35,10 @@ import consulo.language.psi.ContributedReferenceHost;
 import consulo.language.psi.SyntaxTraverser;
 import consulo.language.util.ProcessingContext;
 import jakarta.annotation.Nonnull;
-import org.rust.cargo.project.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.lang.core.psi.RsLitExpr;
-import org.rust.lang.core.psi.RsLiteralKind;
-import org.rust.lang.core.psi.RsLiteralKindUtil;
+import org.rust.lang.core.psi.impl.RsLiteralKind;
+import org.rust.lang.core.psi.impl.RsLiteralKindUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.toml.Util;
 import org.toml.lang.psi.TomlFile;

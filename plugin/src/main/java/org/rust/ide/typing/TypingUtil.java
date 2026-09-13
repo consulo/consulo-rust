@@ -15,7 +15,7 @@ import consulo.util.lang.CharSequenceSubSequence;
 import consulo.util.lang.Pair;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.lang.core.psi.RsLiteralKind;
+import org.rust.lang.core.psi.impl.RsLiteralKind;
 
 public final class TypingUtil {
 

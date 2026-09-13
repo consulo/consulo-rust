@@ -5,9 +5,10 @@
 
 package org.rust.cargo.runconfig.test;
 
+
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
-import org.rust.cargo.project.workspace.CargoWorkspace;
+import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsMod;

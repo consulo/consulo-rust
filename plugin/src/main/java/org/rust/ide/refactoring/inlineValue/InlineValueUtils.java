@@ -9,6 +9,7 @@ import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsElement;
+import org.rust.lang.core.psi.impl.*;
 
 /**
  * Utility methods for inline value refactoring.

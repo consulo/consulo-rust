@@ -14,13 +14,14 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.ide.intentions.util.macros.InvokeInside;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.PsiElementExt;
+import org.rust.lang.core.psi.ext.impl.PsiElementExt;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsPathUtil;
-import org.rust.openapiext.EditorExt;
+import org.rust.lang.core.psi.ext.impl.RsPathUtil;
+import org.rust.openapiext.ui.EditorExt;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class NestUseStatementsIntention extends RsElementBaseIntentionAction<NestUseStatementsIntention.Context> {
     @Nonnull

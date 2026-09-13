@@ -4,6 +4,7 @@
  */
 
 package org.rust.ide.annotator;
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.language.editor.FileStatusMap;
 
 import org.rust.stdext.Lazy;
@@ -32,20 +33,20 @@ import consulo.language.editor.DaemonCodeAnalyzer;
 import consulo.application.progress.EmptyProgressIndicator;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.cargo.project.workspace.PackageOrigin;
-import org.rust.cargo.toolchain.impl.RustcMessage;
+import org.rust.cargo.api.workspace.PackageOrigin;
+import org.rust.cargo.api.toolchain.RustcMessage;
 import org.rust.cargo.toolchain.tools.CargoCheckArgs;
 import org.rust.ide.notifications.RsExternalLinterSlowRunNotifier;
-import org.rust.lang.core.psi.RsFile;
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.impl.RsFile;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
-import org.rust.lang.core.psi.ext.RsElementExtUtil;
-import org.rust.cargo.project.workspace.CargoWorkspace;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementExtUtil;
+import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.cargo.toolchain.RsToolchainBase;
 
 public class RsExternalLinterPass extends TextEditorHighlightingPass implements DumbAware {
@@ -77,7 +78,7 @@ public class RsExternalLinterPass extends TextEditorHighlightingPass implements 
         myHighlights.clear();
         if (!(myFile instanceof RsFile) || !isAnnotationPassEnabled()) return;
 
-        org.rust.cargo.project.workspace.CargoWorkspace.Target cargoTarget = RsElementExtUtil.getContainingCargoTarget(myFile);
+        org.rust.cargo.api.workspace.CargoWorkspace.Target cargoTarget = RsElementExtUtil.getContainingCargoTarget(myFile);
         if (cargoTarget == null) return;
         if (cargoTarget.getPkg().getOrigin() != PackageOrigin.WORKSPACE) return;
 
@@ -87,7 +88,7 @@ public class RsExternalLinterPass extends TextEditorHighlightingPass implements 
         Disposer.register(moduleOrProject, myDisposable);
 
         CargoCheckArgs args = CargoCheckArgs.forTarget(myProject, cargoTarget);
-        RsToolchainBase toolchain = RsProjectSettingsServiceUtil.getToolchain(myProject);
+        RsToolchainBase toolchain = RsToolchainLocator.getToolchain(myProject);
         if (toolchain == null) return;
 
         myAnnotationInfo = RsExternalLinterUtils.checkLazily(

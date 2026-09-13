@@ -19,7 +19,7 @@ import consulo.ui.ex.awt.JBUI;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.RsLanguage;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.ext.RsAbstractable;
 import org.rust.lang.core.psi.ext.RsElement;
 

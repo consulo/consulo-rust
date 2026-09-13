@@ -10,7 +10,7 @@ import consulo.language.psi.PsiElementVisitor;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.CargoConstants;
-import org.rust.ide.experiments.RsExperiments;
+import org.rust.experiments.RsExperiments;
 import org.rust.openapiext.OpenApiUtil;
 import org.toml.lang.psi.TomlVisitor;
 

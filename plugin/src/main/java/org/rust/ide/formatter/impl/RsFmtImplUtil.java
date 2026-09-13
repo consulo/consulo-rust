@@ -23,6 +23,7 @@ import java.util.function.Predicate;
 
 import static org.rust.lang.core.psi.RsElementTypes.*;
 import static org.rust.lang.core.psi.RsTokenType.tokenSetOf;
+import org.rust.lang.core.psi.impl.*;
 
 public final class RsFmtImplUtil {
 

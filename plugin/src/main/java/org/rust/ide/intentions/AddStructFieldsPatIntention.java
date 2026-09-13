@@ -12,8 +12,9 @@ import org.rust.RsBundle;
 import org.rust.ide.utils.PsiModificationUtil;
 import org.rust.ide.utils.StructFieldsExpander;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class AddStructFieldsPatIntention extends RsElementBaseIntentionAction<AddStructFieldsPatIntention.Context> {
 

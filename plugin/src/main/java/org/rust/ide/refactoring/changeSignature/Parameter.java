@@ -9,6 +9,7 @@ import consulo.language.editor.refactoring.changeSignature.ParameterInfo;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.*;
+import org.rust.lang.core.psi.impl.*;
 
 public class Parameter {
     @Nonnull

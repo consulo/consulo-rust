@@ -8,21 +8,21 @@ package org.rust.ide.inspections;
 import consulo.language.editor.inspection.LocalQuickFix;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.cargo.project.workspace.PackageOrigin;
+import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.ide.fixes.ConvertTypeReferenceFix;
-import org.rust.ide.presentation.TypeRendering;
+import org.rust.lang.core.presentation.TypeRendering;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.TyInteger;
-import org.rust.lang.utils.RsDiagnostic;
 
 import java.util.List;
-import org.rust.lang.core.psi.RsLiteralKindUtil;
+import org.rust.lang.core.psi.impl.RsLiteralKindUtil;
 import org.rust.lang.utils.evaluation.ConstExprEvaluator;
 import consulo.localize.LocalizeValue;
 import org.rust.RsBundle;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.impl.*;
 
 @ExtensionImpl
 public class RsLiteralOutOfRangeInspection extends RsLocalInspectionTool {

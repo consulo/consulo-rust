@@ -18,15 +18,15 @@ import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import org.rust.RsBundle;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
-import org.rust.cargo.toolchain.ExternalLinter;
-import org.rust.cargo.toolchain.RustChannel;
-import org.rust.cargo.util.CargoCommandCompletionProvider;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.toolchain.ExternalLinter;
+import org.rust.cargo.api.toolchain.RustChannel;
+import org.rust.ide.cargo.completion.CargoCommandCompletionProvider;
 import org.rust.cargo.util.RsCommandLineEditor;
 
 import consulo.ui.ex.awt.FormBuilder;
 import consulo.ui.ex.awt.UIUtil;
-import org.rust.cargo.project.settings.RsExternalLinterProjectSettingsService;
+import org.rust.cargo.api.settings.RsExternalLinterProjectSettingsService;
 
 import javax.swing.*;
 import java.awt.BorderLayout;

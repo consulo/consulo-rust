@@ -14,9 +14,10 @@ import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.types.infer.TypeInference;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.*;
-import org.rust.lang.core.psi.ext.RsSelfParameterUtil;
-import org.rust.lang.core.psi.ext.RsTraitItemUtil;
+import org.rust.lang.core.psi.ext.impl.RsSelfParameterUtil;
+import org.rust.lang.core.psi.ext.impl.RsTraitItemUtil;
 import org.rust.lang.core.psi.ext.RsElement;
+import org.rust.lang.core.psi.ext.impl.*;
 
 public class RsTypeDeclarationProvider extends TypeDeclarationProvider {
 

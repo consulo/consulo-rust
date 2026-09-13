@@ -5,6 +5,7 @@
 
 package org.rust.ide.actions;
 
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.process.ExecutionException;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.language.editor.CommonDataKeys;
@@ -15,13 +16,13 @@ import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.ui.ex.action.LegacyDumbAwareAction;
 import org.rust.RsBundle;
-import org.rust.cargo.project.model.CargoProject;
+import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.project.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
-import org.rust.cargo.toolchain.tools.Rustfmt;
+import org.rust.ide.rustfmt.Rustfmt;
 import org.rust.cargo.toolchain.tools.Rustup;
-import org.rust.lang.core.psi.RsFile;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.openapiext.OpenApiUtil;
 import consulo.annotation.component.ActionImpl;
 import consulo.annotation.component.ActionParentRef;
@@ -66,14 +67,14 @@ public class RustfmtFileAction extends LegacyDumbAwareAction {
     }
 
     private String reformatDocumentAndGetText(CargoProject cargoProject, Rustfmt rustfmt, Document document) {
-        if (Rustup.checkNeedInstallRustfmt(cargoProject.getProject(), CargoCommandConfiguration.getWorkingDirectory(cargoProject))) return null;
+        if (Rustup.checkNeedInstallRustfmt(cargoProject.getProject(), org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(cargoProject))) return null;
         return rustfmt.reformatDocumentTextOrNull(cargoProject, document);
     }
 
     private Context getContext(AnActionEvent e) {
         Project project = e.getData(consulo.project.Project.KEY);
         if (project == null) return null;
-        var toolchain = RsProjectSettingsServiceUtil.getToolchain(project);
+        var toolchain = RsToolchainLocator.getToolchain(project);
         if (toolchain == null) return null;
         Rustfmt rustfmt = Rustfmt.rustfmt(toolchain);
         if (rustfmt == null) return null;

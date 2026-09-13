@@ -5,7 +5,7 @@
 
 package org.rust.ide.refactoring.inlineFunction;
 
-import org.rust.lang.core.psi.ext.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.project.Project;
 import consulo.language.psi.PsiReference;
 import consulo.language.editor.refactoring.RefactoringBundle;
@@ -16,7 +16,7 @@ import org.rust.ide.refactoring.RsInlineDialog;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsUseItem;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsFunctionUtil;
+import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 import org.rust.lang.core.resolve.ref.RsReference;
 
 public class RsInlineFunctionDialog extends RsInlineDialog {

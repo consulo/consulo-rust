@@ -16,27 +16,28 @@ import consulo.language.psi.search.ReferencesSearch;
 import consulo.language.psi.util.PsiTreeUtil;
 import org.rust.RsBundle;
 import org.rust.ide.intentions.util.macros.InvokeInside;
-import org.rust.ide.presentation.TypeRendering;
+import org.rust.lang.core.presentation.TypeRendering;
 import org.rust.ide.refactoring.ExtraxtExpressionUtils;
-import org.rust.ide.utils.imports.ImportBridge;
+import org.rust.lang.core.imports.ImportBridge;
 import org.rust.ide.utils.template.EditorExt;
 import org.rust.ide.utils.template.RsTemplateBuilder;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsPsiJavaUtil;
+import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.TyAdt;
 import org.rust.lang.core.types.ty.TyTuple;
 import org.rust.lang.core.types.ty.Ty;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.openapiext.SmartPointerUtil;
-import org.rust.lang.core.psi.ext.RsFieldsOwnerUtil;
+import org.rust.lang.core.psi.ext.impl.RsFieldsOwnerUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import org.rust.lang.core.psi.ext.RsStructItemUtil;
+import org.rust.lang.core.psi.ext.impl.RsStructItemUtil;
 import org.rust.lang.core.psi.ext.RsMod;
 import consulo.localize.LocalizeValue;
+import org.rust.lang.core.psi.impl.*;
 
 public class DestructureIntention extends RsElementBaseIntentionAction<DestructureIntention.Context> {
 

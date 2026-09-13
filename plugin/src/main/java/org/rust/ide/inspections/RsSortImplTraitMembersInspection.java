@@ -22,10 +22,11 @@ import org.rust.openapiext.Testmark;
 
 import java.util.*;
 import consulo.util.lang.Pair;
-import org.rust.lang.core.psi.ext.RsTraitRefUtil;
+import org.rust.lang.core.psi.ext.impl.RsTraitRefUtil;
 import consulo.localize.LocalizeValue;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.annotation.component.ExtensionImpl;
+import org.rust.lang.core.psi.ext.impl.*;
 
 @ExtensionImpl
 public class RsSortImplTraitMembersInspection extends RsLocalInspectionTool {
