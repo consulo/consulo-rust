@@ -339,17 +339,37 @@ public class ImplLookup {
         @Nonnull TyFingerprint tyf,
         @Nonnull RsProcessor<RsCachedImplItem> processor
     ) {
+        boolean diag = TyFingerprint.TYPE_PARAMETER_OR_MACRO_FINGERPRINT.equals(tyf);
+        int diagTotal = 0, diagNullField = 0, diagNegative = 0, diagCombineFail = 0, diagNoTrait = 0, diagOk = 0;
         for (RsCachedImplItem cachedImpl : findPotentialImpls(tyf)) {
-            if (cachedImpl.isNegativeImpl()) continue;
+            diagTotal++;
+            if (cachedImpl.isNegativeImpl()) { diagNegative++; continue; }
             Ty type = cachedImpl.getType();
             List<TyTypeParameter> generics = cachedImpl.getGenerics();
             List<CtConstParameter> constGenerics = cachedImpl.getConstGenerics();
-            if (type == null || generics == null || constGenerics == null) continue;
-            boolean isAppropriateImpl = canCombineTypes(selfTy, type, generics, constGenerics)
-                && (cachedImpl.isInherent() || cachedImpl.getImplementedTrait() != null);
-            if (isAppropriateImpl && processor.process(cachedImpl)) return true;
+            if (type == null || generics == null || constGenerics == null) { diagNullField++; continue; }
+            boolean combine = canCombineTypes(selfTy, type, generics, constGenerics);
+            boolean hasTrait = cachedImpl.isInherent() || cachedImpl.getImplementedTrait() != null;
+            if (!combine) diagCombineFail++;
+            else if (!hasTrait) diagNoTrait++;
+            boolean isAppropriateImpl = combine && hasTrait;
+            if (isAppropriateImpl) {
+                diagOk++;
+                if (processor.process(cachedImpl)) {
+                    if (diag) logBlanket(selfTy, diagTotal, diagNegative, diagNullField, diagCombineFail, diagNoTrait, diagOk);
+                    return true;
+                }
+            }
         }
+        if (diag) logBlanket(selfTy, diagTotal, diagNegative, diagNullField, diagCombineFail, diagNoTrait, diagOk);
         return false;
+    }
+
+    private static void logBlanket(Ty selfTy, int total, int negative, int nullField, int combineFail, int noTrait, int ok) {
+        consulo.logging.Logger.getInstance("BLANKETDIAG").warn(
+            "BLANKETDIAG selfTy=" + selfTy + " potentialBlanketImpls=" + total
+                + " negative=" + negative + " nullField=" + nullField
+                + " combineFail=" + combineFail + " noTrait=" + noTrait + " accepted=" + ok);
     }
 
     private boolean processTyFingerprintsWithAliases(@Nonnull Ty selfTy, @Nonnull RsProcessor<TyFingerprint> processor) {

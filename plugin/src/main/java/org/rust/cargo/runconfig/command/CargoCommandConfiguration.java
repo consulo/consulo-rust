@@ -11,18 +11,12 @@ import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.execution.RuntimeConfigurationWarning;
 
 import consulo.execution.executor.Executor;
-import com.intellij.execution.InputRedirectAware;
 import consulo.execution.configuration.EnvironmentVariablesData;
-import consulo.execution.configuration.LocatableConfigurationBase;
 import consulo.execution.configuration.ConfigurationFactory;
 import consulo.execution.configuration.RunConfiguration;
 import consulo.execution.configuration.RunProfileState;
 import consulo.execution.configuration.RuntimeConfigurationError;
 import consulo.execution.RuntimeConfigurationException;
-import com.intellij.execution.configurations.RunConfigurationWithSuppressedDefaultDebugAction;
-import com.intellij.execution.configurations.PtyCommandLine;
-import consulo.process.cmd.GeneralCommandLine;
-import consulo.process.cmd.ParametersList;
 import consulo.execution.runner.ExecutionEnvironment;
 import com.intellij.execution.target.LanguageRuntimeType;
 import com.intellij.execution.target.TargetEnvironmentAwareRunProfile;
@@ -34,8 +28,6 @@ import consulo.execution.configuration.ui.SettingsEditor;
 import com.intellij.openapi.options.advanced.AdvancedSettings;
 import consulo.project.Project;
 import consulo.util.io.FileUtil;
-import consulo.virtualFileSystem.LocalFileSystem;
-import consulo.virtualFileSystem.VirtualFile;
 import consulo.process.cmd.ParametersListUtil;
 import consulo.util.lang.SemVer;
 import org.jdom.Element;
@@ -44,11 +36,6 @@ import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectLocator;
-import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.api.model.CargoProjectsService;
-import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
-import org.rust.cargo.api.workspace.CargoWorkspace;
-import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.cargo.runconfig.*;
 import org.rust.cargo.runconfig.target.BuildTarget;
 import org.rust.cargo.runconfig.target.RsLanguageRuntimeConfiguration;
@@ -61,11 +48,8 @@ import org.rust.cargo.toolchain.tools.Rustup;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import consulo.platform.Platform;
 
 /**
  * This class describes a Run Configuration.
@@ -73,7 +57,7 @@ import consulo.platform.Platform;
  * or displayed in the GUI form. It has to be mutable to satisfy various IDE's APIs.
  */
 public class CargoCommandConfiguration extends RsCommandConfiguration
-    implements InputRedirectAware.InputRedirectOptions, ConsolePropertiesProvider, TargetEnvironmentAwareRunProfile {
+    implements ConsolePropertiesProvider, TargetEnvironmentAwareRunProfile {
 
     private String command = "run";
     private RustChannel channel = RustChannel.DEFAULT;
