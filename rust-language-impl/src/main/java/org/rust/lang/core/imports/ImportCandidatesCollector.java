@@ -81,6 +81,11 @@ public final class ImportCandidatesCollector {
             org.rust.lang.core.psi.RsTraitItem requiredTrait = source.getRequiredTraitInScope();
             if (requiredTrait != null) traits.add(requiredTrait);
         }
+        // One usable trait is enough: if any of the candidates is already in scope the reference
+        // resolves as written, and the others are merely same-named traits from other crates.
+        for (org.rust.lang.core.psi.RsTraitItem trait : traits) {
+            if (isInScope(scope, trait)) return null;
+        }
         if (traits.isEmpty()) return null;
         ImportContext context = ImportContext.from(scope, ImportContext.Type.AUTO_IMPORT);
         if (context == null) return Collections.emptyList();
@@ -91,6 +96,19 @@ public final class ImportCandidatesCollector {
         }
         Collections.sort(result);
         return result;
+    }
+
+    /**
+     * Whether {@code trait}'s name already resolves to {@code trait} at {@code scope} - through a
+     * {@code use} anywhere up the scope chain, or through the prelude. Such a trait is usable where
+     * it stands and must not be offered as an import.
+     */
+    private static boolean isInScope(@Nonnull RsElement scope, @Nonnull RsTraitItem trait) {
+        String name = trait.getName();
+        if (name == null) return false;
+        RsNamedElement found = org.rust.lang.core.resolve.NameResolution.findInScope(
+            scope, name, org.rust.lang.core.resolve.Namespace.TYPES);
+        return found == trait || (found != null && found.isEquivalentTo(trait));
     }
 
     /**

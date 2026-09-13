@@ -124,20 +124,14 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
         Set<VirtualFile> visited = new HashSet<>();
         List<Map.Entry<CargoWorkspace.Package, CargoProjectImpl>> lowPriority = new ArrayList<>();
 
-        consulo.logging.Logger DIAG = consulo.logging.Logger.getInstance("CARGODIAG");
         BiConsumer<VirtualFile, CargoProjectImpl> put = (file, cargoProject) -> {
-            if (file == null) { DIAG.warn("CARGODIAG put SKIPPED null dir"); return; }
+            if (file == null) return;
             if (!visited.add(file)) return;
-            DIAG.warn("CARGODIAG put " + file.getPath());
             index.putInfo(file, cargoProject);
         };
 
         BiConsumer<CargoWorkspace.Package, CargoProjectImpl> putPackage = (pkg, cargoProject) -> {
-            VirtualFile cr = pkg.getContentRoot();
-            DIAG.warn("CARGODIAG pkg " + pkg.getName() + " origin=" + pkg.getOrigin()
-                + " contentRoot=" + (cr == null ? "NULL" : cr.getPath())
-                + " targets=" + pkg.getTargets().size());
-            put.accept(cr, cargoProject);
+            put.accept(pkg.getContentRoot(), cargoProject);
             put.accept(pkg.getOutDir(), cargoProject);
             for (VirtualFile additionalRoot : CargoWorkspace.additionalRoots(pkg)) {
                 put.accept(additionalRoot, cargoProject);
@@ -151,13 +145,9 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
         };
 
         for (CargoProjectImpl cargoProject : projects.getCurrentState()) {
-            VirtualFile diagRoot = cargoProject.getRootDir();
-            DIAG.warn("CARGODIAG project manifest=" + cargoProject.getManifest()
-                + " rootDir=" + (diagRoot == null ? "NULL" : diagRoot.getPath()));
-            put.accept(diagRoot, cargoProject);
+            put.accept(cargoProject.getRootDir(), cargoProject);
             CargoWorkspace workspace = cargoProject.getWorkspace();
-            if (workspace == null) { DIAG.warn("CARGODIAG workspace is NULL -> no packages indexed"); continue; }
-            DIAG.warn("CARGODIAG workspace packages=" + workspace.getPackages().size());
+            if (workspace == null) continue;
             for (CargoWorkspace.Package pkg : workspace.getPackages()) {
                 if (pkg.getOrigin() == PackageOrigin.WORKSPACE) {
                     putPackage.accept(pkg, cargoProject);
@@ -201,11 +191,6 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
         CargoProjectImpl info = directoryIndex.getInfoForFile(file);
         if (info == noProjectMarker && canonical != null && !canonical.equals(file)) {
             info = directoryIndex.getInfoForFile(canonical);
-        }
-        if (info == noProjectMarker) {
-            consulo.logging.Logger.getInstance("CARGODIAG").warn("CARGODIAG MISS " + file.getPath()
-                + " canonical=" + (canonical == null ? "null" : canonical.getPath())
-                + " projects=" + projects.getCurrentState().size());
         }
         return info == noProjectMarker ? null : info;
     }
@@ -417,21 +402,15 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
             refreshStatusPublisher.onRefreshStarted();
             return updater.apply(oldProjects);
         }).thenApply(newProjects -> {
-            invokeAndWaitIfNeeded(() -> WriteAction.run(() -> {
+            invokeAndWaitIfNeeded(() -> {
                 if (project.isDisposed()) return;
+                // Reads versions and may show a balloon - neither wants the write lock.
                 if (!newProjects.isEmpty()) {
                     checkRustVersion(newProjects);
                 }
-                directoryIndex.resetIndex();
-                project.getMessageBus().syncPublisher(CargoProjectsService.CARGO_PROJECTS_TOPIC)
-                    .cargoProjectsUpdated(this, Collections.unmodifiableList(new ArrayList<>(newProjects)));
                 initialized = true;
-                // A refreshed workspace changes which crate every file belongs to, and that is held in
-                // caches keyed on PSI. Without dropping them and restarting the daemon the editor keeps
-                // answering from the state it had before the sync - every file detached, nothing resolved.
-                PsiManager.getInstance(project).dropPsiCaches();
-                DaemonCodeAnalyzer.getInstance(project).restart();
-            }));
+                publishProjectsChanged(newProjects);
+            });
             return newProjects;
         }).handle((newProjects, err) -> {
             CargoRefreshStatus status = err == null ? CargoRefreshStatus.SUCCESS : toRefreshStatus(err);
@@ -453,16 +432,43 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
         @Nonnull Function<List<CargoProjectImpl>, List<CargoProjectImpl>> f
     ) {
         return projects.updateSync(f).thenApply(newProjects -> {
-            invokeAndWaitIfNeeded(() -> WriteAction.run(() -> {
-                if (project.isDisposed()) return;
-                directoryIndex.resetIndex();
-                project.getMessageBus().syncPublisher(CargoProjectsService.CARGO_PROJECTS_TOPIC)
-                    .cargoProjectsUpdated(this, Collections.unmodifiableList(new ArrayList<>(newProjects)));
-                PsiManager.getInstance(project).dropPsiCaches();
-                DaemonCodeAnalyzer.getInstance(project).restart();
-            }));
+            invokeAndWaitIfNeeded(() -> publishProjectsChanged(newProjects));
             return newProjects;
         });
+    }
+
+    /**
+     * Installs a new project list: drops everything keyed on the old one and tells the editor to
+     * re-analyse.
+     * <p>
+     * Which cargo project a file belongs to decides its crate, and the crate decides which impls
+     * resolve for it, so a project list that changes without this is a list the editor never sees -
+     * files stay detached and their trait methods stay unresolved.
+     * <p>
+     * Only the model update takes the write lock. The daemon restart is left outside it: obtaining
+     * {@link DaemonCodeAnalyzer} constructs it on first use, and constructing a service inside a
+     * write action trips the platform's deadlock guard while the project is still opening.
+     */
+    private void publishProjectsChanged(@Nonnull List<CargoProjectImpl> newProjects) {
+        if (project.isDisposed()) return;
+        PsiManager psiManager = PsiManager.getInstance(project);
+        WriteAction.run(() -> {
+            if (project.isDisposed()) return;
+            directoryIndex.resetIndex();
+            project.getMessageBus().syncPublisher(CargoProjectsService.CARGO_PROJECTS_TOPIC)
+                .cargoProjectsUpdated(this, Collections.unmodifiableList(new ArrayList<>(newProjects)));
+            psiManager.dropPsiCaches();
+        });
+        if (project.isDisposed()) return;
+        DaemonCodeAnalyzer.getInstance(project).restart();
+    }
+
+    /**
+     * The same, scheduled instead of run inline - {@link #loadState} is called while the project is
+     * still opening, where taking the write lock is not allowed.
+     */
+    private void publishProjectsChangedLater(@Nonnull List<CargoProjectImpl> newProjects) {
+        ApplicationManager.getApplication().invokeLater(() -> publishProjectsChanged(newProjects));
     }
 
     private static void invokeAndWaitIfNeeded(@Nonnull Runnable runnable) {
@@ -567,6 +573,10 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
         // the startup activity that runs once the project is open.
         projects.updateSync(ignored -> loaded);
         initialized = true;
+        // Registering the restored list silently would leave every consumer - the directory index, the
+        // crate graph, the PSI caches, the editor notifications - holding the state from before the
+        // project existed, and nothing later recomputes them on its own.
+        publishProjectsChangedLater(loaded);
     }
 
     /**

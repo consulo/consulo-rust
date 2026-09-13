@@ -28,11 +28,13 @@ public interface RsMetaItemPsiOrStub {
     String getValue();
 
     /**
-     * Returns the name of this meta item, derived from its path's reference name.
+     * The attribute's name, when its path is a single identifier - {@code derive} in
+     * {@code #[derive(Clone)]}. A qualified path such as {@code #[foo::bar]} has no simple name.
      */
     @Nullable
     default String getName() {
         RsPathPsiOrStub path = getPath();
-        return path != null ? path.getReferenceName() : null;
+        if (path == null || path.getHasColonColon()) return null;
+        return path.getReferenceName();
     }
 }

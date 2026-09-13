@@ -315,9 +315,12 @@ public class RsKeywordCompletionContributor extends CompletionContributor implem
         return psiElement().afterLeafSkipping(RsPsiPattern.whitespace, braceAfterIf);
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private PsiElementPattern.Capture<PsiElement> asPattern() {
-        return (PsiElementPattern.Capture<PsiElement>) (PsiElementPattern.Capture) StandardPatterns.or(
+    /**
+     * An {@code or} of several patterns, which is an {@link ElementPattern} and not a
+     * {@link PsiElementPattern} - the combinator has no single element type to capture.
+     */
+    private ElementPattern<PsiElement> asPattern() {
+        return StandardPatterns.or(
             afterExpr().andNot(psiElement().with(new PatternCondition<PsiElement>("isMacroCall") {
                 @Override
                 public boolean accepts(@Nonnull PsiElement psi, ProcessingContext context) {

@@ -23,6 +23,21 @@ public abstract class RsMetaItemImplMixin extends RsStubbedElementImpl<RsMetaIte
         super(stub, nodeType);
     }
 
+    /**
+     * The attribute's name, e.g. {@code derive} in {@code #[derive(Clone)]}.
+     * <p>
+     * Declared here and not left to the {@link org.rust.lang.core.stubs.common.RsMetaItemPsiOrStub}
+     * default: {@code PsiElementBase.getName()} returns {@code null}, and an inherited concrete
+     * method takes precedence over an interface default, so without this override every attribute
+     * would be nameless - which silently turns {@code #[derive(...)]} into an unrecognised attribute
+     * procedural macro and makes the item it annotates disappear from resolve.
+     */
+    @Nullable
+    @Override
+    public String getName() {
+        return RsMetaItemUtil.getName(this);
+    }
+
     @Override
     public boolean getHasEq() {
         RsMetaItemStub stub = getStub();

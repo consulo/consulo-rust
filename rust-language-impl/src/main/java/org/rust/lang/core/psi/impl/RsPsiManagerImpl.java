@@ -49,11 +49,22 @@ public class RsPsiManagerImpl implements RsPsiManager, Disposable {
     private final SimpleModificationTracker myRustStructureModificationTracker = new SimpleModificationTracker();
     @Nonnull
     private final SimpleModificationTracker myRustStructureModificationTrackerInDependencies = new SimpleModificationTracker();
+    /**
+     * The structure tracker plus the index state. Everything resolve-related is cached against this,
+     * and resolve reads stub indices: a result computed while indexing was still running saw an empty
+     * index and is wrong, but no PSI, root or cargo change follows to invalidate it. Folding the
+     * index state in retires those results when indexing completes.
+     */
+    @Nonnull
+    private final ModificationTracker myRustStructureAndIndexModificationTracker;
 
     @Inject
 
     public RsPsiManagerImpl(@Nonnull Project project) {
         myProject = project;
+        ModificationTracker indexState = DumbService.getInstance(project).getModificationTracker();
+        myRustStructureAndIndexModificationTracker =
+            () -> myRustStructureModificationTracker.getModificationCount() + indexState.getModificationCount();
         PsiManager.getInstance(project).addPsiTreeChangeListener(new CacheInvalidator(), this);
         project.getMessageBus().connect().subscribe(ModuleRootListener.class, new ModuleRootListener() {
             @Override
@@ -72,7 +83,7 @@ public class RsPsiManagerImpl implements RsPsiManager, Disposable {
     @Nonnull
     @Override
     public ModificationTracker getRustStructureModificationTracker() {
-        return myRustStructureModificationTracker;
+        return myRustStructureAndIndexModificationTracker;
     }
 
     @Nonnull

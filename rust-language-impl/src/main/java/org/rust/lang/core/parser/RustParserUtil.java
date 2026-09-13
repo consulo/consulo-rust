@@ -461,7 +461,9 @@ public class RustParserUtil extends GeneratedParserUtilBase {
         LighterASTNode m = b.getLatestDoneMarker();
         if (m == null) return false;
         b.getTokenText();
-        if (b.getOriginalText().charAt(m.getEndOffset() - getBuilderOffset(b) - 1) == '}') return true;
+        CharSequence original = b.getOriginalText();
+        int lastCharIndex = m.getEndOffset() - getBuilderOffset(b) - 1;
+        if (lastCharIndex >= 0 && lastCharIndex < original.length() && original.charAt(lastCharIndex) == '}') return true;
         return consumeToken(b, SEMICOLON);
     }
 
@@ -793,7 +795,11 @@ public class RustParserUtil extends GeneratedParserUtilBase {
     private static boolean isBracedMacro(@Nonnull LighterASTNode node, @Nonnull PsiBuilder b) {
         if (((consulo.language.ast.IElementType) node.getTokenType()) != MACRO_EXPR) return false;
         int offset = getBuilderOffset(b);
-        CharSequence text = b.getOriginalText().subSequence(node.getStartOffset() - offset, node.getEndOffset() - offset);
+        CharSequence original = b.getOriginalText();
+        int start = node.getStartOffset() - offset;
+        int end = node.getEndOffset() - offset;
+        if (start < 0 || end > original.length() || start > end) return false;
+        CharSequence text = original.subSequence(start, end);
         for (int i = text.length() - 1; i >= 0; i--) {
             char c = text.charAt(i);
             if (c == '}' || c == ']' || c == ')') {
@@ -806,34 +812,25 @@ public class RustParserUtil extends GeneratedParserUtilBase {
     /**
      * Non-zero if PsiBuilder is created with LighterLazyParseableNode chameleon.
      */
+    /**
+     * The offset of the fragment being parsed within the file.
+     * <p>
+     * Marker and {@link LighterASTNode} offsets are absolute, while {@link PsiBuilder#getOriginalText()}
+     * and {@link PsiBuilder#getCurrentOffset()} are relative to the fragment. The two frames coincide
+     * when a whole file is parsed, but differ for a lazily parsed block, so node offsets cannot index
+     * the original text directly. Measuring a fresh marker against the current offset - both taken at
+     * the same position - yields exactly that difference. The platform exposes no accessor for it.
+     */
     private static int getBuilderOffset(@Nonnull PsiBuilder b) {
+        PsiBuilder.Marker marker = b.mark();
         try {
-            // Access internal `productions` field via cast
-            java.lang.reflect.Field productionsField = null;
-            Class<?> clazz = b.getClass();
-            while (clazz != null) {
-                try {
-                    productionsField = clazz.getDeclaredField("productions");
-                    break;
-                } catch (NoSuchFieldException e) {
-                    clazz = clazz.getSuperclass();
-                }
-            }
-            if (productionsField != null) {
-                productionsField.setAccessible(true);
-                Object productions = productionsField.get(b);
-                if (productions instanceof List) {
-                    List<?> list = (List<?>) productions;
-                    if (!list.isEmpty()) {
-                        Object firstMarker = list.get(0);
-                        java.lang.reflect.Method getStartOffset = firstMarker.getClass().getMethod("getStartOffset");
-                        return (int) getStartOffset.invoke(firstMarker);
-                    }
-                }
-            }
-        } catch (Exception ignored) {
+            return marker instanceof LighterASTNode
+                ? ((LighterASTNode) marker).getStartOffset() - b.getCurrentOffset()
+                : 0;
         }
-        return 0;
+        finally {
+            marker.drop();
+        }
     }
 
     private static boolean contextualKeyword(

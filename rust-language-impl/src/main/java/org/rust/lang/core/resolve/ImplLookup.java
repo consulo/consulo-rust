@@ -317,14 +317,19 @@ public class ImplLookup {
         return implsAndTraits;
     }
 
+    /**
+     * The traits a type gets from its {@code #[derive(...)]} attributes.
+     * <p>
+     * Every trait here already resolved - either to one of the hardcoded std derivables or, for a
+     * custom derive, to a trait of that name in scope at the derive - so the type really does
+     * implement it and its members belong in lookup.
+     */
     @Nonnull
     private Collection<RsTraitItem> findDerivedTraits(@Nonnull Ty ty) {
         if (ty instanceof TyAdt) {
             Collection<RsTraitItem> derived = RsStructOrEnumItemElementUtil.getDerivedTraits(((TyAdt) ty).getItem());
             if (derived == null) return Collections.emptyList();
-            return derived.stream()
-                .filter(RsTraitItemImplUtil::isKnownDerivable)
-                .collect(Collectors.toList());
+            return derived;
         }
         return Collections.emptyList();
     }
@@ -339,37 +344,17 @@ public class ImplLookup {
         @Nonnull TyFingerprint tyf,
         @Nonnull RsProcessor<RsCachedImplItem> processor
     ) {
-        boolean diag = TyFingerprint.TYPE_PARAMETER_OR_MACRO_FINGERPRINT.equals(tyf);
-        int diagTotal = 0, diagNullField = 0, diagNegative = 0, diagCombineFail = 0, diagNoTrait = 0, diagOk = 0;
         for (RsCachedImplItem cachedImpl : findPotentialImpls(tyf)) {
-            diagTotal++;
-            if (cachedImpl.isNegativeImpl()) { diagNegative++; continue; }
+            if (cachedImpl.isNegativeImpl()) continue;
             Ty type = cachedImpl.getType();
             List<TyTypeParameter> generics = cachedImpl.getGenerics();
             List<CtConstParameter> constGenerics = cachedImpl.getConstGenerics();
-            if (type == null || generics == null || constGenerics == null) { diagNullField++; continue; }
-            boolean combine = canCombineTypes(selfTy, type, generics, constGenerics);
-            boolean hasTrait = cachedImpl.isInherent() || cachedImpl.getImplementedTrait() != null;
-            if (!combine) diagCombineFail++;
-            else if (!hasTrait) diagNoTrait++;
-            boolean isAppropriateImpl = combine && hasTrait;
-            if (isAppropriateImpl) {
-                diagOk++;
-                if (processor.process(cachedImpl)) {
-                    if (diag) logBlanket(selfTy, diagTotal, diagNegative, diagNullField, diagCombineFail, diagNoTrait, diagOk);
-                    return true;
-                }
-            }
+            if (type == null || generics == null || constGenerics == null) continue;
+            boolean isAppropriateImpl = canCombineTypes(selfTy, type, generics, constGenerics)
+                && (cachedImpl.isInherent() || cachedImpl.getImplementedTrait() != null);
+            if (isAppropriateImpl && processor.process(cachedImpl)) return true;
         }
-        if (diag) logBlanket(selfTy, diagTotal, diagNegative, diagNullField, diagCombineFail, diagNoTrait, diagOk);
         return false;
-    }
-
-    private static void logBlanket(Ty selfTy, int total, int negative, int nullField, int combineFail, int noTrait, int ok) {
-        consulo.logging.Logger.getInstance("BLANKETDIAG").warn(
-            "BLANKETDIAG selfTy=" + selfTy + " potentialBlanketImpls=" + total
-                + " negative=" + negative + " nullField=" + nullField
-                + " combineFail=" + combineFail + " noTrait=" + noTrait + " accepted=" + ok);
     }
 
     private boolean processTyFingerprintsWithAliases(@Nonnull Ty selfTy, @Nonnull RsProcessor<TyFingerprint> processor) {
@@ -391,9 +376,9 @@ public class ImplLookup {
     private List<RsCachedImplItem> findPotentialImpls(@Nonnull TyFingerprint tyf) {
         List<RsCachedImplItem> result = new ArrayList<>();
         for (RsCachedImplItem impl : indexCache.findPotentialImpls(tyf)) {
-            if (useImplsFromCrate(impl.getContainingCrates()) && getImplsFilter().canProcessImpl(impl)) {
-                result.add(impl);
-            }
+            if (!useImplsFromCrate(impl.getContainingCrates())) continue;
+            if (!getImplsFilter().canProcessImpl(impl)) continue;
+            result.add(impl);
         }
         List<RsCachedImplItem> nested = getImplsFromNestedMacros().get(tyf);
         if (nested != null) {

@@ -12,7 +12,10 @@ import org.rust.lang.core.psi.RsPath;
 import org.rust.lang.core.psi.RsTraitItem;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.impl.RsTraitItemImplUtil;
+import jakarta.annotation.Nullable;
+import org.rust.lang.core.psi.ext.RsNamedElement;
 import org.rust.lang.core.resolve.NameResolution;
+import org.rust.lang.core.resolve.Namespace;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +39,28 @@ public class RsDeriveTraitReferenceImpl extends RsReferenceCached<RsPath> implem
         if (!knownDerivable.isEmpty()) {
             return knownDerivable;
         }
+        RsTraitItem inScope = findTraitInScope(getElement());
+        if (inScope != null) {
+            return List.of(inScope);
+        }
         return resolveToProcMacro(getElement());
+    }
+
+    /**
+     * The trait a custom derive provides, when one of that name is in scope where the derive is
+     * written - {@code clap::Parser} for {@code #[derive(Parser)]} under {@code use clap::Parser}.
+     * <p>
+     * A derive macro and the trait it implements share a name by convention, and the macro itself
+     * cannot be expanded here, so the trait is the only way to see the members it would generate.
+     * The lookup goes through the scope rather than the by-name index on purpose: several crates
+     * declare a trait called {@code Parser}, and only the imported one is the right answer.
+     */
+    @Nullable
+    private static RsTraitItem findTraitInScope(@Nonnull RsPath path) {
+        String traitName = path.getReferenceName();
+        if (traitName == null) return null;
+        RsNamedElement resolved = NameResolution.findInScope(path, traitName, Namespace.TYPES);
+        return resolved instanceof RsTraitItem ? (RsTraitItem) resolved : null;
     }
 
     @Override

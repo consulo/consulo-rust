@@ -19,6 +19,7 @@ import org.rust.lang.core.types.TyFingerprint;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
@@ -40,6 +41,15 @@ public final class RsImplIndexAndTypeAliasCache implements Disposable {
      * The only purpose of this set is holding links to PsiFiles, so as to retain them in memory.
      */
     private final ConcurrentMap<PsiFile, Object> usedPsiFiles = ContainerUtil.createConcurrentSoftMap();
+
+    /**
+     * Index lookups answer nothing while indexing is still running, and those answers must not be kept:
+     * the maps below would otherwise hold an empty result for a fingerprint until the next Rust
+     * structure change. {@link consulo.project.DumbService#getModificationTracker()} advances whenever
+     * indexing finishes, so a change of this count means every cached lookup was taken against a
+     * different index state and has to be recomputed.
+     */
+    private final AtomicLong indexStateStamp = new AtomicLong(-1);
     private static final Object PLACEHOLDER = new Object();
 
     @Inject
@@ -61,6 +71,7 @@ public final class RsImplIndexAndTypeAliasCache implements Disposable {
 
     @Nonnull
     public List<RsCachedImplItem> findPotentialImpls(@Nonnull TyFingerprint tyf) {
+        dropCachesIfIndexStateChanged();
         ConcurrentMap<TyFingerprint, List<RsCachedImplItem>> cache = getOrCreateMap(implIndexCache);
         return cache.computeIfAbsent(tyf, key -> {
             List<RsCachedImplItem> result = new ArrayList<>();
@@ -76,12 +87,14 @@ public final class RsImplIndexAndTypeAliasCache implements Disposable {
 
     @Nonnull
     private List<String> shallowFindPotentialAliases(@Nonnull TyFingerprint tyf) {
+        dropCachesIfIndexStateChanged();
         ConcurrentMap<TyFingerprint, List<String>> cache = getOrCreateMap(typeAliasShallowIndexCache);
         return cache.computeIfAbsent(tyf, key -> RsAliasIndex.findPotentialAliases(project, key));
     }
 
     @Nonnull
     public List<String> findPotentialAliases(@Nonnull TyFingerprint tyf) {
+        dropCachesIfIndexStateChanged();
         ConcurrentMap<TyFingerprint, List<String>> cache = getOrCreateMap(typeAliasTransitiveIndexCache);
         return cache.computeIfAbsent(tyf, key -> {
             Set<String> result = new HashSet<>();
@@ -117,6 +130,17 @@ public final class RsImplIndexAndTypeAliasCache implements Disposable {
     }
 
     @Nonnull
+    /** Clears every cached lookup when indexing has progressed since they were taken. */
+    private void dropCachesIfIndexStateChanged() {
+        long current = consulo.project.DumbService.getInstance(project).getModificationTracker().getModificationCount();
+        long previous = indexStateStamp.getAndSet(current);
+        if (previous != current) {
+            implIndexCache.set(null);
+            typeAliasShallowIndexCache.set(null);
+            typeAliasTransitiveIndexCache.set(null);
+        }
+    }
+
     private static <T> ConcurrentMap<TyFingerprint, T> getOrCreateMap(@Nonnull AtomicReference<ConcurrentMap<TyFingerprint, T>> ref) {
         while (true) {
             ConcurrentMap<TyFingerprint, T> existing = ref.get();
