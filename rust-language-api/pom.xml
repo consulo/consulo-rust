@@ -376,11 +376,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>io.github.z4kn4fein</groupId>
-            <artifactId>semver-jvm</artifactId>
-            <version>2.0.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <scope>provided</scope>

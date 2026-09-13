@@ -15,7 +15,6 @@ open module consulo.rust.base {
     requires transitive com.fasterxml.jackson.dataformat.toml;
     requires transitive kotlin.stdlib;
     requires transitive markdown.jvm;
-    requires transitive semver.jvm;
     requires transitive org.apache.commons.lang3;
     requires transitive org.jdom;
     requires transitive consulo.annotation;
