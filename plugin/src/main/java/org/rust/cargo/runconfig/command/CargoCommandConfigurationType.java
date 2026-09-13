@@ -9,14 +9,9 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.execution.configuration.ConfigurationFactory;
 import consulo.execution.configuration.ConfigurationTypeBase;
 import consulo.execution.configuration.ConfigurationTypeUtil;
-import consulo.execution.configuration.RunConfiguration;
-import consulo.project.Project;
-import com.intellij.util.PlatformUtils;
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.icons.RsIcons;
-import consulo.localize.LocalizeValue;
 
 @ExtensionImpl
 public class CargoCommandConfigurationType extends ConfigurationTypeBase {
@@ -37,10 +32,7 @@ public class CargoCommandConfigurationType extends ConfigurationTypeBase {
 
     @Nullable
     public String getHelpTopic() {
-        if (PlatformUtils.isIntelliJ() || PlatformUtils.isCLion()) {
-            return "rundebugconfigs.cargocommand";
-        }
-        return null;
+        return "rundebugconfigs.cargocommand";
     }
 
     public static CargoCommandConfigurationType getInstance() {
