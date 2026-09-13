@@ -6,7 +6,7 @@
 package org.rust.ide.inspections.lints;
 
 import consulo.language.psi.PsiElement;
-import io.github.z4kn4fein.semver.Version;
+import io.github.milkdrinkers.javasemver.Version;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
@@ -16,7 +16,6 @@ import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.RsMetaItem;
 import org.rust.lang.core.psi.RsMetaItemArgs;
-import io.github.z4kn4fein.semver.StringExtensionsKt;
 import org.rust.lang.core.psi.RsModDeclItem;
 import org.rust.lang.core.psi.RsVisitor;
 import org.rust.lang.core.psi.ext.*;
@@ -119,11 +118,11 @@ public class RsDeprecationInspection extends RsLintInspection {
     private boolean isPresentlyDeprecated(@Nonnull RsMetaItem metaItem, @Nullable String since) {
         // In case we can't check if the `sinceVersion` is at least the `currentVersion` just assume it is
         if (since == null) return true;
-        Version sinceVersion = StringExtensionsKt.toVersionOrNull(since, false);
+        Version sinceVersion = Version.coerce(since).orElse(null);
         if (sinceVersion == null) return true;
         org.rust.cargo.api.workspace.CargoWorkspace.Package pkg = RsElementUtil.getContainingCargoPackage(metaItem);
         if (pkg == null) return true;
-        Version currentVersion = StringExtensionsKt.toVersionOrNull(pkg.getVersion(), true);
+        Version currentVersion = Version.parseOptional(pkg.getVersion()).orElse(null);
         if (currentVersion == null) return true;
         return currentVersion.compareTo(sinceVersion) >= 0;
     }

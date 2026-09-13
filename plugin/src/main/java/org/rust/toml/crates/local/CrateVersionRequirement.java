@@ -5,28 +5,25 @@
 
 package org.rust.toml.crates.local;
 
-import io.github.z4kn4fein.semver.Version;
-import io.github.z4kn4fein.semver.constraints.Constraint;
-import io.github.z4kn4fein.semver.constraints.ConstraintExtensionsKt;
+import io.github.milkdrinkers.javasemver.Range;
+import io.github.milkdrinkers.javasemver.Version;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+/**
+ * A Cargo dependency version requirement, such as {@code ^1.2}, {@code ~0.3} or {@code >=1.0, <2.0}.
+ * A comma separated requirement is a conjunction: a version matches only when every part accepts it.
+ */
 public class CrateVersionRequirement {
-    private final List<Constraint> myRequirements;
+    private final List<Range> myRequirements;
     private final boolean myIsPinned;
 
-    private CrateVersionRequirement(@Nonnull List<Constraint> requirements) {
+    private CrateVersionRequirement(@Nonnull List<Range> requirements, boolean pinned) {
         myRequirements = requirements;
-        boolean pinned = false;
-        for (Constraint c : requirements) {
-            if (c.toString().startsWith("=")) {
-                pinned = true;
-                break;
-            }
-        }
         myIsPinned = pinned;
     }
 
@@ -35,8 +32,8 @@ public class CrateVersionRequirement {
     }
 
     public boolean matches(@Nonnull Version version) {
-        for (Constraint requirement : myRequirements) {
-            if (!ConstraintExtensionsKt.satisfiedBy(requirement, version)) {
+        for (Range requirement : myRequirements) {
+            if (!requirement.contains(version)) {
                 return false;
             }
         }
@@ -56,15 +53,20 @@ public class CrateVersionRequirement {
             }
         }
 
-        List<Constraint> parsed = new ArrayList<>();
+        List<Range> parsed = new ArrayList<>();
+        boolean pinned = false;
         for (String req : requirements) {
-            Constraint constraint = ConstraintExtensionsKt.toConstraintOrNull(normalizeVersion(req));
-            if (constraint == null) return null;
-            parsed.add(constraint);
+            String normalized = normalizeVersion(req);
+            Optional<Range> range = Range.parseOptional(normalized);
+            if (range.isEmpty()) return null;
+            parsed.add(range.get());
+            if (normalized.startsWith("=")) {
+                pinned = true;
+            }
         }
         if (parsed.size() != requirements.size()) return null;
 
-        return new CrateVersionRequirement(parsed);
+        return new CrateVersionRequirement(parsed, pinned);
     }
 
     @Nonnull

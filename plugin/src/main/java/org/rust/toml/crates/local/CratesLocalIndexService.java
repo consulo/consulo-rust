@@ -8,8 +8,7 @@ package org.rust.toml.crates.local;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.application.ApplicationManager;
-import io.github.z4kn4fein.semver.Version;
-import io.github.z4kn4fein.semver.StringExtensionsKt;
+import io.github.milkdrinkers.javasemver.Version;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -198,7 +197,7 @@ public interface CratesLocalIndexService {
 
         @Nullable
         public Version getSemanticVersion() {
-            return StringExtensionsKt.toVersionOrNull(myVersion, false);
+            return Version.coerce(myVersion).orElse(null);
         }
     }
 }

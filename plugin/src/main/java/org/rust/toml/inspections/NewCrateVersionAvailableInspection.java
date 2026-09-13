@@ -7,7 +7,7 @@ package org.rust.toml.inspections;
 
 import consulo.language.editor.inspection.ProblemHighlightType;
 import consulo.language.editor.inspection.ProblemsHolder;
-import io.github.z4kn4fein.semver.Version;
+import io.github.milkdrinkers.javasemver.Version;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.toml.Util;
@@ -69,7 +69,7 @@ public class NewCrateVersionAvailableInspection extends CrateVersionInspection {
     }
 
     private static boolean isRustStable(@Nonnull Version version) {
-        return version.getPreRelease() == null;
+        return version.getPreReleaseIdentifiers().isEmpty();
     }
 
     @Override

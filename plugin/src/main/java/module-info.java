@@ -19,7 +19,7 @@ open module consulo.rust {
     requires com.fasterxml.jackson.dataformat.toml;
     requires kotlin.stdlib;
     requires markdown.jvm;
-    requires semver.jvm;
+    requires javasemver;
     requires org.apache.commons.lang3;
     requires org.jdom;
 
