@@ -5,19 +5,18 @@
 
 package org.rust.cargo.toolchain;
 
+import consulo.annotation.DeprecationInfo;
 import org.rust.cargo.api.toolchain.BacktraceMode;
 
 import consulo.execution.configuration.EnvironmentVariablesData;
 import consulo.process.cmd.GeneralCommandLine;
 import com.intellij.execution.configurations.PtyCommandLine;
-import com.intellij.execution.wsl.WslPath;
 import consulo.http.HttpProxyManager;
 import consulo.util.lang.SemVer;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.CargoConstants;
 import org.rust.cargo.toolchain.flavors.RsToolchainFlavor;
 import org.rust.cargo.toolchain.tools.Cargo;
-import org.rust.cargo.toolchain.wsl.RsWslToolchainFlavor;
 import org.rust.cargo.api.util.ToolchainUtil;
 import org.rust.openapiext.CommandLineExt;
 
@@ -27,6 +26,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+@Deprecated
+@DeprecationInfo("Need migrate to real RustSdkType")
 public abstract class RsToolchainBase {
 
     private final Path location;
@@ -183,9 +184,11 @@ public abstract class RsToolchainBase {
         }
 
         for (RsToolchainFlavor flavor : RsToolchainFlavor.getApplicableFlavors()) {
-            for (Path homePath : (Iterable<Path>) flavor.suggestHomePaths()::iterator) {
-                RsToolchainBase toolchain = RsToolchainProvider.getToolchainStatic(homePath.toAbsolutePath());
-                if (toolchain != null) return toolchain;
+            for (Path homePath : flavor.suggestHomePaths().toList()) {
+                if (Files.exists(homePath)) {
+                    RsToolchainBase toolchain = new RsLocalToolchain(homePath.toAbsolutePath());
+                    return toolchain;
+                }
             }
         }
         return null;

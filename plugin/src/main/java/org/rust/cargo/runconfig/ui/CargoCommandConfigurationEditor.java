@@ -4,48 +4,38 @@
  */
 
 package org.rust.cargo.runconfig.ui;
-import org.rust.cargo.toolchain.RsToolchainLocator;
-import consulo.ui.ex.awt.FormBuilder;
 
+import consulo.application.ApplicationManager;
+import consulo.configurable.ConfigurationException;
 import consulo.execution.ExecutionBundle;
 import consulo.execution.ui.awt.EnvironmentVariablesComponent;
-import consulo.dataContext.DataManager;
-import consulo.application.ApplicationManager;
 import consulo.fileChooser.FileChooserDescriptorFactory;
-import consulo.configurable.ConfigurationException;
 import consulo.project.Project;
-import consulo.ui.ex.awt.ComboBox;
-import consulo.ui.ex.awt.TextFieldWithBrowseButton;
+import consulo.ui.ex.awt.*;
 import consulo.util.io.FileUtil;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
-import consulo.ui.ex.awt.SimpleListCellRenderer;
-import consulo.ui.ex.awt.JBCheckBox;
-import consulo.ui.ex.awt.JBLabel;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.cargo.api.model.CargoProject;
-import org.rust.cargo.project.model.CargoProjectServiceUtil;
-import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
-import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
-import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
-import org.rust.cargo.runconfig.target.BuildTarget;
 import org.rust.cargo.api.toolchain.BacktraceMode;
 import org.rust.cargo.api.toolchain.RustChannel;
+import org.rust.cargo.project.model.CargoProjectServiceUtil;
+import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
+import org.rust.cargo.runconfig.target.BuildTarget;
 import org.rust.cargo.toolchain.RsToolchainBase;
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import org.rust.cargo.toolchain.tools.Rustup;
-import org.rust.cargo.toolchain.wsl.RsWslToolchain;
-import org.rust.ide.cargo.completion.CargoCommandCompletionProvider;
 import org.rust.cargo.util.RsCommandLineEditor;
 import org.rust.experiments.RsExperiments;
-import org.rust.openapiext.ui.UiDslUtil;
+import org.rust.ide.cargo.completion.CargoCommandCompletionProvider;
 import org.rust.openapiext.OpenApiUtil;
+import org.rust.openapiext.ui.UiDslUtil;
 
 import javax.swing.*;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
-import consulo.platform.Platform;
 
 public class CargoCommandConfigurationEditor extends RsCommandConfigurationEditor<CargoCommandConfiguration> {
     private JComponent panel;
@@ -121,7 +111,9 @@ public class CargoCommandConfigurationEditor extends RsCommandConfigurationEdito
 
     private void setWorkingDirectoryFromSelectedProject() {
         int idx = cargoProject.getSelectedIndex();
-        if (idx == -1) return;
+        if (idx == -1) {
+            return;
+        }
         CargoProject selectedProject = cargoProject.getItemAt(idx);
         Path wd = org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(selectedProject);
         workingDirectory.getComponent().setText(wd != null ? wd.toString() : "");
@@ -145,7 +137,8 @@ public class CargoCommandConfigurationEditor extends RsCommandConfigurationEdito
             : null;
         if (vFile == null) {
             cargoProject.setSelectedIndex(-1);
-        } else {
+        }
+        else {
             CargoProject projectForWd = CargoProjectServiceUtil.getCargoProjects(project).findProjectForFile(vFile);
             cargoProject.setSelectedIndex(allCargoProjects.indexOf(projectForWd));
         }
@@ -172,9 +165,6 @@ public class CargoCommandConfigurationEditor extends RsCommandConfigurationEdito
         configuration.setEnv(environmentVariables.getEnvData());
 
         RsToolchainBase toolchain = RsToolchainLocator.getToolchain(project);
-        if (toolchain instanceof RsWslToolchain && isRemoteTarget()) {
-            throw new ConfigurationException(RsBundle.message("dialog.message.run.targets.cannot.be.used.alongside.with.wsl.toolchain"));
-        }
 
         boolean rustupAvailable = toolchain != null && Rustup.isRustupAvailable(toolchain);
         channel.setEnabled(rustupAvailable || configChannel != RustChannel.DEFAULT);
@@ -238,7 +228,9 @@ public class CargoCommandConfigurationEditor extends RsCommandConfigurationEdito
     }
 
     private void hideUnsupportedFieldsIfNeeded() {
-        if (!ApplicationManager.getApplication().isDispatchThread()) return;
+        if (!ApplicationManager.getApplication().isDispatchThread()) {
+            return;
+        }
         buildOnRemoteTarget.setVisible(isRemoteTarget());
     }
 }

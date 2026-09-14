@@ -54,6 +54,7 @@ public class RustProjectSettingsService
 
     public boolean getDoctestInjectionEnabled() { return getState().doctestInjectionEnabled; }
 
+
     public static class RustProjectSettings extends RsProjectSettingsBase<RustProjectSettings> {
         @AffectsCargoMetadata
         public String toolchainHomeDirectory;

@@ -33,9 +33,6 @@ public final class RsExperiments {
     @EnabledInStable
     public static final String CRATES_LOCAL_INDEX = "org.rust.crates.local.index";
 
-    @EnabledInStable
-    public static final String WSL_TOOLCHAIN = "org.rust.wsl";
-
     public static final String EMULATE_TERMINAL = "org.rust.cargo.emulate.terminal";
 
     public static final String INTENTIONS_IN_FN_LIKE_MACROS = "org.rust.ide.intentions.macros.function-like";

@@ -5,29 +5,23 @@
 
 package org.rust.cargo.project.settings.ui;
 
-import org.rust.cargo.toolchain.RsToolchainLocator;
-import consulo.process.event.ProcessAdapter;
-import consulo.process.event.ProcessEvent;
-import com.intellij.execution.wsl.WslPath;
-import consulo.disposer.Disposable;
-import consulo.configurable.ConfigurationException;
-import consulo.application.progress.ProgressIndicator;
-import consulo.application.progress.Task;
-import consulo.project.ProjectManager;
-import consulo.disposer.Disposer;
-import consulo.util.dataholder.Key;
-import consulo.ui.ex.JBColor;
 import com.intellij.ui.components.ActionLink;
 import com.intellij.ui.dsl.builder.Panel;
+import consulo.configurable.ConfigurationException;
+import consulo.disposer.Disposable;
+import consulo.disposer.Disposer;
+import consulo.project.ProjectManager;
+import consulo.ui.ex.awt.FormBuilder;
+import consulo.ui.ex.awt.UIUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.project.RsToolchainPathChoosingComboBox;
 import org.rust.cargo.api.settings.RustProjectSettingsService;
+import org.rust.cargo.project.RsToolchainPathChoosingComboBox;
 import org.rust.cargo.toolchain.RsToolchainBase;
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import org.rust.cargo.toolchain.RsToolchainProvider;
 import org.rust.cargo.toolchain.flavors.RsToolchainFlavor;
-import org.rust.cargo.toolchain.tools.Rustup;
 import org.rust.openapiext.UiDebouncer;
 import org.rust.openapiext.ui.UiUtil;
 
@@ -37,9 +31,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Objects;
-import consulo.ui.ex.awt.FormBuilder;
-import consulo.ui.ex.awt.TextFieldWithBrowseButton;
-import consulo.ui.ex.awt.UIUtil;
 
 public class RustProjectSettingsPanel implements Disposable {
 
@@ -99,7 +90,9 @@ public class RustProjectSettingsPanel implements Disposable {
         update();
     }
 
-    /** Form with the toolchain location, the detected toolchain version and the standard-library location. */
+    /**
+     * Form with the toolchain location, the detected toolchain version and the standard-library location.
+     */
     @Nonnull
     public JComponent getComponent() {
         JPanel stdlibRow = new JPanel(new java.awt.BorderLayout(UIUtil.DEFAULT_HGAP, 0));
@@ -113,7 +106,9 @@ public class RustProjectSettingsPanel implements Disposable {
             .getPanel();
     }
 
-    /** Fills the toolchain combo box from the toolchain flavors found on this machine. */
+    /**
+     * Fills the toolchain combo box from the toolchain flavors found on this machine.
+     */
     public void loadToolchains() {
         pathToToolchainComboBox.addToolchainsAsync(() -> {
             LinkedHashSet<Path> paths = new LinkedHashSet<>();
@@ -151,7 +146,9 @@ public class RustProjectSettingsPanel implements Disposable {
 
     public void validateSettings() throws ConfigurationException {
         Data data = getData();
-        if (data.toolchain == null) return;
+        if (data.toolchain == null) {
+            return;
+        }
         if (!data.toolchain.looksLikeValidToolchain()) {
             throw new ConfigurationException(
                 RsBundle.message("settings.rust.toolchain.invalid.toolchain.error", data.toolchain.getLocation())
@@ -189,8 +186,12 @@ public class RustProjectSettingsPanel implements Disposable {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof Data data)) return false;
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof Data data)) {
+                return false;
+            }
             return Objects.equals(toolchain, data.toolchain)
                 && Objects.equals(explicitPathToStdlib, data.explicitPathToStdlib);
         }

@@ -5,32 +5,29 @@
 
 package org.rust.cargo.macros;
 
-import org.rust.cargo.toolchain.RsToolchainLocator;
-
-import org.rust.lang.core.macros.proc.ProcMacroFlags;
-import org.rust.cargo.api.model.CargoProjectsService;
-import consulo.disposer.Disposable;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
 import consulo.application.ApplicationManager;
+import consulo.disposer.Disposable;
+import consulo.disposer.Disposer;
 import consulo.project.Project;
 import consulo.project.ProjectManager;
 import consulo.project.event.ProjectManagerListener;
-import consulo.disposer.Disposer;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.rust.cargo.api.model.CargoProjectsService;
 import org.rust.cargo.api.settings.RsProjectSettingsServiceBase;
+import org.rust.cargo.api.settings.RsSettingsListener;
 import org.rust.cargo.api.settings.RustProjectSettingsService;
-import org.rust.cargo.api.settings.RustProjectSettingsServiceUtil;
 import org.rust.cargo.toolchain.RsToolchainBase;
-import org.rust.cargo.toolchain.wsl.RsWslToolchain;
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import org.rust.experiments.RsExperiments;
+import org.rust.lang.core.macros.proc.ProcMacroFlags;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.nio.file.Path;
 import java.util.*;
-import consulo.annotation.component.ServiceAPI;
-import consulo.annotation.component.ServiceImpl;
-import consulo.annotation.component.ComponentScope;
-import org.rust.cargo.api.settings.RsSettingsListener;
 
 @ServiceAPI(ComponentScope.APPLICATION)
 @ServiceImpl
@@ -73,7 +70,9 @@ public final class ProcMacroApplicationService implements Disposable {
         boolean needsVersionCheck,
         @Nonnull Path procMacroExpanderPath
     ) {
-        if (!ProcMacroFlags.isAnyEnabled()) return null;
+        if (!ProcMacroFlags.isAnyEnabled()) {
+            return null;
+        }
 
         String id = getDistributionId(toolchain);
         DistributionIdAndExpanderPath key = new DistributionIdAndExpanderPath(id, needsVersionCheck, procMacroExpanderPath);
@@ -116,7 +115,8 @@ public final class ProcMacroApplicationService implements Disposable {
     }
 
     @Override
-    public void dispose() {}
+    public void dispose() {
+    }
 
     @Nonnull
     public static ProcMacroApplicationService getInstance() {
@@ -132,15 +132,8 @@ public final class ProcMacroApplicationService implements Disposable {
     }
 
 
-
-
-
     @Nonnull
     private static String getDistributionId(@Nullable RsToolchainBase toolchain) {
-        if (toolchain instanceof RsWslToolchain) {
-            // WslPath.getDistributionId isn't available in Consulo's stub; use distribution name instead
-            return String.valueOf(((RsWslToolchain) toolchain).getWslPath().getDistribution());
-        }
         return "Local";
     }
 
@@ -159,8 +152,12 @@ public final class ProcMacroApplicationService implements Disposable {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof DistributionIdAndExpanderPath)) return false;
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof DistributionIdAndExpanderPath)) {
+                return false;
+            }
             DistributionIdAndExpanderPath that = (DistributionIdAndExpanderPath) o;
             return needsVersionCheck == that.needsVersionCheck
                 && Objects.equals(distributionId, that.distributionId)

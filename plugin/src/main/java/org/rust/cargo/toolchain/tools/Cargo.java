@@ -5,58 +5,48 @@
 
 package org.rust.cargo.toolchain.tools;
 
-import org.rust.cargo.api.toolchain.ExternalLinter;
-
-import org.rust.cargo.api.toolchain.BacktraceMode;
-import org.rust.cargo.api.toolchain.RustChannel;
-
-import org.rust.cargo.toolchain.RsToolchainLocator;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.toml.TomlMapper;
-import consulo.execution.configuration.EnvironmentVariablesData;
-import consulo.process.cmd.GeneralCommandLine;
-import consulo.process.event.ProcessListener;
-import consulo.process.util.ProcessOutput;
-import consulo.project.ui.notification.NotificationType;
-import consulo.disposer.Disposable;
-import consulo.logging.Logger;
-import consulo.project.Project;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import consulo.application.util.registry.Registry;
 import consulo.application.util.registry.RegistryValue;
-import consulo.virtualFileSystem.VirtualFile;
-import consulo.process.cmd.ParametersListUtil;
+import consulo.disposer.Disposable;
+import consulo.execution.configuration.EnvironmentVariablesData;
 import consulo.http.HttpProxyManager;
+import consulo.logging.Logger;
+import consulo.process.cmd.GeneralCommandLine;
+import consulo.process.cmd.ParametersListUtil;
+import consulo.process.event.ProcessListener;
+import consulo.process.util.ProcessOutput;
+import consulo.project.Project;
+import consulo.project.ui.notification.NotificationType;
 import consulo.util.lang.SemVer;
+import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nullable;
-
 import org.rust.RsBundle;
-import org.rust.cargo.api.CargoConfig;
 import org.rust.cargo.CargoConstants;
+import org.rust.cargo.api.CargoConfig;
 import org.rust.cargo.api.CfgOptions;
 import org.rust.cargo.api.model.CargoProject;
-import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.toolchain.*;
+import org.rust.cargo.api.toolchain.RustcMessage.CompilerMessage;
+import org.rust.cargo.api.util.ToolchainUtil;
 import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.cargo.api.workspace.CargoWorkspaceData;
+import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import org.rust.cargo.project.model.sync.CargoPatch;
-import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
-import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
-import org.rust.cargo.toolchain.*;
-import org.rust.cargo.api.toolchain.BuildMessages;
-import org.rust.cargo.api.toolchain.CargoMetadata;
-import org.rust.cargo.api.toolchain.RustcMessage.CompilerMessage;
-import org.rust.cargo.api.toolchain.RustcVersion;
-import org.rust.cargo.toolchain.wsl.RsWslToolchain;
-import org.rust.cargo.api.util.ToolchainUtil;
+import org.rust.cargo.toolchain.CargoCommandLine;
+import org.rust.cargo.toolchain.RsToolchainBase;
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import org.rust.cargo.toolchain.actions.InstallBinaryCrateAction;
 import org.rust.experiments.RsExperiments;
-import org.rust.notifications.NotificationUtils;
 import org.rust.lang.RsConstants;
+import org.rust.notifications.NotificationUtils;
 import org.rust.openapiext.*;
-import org.rust.openapiext.JsonUtils;
 import org.rust.stdext.RsResult;
 
 import java.nio.file.Files;
@@ -64,11 +54,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
-import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-import consulo.util.io.FileUtil;
-import org.rust.cargo.api.workspace.FeatureState;
-import org.rust.openapiext.CommandLineExt;
-import org.rust.openapiext.RsProcessExecutionException;
 
 /**
  * A main gateway for executing cargo commands.
@@ -136,8 +121,14 @@ public class Cargo extends RustupComponent {
             myVersion = version;
         }
 
-        public String getName() { return myName; }
-        @Nullable public SemVer getVersion() { return myVersion; }
+        public String getName() {
+            return myName;
+        }
+
+        @Nullable
+        public SemVer getVersion() {
+            return myVersion;
+        }
 
         private static final java.util.regex.Pattern VERSION_LINE =
             java.util.regex.Pattern.compile("(?<name>[\\w-]+) v(?<version>\\d+\\.\\d+\\.\\d+(-[\\w.]+)?).*");
@@ -145,11 +136,17 @@ public class Cargo extends RustupComponent {
         @Nullable
         public static BinaryCrate from(String line) {
             java.util.regex.Matcher matcher = VERSION_LINE.matcher(line);
-            if (!matcher.matches()) return null;
+            if (!matcher.matches()) {
+                return null;
+            }
             String name = matcher.group("name");
-            if (name == null) return null;
+            if (name == null) {
+                return null;
+            }
             String rawVersion = matcher.group("version");
-            if (rawVersion == null) return null;
+            if (rawVersion == null) {
+                return null;
+            }
             return new BinaryCrate(name, SemVer.parseFromText(rawVersion));
         }
     }
@@ -158,26 +155,36 @@ public class Cargo extends RustupComponent {
         ProcessOutput output = org.rust.openapiext.CommandLineExt.execute(
             createBaseCommandLine("install", "--list"),
             getToolchain().getExecutionTimeoutInMilliseconds());
-        if (output == null) return Collections.emptyList();
+        if (output == null) {
+            return Collections.emptyList();
+        }
         List<BinaryCrate> result = new ArrayList<>();
         for (String line : output.getStdoutLines()) {
-            if (line.startsWith(" ")) continue;
+            if (line.startsWith(" ")) {
+                continue;
+            }
             BinaryCrate crate = BinaryCrate.from(line);
-            if (crate != null) result.add(crate);
+            if (crate != null) {
+                result.add(crate);
+            }
         }
         return result;
     }
 
     public void installBinaryCrate(Project project, String crateName) {
         CargoProject cargoProject = CargoProjectServiceUtil.getCargoProjects(project).getAllProjects().stream().findFirst().orElse(null);
-        if (cargoProject == null) return;
+        if (cargoProject == null) {
+            return;
+        }
         CargoCommandLine commandLine = CargoCommandLine.forProject(cargoProject, "install", List.of("--force", crateName));
         commandLine.run(cargoProject, "Install " + crateName, false);
     }
 
     public void addDependency(Project project, String crateName, List<String> features) {
         CargoProject cargoProject = CargoProjectServiceUtil.getCargoProjects(project).getAllProjects().stream().findFirst().orElse(null);
-        if (cargoProject == null) return;
+        if (cargoProject == null) {
+            return;
+        }
         List<String> args = new ArrayList<>();
         args.add(crateName);
         if (!features.isEmpty()) {
@@ -196,9 +203,13 @@ public class Cargo extends RustupComponent {
         ProcessOutput output = org.rust.openapiext.CommandLineExt.execute(
             createBaseCommandLine("help", "check"),
             getToolchain().getExecutionTimeoutInMilliseconds());
-        if (output == null) return false;
+        if (output == null) {
+            return false;
+        }
         for (String line : output.getStdoutLines()) {
-            if (line.contains(" --all-targets ")) return true;
+            if (line.contains(" --all-targets ")) {
+                return true;
+            }
         }
         return false;
     }
@@ -224,7 +235,8 @@ public class Cargo extends RustupComponent {
         if (OpenApiUtil.isFeatureEnabled(RsExperiments.EVALUATE_BUILD_SCRIPTS)) {
             ProcessListener listener = listenerProvider.apply(CargoCallType.BUILD_SCRIPT_CHECK);
             buildScriptsInfo = fetchBuildScriptsInfo(owner, projectDirectory, rustcVersion, listener);
-        } else {
+        }
+        else {
             buildScriptsInfo = BuildMessages.DEFAULT;
         }
 
@@ -269,7 +281,8 @@ public class Cargo extends RustupComponent {
             CargoMetadata.Project project = JSON_MAPPER.readValue(json, CargoMetadata.Project.class);
             CargoMetadata.Project converted = project.convertPaths(getToolchain()::toLocalPath);
             return new RsResult.Ok<>(converted);
-        } catch (JacksonException e) {
+        }
+        catch (JacksonException e) {
             return new RsResult.Err<>(new RsDeserializationException(e));
         }
     }
@@ -365,7 +378,8 @@ public class Cargo extends RustupComponent {
         JsonNode tree;
         try {
             tree = TOML_MAPPER.readTree(output);
-        } catch (JacksonException e) {
+        }
+        catch (JacksonException e) {
             LOG.error(e);
             return new RsResult.Err<>(new RsDeserializationException(e));
         }
@@ -377,11 +391,13 @@ public class Cargo extends RustupComponent {
             Map.Entry<String, JsonNode> field = fields.next();
             if (field.getValue().isTextual()) {
                 env.put(field.getKey(), new CargoConfig.EnvValue(field.getValue().asText()));
-            } else if (field.getValue().isObject()) {
+            }
+            else if (field.getValue().isObject()) {
                 try {
                     CargoConfig.EnvValue valueParams = TOML_MAPPER.treeToValue(field.getValue(), CargoConfig.EnvValue.class);
                     env.put(field.getKey(), new CargoConfig.EnvValue(valueParams.value(), valueParams.isForced(), valueParams.isRelative()));
-                } catch (JacksonException e) {
+                }
+                catch (JacksonException e) {
                     LOG.error(e);
                     return new RsResult.Err<>(new RsDeserializationException(e));
                 }
@@ -393,7 +409,8 @@ public class Cargo extends RustupComponent {
         for (String target : buildTargets) {
             if (target.endsWith(".json")) {
                 resolvedTargets.add(consulo.util.io.FileUtil.toSystemIndependentName(projectDirectory.resolve(target).toAbsolutePath().toString()));
-            } else {
+            }
+            else {
                 resolvedTargets.add(target);
             }
         }
@@ -402,7 +419,9 @@ public class Cargo extends RustupComponent {
 
     private List<String> getBuildTargets(JsonNode tree) {
         JsonNode buildTargetNode = tree.at("/build/target");
-        if (buildTargetNode.isTextual()) return Collections.singletonList(buildTargetNode.asText());
+        if (buildTargetNode.isTextual()) {
+            return Collections.singletonList(buildTargetNode.asText());
+        }
         if (buildTargetNode.isArray()) {
             List<String> targets = new ArrayList<>();
             for (JsonNode node : buildTargetNode) {
@@ -430,7 +449,7 @@ public class Cargo extends RustupComponent {
                 envMap.put(RsToolchainBase.ORIGINAL_RUSTC_BOOTSTRAP, originalRustcBootstrapValue);
             }
         }
-        Path nativeHelper = RsPathManager.nativeHelper(getToolchain() instanceof RsWslToolchain);
+        Path nativeHelper = RsPathManager.nativeHelper(false);
         if (nativeHelper != null && USE_BUILD_SCRIPT_WRAPPER.asBoolean(true)) {
             envMap.put(RsToolchainBase.RUSTC_WRAPPER, nativeHelper.toString());
         }
@@ -453,7 +472,9 @@ public class Cargo extends RustupComponent {
         Map<String, List<CompilerMessage>> messages = new HashMap<>();
         for (String line : processOutput.getStdoutLines()) {
             com.google.gson.JsonObject jsonObject = JsonUtils.tryParseJsonObject(line);
-            if (jsonObject == null) continue;
+            if (jsonObject == null) {
+                continue;
+            }
             CompilerMessage msg = CompilerMessage.fromJson(jsonObject);
             if (msg != null) {
                 CompilerMessage converted = msg.convertPaths(getToolchain()::toLocalPath);
@@ -480,13 +501,16 @@ public class Cargo extends RustupComponent {
             if (!Files.isSameFile(projectDirectory, workspaceRootPath)) {
                 return new Object[]{project, buildMessages};
             }
-        } catch (java.io.IOException e) {
+        }
+        catch (java.io.IOException e) {
             return new Object[]{project, buildMessages};
         }
 
         String normalisedWorkspace = projectDirectory.normalize().toString();
         java.util.function.Function<String, String> replacer = path -> {
-            if (!path.startsWith(workspaceRoot)) return path;
+            if (!path.startsWith(workspaceRoot)) {
+                return path;
+            }
             return normalisedWorkspace + path.substring(workspaceRoot.length());
         };
         return new Object[]{
@@ -519,7 +543,9 @@ public class Cargo extends RustupComponent {
         OpenApiUtil.fullyRefreshDirectory(directory);
 
         VirtualFile manifest = directory.findChild(CargoConstants.MANIFEST_FILE);
-        if (manifest == null) throw new IllegalStateException("Can't find the manifest file");
+        if (manifest == null) {
+            throw new IllegalStateException("Can't find the manifest file");
+        }
         String fileName = createBinary ? RsConstants.MAIN_RS_FILE : RsConstants.LIB_RS_FILE;
         VirtualFile srcFile = directory.findFileByRelativePath("src/" + fileName);
         List<VirtualFile> sourceFiles = srcFile != null ? List.of(srcFile) : Collections.emptyList();
@@ -558,11 +584,15 @@ public class Cargo extends RustupComponent {
         OpenApiUtil.fullyRefreshDirectory(directory);
 
         VirtualFile manifest = directory.findChild(CargoConstants.MANIFEST_FILE);
-        if (manifest == null) throw new IllegalStateException("Can't find the manifest file");
+        if (manifest == null) {
+            throw new IllegalStateException("Can't find the manifest file");
+        }
         List<VirtualFile> sourceFiles = new ArrayList<>();
         for (String srcName : List.of("main", "lib")) {
             VirtualFile f = directory.findFileByRelativePath("src/" + srcName + ".rs");
-            if (f != null) sourceFiles.add(f);
+            if (f != null) {
+                sourceFiles.add(f);
+            }
         }
         return new RsResult.Ok<>(new GeneratedFilesHolder(manifest, sourceFiles));
     }
@@ -603,7 +633,8 @@ public class Cargo extends RustupComponent {
                 EnvironmentVariablesData.create(specific.getEnvs(), true),
                 false
             );
-        } else {
+        }
+        else {
             CargoCheckArgs.FullWorkspace fullWs = (CargoCheckArgs.FullWorkspace) args;
             List<String> arguments = new ArrayList<>();
             arguments.add("--message-format=json");
@@ -632,7 +663,9 @@ public class Cargo extends RustupComponent {
         return RsProcessResultUtil.ignoreExitCode(result);
     }
 
-    /** True when the cargo this tool runs is the rustup shim, which is what understands {@code +toolchain}. */
+    /**
+     * True when the cargo this tool runs is the rustup shim, which is what understands {@code +toolchain}.
+     */
     private boolean supportsToolchainOverride() {
         return org.rust.cargo.api.util.ToolchainUtil.hasLocalExecutable(
             getToolchain().pathToExecutable(NAME).getParent(), Rustup.NAME);
@@ -655,7 +688,8 @@ public class Cargo extends RustupComponent {
         if (supportsToolchainOverride()) {
             if (patched.getChannel() != RustChannel.DEFAULT) {
                 parameters.add("+" + patched.getChannel());
-            } else if (patched.getToolchain() != null) {
+            }
+            else if (patched.getToolchain() != null) {
                 parameters.add("+" + patched.getToolchain());
             }
         }
@@ -730,7 +764,7 @@ public class Cargo extends RustupComponent {
         return myHttp != null ? myHttp : HttpProxyManager.getInstance();
     }
 
-    
+
     public void setHttp(HttpProxyManager http) {
         myHttp = http;
     }
@@ -744,8 +778,13 @@ public class Cargo extends RustupComponent {
             mySourceFiles = sourceFiles;
         }
 
-        public VirtualFile getManifest() { return myManifest; }
-        public List<VirtualFile> getSourceFiles() { return mySourceFiles; }
+        public VirtualFile getManifest() {
+            return myManifest;
+        }
+
+        public List<VirtualFile> getSourceFiles() {
+            return mySourceFiles;
+        }
     }
 
     public static CargoPatch getCargoCommonPatch(Project project) {
@@ -793,7 +832,9 @@ public class Cargo extends RustupComponent {
                         .flatMap(t -> t.getRequiredFeatures().stream())
                         .distinct()
                         .collect(Collectors.joining(","));
-                    if (!features.isEmpty()) pre.add("--features=" + features);
+                    if (!features.isEmpty()) {
+                        pre.add("--features=" + features);
+                    }
                 }
             }
         }
@@ -802,7 +843,9 @@ public class Cargo extends RustupComponent {
         boolean forceColors = colors &&
             COLOR_ACCEPTING_COMMANDS.contains(commandLine.getCommand()) &&
             commandLine.getAdditionalArguments().stream().noneMatch(s -> s.startsWith("--color"));
-        if (forceColors) pre.add(0, "--color=always");
+        if (forceColors) {
+            pre.add(0, "--color=always");
+        }
 
         List<String> newArgs = post.isEmpty() ? pre : new ArrayList<>();
         if (!post.isEmpty()) {
@@ -849,14 +892,17 @@ public class Cargo extends RustupComponent {
         @Nullable SemVer minVersion
     ) {
         RsToolchainBase toolchain = RsToolchainLocator.getToolchain(project);
-        if (toolchain == null) return false;
+        if (toolchain == null) {
+            return false;
+        }
         Cargo cargo = CargoExtUtil.cargo(toolchain);
         java.util.function.Supplier<Boolean> isNotInstalled = () -> cargo.checkBinaryCrateIsNotInstalled(crateName, minVersion);
         boolean needInstall;
         if (OpenApiUtil.isDispatchThread()) {
             needInstall = OpenApiUtil.computeWithCancelableProgress(project,
                 RsBundle.message("progress.title.checking.if.installed", crateName), isNotInstalled);
-        } else {
+        }
+        else {
             needInstall = isNotInstalled.get();
         }
 

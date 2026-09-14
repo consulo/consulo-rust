@@ -95,7 +95,6 @@ open module consulo.rust.platform.compat {
     exports com.intellij.ui.components.fields;
     exports com.intellij.ui.dsl.builder;
     exports com.intellij.ui.dsl.gridLayout;
-    exports com.intellij.ui.icons;
     exports com.intellij.util;
     exports com.intellij.util.io.externalizer;
     exports com.intellij.util.text;

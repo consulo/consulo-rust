@@ -598,8 +598,7 @@ public final class OpenApiUtil {
         RsExperiments.FN_LIKE_PROC_MACROS,
         RsExperiments.DERIVE_PROC_MACROS,
         RsExperiments.ATTR_PROC_MACROS,
-        RsExperiments.CRATES_LOCAL_INDEX,
-        RsExperiments.WSL_TOOLCHAIN
+        RsExperiments.CRATES_LOCAL_INDEX
     );
 
     /** Per-session overrides set through {@link #setFeatureEnabled}. */

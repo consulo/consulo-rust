@@ -275,7 +275,7 @@ public class CargoTreeModel implements TreeModel<CargoTreeNode> {
             case CargoTreeNode.MemberNode ignored -> RustIconGroup.cargo();
             case CargoTreeNode.TargetsNode ignored -> RustIconGroup.targets();
             case CargoTreeNode.TargetNode targetNode -> targetIcon(targetNode.target());
-            case CargoTreeNode.PlatformsNode ignored -> PlatformIconGroup.generalGearplain()
+            case CargoTreeNode.PlatformsNode ignored -> PlatformIconGroup.generalGearplain();
             case CargoTreeNode.PlatformNode ignored -> null;
         };
     }

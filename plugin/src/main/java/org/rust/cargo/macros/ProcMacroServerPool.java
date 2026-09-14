@@ -5,39 +5,29 @@
 
 package org.rust.cargo.macros;
 
-import org.rust.lang.core.macros.proc.ProcMacroServer;
-import org.rust.lang.core.macros.proc.RequestJsonSerializer;
-import org.rust.lang.core.macros.proc.ResponseJsonDeserializer;
-
-import org.rust.lang.core.macros.proc.ProMacroExpanderVersion;
-import org.rust.lang.core.macros.proc.ProcessAbortedException;
-import org.rust.lang.core.macros.proc.ProcessCreationException;
-import org.rust.lang.core.macros.proc.Request;
-import org.rust.lang.core.macros.proc.RequestSendError;
-import org.rust.lang.core.macros.proc.Response;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import consulo.execution.configuration.EnvironmentVariablesData;
-import consulo.process.io.ProcessIOExecutorService;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import consulo.application.util.concurrent.AppExecutorUtil;
 import consulo.disposer.Disposable;
 import consulo.disposer.Disposer;
-import consulo.application.util.concurrent.AppExecutorUtil;
-import org.rust.stdext.PathUtil;
+import consulo.execution.configuration.EnvironmentVariablesData;
+import consulo.http.HttpProxyManager;
+import consulo.process.io.ProcessIOExecutorService;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.api.toolchain.BacktraceMode;
 import org.rust.cargo.toolchain.RsToolchainBase;
-import org.rust.cargo.toolchain.wsl.RsWslToolchain;
 import org.rust.lang.core.macros.MacroExpansionManagerUtil;
+import org.rust.lang.core.macros.proc.*;
 import org.rust.lang.core.macros.tt.FlatTree;
 import org.rust.lang.core.macros.tt.FlatTreeJsonDeserializer;
 import org.rust.lang.core.macros.tt.FlatTreeJsonSerializer;
-import org.rust.openapiext.RsPathManager;
 import org.rust.openapiext.OpenApiUtil;
+import org.rust.openapiext.RsPathManager;
 import org.rust.stdext.RsResult;
 
 import java.io.*;
@@ -48,9 +38,6 @@ import java.util.concurrent.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-import consulo.http.HttpProxyManager;
-import java.util.concurrent.ExecutionException;
 
 /**
  * A pool of proc macro expander server processes.
@@ -150,45 +137,55 @@ public class ProcMacroServerPool implements ProcMacroServer, Disposable {
         ProcMacroServerProcess io;
         try {
             io = alloc();
-        } catch (ProcessCreationException e) {
+        }
+        catch (ProcessCreationException e) {
             return new RsResult.Err<>(new RequestSendError.ProcessCreation(e));
         }
         try {
             Response response = io.send(request, timeout);
             return new RsResult.Ok<>(response);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             return new RsResult.Err<>(new RequestSendError.IO(e));
-        } catch (TimeoutException e) {
+        }
+        catch (TimeoutException e) {
             return new RsResult.Err<>(new RequestSendError.Timeout(e));
-        } finally {
+        }
+        finally {
             free(io);
         }
     }
 
     @Nonnull
     private ProcMacroServerProcess alloc() throws ProcessCreationException {
-        if (myIsDisposed) throw new IllegalStateException("Pool is disposed");
+        if (myIsDisposed) {
+            throw new IllegalStateException("Pool is disposed");
+        }
         ProcMacroServerProcess value;
         myStackLock.lock();
         try {
             while (myStack.isEmpty()) {
                 try {
                     myStackIsNotEmpty.await();
-                } catch (InterruptedException e) {
+                }
+                catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     throw new ProcessCreationException(new IOException("Interrupted while waiting for process", e));
                 }
             }
             value = myStack.remove(myStack.size() - 1);
-        } finally {
+        }
+        finally {
             myStackLock.unlock();
         }
 
         if (value == null) {
             return supply();
-        } else if (value.isValid()) {
+        }
+        else if (value.isValid()) {
             return value;
-        } else {
+        }
+        else {
             Disposer.dispose(value);
             return supply();
         }
@@ -199,9 +196,12 @@ public class ProcMacroServerPool implements ProcMacroServer, Disposable {
         ProcMacroServerProcess process;
         try {
             process = ProcMacroServerProcess.createAndRun(myToolchain, myExpanderExecutable);
-        } catch (Throwable t) {
+        }
+        catch (Throwable t) {
             free(null);
-            if (t instanceof ProcessCreationException) throw (ProcessCreationException) t;
+            if (t instanceof ProcessCreationException) {
+                throw (ProcessCreationException) t;
+            }
             throw new ProcessCreationException(new IOException(t));
         }
         Disposer.register(this, process);
@@ -213,7 +213,8 @@ public class ProcMacroServerPool implements ProcMacroServer, Disposable {
         try {
             myStack.add(process);
             myStackIsNotEmpty.signal();
-        } finally {
+        }
+        finally {
             myStackLock.unlock();
         }
     }
@@ -229,7 +230,8 @@ public class ProcMacroServerPool implements ProcMacroServer, Disposable {
                     toDispose.add(process);
                 }
             }
-        } finally {
+        }
+        finally {
             myStackLock.unlock();
         }
         for (ProcMacroServerProcess process : toDispose) {
@@ -249,7 +251,9 @@ public class ProcMacroServerPool implements ProcMacroServer, Disposable {
     @Nullable
     public static Path findExpanderExecutablePath(@Nonnull RsToolchainBase toolchain, @Nonnull String sysroot) {
         Path fromToolchain = findExpanderFromToolchain(toolchain, sysroot);
-        if (fromToolchain != null) return fromToolchain;
+        if (fromToolchain != null) {
+            return fromToolchain;
+        }
         return findEmbeddedExpander(toolchain);
     }
 
@@ -258,17 +262,15 @@ public class ProcMacroServerPool implements ProcMacroServer, Disposable {
         String binaryName = toolchain.getExecutableName("rust-analyzer-proc-macro-srv");
         Path expanderPath = Path.of(sysroot, "libexec", binaryName);
 
-        if (toolchain instanceof RsWslToolchain) {
-            if (!expanderPath.toFile().isFile()) return null;
-        } else {
-            if (!expanderPath.toFile().canExecute()) return null;
+        if (!expanderPath.toFile().canExecute()) {
+            return null;
         }
         return expanderPath;
     }
 
     @Nullable
     private static Path findEmbeddedExpander(@Nonnull RsToolchainBase toolchain) {
-        return RsPathManager.INSTANCE.nativeHelper(toolchain instanceof RsWslToolchain);
+        return RsPathManager.INSTANCE.nativeHelper(false);
     }
 }
 
@@ -315,28 +317,41 @@ class ProcMacroServerProcess implements Runnable, Disposable {
             throw new IllegalStateException("`send` must not be called from multiple threads simultaneously");
         }
         try {
-            if (!myProcess.isAlive()) throw new IOException("The process has been killed");
+            if (!myProcess.isAlive()) {
+                throw new IOException("The process has been killed");
+            }
             CompletableFuture<Response> responseFuture = new CompletableFuture<>();
             if (!myRequestQueue.offer(new RequestEntry(request, responseFuture), timeout, TimeUnit.MILLISECONDS)) {
                 throw new TimeoutException();
             }
             try {
                 return responseFuture.get(timeout, TimeUnit.MILLISECONDS);
-            } catch (ExecutionException e) {
+            }
+            catch (ExecutionException e) {
                 Throwable cause = e.getCause();
-                if (cause instanceof IOException) throw (IOException) cause;
+                if (cause instanceof IOException) {
+                    throw (IOException) cause;
+                }
                 throw new IOException("Unexpected error", cause != null ? cause : e);
-            } catch (InterruptedException e) {
+            }
+            catch (InterruptedException e) {
                 throw new IOException("Interrupted", e);
             }
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             throw new IOException("Interrupted while offering request", e);
-        } catch (Throwable t) {
+        }
+        catch (Throwable t) {
             Disposer.dispose(this);
-            if (t instanceof IOException) throw (IOException) t;
-            if (t instanceof TimeoutException) throw (TimeoutException) t;
+            if (t instanceof IOException) {
+                throw (IOException) t;
+            }
+            if (t instanceof TimeoutException) {
+                throw (TimeoutException) t;
+            }
             throw new IOException(t);
-        } finally {
+        }
+        finally {
             myLastUsed = System.currentTimeMillis();
             myLock.unlock();
         }
@@ -357,13 +372,15 @@ class ProcMacroServerProcess implements Runnable, Disposable {
                 RequestEntry entry;
                 try {
                     entry = myRequestQueue.take();
-                } catch (InterruptedException e) {
+                }
+                catch (InterruptedException e) {
                     return;
                 }
                 Response response;
                 try {
                     response = writeAndRead(entry.request);
-                } catch (Throwable e) {
+                }
+                catch (Throwable e) {
                     Throwable refined = tryRefineException(e);
                     entry.future.completeExceptionally(refined != null ? refined : e);
                     return;
@@ -371,7 +388,8 @@ class ProcMacroServerProcess implements Runnable, Disposable {
                 myIsFirstRequest = false;
                 entry.future.complete(response);
             }
-        } finally {
+        }
+        finally {
             if (!myIsDisposed) {
                 killProcess();
             }
@@ -394,7 +412,8 @@ class ProcMacroServerProcess implements Runnable, Disposable {
                 if (myProcess.waitFor(waitTimeout, TimeUnit.MILLISECONDS)) {
                     return new ProcessAbortedException(e, myProcess.exitValue());
                 }
-            } catch (InterruptedException ignored) {
+            }
+            catch (InterruptedException ignored) {
             }
         }
 
@@ -416,7 +435,9 @@ class ProcMacroServerProcess implements Runnable, Disposable {
         while (true) {
             reader.mark(1);
             int ch = reader.read();
-            if (ch == -1) throw new EOFException();
+            if (ch == -1) {
+                throw new EOFException();
+            }
             if (ch == '{') {
                 reader.reset();
                 break;
@@ -445,7 +466,8 @@ class ProcMacroServerProcess implements Runnable, Disposable {
             java.nio.file.Files.createDirectories(dir);
             // Clean directory
             org.rust.stdext.PathUtil.cleanDirectory(dir);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             MacroExpansionManagerUtil.MACRO_LOG.error(e);
             dir = Paths.get(".");
         }
@@ -479,13 +501,14 @@ class ProcMacroServerProcess implements Runnable, Disposable {
         try {
             // toProcessBuilder isn't exposed in Consulo's GeneralCommandLine; use createProcess
             process = commandLine.createProcess();
-        } catch (consulo.process.ExecutionException e) {
+        }
+        catch (consulo.process.ExecutionException e) {
             throw new ProcessCreationException(new IOException(e));
         }
 
         MacroExpansionManagerUtil.MACRO_LOG.debug("Started proc macro expander process (pid: " + process.pid() + ")");
 
-        return new ProcMacroServerProcess(process, toolchain instanceof RsWslToolchain);
+        return new ProcMacroServerProcess(process, false);
     }
 
     private static final class RequestEntry {

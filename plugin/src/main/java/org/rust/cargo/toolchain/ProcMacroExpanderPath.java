@@ -7,7 +7,6 @@ package org.rust.cargo.toolchain;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.cargo.toolchain.wsl.RsWslToolchain;
 import org.rust.openapiext.RsPathManager;
 
 import java.nio.file.Path;
@@ -30,17 +29,15 @@ public final class ProcMacroExpanderPath {
     private static Path findInToolchain(@Nonnull RsToolchainBase toolchain, @Nonnull String sysroot) {
         String binaryName = toolchain.getExecutableName("rust-analyzer-proc-macro-srv");
         Path expanderPath = Path.of(sysroot, "libexec", binaryName);
-        if (toolchain instanceof RsWslToolchain) {
-            if (!expanderPath.toFile().isFile()) return null;
-        }
-        else {
-            if (!expanderPath.toFile().canExecute()) return null;
+
+        if (!expanderPath.toFile().canExecute()) {
+            return null;
         }
         return expanderPath;
     }
 
     @Nullable
     private static Path findEmbedded(@Nonnull RsToolchainBase toolchain) {
-        return RsPathManager.INSTANCE.nativeHelper(toolchain instanceof RsWslToolchain);
+        return RsPathManager.INSTANCE.nativeHelper(false);
     }
 }
