@@ -26,11 +26,13 @@ import consulo.application.util.registry.Registry;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.cargo.CargoConstants;
 import org.rust.cargo.api.settings.RustProjectSettingsService;
 import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.cargo.toolchain.RsToolchainBase;
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import org.rust.cargo.toolchain.tools.Rustup;
 import org.rust.notifications.NotificationUtils;
 
@@ -85,13 +87,18 @@ public final class CargoProjectServiceUtil {
             properties.setValue(key, true);
         }
 
+        // Resolved once here and carried into the setup, so the module is bound to the very bundle this
+        // decision was made on. Null while the bundle is still being registered, and for good when none
+        // is configured - either way there is nothing to bind to.
+        Sdk toolchainBundle = findToolchainBundle();
+
         CargoProjectsService cargoProjects = getCargoProjects(project);
         boolean hasWorkspace = cargoProjects.getHasAtLeastOneValidProject();
 
         // Editor notifications ask for this on every pass over every file, so the common case - nothing
         // left to do - has to be answered without touching the module model. Building one takes the
         // write lock, which restarts the very analysis that asked.
-        boolean needsBinding = anyModuleNeedsBinding(project);
+        boolean needsBinding = toolchainBundle != null && anyModuleNeedsBinding(project);
         // A project restored from disk reports itself valid while carrying only its manifest path - the
         // packages arrive with the first refresh. An explicit request therefore always refreshes, and
         // only the notification passes lean on the valid flag.
@@ -102,9 +109,11 @@ public final class CargoProjectServiceUtil {
             return discover;
         }
 
-        if (needsRefresh && refreshAttempts(project).incrementAndGet() > MAX_REFRESH_ATTEMPTS) {
-            // The workspace cannot be produced - a broken manifest, a toolchain that cannot run. Retrying
-            // on every notification pass would spin forever, so let the banner report it instead.
+        // Counts binding as well as refreshing. A module that can never be bound - no bundle, or one
+        // that does not resolve to a usable toolchain - reports that it still needs binding on every
+        // pass, and that path used to skip this cap and spin forever. Retrying a few times covers the
+        // bundle arriving late during startup; after that the banner reports it instead.
+        if (refreshAttempts(project).incrementAndGet() > MAX_REFRESH_ATTEMPTS) {
             return discover;
         }
 
@@ -120,7 +129,7 @@ public final class CargoProjectServiceUtil {
                 return discover;
             }
             project.putUserData(SETUP_STARTED_AT, System.nanoTime());
-            project.putUserData(SETUP_IN_FLIGHT, setupAsync(project, cargoProjects, discover));
+            project.putUserData(SETUP_IN_FLIGHT, setupAsync(project, cargoProjects, discover, toolchainBundle));
         }
         return discover;
     }
@@ -136,13 +145,16 @@ public final class CargoProjectServiceUtil {
     private static Future<?> setupAsync(
         @Nonnull Project project,
         @Nonnull CargoProjectsService cargoProjects,
-        boolean discover
+        boolean discover,
+        @Nullable Sdk toolchainBundle
     ) {
         CompletableFuture<Void> refreshed = new CompletableFuture<>();
 
         Coroutine<Void, Void> chain = Coroutine
             .first(WriteLock.<Void, Void>apply(input -> {
-                setupRustModules(project);
+                if (toolchainBundle != null) {
+                    setupRustModules(project, toolchainBundle);
+                }
                 return null;
             }))
             .then(CodeExecution.<Void, Void>apply(input -> {
@@ -207,13 +219,13 @@ public final class CargoProjectServiceUtil {
      * bundle. The toolchain of a project is read back from that binding, so a module which owns a
      * Cargo project but carries no Rust extension would otherwise have no toolchain at all.
      */
-    private static void setupRustModules(@Nonnull Project project) {
-        Sdk toolchainBundle = SdkTable.getInstance()
-            .findMostRecentSdk(sdk -> sdk.getSdkType() instanceof RustBundleType);
-        if (toolchainBundle == null) {
-            return;
-        }
+    /** The most recent Rust toolchain bundle, or {@code null} when none is configured. */
+    @Nullable
+    private static Sdk findToolchainBundle() {
+        return SdkTable.getInstance().findMostRecentSdk(sdk -> sdk.getSdkType() instanceof RustBundleType);
+    }
 
+    private static void setupRustModules(@Nonnull Project project, @Nonnull Sdk toolchainBundle) {
         for (Module module : ModuleManager.getInstance(project).getModules()) {
             if (isAlreadyBound(module) || !ownsManifest(module)) {
                 continue;
