@@ -5,19 +5,16 @@
 
 package org.rust.cargo.runconfig;
 
-import consulo.execution.configuration.RunConfigurationExtensionsManager;
-import consulo.execution.configuration.CommandLineState;
-import consulo.process.cmd.GeneralCommandLine;
-import consulo.process.ProcessHandler;
-import consulo.execution.runner.ExecutionEnvironment;
-import jakarta.annotation.Nonnull;
-import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
-
-import static com.intellij.openapi.components.Service.Level;
+import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
-import consulo.annotation.component.ComponentScope;
-import consulo.application.ApplicationManager;
+import consulo.execution.configuration.CommandLineState;
+import consulo.execution.configuration.RunConfigurationExtensionsManager;
+import consulo.execution.runner.ExecutionEnvironment;
+import consulo.process.ProcessHandler;
+import consulo.process.cmd.GeneralCommandLine;
+import jakarta.annotation.Nonnull;
+import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 
 @ServiceAPI(ComponentScope.APPLICATION)
 @ServiceImpl

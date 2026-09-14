@@ -59,10 +59,8 @@ open module consulo.rust.platform.compat {
     exports com.intellij.execution.process;
     exports com.intellij.execution.target;
     exports com.intellij.execution.testframework.actions;
-    exports com.intellij.execution.wsl;
     exports com.intellij.formatting.service;
     exports com.intellij.ide.nls;
-    exports com.intellij.openapi.application;
     exports com.intellij.openapi.components;
     exports com.intellij.openapi.editor.impl;
     exports com.intellij.openapi.externalSystem.autoimport;
@@ -87,8 +85,6 @@ open module consulo.rust.platform.compat {
     exports com.intellij.structuralsearch.impl.matcher.strategies;
     exports com.intellij.structuralsearch.plugin.replace;
     exports com.intellij.structuralsearch.plugin.ui;
-    exports com.intellij.task;
-    exports com.intellij.task.impl;
     exports com.intellij.ui;
     exports com.intellij.ui.breadcrumbs;
     exports com.intellij.ui.components;
