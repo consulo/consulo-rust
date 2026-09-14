@@ -17,6 +17,8 @@ import consulo.ui.layout.VerticalLayout;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
+import java.util.Objects;
+
 /**
  * Editable counterpart of {@link RustModuleExtension}, shown in the module settings dialog.
  */
@@ -46,8 +48,14 @@ public class RustMutableModuleExtension extends RustModuleExtension implements M
         myIsEnabled = enabled;
     }
 
+    /** @see RustModuleExtension#getBuildTarget() */
+    public void setBuildTarget(@Nullable String buildTarget) {
+        myBuildTarget = buildTarget;
+    }
+
     @Override
     public boolean isModified(@Nonnull RustModuleExtension extension) {
-        return isModifiedImpl(extension);
+        return isModifiedImpl(extension)
+            || !Objects.equals(getBuildTarget(), extension.getBuildTarget());
     }
 }

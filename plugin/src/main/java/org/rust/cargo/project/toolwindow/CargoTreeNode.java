@@ -32,4 +32,12 @@ public sealed interface CargoTreeNode {
 
     record TargetNode(@Nonnull CargoProject cargoProject, @Nonnull CargoWorkspace.Target target) implements CargoTreeNode {
     }
+
+    /** Groups the target triples the project can be viewed as. */
+    record PlatformsNode(@Nonnull CargoProject cargoProject) implements CargoTreeNode {
+    }
+
+    /** A single target triple, e.g. {@code x86_64-pc-windows-msvc}. */
+    record PlatformNode(@Nonnull CargoProject cargoProject, @Nonnull String triple) implements CargoTreeNode {
+    }
 }

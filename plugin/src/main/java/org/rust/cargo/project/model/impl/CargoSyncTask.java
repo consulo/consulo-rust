@@ -35,6 +35,9 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 import org.rust.RsTask;
+import consulo.application.ReadAction;
+import consulo.rust.module.extension.RustModuleExtension;
+import consulo.virtualFileSystem.LocalFileSystem;
 import org.rust.cargo.api.CargoConfig;
 import org.rust.cargo.api.CfgOptions;
 import org.rust.cargo.api.model.CargoProject;
@@ -332,6 +335,19 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
                     cargoConfig = CargoConfig.DEFAULT;
                 }
 
+                // An explicitly chosen platform overrides cargo's own configuration. It is folded into
+                // the config rather than kept beside it because the stdlib fetch reads the build
+                // targets from there as well, and the two must not disagree.
+                String selectedTarget = ReadAction.compute(() -> {
+                    VirtualFile rootDir = LocalFileSystem.getInstance().findFileByNioFile(projectDirectory);
+                    RustModuleExtension extension =
+                        RustModuleExtension.findExtension(childContext.project, rootDir);
+                    return extension == null ? null : extension.getBuildTarget();
+                });
+                if (selectedTarget != null) {
+                    cargoConfig = new CargoConfig(List.of(selectedTarget), cargoConfig.env());
+                }
+
                 CargoEventService.getInstance(childContext.project).onMetadataCall(projectDirectory);
 
                 List<String> buildTargets = cargoConfig.buildTargets();
@@ -376,10 +392,13 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
 
                 Path manifestPath = projectDirectory.resolve("Cargo.toml");
 
+                // The cache is keyed only by toolchain version, so a target-specific answer must not
+                // be stored under it - two platforms would share one entry.
+                String cfgTarget = selectedTarget;
                 RsResult<CfgOptions, ?> cfgOptionsResult = UnitTestRustcCacheService.cached(
                     rustcVersion,
-                    () -> !Files.exists(projectDirectory.resolve(".cargo")),
-                    () -> cargo.getCfgOption(childContext.project, projectDirectory)
+                    () -> cfgTarget == null && !Files.exists(projectDirectory.resolve(".cargo")),
+                    () -> cargo.getCfgOption(childContext.project, projectDirectory, cfgTarget)
                 );
                 CfgOptions cfgOptions;
                 if (cfgOptionsResult instanceof RsResult.Ok<CfgOptions, ?> ok) {
@@ -391,7 +410,7 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
                         RsBundle.message("build.event.title.fetching.target.specific.cfg.options"),
                         RsBundle.message("build.event.message.fetching.target.specific.cfg.options.failed.fallback.to.host.options", errMessage)
                     );
-                    cfgOptions = Rustc.create(toolchain).getCfgOptions(projectDirectory);
+                    cfgOptions = Rustc.create(toolchain).getCfgOptions(projectDirectory, cfgTarget);
                 }
 
                 CargoWorkspace ws = CargoWorkspaceFactory.deserialize(

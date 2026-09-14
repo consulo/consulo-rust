@@ -82,10 +82,6 @@ public final class RsIcons {
     public static final Image CARGO_GENERATE = RustIconGroup.cargogenerate();
     public static final Image WASM_PACK = RustIconGroup.wasmpack();
 
-    public static final Image GEAR = RustIconGroup.gear();
-    public static final Image GEAR_OFF = RustIconGroup.gearoff();
-    public static final Image GEAR_ANIMATED = GEAR;
-
     public static Image addFinalMark(Image image) {
         return ImageEffects.layered(image, FINAL_MARK);
     }
@@ -100,13 +96,5 @@ public final class RsIcons {
 
     public static Image multiple(Image image) {
         return image;
-    }
-
-    public static Image grayed(Image image) {
-        return image;
-    }
-
-    public static Image rotated(Image original, double angle) {
-        return original;
     }
 }

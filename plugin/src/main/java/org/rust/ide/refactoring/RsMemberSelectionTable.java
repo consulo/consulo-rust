@@ -6,14 +6,11 @@
 package org.rust.ide.refactoring;
 
 import consulo.language.editor.refactoring.ui.AbstractMemberSelectionTable;
-import com.intellij.ui.RowIcon;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.ext.RsItemElement;
 
-import javax.swing.*;
 import java.util.List;
-import consulo.ui.image.Image;
 
 public class RsMemberSelectionTable extends AbstractMemberSelectionTable<RsItemElement, RsMemberInfo> {
 
@@ -31,10 +28,6 @@ public class RsMemberSelectionTable extends AbstractMemberSelectionTable<RsItemE
     @Override
     protected boolean isAbstractColumnEditable(int rowIndex) {
         return false;
-    }
-
-    protected void setVisibilityIcon(@Nonnull RsMemberInfo memberInfo, @Nonnull consulo.ui.image.Image icon) {
-        // we don't set visibility icon
     }
 
     @Nullable

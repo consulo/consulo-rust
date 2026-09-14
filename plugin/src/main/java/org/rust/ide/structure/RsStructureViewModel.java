@@ -4,29 +4,18 @@
  */
 
 package org.rust.ide.structure;
-import consulo.application.util.Queryable;
 
-import consulo.ui.ex.tree.PresentationData;
 import consulo.fileEditor.structureView.StructureViewModel;
 import consulo.language.editor.structureView.StructureViewModelBase;
 import consulo.fileEditor.structureView.StructureViewTreeElement;
-import consulo.ui.ex.tree.TreeAnchorizer;
 import consulo.fileEditor.structureView.tree.Filter;
 import consulo.fileEditor.structureView.tree.Sorter;
-import consulo.fileEditor.structureView.tree.TreeElement;
-import consulo.navigation.ItemPresentation;
 import consulo.codeEditor.Editor;
-import consulo.navigation.Navigatable;
-import consulo.language.psi.PsiElement;
-import com.intellij.ui.icons.RowIcon;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.lang.core.presentation.PresentationUtil;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
 
-import javax.swing.*;
-import java.util.*;
 import org.rust.lang.core.psi.impl.*;
 
 public class RsStructureViewModel

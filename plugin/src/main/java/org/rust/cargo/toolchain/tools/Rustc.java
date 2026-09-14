@@ -128,11 +128,14 @@ public class Rustc extends RustupComponent {
     }
 
     @Nullable
-    private List<String> getRawCfgOption(@Nullable Path projectDirectory) {
+    private List<String> getRawCfgOption(@Nullable Path projectDirectory, @Nullable String target) {
         int timeoutMs = 10000;
+        String[] parameters = target == null
+            ? new String[]{"--print", "cfg"}
+            : new String[]{"--print", "cfg", "--target", target};
         ProcessOutput output = CommandLineExt.execute(
             createBaseCommandLine(
-                new String[]{"--print", "cfg"},
+                parameters,
                 projectDirectory,
                 Map.of(RsToolchainBase.RUSTC_BOOTSTRAP, "1")
             ),
@@ -142,7 +145,12 @@ public class Rustc extends RustupComponent {
     }
 
     public CfgOptions getCfgOptions(@Nullable Path projectDirectory) {
-        List<String> rawCfgOptions = getRawCfgOption(projectDirectory);
+        return getCfgOptions(projectDirectory, null);
+    }
+
+    /** The host {@code cfg}, or that of {@code target} when one is chosen. */
+    public CfgOptions getCfgOptions(@Nullable Path projectDirectory, @Nullable String target) {
+        List<String> rawCfgOptions = getRawCfgOption(projectDirectory, target);
         if (rawCfgOptions == null) rawCfgOptions = Collections.emptyList();
         return CfgOptions.parse(rawCfgOptions);
     }

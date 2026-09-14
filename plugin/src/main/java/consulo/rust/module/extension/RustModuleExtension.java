@@ -11,9 +11,12 @@ import consulo.language.util.ModuleUtilCore;
 import consulo.module.Module;
 import consulo.module.content.layer.ModuleRootLayer;
 import consulo.module.content.layer.extension.ModuleExtensionWithSdkBase;
+import consulo.annotation.access.RequiredReadAction;
 import consulo.rust.bundle.RustBundleType;
+import consulo.util.lang.StringUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.jdom.Element;
 import org.rust.cargo.toolchain.RsToolchainBase;
 
 /**
@@ -21,8 +24,48 @@ import org.rust.cargo.toolchain.RsToolchainBase;
  */
 public class RustModuleExtension extends ModuleExtensionWithSdkBase<RustModuleExtension> {
 
+    private static final String BUILD_TARGET_ATTRIBUTE = "build-target";
+
+    /** @see #getBuildTarget() */
+    protected String myBuildTarget;
+
     public RustModuleExtension(@Nonnull String id, @Nonnull ModuleRootLayer moduleRootLayer) {
         super(id, moduleRootLayer);
+    }
+
+    /**
+     * The target triple this module is viewed as, e.g. {@code x86_64-pc-windows-msvc}, or
+     * {@code null} to follow {@code .cargo/config.toml} and otherwise the toolchain host.
+     * <p>
+     * It lives with the module rather than in workspace settings so that it survives a project
+     * reopen and travels with the module layer, like the toolchain bundle beside it.
+     */
+    @Nullable
+    public String getBuildTarget() {
+        return StringUtil.nullize(myBuildTarget, true);
+    }
+
+    @Override
+    @RequiredReadAction
+    public void commit(RustModuleExtension mutableModuleExtension) {
+        super.commit(mutableModuleExtension);
+        myBuildTarget = mutableModuleExtension.myBuildTarget;
+    }
+
+    @Override
+    protected void getStateImpl(@Nonnull Element element) {
+        super.getStateImpl(element);
+        String buildTarget = getBuildTarget();
+        if (buildTarget != null) {
+            element.setAttribute(BUILD_TARGET_ATTRIBUTE, buildTarget);
+        }
+    }
+
+    @Override
+    @RequiredReadAction
+    protected void loadStateImpl(@Nonnull Element element) {
+        super.loadStateImpl(element);
+        myBuildTarget = element.getAttributeValue(BUILD_TARGET_ATTRIBUTE);
     }
 
     @Nonnull
@@ -54,6 +97,16 @@ public class RustModuleExtension extends ModuleExtensionWithSdkBase<RustModuleEx
     @Nullable
     public static RustModuleExtension findExtension(@Nullable PsiElement element) {
         return element == null ? null : ModuleUtilCore.getExtension(element, RustModuleExtension.class);
+    }
+
+    /**
+     * The Rust extension of the module owning {@code file}, or {@code null} when there is none.
+     */
+    @Nullable
+    @RequiredReadAction
+    public static RustModuleExtension findExtension(@Nonnull consulo.project.Project project,
+                                                    @Nullable consulo.virtualFileSystem.VirtualFile file) {
+        return file == null ? null : findExtension(ModuleUtilCore.findModuleForFile(file, project));
     }
 
     /**

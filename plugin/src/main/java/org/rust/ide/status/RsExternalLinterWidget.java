@@ -144,13 +144,7 @@ public class RsExternalLinterWidget extends TextPanel.WithIconAndArrows implemen
             String status = turnedOn ? RsBundle.message("on") : RsBundle.message("off");
             setToolTipText(RsBundle.message("0.2.choice.0.is.in.progress.1.on.the.fly.analysis.is.turned.1",
                 linter.getTitle(), status, inProgress ? 0 : 1));
-            if (!turnedOn) {
-                setIcon(RsIcons.GEAR_OFF);
-            } else if (inProgress) {
-                setIcon(RsIcons.GEAR_ANIMATED);
-            } else {
-                setIcon(RsIcons.GEAR);
-            }
+
             repaint();
         });
     }

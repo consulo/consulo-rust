@@ -311,8 +311,25 @@ public class Cargo extends RustupComponent {
         Project owner,
         @Nullable Path projectDirectory
     ) {
+        return getCfgOption(owner, projectDirectory, null);
+    }
+
+    /**
+     * The {@code cfg} the compiler would use. Without a target cargo answers for whatever
+     * {@code .cargo/config.toml} selects, falling back to the host; {@code target} overrides both.
+     */
+    public RsResult<CfgOptions, org.rust.openapiext.RsProcessExecutionException> getCfgOption(
+        Project owner,
+        @Nullable Path projectDirectory,
+        @Nullable String target
+    ) {
+        List<String> parameters = new ArrayList<>(List.of("rustc", "-Z", "unstable-options", "--print", "cfg"));
+        if (target != null) {
+            parameters.add("--target");
+            parameters.add(target);
+        }
         GeneralCommandLine cmd = createBaseCommandLine(
-            List.of("rustc", "-Z", "unstable-options", "--print", "cfg"),
+            parameters,
             projectDirectory,
             Map.of(RsToolchainBase.RUSTC_BOOTSTRAP, "1")
         );

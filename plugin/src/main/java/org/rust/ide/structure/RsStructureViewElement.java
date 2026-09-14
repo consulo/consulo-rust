@@ -4,37 +4,26 @@
  */
 
 package org.rust.ide.structure;
-import consulo.application.util.Queryable;
 
-import consulo.ui.ex.tree.PresentationData;
 import consulo.fileEditor.structureView.StructureViewTreeElement;
-import consulo.ui.ex.tree.TreeAnchorizer;
 import consulo.fileEditor.structureView.tree.TreeElement;
+import consulo.language.psi.PsiElement;
 import consulo.navigation.ItemPresentation;
 import consulo.navigation.Navigatable;
-import consulo.language.psi.PsiElement;
-import com.intellij.ui.icons.RowIcon;
-import consulo.ide.impl.idea.util.PlatformIcons;
+import consulo.ui.ex.tree.PresentationData;
+import consulo.ui.ex.tree.TreeAnchorizer;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.presentation.PresentationUtil;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
-
-import javax.swing.*;
-import java.util.*;
-import org.rust.lang.core.psi.ext.impl.RsEnumItemUtil;
-import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
-import org.rust.lang.core.psi.ext.impl.RsMacroCallUtil;
-import org.rust.lang.core.psi.ext.impl.RsItemsOwnerUtil;
-import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsMod;
-import consulo.platform.base.icon.PlatformIconGroup;
-import consulo.ui.image.Image;
-import org.rust.openapiext.OpenApiUtil;
 import org.rust.lang.core.psi.ext.impl.*;
 
-public class RsStructureViewElement implements StructureViewTreeElement, Queryable {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class RsStructureViewElement implements StructureViewTreeElement {
 
     public static final String NAME_KEY = "name";
     public static final String VISIBILITY_KEY = "visibility";
@@ -92,7 +81,7 @@ public class RsStructureViewElement implements StructureViewTreeElement, Queryab
 
     @Override
     @Nonnull
-    public TreeElement [] getChildren() {
+    public TreeElement[] getChildren() {
         List<RsElement> children = getChildElements();
         TreeElement[] result = new TreeElement[children.size()];
         for (int i = 0; i < children.size(); i++) {
@@ -104,7 +93,9 @@ public class RsStructureViewElement implements StructureViewTreeElement, Queryab
     @Nonnull
     private List<RsElement> getChildElements() {
         RsElement psi = getPsi();
-        if (psi == null) return Collections.emptyList();
+        if (psi == null) {
+            return Collections.emptyList();
+        }
 
         if (psi instanceof RsEnumItem) {
             return new ArrayList<>(RsEnumItemUtil.getVariants((RsEnumItem) psi));
@@ -113,7 +104,8 @@ public class RsStructureViewElement implements StructureViewTreeElement, Queryab
             RsTraitOrImpl traitOrImpl = (RsTraitOrImpl) psi;
             if (expandMacros) {
                 return new ArrayList<>(RsTraitOrImplUtil.getExpandedMembers(traitOrImpl));
-            } else {
+            }
+            else {
                 return new ArrayList<>(RsTraitOrImplUtil.getExplicitMembers(traitOrImpl));
             }
         }
@@ -166,47 +158,19 @@ public class RsStructureViewElement implements StructureViewTreeElement, Queryab
                     }
                 }
                 result.addAll(extractItemsFromList(childItems));
-            } else if (item instanceof RsMacroCall) {
+            }
+            else if (item instanceof RsMacroCall) {
                 if (expandMacros) {
                     result.addAll(extractItemsFromList(RsMacroCallUtil.getExpansionFlatten((RsMacroCall) item)));
                 }
-            } else if (item instanceof RsUseItem) {
+            }
+            else if (item instanceof RsUseItem) {
                 // skip
-            } else if (item instanceof RsMacro || item instanceof RsItemElement) {
+            }
+            else if (item instanceof RsMacro || item instanceof RsItemElement) {
                 result.add(item);
             }
         }
         return result;
-    }
-
-    // Used in `RsStructureViewTest`
-    @Override
-    public void putInfo(@Nonnull Map<String, String> info) {
-        if (!org.rust.openapiext.OpenApiUtil.isUnitTestMode()) return;
-
-        ItemPresentation presentation = getPresentation();
-        info.put(NAME_KEY, presentation.getPresentableText() != null ? presentation.getPresentableText() : "");
-        consulo.ui.image.Image icon = presentation.getIcon(false);
-        consulo.ui.image.Image visibilityIcon = null;
-        if (icon instanceof RowIcon) {
-            java.util.List<?> allIcons = ((RowIcon) icon).getAllIcons();
-            if (allIcons.size() > 1) {
-                visibilityIcon = (consulo.ui.image.Image) allIcons.get(1);
-            }
-        }
-
-        String visibility;
-        if (visibilityIcon == consulo.platform.base.icon.PlatformIconGroup.nodesC_public()) {
-            visibility = "public";
-        } else if (visibilityIcon == consulo.platform.base.icon.PlatformIconGroup.nodesC_private()) {
-            visibility = "private";
-        } else if (visibilityIcon == consulo.platform.base.icon.PlatformIconGroup.nodesC_protected()) {
-            visibility = "restricted";
-        } else if (visibilityIcon == null) {
-            visibility = "none";
-        } else {
-            visibility = "unknown";
-        }
-        info.put(VISIBILITY_KEY, visibility);
     }
 }
