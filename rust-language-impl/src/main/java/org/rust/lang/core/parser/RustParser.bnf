@@ -519,7 +519,12 @@ ForLifetimes ::= for '<' LifetimesParams '>' {
   elementTypeFactory = "org.rust.lang.core.stubs.StubImplementationsKt.factory"
 }
 
-TildeConst ::= '~' const {
+// Constness of a bound: `~const Trait` and the later `const Trait` spelling.
+TildeConst ::= TildeConstWithTilde | const
+
+// Pinned on the `~`, so a lone `~` reports the missing `const` here instead of failing the bound
+// and collapsing the whole parameter list around it.
+private TildeConstWithTilde ::= '~' const {
   pin = 1
 }
 

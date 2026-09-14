@@ -22,6 +22,11 @@ public class RustCompleteParsingTest extends SimpleParsingTest<Object> {
     }
 
     @Test
+    public void testConstbound(Context context) throws Exception {
+        doTest(context, null);
+    }
+
+    @Test
     public void testAssociatedTypes(Context context) throws Exception {
         doTest(context, null);
     }
