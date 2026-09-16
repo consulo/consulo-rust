@@ -2,9 +2,11 @@
  * Use of this source code is governed by the MIT license that can be
  * found in the LICENSE file.
  */
-
 package org.rust;
 
+import consulo.annotation.DeprecationInfo;
+import consulo.annotation.internal.MigratedExtensionsTo;
+import consulo.rust.localize.RustLocalize;
 import jakarta.annotation.Nonnull;
 import org.jetbrains.annotations.PropertyKey;
 
@@ -17,6 +19,9 @@ import java.util.function.Supplier;
  * {@code messages/RsBundle.properties} (and locale-specific variants) via
  * standard {@link ResourceBundle}.
  */
+@Deprecated
+@DeprecationInfo("Use RustLocalize")
+@MigratedExtensionsTo(RustLocalize.class)
 public final class RsBundle {
     public static final String BUNDLE = "messages.RsBundle";
     private static final ResourceBundle INSTANCE = ResourceBundle.getBundle(BUNDLE);

@@ -2,90 +2,78 @@
  * Use of this source code is governed by the MIT license that can be
  * found in the LICENSE file.
  */
-
 package org.rust.ide.refactoring.changeSignature;
-import consulo.language.editor.completion.CompletionUtilCore;
-import consulo.language.editor.refactoring.changeSignature.MethodDescriptor;
-import consulo.language.editor.refactoring.changeSignature.ChangeSignatureDialogBase;
-import consulo.language.editor.refactoring.changeSignature.CallerChooserBase;
-import consulo.language.editor.refactoring.changeSignature.ParameterTableModelBase;
-import consulo.language.editor.refactoring.changeSignature.ParameterTableModelItemBase;
 
+import consulo.annotation.access.RequiredReadAction;
+import consulo.configurable.ConfigurationException;
 import consulo.document.event.DocumentEvent;
 import consulo.document.event.DocumentListener;
+import consulo.language.editor.refactoring.BaseRefactoringProcessor;
+import consulo.language.editor.refactoring.changeSignature.*;
+import consulo.language.editor.refactoring.ui.ComboBoxVisibilityPanel;
 import consulo.language.file.LanguageFileType;
-import consulo.configurable.ConfigurationException;
-import consulo.project.Project;
-import consulo.ui.ex.awt.ComboBox;
-
 import consulo.language.psi.PsiCodeFragment;
 import consulo.language.psi.PsiDocumentManager;
 import consulo.language.psi.PsiElement;
-import consulo.language.editor.refactoring.BaseRefactoringProcessor;
-import consulo.language.editor.refactoring.changeSignature.ChangeInfo;
-import consulo.language.editor.refactoring.changeSignature.ChangeSignatureHandler;
-import consulo.language.editor.refactoring.changeSignature.ParameterInfo;
-import consulo.language.editor.refactoring.ui.ComboBoxVisibilityPanel;
-import javax.swing.JCheckBox;
-import consulo.ui.ex.awt.tree.Tree;
-import java.util.function.Consumer;
+import consulo.localize.LocalizeValue;
+import consulo.project.Project;
+import consulo.rust.localize.RustLocalize;
+import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.awt.ComboBox;
 import consulo.ui.ex.awt.JBUI;
-import net.miginfocom.swing.MigLayout;
+import consulo.ui.ex.awt.tree.Tree;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-
-import org.rust.RsBundle;
-import org.rust.lang.core.names.RsNamesValidator;
-import org.rust.lang.core.imports.ImportUtils;
+import net.miginfocom.swing.MigLayout;
 import org.rust.lang.RsFileType;
-import org.rust.lang.core.completion.CompletionUtil;
-import org.rust.lang.core.psi.*;
+import org.rust.lang.core.imports.ImportUtils;
+import org.rust.lang.core.names.RsNamesValidator;
+import org.rust.lang.core.psi.RsFunction;
+import org.rust.lang.core.psi.RsPsiManager;
+import org.rust.lang.core.psi.RsTypeReference;
+import org.rust.lang.core.psi.RsVis;
 import org.rust.lang.core.psi.ext.RsItemsOwner;
 import org.rust.lang.core.psi.ext.RsMod;
-import org.rust.openapiext.DocumentExtUtil;
-import org.rust.openapiext.OpenApiUtil;
+import org.rust.lang.core.psi.impl.RsCodeFragment;
+import org.rust.lang.core.psi.impl.RsExpressionCodeFragment;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
+import org.rust.lang.core.psi.impl.RsTypeReferenceCodeFragment;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import org.rust.lang.core.psi.ext.impl.RsValueParameterUtil;
-import consulo.document.Document;
-import org.rust.lang.core.psi.impl.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public final class RsChangeSignatureDialog {
-
     @Nullable
-    private static java.util.function.Consumer<RsChangeFunctionSignatureConfig> MOCK = null;
+    private static Consumer<RsChangeFunctionSignatureConfig> MOCK = null;
 
     private RsChangeSignatureDialog() {
     }
 
-    public static void showChangeFunctionSignatureDialog(
-        @Nonnull Project project,
-        @Nonnull RsChangeFunctionSignatureConfig config
-    ) {
+    @RequiredUIAccess
+    public static void showChangeFunctionSignatureDialog(@Nonnull Project project, @Nonnull RsChangeFunctionSignatureConfig config) {
         if (org.rust.openapiext.OpenApiUtil.isUnitTestMode()) {
-            java.util.function.Consumer<RsChangeFunctionSignatureConfig> mock = MOCK;
+            Consumer<RsChangeFunctionSignatureConfig> mock = MOCK;
             if (mock == null) {
                 throw new IllegalStateException("You should set mock UI via `withMockChangeFunctionSignature`");
             }
             mock.accept(config);
             RsChangeSignatureProcessor.runChangeSignatureRefactoring(config);
-        } else {
+        }
+        else {
             new ChangeSignatureDialogImpl(project, new SignatureDescriptor(config)).show();
         }
     }
 
-    
-    public static void withMockChangeFunctionSignature(
-        @Nonnull java.util.function.Consumer<RsChangeFunctionSignatureConfig> mock,
-        @Nonnull Runnable action
-    ) {
+    public static void withMockChangeFunctionSignature(@Nonnull Consumer<RsChangeFunctionSignatureConfig> mock, @Nonnull Runnable action) {
         MOCK = mock;
         try {
             action.run();
-        } finally {
+        }
+        finally {
             MOCK = null;
         }
     }
@@ -239,7 +227,7 @@ public final class RsChangeSignatureDialog {
             super(
                 descriptor.getFunction(),
                 descriptor.getFunction(),
-                new NameColumn<>(descriptor.getFunction().getProject(), RsBundle.message("column.name.pattern")),
+                new NameColumn<>(descriptor.getFunction().getProject(), RustLocalize.columnNamePattern()),
                 new SignatureTypeColumn(descriptor),
                 new SignatureDefaultValueColumn(descriptor)
             );
@@ -260,7 +248,8 @@ public final class RsChangeSignatureDialog {
                 );
                 myDescriptor.getConfig().getParameters().add(newParameter);
                 parameter = new SignatureParameter(newParameter);
-            } else {
+            }
+            else {
                 parameter = parameterInfo;
             }
             return new ModelItem(myImportContext, parameter);
@@ -288,10 +277,9 @@ public final class RsChangeSignatureDialog {
             }
 
             @Override
+            @RequiredReadAction
             public void setValue(ModelItem item, PsiCodeFragment value) {
-                if (!(value instanceof RsTypeReferenceCodeFragment)) return;
-                RsTypeReferenceCodeFragment fragment = (RsTypeReferenceCodeFragment) value;
-                if (item != null) {
+                if (value instanceof RsTypeReferenceCodeFragment fragment && item != null) {
                     item.parameter.getParameter().setType(
                         ParameterProperty.fromText(fragment.getTypeReference(), fragment.getText())
                     );
@@ -305,10 +293,9 @@ public final class RsChangeSignatureDialog {
             }
 
             @Override
+            @RequiredReadAction
             public void setValue(ModelItem item, PsiCodeFragment value) {
-                if (!(value instanceof RsExpressionCodeFragment)) return;
-                RsExpressionCodeFragment fragment = (RsExpressionCodeFragment) value;
-                if (item != null) {
+                if (value instanceof RsExpressionCodeFragment fragment && item != null) {
                     item.parameter.getParameter().setDefaultValue(
                         ParameterProperty.fromText(fragment.getExpr(), fragment.getText())
                     );
@@ -317,8 +304,8 @@ public final class RsChangeSignatureDialog {
         }
     }
 
-    private static class ChangeSignatureDialogImpl extends ChangeSignatureDialogBase<
-        SignatureParameter, RsFunction, String, SignatureDescriptor, ModelItem, TableModel> {
+    private static class ChangeSignatureDialogImpl
+        extends ChangeSignatureDialogBase<SignatureParameter, RsFunction, String, SignatureDescriptor, ModelItem, TableModel> {
 
         private boolean myIsValid = true;
         @Nullable
@@ -343,15 +330,18 @@ public final class RsChangeSignatureDialog {
 
         @Nullable
         @Override
+        @RequiredReadAction
         protected JComponent createNorthPanel() {
             JComponent panel = super.createNorthPanel();
-            if (panel == null) return null;
+            if (panel == null) {
+                return null;
+            }
             myNameField.setPreferredWidth(-1);
             myReturnTypeField.setPreferredWidth(-1);
 
             if (getConfig().getAllowsVisibilityChange()) {
                 JPanel visibilityPanel = new JPanel(new BorderLayout(0, 2));
-                JLabel visibilityLabel = new JLabel(RsBundle.message("visibility"));
+                JLabel visibilityLabel = new JLabel(RustLocalize.visibility().get());
                 visibilityPanel.add(visibilityLabel, BorderLayout.NORTH);
 
                 VisibilityComboBox visibility = new VisibilityComboBox(getProject(), getConfig().getVisibility(), this::updateSignature);
@@ -375,7 +365,7 @@ public final class RsChangeSignatureDialog {
                     0, 0, 1, 1, 1.0, 1.0,
                     GridBagConstraints.WEST,
                     GridBagConstraints.HORIZONTAL,
-                    new Insets(0, 0, 0, 0),
+                    JBUI.emptyInsets(),
                     0, 0
                 );
                 panel.add(visibilityPanel, gbc);
@@ -385,12 +375,12 @@ public final class RsChangeSignatureDialog {
 
         @Nonnull
         protected JPanel createSouthAdditionalPanel() {
-            JCheckBox asyncBox = new JCheckBox(RsBundle.message("checkbox.async"), getConfig().isAsync());
+            JCheckBox asyncBox = new JCheckBox(RustLocalize.checkboxAsync().get(), getConfig().isAsync());
             asyncBox.addChangeListener(e -> {
                 getConfig().setAsync(asyncBox.isSelected());
                 updateSignature();
             });
-            JCheckBox unsafeBox = new JCheckBox(RsBundle.message("checkbox.unsafe"), getConfig().isUnsafe());
+            JCheckBox unsafeBox = new JCheckBox(RustLocalize.checkboxUnsafe().get(), getConfig().isUnsafe());
             unsafeBox.addChangeListener(e -> {
                 getConfig().setUnsafe(unsafeBox.isSelected());
                 updateSignature();
@@ -438,7 +428,7 @@ public final class RsChangeSignatureDialog {
         @Override
         protected String validateAndCommitData() {
             getConfig().getFunction().getProject().getService(RsPsiManager.class).incRustStructureModificationCount();
-            return validateAndUpdateData();
+            return validateAndUpdateData().getNullIfEmpty();
         }
 
         @Override
@@ -460,29 +450,28 @@ public final class RsChangeSignatureDialog {
 
         @Override
         protected void canRun() throws ConfigurationException {
-            String error = validateAndUpdateData();
-            if (error != null) {
+            LocalizeValue error = validateAndUpdateData();
+            if (error.isNotEmpty()) {
                 throw new ConfigurationException(error);
             }
             super.canRun();
         }
 
         private void updateState() {
-            myIsValid = validateAndUpdateData() == null;
+            myIsValid = validateAndUpdateData().isEmpty();
         }
 
         @SuppressWarnings("UnstableApiUsage")
-        
-        @Nullable
-        private String validateAndUpdateData() {
+        private LocalizeValue validateAndUpdateData() {
             RsPsiFactory factory = new RsPsiFactory(getConfig().getFunction().getProject());
 
             if (myNameField != null) {
                 String functionName = myNameField.getText();
                 if (validateName(functionName)) {
                     getConfig().setName(functionName);
-                } else {
-                    return RsBundle.message("dialog.message.function.name.must.be.valid.rust.identifier");
+                }
+                else {
+                    return RustLocalize.dialogMessageFunctionNameMustBeValidRustIdentifier();
                 }
             }
 
@@ -491,15 +480,17 @@ public final class RsChangeSignatureDialog {
                 RsTypeReference returnType;
                 if (returnTypeText.isBlank()) {
                     returnType = factory.createType("()");
-                } else {
-                    returnType = myReturnTypeCodeFragment instanceof RsTypeReferenceCodeFragment
-                        ? ((RsTypeReferenceCodeFragment) myReturnTypeCodeFragment).getTypeReference()
+                }
+                else {
+                    returnType = myReturnTypeCodeFragment instanceof RsTypeReferenceCodeFragment refFragment
+                        ? refFragment.getTypeReference()
                         : null;
                 }
                 if (returnType != null) {
                     getConfig().setReturnTypeDisplay(returnType);
-                } else {
-                    return RsBundle.message("dialog.message.function.return.type.must.be.valid.rust.type");
+                }
+                else {
+                    return RustLocalize.dialogMessageFunctionReturnTypeMustBeValidRustType();
                 }
             }
 
@@ -507,8 +498,9 @@ public final class RsChangeSignatureDialog {
             if (visField != null) {
                 if (visField.hasValidVisibility()) {
                     getConfig().setVisibility(visField.getVisibility());
-                } else {
-                    return RsBundle.message("dialog.message.function.visibility.must.be.valid.visibility.specifier");
+                }
+                else {
+                    return RustLocalize.dialogMessageFunctionVisibilityMustBeValidVisibilitySpecifier();
                 }
             }
 
@@ -516,20 +508,20 @@ public final class RsChangeSignatureDialog {
             for (int index = 0; index < params.size(); index++) {
                 Parameter parameter = params.get(index);
                 if (!parameter.hasValidPattern()) {
-                    return RsBundle.message("dialog.message.parameter.has.invalid.pattern", index);
+                    return RustLocalize.dialogMessageParameterHasInvalidPattern(index);
                 }
                 if (parameter.getType() instanceof ParameterProperty.Empty) {
-                    return RsBundle.message("dialog.message.please.enter.type.for.parameter", index);
+                    return RustLocalize.dialogMessagePleaseEnterTypeForParameter(index);
                 }
                 if (parameter.getType() instanceof ParameterProperty.Invalid) {
-                    return RsBundle.message("dialog.message.type.entered.for.parameter.invalid", index);
+                    return RustLocalize.dialogMessageTypeEnteredForParameterInvalid(index);
                 }
                 if (parameter.getDefaultValue() instanceof ParameterProperty.Invalid) {
-                    return RsBundle.message("dialog.message.default.value.entered.for.parameter.invalid", index);
+                    return RustLocalize.dialogMessageDefaultValueEnteredForParameterInvalid(index);
                 }
             }
 
-            return null;
+            return LocalizeValue.empty();
         }
 
         @Nonnull
@@ -541,17 +533,16 @@ public final class RsChangeSignatureDialog {
         @Nonnull
         @Override
         protected ComboBoxVisibilityPanel<String> createVisibilityControl() {
-            return new ComboBoxVisibilityPanel<String>(new String[0]) {};
+            return new ComboBoxVisibilityPanel<>(new String[0]) {
+            };
         }
     }
 
     @Nonnull
-    private static PsiCodeFragment createTypeCodeFragment(
-        @Nonnull RsMod importContext,
-        @Nullable RsTypeReference type
-    ) {
-        return createCodeFragment(importContext, importTarget ->
-            new RsTypeReferenceCodeFragment(
+    private static PsiCodeFragment createTypeCodeFragment(@Nonnull RsMod importContext, @Nullable RsTypeReference type) {
+        return createCodeFragment(
+            importContext,
+            importTarget -> new RsTypeReferenceCodeFragment(
                 importContext.getProject(),
                 type != null ? type.getText() : "",
                 importTarget,
@@ -577,7 +568,7 @@ public final class RsChangeSignatureDialog {
     @Nonnull
     private static PsiCodeFragment createCodeFragment(
         @Nonnull RsMod importContext,
-        @Nonnull java.util.function.Function<RsItemsOwner, RsCodeFragment> factory
+        @Nonnull Function<RsItemsOwner, RsCodeFragment> factory
     ) {
         RsCodeFragment fragment = factory.apply(importContext);
         consulo.document.Document document = fragment.getViewProvider().getDocument();
@@ -589,7 +580,7 @@ public final class RsChangeSignatureDialog {
                 }
             });
         }
-        return (PsiCodeFragment) fragment;
+        return fragment;
     }
 
     private static boolean validateName(@Nonnull String name) {
@@ -602,6 +593,7 @@ public final class RsChangeSignatureDialog {
         @Nonnull
         private final RsPsiFactory myFactory;
 
+        @RequiredReadAction
         VisibilityComboBox(@Nonnull Project project, @Nullable RsVis initialVis, @Nonnull Runnable onChange) {
             myCombobox = new ComboBox<>(createVisibilityHints(initialVis), 80);
             myFactory = new RsPsiFactory(project);
@@ -627,6 +619,7 @@ public final class RsChangeSignatureDialog {
         }
 
         @Nonnull
+        @RequiredReadAction
         private static String[] createVisibilityHints(@Nullable RsVis initialVis) {
             Set<String> hints = new LinkedHashSet<>();
             hints.add(initialVis != null ? initialVis.getText() : "");
