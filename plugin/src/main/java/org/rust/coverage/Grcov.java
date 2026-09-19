@@ -5,12 +5,12 @@
 
 package org.rust.coverage;
 
-import com.intellij.execution.configurations.GeneralCommandLine;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import consulo.process.cmd.GeneralCommandLine;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.rust.cargo.toolchain.RsToolchainBase;
 import org.rust.cargo.toolchain.tools.CargoBinary;
-import org.rust.ide.experiments.RsExperiments;
+import org.rust.experiments.RsExperiments;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.nio.file.Path;
@@ -22,7 +22,7 @@ public class Grcov extends CargoBinary {
 
     public static final String NAME = "grcov";
 
-    public Grcov(@NotNull RsToolchainBase toolchain) {
+    public Grcov(@Nonnull RsToolchainBase toolchain) {
         super(NAME, toolchain);
     }
 
@@ -30,13 +30,13 @@ public class Grcov extends CargoBinary {
      * Extension function converted from Kotlin: RsToolchainBase.grcov()
      */
     @Nullable
-    public static Grcov grcov(@NotNull RsToolchainBase toolchain) {
+    public static Grcov grcov(@Nonnull RsToolchainBase toolchain) {
         return toolchain.hasCargoExecutable(NAME) ? new Grcov(toolchain) : null;
     }
 
     // Parameters are copied from here - https://github.com/mozilla/grcov#grcov-with-travis
-    @NotNull
-    public GeneralCommandLine createCommandLine(@NotNull Path workingDirectory, @NotNull Path coverageFilePath) {
+    @Nonnull
+    public GeneralCommandLine createCommandLine(@Nonnull Path workingDirectory, @Nonnull Path coverageFilePath) {
         List<String> parameters = new ArrayList<>(List.of(
             ".",
             "-s", ".",

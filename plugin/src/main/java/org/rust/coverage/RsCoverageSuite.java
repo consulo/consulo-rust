@@ -5,15 +5,15 @@
 
 package org.rust.coverage;
 
-import com.intellij.coverage.BaseCoverageSuite;
-import com.intellij.coverage.CoverageEngine;
-import com.intellij.coverage.CoverageFileProvider;
-import com.intellij.coverage.CoverageRunner;
-import com.intellij.execution.process.ProcessHandler;
-import com.intellij.openapi.project.Project;
+import consulo.execution.coverage.BaseCoverageSuite;
+import consulo.execution.coverage.CoverageEngine;
+import consulo.execution.coverage.CoverageFileProvider;
+import consulo.execution.coverage.CoverageRunner;
+import consulo.process.ProcessHandler;
+import consulo.project.Project;
 import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 public class RsCoverageSuite extends BaseCoverageSuite {
 
@@ -32,10 +32,10 @@ public class RsCoverageSuite extends BaseCoverageSuite {
     }
 
     public RsCoverageSuite(
-        @NotNull Project project,
-        @NotNull String name,
-        @NotNull CoverageFileProvider fileProvider,
-        @NotNull CoverageRunner coverageRunner,
+        @Nonnull Project project,
+        @Nonnull String name,
+        @Nonnull CoverageFileProvider fileProvider,
+        @Nonnull CoverageRunner coverageRunner,
         @Nullable String contextFilePath,
         @Nullable ProcessHandler coverageProcess
     ) {
@@ -54,14 +54,14 @@ public class RsCoverageSuite extends BaseCoverageSuite {
         return coverageProcess;
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public CoverageEngine getCoverageEngine() {
         return RsCoverageEngine.getInstance();
     }
 
     @Override
-    public void writeExternal(@NotNull Element element) {
+    public void writeExternal(@Nonnull Element element) {
         super.writeExternal(element);
         if (contextFilePath != null) {
             element.setAttribute(CONTEXT_FILE_PATH, contextFilePath);
@@ -69,7 +69,7 @@ public class RsCoverageSuite extends BaseCoverageSuite {
     }
 
     @Override
-    public void readExternal(@NotNull Element element) {
+    public void readExternal(@Nonnull Element element) {
         super.readExternal(element);
         String value = element.getAttributeValue(CONTEXT_FILE_PATH);
         if (value != null) {

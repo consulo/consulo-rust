@@ -101,6 +101,9 @@ open module consulo.rust {
     requires consulo.language.code.style.api;
     requires consulo.language.code.style.ui.api;
     requires consulo.language.spellchecker.api;
+    requires consulo.language.copyright.api;
+    requires consulo.language.inject.advanced.api;
+    requires consulo.execution.coverage.api;
     requires consulo.language.duplicate.analysis.api;
 
     // Higher-level services

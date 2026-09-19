@@ -5,54 +5,62 @@
 
 package org.rust.coverage;
 
-import com.intellij.coverage.CoverageEngine;
-import com.intellij.coverage.CoverageRunner;
-import com.intellij.coverage.CoverageSuite;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.rt.coverage.data.LineData;
-import com.intellij.rt.coverage.data.ProjectData;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import consulo.execution.coverage.CoverageEngine;
+import consulo.execution.coverage.CoverageRunner;
+import consulo.execution.coverage.CoverageSuite;
+import consulo.application.ApplicationManager;
+import consulo.logging.Logger;
+import consulo.application.progress.ProgressManager;
+import consulo.execution.coverage.data.CoverageLine;
+import consulo.execution.coverage.data.CoverageLineImpl;
+import consulo.execution.coverage.data.CoverageProjectData;
+import consulo.execution.coverage.data.CoverageProjectDataImpl;
+import consulo.execution.coverage.data.CoverageUnit;
+import consulo.execution.coverage.data.LineStatus;
+import consulo.annotation.component.ExtensionImpl;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+@ExtensionImpl
 public class RsCoverageRunner extends CoverageRunner {
 
     private static final Logger LOG = Logger.getInstance(RsCoverageRunner.class);
 
-    @NotNull
+    @Nonnull
     @Override
     public String getPresentableName() {
         return "Rust";
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public String getDataFileExtension() {
         return "info";
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public String getId() {
         return "RsCoverageRunner";
     }
 
     @Override
-    public boolean acceptsCoverageEngine(@NotNull CoverageEngine engine) {
+    public boolean acceptsCoverageEngine(@Nonnull CoverageEngine engine) {
         return engine instanceof RsCoverageEngine;
     }
 
     @Nullable
     @Override
-    public ProjectData loadCoverageData(@NotNull File sessionDataFile, @Nullable CoverageSuite baseCoverageSuite) {
+    public CoverageProjectData loadCoverageData(@Nonnull File sessionDataFile, @Nullable CoverageSuite baseCoverageSuite) {
         if (!(baseCoverageSuite instanceof RsCoverageSuite)) return null;
         RsCoverageSuite rsSuite = (RsCoverageSuite) baseCoverageSuite;
         try {
@@ -81,7 +89,7 @@ public class RsCoverageRunner extends CoverageRunner {
     }
 
     @Nullable
-    private static ProjectData readProjectData(@NotNull File dataFile, @NotNull RsCoverageSuite coverageSuite) throws IOException {
+    private static CoverageProjectData readProjectData(@Nonnull File dataFile, @Nonnull RsCoverageSuite coverageSuite) throws IOException {
         var coverageProcess = coverageSuite.getCoverageProcess();
         // coverageProcess == null means that we are switching to data gathered earlier
         if (coverageProcess != null) {
@@ -96,23 +104,25 @@ public class RsCoverageRunner extends CoverageRunner {
             }
         }
 
-        ProjectData projectData = new ProjectData();
+        CoverageProjectData projectData = new CoverageProjectDataImpl();
         LcovCoverageReport report = LcovCoverageReport.Serialization.readLcov(dataFile, coverageSuite.getContextFilePath());
         for (Map.Entry<String, List<LcovCoverageReport.LineHits>> entry : report.getRecords()) {
             String filePath = entry.getKey();
             List<LcovCoverageReport.LineHits> lineHitsList = entry.getValue();
-            var classData = projectData.getOrCreateClassData(filePath);
+            CoverageUnit unit = projectData.getOrCreateUnit(filePath);
             int max = 0;
             if (!lineHitsList.isEmpty()) {
                 max = lineHitsList.get(lineHitsList.size() - 1).getLineNumber();
             }
-            LineData[] lines = new LineData[max + 1];
+            // The list is addressed by line number, so it stays dense and holds a null per uncovered line.
+            List<CoverageLine> lines = new ArrayList<>(Collections.nCopies(max + 1, null));
             for (LcovCoverageReport.LineHits lineHits : lineHitsList) {
-                LineData lineData = new LineData(lineHits.getLineNumber(), null);
-                lineData.setHits(lineHits.getHits());
-                lines[lineHits.getLineNumber()] = lineData;
+                CoverageLineImpl line = new CoverageLineImpl(lineHits.getLineNumber(), null);
+                line.setHits(lineHits.getHits());
+                line.setStatus(lineHits.getHits() > 0 ? LineStatus.COVERED : LineStatus.NOT_COVERED);
+                lines.set(lineHits.getLineNumber(), line);
             }
-            classData.setLines(lines);
+            unit.setLines(lines);
         }
         return projectData;
     }

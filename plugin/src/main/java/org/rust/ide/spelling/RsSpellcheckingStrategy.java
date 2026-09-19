@@ -13,6 +13,7 @@ import jakarta.annotation.Nonnull;
 import org.rust.lang.RsLanguage;
 import org.rust.lang.core.psi.RsElementTypes;
 import org.rust.lang.core.psi.ext.RsNameIdentifierOwner;
+import org.rust.lang.doc.psi.RsDocComment;
 import consulo.language.Language;
 
 @ExtensionImpl
@@ -33,6 +34,9 @@ public class RsSpellcheckingStrategy extends SpellcheckingStrategy {
         }
         if (element instanceof RsNameIdentifierOwner) {
             return RsNameIdentifierOwnerTokenizer.INSTANCE;
+        }
+        if (element instanceof RsDocComment) {
+            return RsDocCommentTokenizer.INSTANCE;
         }
         return super.getTokenizer(element);
     }

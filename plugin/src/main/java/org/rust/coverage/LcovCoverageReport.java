@@ -5,10 +5,10 @@
 
 package org.rust.coverage;
 
-import com.intellij.openapi.util.io.FileUtilRt;
-import com.intellij.util.containers.PeekableIteratorWrapper;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import consulo.util.io.FileUtil;
+import consulo.util.collection.PeekableIteratorWrapper;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -19,17 +19,17 @@ public class LcovCoverageReport {
 
     private final Map<String, List<LineHits>> info = new HashMap<>();
 
-    @NotNull
+    @Nonnull
     public Set<Map.Entry<String, List<LineHits>>> getRecords() {
         return info.entrySet();
     }
 
-    public void mergeFileReport(@Nullable String basePath, @NotNull String filePath, @NotNull List<LineHits> report) {
+    public void mergeFileReport(@Nullable String basePath, @Nonnull String filePath, @Nonnull List<LineHits> report) {
         File file = new File(filePath);
         if (!file.isAbsolute() && basePath != null) {
             file = new File(basePath, filePath);
         }
-        String normalizedFilePath = FileUtilRt.toSystemIndependentName(file.getPath());
+        String normalizedFilePath = FileUtil.toSystemIndependentName(file.getPath());
         List<LineHits> oldReport = info.get(normalizedFilePath);
         List<LineHits> normalized = normalizeLineHitsList(report);
         List<LineHits> result = (oldReport == null) ? normalized : doMerge(oldReport, report);
@@ -73,8 +73,8 @@ public class LcovCoverageReport {
         private Serialization() {
         }
 
-        @NotNull
-        public static LcovCoverageReport readLcov(@NotNull File lcovFile, @Nullable String localBaseDir) throws IOException {
+        @Nonnull
+        public static LcovCoverageReport readLcov(@Nonnull File lcovFile, @Nullable String localBaseDir) throws IOException {
             LcovCoverageReport report = new LcovCoverageReport();
             String[] currentFileName = {null};
             @SuppressWarnings("unchecked")
@@ -128,12 +128,12 @@ public class LcovCoverageReport {
             return report;
         }
 
-        @NotNull
-        public static LcovCoverageReport readLcov(@NotNull File lcovFile) throws IOException {
+        @Nonnull
+        public static LcovCoverageReport readLcov(@Nonnull File lcovFile) throws IOException {
             return readLcov(lcovFile, null);
         }
 
-        public static void writeLcov(@NotNull LcovCoverageReport report, @NotNull File outputFile) throws IOException {
+        public static void writeLcov(@Nonnull LcovCoverageReport report, @Nonnull File outputFile) throws IOException {
             try (PrintWriter out = new PrintWriter(outputFile)) {
                 for (Map.Entry<String, List<LineHits>> entry : report.info.entrySet()) {
                     String filePath = entry.getKey();
@@ -152,8 +152,8 @@ public class LcovCoverageReport {
         }
     }
 
-    @NotNull
-    private static List<LineHits> normalizeLineHitsList(@NotNull List<LineHits> lineHits) {
+    @Nonnull
+    private static List<LineHits> normalizeLineHitsList(@Nonnull List<LineHits> lineHits) {
         Set<Integer> seen = new HashSet<>();
         return lineHits.stream()
             .sorted(Comparator.comparingInt(LineHits::getLineNumber))
@@ -161,8 +161,8 @@ public class LcovCoverageReport {
             .collect(Collectors.toList());
     }
 
-    @NotNull
-    private static List<LineHits> doMerge(@NotNull List<LineHits> list1, @NotNull List<LineHits> list2) {
+    @Nonnull
+    private static List<LineHits> doMerge(@Nonnull List<LineHits> list1, @Nonnull List<LineHits> list2) {
         List<LineHits> result = new ArrayList<>();
         PeekableIteratorWrapper<LineHits> iter1 = new PeekableIteratorWrapper<>(list1.iterator());
         PeekableIteratorWrapper<LineHits> iter2 = new PeekableIteratorWrapper<>(list2.iterator());

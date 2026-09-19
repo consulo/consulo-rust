@@ -5,18 +5,18 @@
 
 package org.rust.coverage;
 
-import com.intellij.coverage.CoverageRunner;
-import com.intellij.execution.configurations.RunConfigurationBase;
-import com.intellij.execution.configurations.coverage.CoverageEnabledConfiguration;
-import com.intellij.execution.process.ProcessHandler;
-import org.jetbrains.annotations.Nullable;
+import consulo.execution.coverage.CoverageRunner;
+import consulo.execution.configuration.RunConfigurationBase;
+import consulo.execution.coverage.CoverageEnabledConfiguration;
+import consulo.process.ProcessHandler;
+import jakarta.annotation.Nullable;
 
 public class RsCoverageEnabledConfiguration extends CoverageEnabledConfiguration {
 
     @Nullable
     public ProcessHandler coverageProcess;
 
-    public RsCoverageEnabledConfiguration(RunConfigurationBase<?> configuration) {
+    public RsCoverageEnabledConfiguration(RunConfigurationBase configuration) {
         super(configuration);
         coverageProcess = null;
         setCoverageRunner(CoverageRunner.getInstance(RsCoverageRunner.class));

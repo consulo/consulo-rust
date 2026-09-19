@@ -170,6 +170,20 @@ public final class RsPsiPattern {
 
     public static final PsiElementPattern.Capture<RsLitExpr> literal = psiElement(RsLitExpr.class);
 
+    /**
+     * The pattern of any Rust literal, callable from a language injection place expression.
+     */
+    public static PsiElementPattern.Capture<RsLitExpr> rsLiteral() {
+        return literal;
+    }
+
+    /**
+     * The pattern of any Rust macro call, callable from a language injection place expression.
+     */
+    public static PsiElementPattern.Capture<RsMacroCall> rsMacroCall() {
+        return psiElement(RsMacroCall.class);
+    }
+
     public static final PsiElementPattern.Capture<RsLitExpr> includeMacroLiteral = literal
         .withParent(psiElement(RsIncludeMacroArgument.class));
 
