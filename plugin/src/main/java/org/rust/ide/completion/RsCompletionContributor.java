@@ -34,7 +34,7 @@ import org.rust.lang.core.completion.RsCompletionProvider;
 import org.rust.lang.core.completion.RsLookupElement;
 import org.rust.lang.core.completion.RsMacroCompletionProvider;
 
-@ExtensionImpl(id = "RsCompletionContributor", order = "after RsKeywordCompletionContributor")
+@ExtensionImpl(id = "rustCompletion", order = "after rustKeyword")
 public class RsCompletionContributor extends CompletionContributor {
     @jakarta.annotation.Nonnull @Override public consulo.language.Language getLanguage() { return org.rust.lang.RsLanguage.INSTANCE; }
 

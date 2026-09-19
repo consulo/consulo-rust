@@ -69,7 +69,7 @@ import org.rust.lang.core.completion.LookupElements;
  * Completes Rust keywords
  *
  */
-@ExtensionImpl(id = "RsKeywordCompletionContributor", order = "first")
+@ExtensionImpl(id = "rustKeyword")
 public class RsKeywordCompletionContributor extends CompletionContributor implements DumbAware {
     @Nonnull @Override public Language getLanguage() { return RsLanguage.INSTANCE; }
 
