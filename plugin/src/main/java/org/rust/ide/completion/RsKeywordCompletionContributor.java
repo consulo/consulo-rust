@@ -71,7 +71,7 @@ import org.rust.lang.core.completion.LookupElements;
  */
 @ExtensionImpl(id = "RsKeywordCompletionContributor", order = "first")
 public class RsKeywordCompletionContributor extends CompletionContributor implements DumbAware {
-    @jakarta.annotation.Nonnull @Override public Language getLanguage() { return RsLanguage.INSTANCE; }
+    @Nonnull @Override public Language getLanguage() { return RsLanguage.INSTANCE; }
 
     public static final List<String> CONDITION_KEYWORDS = Arrays.asList("if", "match");
 

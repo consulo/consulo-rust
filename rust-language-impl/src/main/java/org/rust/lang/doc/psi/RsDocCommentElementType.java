@@ -11,9 +11,10 @@ import consulo.language.impl.ast.SharedImplUtil;
 import consulo.language.psi.PsiElement;
 import consulo.language.util.CharTable;
 import jakarta.annotation.Nonnull;
-import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.PsiFileFactory;
 import org.intellij.markdown.parser.LinkMap;
-import org.intellij.markdown.parser.MarkdownParser;
+import org.intellij.plugins.markdown.lang.MarkdownFileType;
 import org.rust.lang.RsLanguage;
 import org.rust.lang.doc.psi.impl.RsDocCommentImpl;
 
@@ -34,9 +35,11 @@ public class RsDocCommentElementType extends ILazyParseableElementType {
 
         RsDocCommentImpl root = new RsDocCommentImpl(this, null);
         String markdownText = textMap.getMappedText();
-        org.intellij.markdown.ast.ASTNode markdownRoot =
-            new MarkdownParser(new CommonMarkFlavourDescriptor()).buildMarkdownTreeFromString(markdownText);
-        LinkMap linkMap = LinkMap.Builder.buildLinkMap(markdownRoot, markdownText);
+        // Parsed by the platform, so what comes back is a real AST rather than a parallel one.
+        PsiFile markdownFile = PsiFileFactory.getInstance(psi.getProject())
+            .createFileFromText("doc.md", MarkdownFileType.INSTANCE, markdownText);
+        ASTNode markdownRoot = markdownFile.getNode();
+        LinkMap linkMap = LinkMap.buildLinkMap(markdownRoot, markdownText);
         new RsDocMarkdownAstBuilder(textMap, charTable, linkMap).buildTree(root, markdownRoot);
 
         return root.getFirstChildNode();

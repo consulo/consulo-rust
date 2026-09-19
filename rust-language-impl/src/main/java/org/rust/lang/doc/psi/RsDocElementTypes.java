@@ -5,7 +5,7 @@
 
 package org.rust.lang.doc.psi;
 
-import org.intellij.markdown.IElementType;
+import consulo.language.ast.IElementType;
 import org.intellij.markdown.MarkdownElementTypes;
 import org.intellij.markdown.MarkdownTokenTypes;
 import jakarta.annotation.Nullable;

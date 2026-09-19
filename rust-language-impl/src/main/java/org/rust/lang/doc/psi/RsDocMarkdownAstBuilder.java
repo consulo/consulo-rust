@@ -12,7 +12,7 @@ import consulo.language.impl.psi.LeafPsiElement;
 import consulo.language.impl.psi.PsiWhiteSpaceImpl;
 import consulo.language.util.CharTable;
 import jakarta.annotation.Nonnull;
-import org.intellij.markdown.ast.LeafASTNode;
+import org.intellij.markdown.MarkdownAstUtil;
 import org.intellij.markdown.parser.LinkMap;
 import org.rust.lang.doc.psi.impl.RsDocGapImpl;
 
@@ -38,8 +38,8 @@ final class RsDocMarkdownAstBuilder {
         this.linkMap = linkMap;
     }
 
-    void buildTree(@Nonnull CompositeElement root, @Nonnull org.intellij.markdown.ast.ASTNode markdownRoot) {
-        for (org.intellij.markdown.ast.ASTNode markdownChild : markdownRoot.getChildren()) {
+    void buildTree(@Nonnull CompositeElement root, @Nonnull consulo.language.ast.ASTNode markdownRoot) {
+        for (consulo.language.ast.ASTNode markdownChild : MarkdownAstUtil.children(markdownRoot)) {
             visitNode(root, markdownChild);
         }
 
@@ -49,11 +49,11 @@ final class RsDocMarkdownAstBuilder {
         }
     }
 
-    private void visitNode(@Nonnull CompositeElement parent, @Nonnull org.intellij.markdown.ast.ASTNode markdownNode) {
-        RsDocCompositeTokenType type = RsDocElementTypes.mapMarkdownToRust(markdownNode.getType());
+    private void visitNode(@Nonnull CompositeElement parent, @Nonnull consulo.language.ast.ASTNode markdownNode) {
+        RsDocCompositeTokenType type = RsDocElementTypes.mapMarkdownToRust(markdownNode.getElementType());
         if (type == null) {
             // A `null` type means the node itself is not interesting, only its children are
-            if (!(markdownNode instanceof LeafASTNode)) {
+            if (!MarkdownAstUtil.isLeaf(markdownNode)) {
                 visitChildren(parent, markdownNode);
             }
             return;
@@ -65,10 +65,10 @@ final class RsDocMarkdownAstBuilder {
         parent.rawAddChildrenWithoutNotifications(node);
 
         visitChildren(node, markdownNode);
-        insertLeavesUpTo(node, markdownNode.getEndOffset());
+        insertLeavesUpTo(node, MarkdownAstUtil.endOffset(markdownNode));
     }
 
-    private void visitChildren(@Nonnull CompositeElement node, @Nonnull org.intellij.markdown.ast.ASTNode markdownNode) {
+    private void visitChildren(@Nonnull CompositeElement node, @Nonnull consulo.language.ast.ASTNode markdownNode) {
         if (node instanceof RsDocLinkDestination) {
             TextRange mappedRange = textMap.mapTextRangeToOriginal(textRangeOf(markdownNode));
             CharSequence mappedText = textMap.mapFully(mappedRange);
@@ -82,7 +82,7 @@ final class RsDocMarkdownAstBuilder {
             return;
         }
 
-        for (org.intellij.markdown.ast.ASTNode markdownChild : markdownNode.getChildren()) {
+        for (consulo.language.ast.ASTNode markdownChild : MarkdownAstUtil.children(markdownNode)) {
             visitNode(node, markdownChild);
         }
     }
@@ -99,7 +99,7 @@ final class RsDocMarkdownAstBuilder {
      * @return {@code true} if the link was consumed as a path
      */
     private boolean tryParseShortLinkAsPath(@Nonnull CompositeElement node,
-                                            @Nonnull org.intellij.markdown.ast.ASTNode markdownNode) {
+                                            @Nonnull consulo.language.ast.ASTNode markdownNode) {
         TextRange mappedRange = textMap.mapTextRangeToOriginal(textRangeOf(markdownNode));
         CharSequence mappedText = textMap.mapFully(mappedRange);
         if (mappedText == null || mappedText.length() == 0) return false;
@@ -142,7 +142,7 @@ final class RsDocMarkdownAstBuilder {
     }
 
     @Nonnull
-    private static TextRange textRangeOf(@Nonnull org.intellij.markdown.ast.ASTNode markdownNode) {
-        return new TextRange(markdownNode.getStartOffset(), markdownNode.getEndOffset());
+    private static TextRange textRangeOf(@Nonnull consulo.language.ast.ASTNode markdownNode) {
+        return new TextRange(markdownNode.getStartOffset(), MarkdownAstUtil.endOffset(markdownNode));
     }
 }

@@ -10,16 +10,20 @@ import consulo.colorScheme.EditorColorsManager;
 import consulo.colorScheme.EditorColorsScheme;
 import consulo.language.psi.PsiElement;
 import consulo.ui.ex.awt.util.ColorUtil;
-import org.intellij.markdown.IElementType;
+import consulo.language.ast.ASTNode;
+import consulo.language.ast.IElementType;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.PsiFileFactory;
+import org.intellij.markdown.MarkdownAstUtil;
 import org.intellij.markdown.MarkdownElementTypes;
 import org.intellij.markdown.MarkdownTokenTypes;
-import org.intellij.markdown.ast.ASTNode;
 import org.intellij.markdown.flavours.MarkdownFlavourDescriptor;
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor;
 import org.intellij.markdown.html.*;
 import org.intellij.markdown.html.entities.EntityConverter;
 import org.intellij.markdown.parser.LinkMap;
-import org.intellij.markdown.parser.MarkdownParser;
+import org.intellij.plugins.markdown.html.MarkdownHtmlRenderer;
+import org.intellij.plugins.markdown.lang.MarkdownFileType;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -148,10 +152,17 @@ public final class RsDocPipeline {
 
         GFMFlavourDescriptor gfm = new GFMFlavourDescriptor(false, true, false);
         MarkdownFlavourDescriptor flavour = new RustDocMarkdownFlavourDescriptor(context, baseURI, renderMode, gfm);
-        ASTNode root = new MarkdownParser(flavour).buildMarkdownTreeFromString(rawDocumentationText);
+
+        // The markdown is parsed by the platform, so the tree below is a real AST. The flavour only
+        // supplies the HTML generating providers, which is where the Rust-specific link and code
+        // fence handling lives.
+        PsiFile markdownFile = PsiFileFactory.getInstance(context.getProject())
+            .createFileFromText("doc.md", MarkdownFileType.INSTANCE, rawDocumentationText);
+        ASTNode root = markdownFile.getNode();
+
         HtmlGenerator.TagRenderer tagRenderer = new HtmlGenerator.TagRenderer() {
                 @Override
-                public CharSequence openTag(ASTNode node, CharSequence tagName, CharSequence[] attributes, boolean autoClose) {
+                public CharSequence openTag(ASTNode node, CharSequence tagName, boolean autoClose, CharSequence... attributes) {
                     StringBuilder sb = new StringBuilder("<").append(tagName);
                     for (CharSequence attr : attributes) if (attr != null) sb.append(' ').append(attr);
                     return sb.append(autoClose ? "/>" : ">").toString();
@@ -161,8 +172,7 @@ public final class RsDocPipeline {
                 @Override
                 public CharSequence printHtml(CharSequence html) { return html; }
             };
-        return new HtmlGenerator(rawDocumentationText, root, flavour, false)
-            .generateHtml(tagRenderer)
+        return MarkdownHtmlRenderer.renderTree(root, rawDocumentationText, baseURI, flavour, false, tagRenderer)
             .replace(tmpUriPrefix, DocumentationManagerProtocol.PSI_ELEMENT_PROTOCOL);
     }
 
@@ -262,7 +272,7 @@ public final class RsDocPipeline {
 
         @Override
         public void processNode(@Nonnull HtmlGenerator.HtmlGeneratingVisitor visitor, @Nonnull String text, @Nonnull ASTNode node) {
-            CharSequence nodeText = text.subSequence(node.getStartOffset(), node.getEndOffset());
+            CharSequence nodeText = MarkdownAstUtil.getTextInNode(node, text);
             int indentBefore = 0;
             String spaces = "          ";
             for (int i = 0; i < Math.min(nodeText.length(), spaces.length()); i++) {
@@ -271,8 +281,8 @@ public final class RsDocPipeline {
             }
 
             StringBuilder codeText = new StringBuilder();
-            List<ASTNode> childrenToConsider = node.getChildren();
-            if (!childrenToConsider.isEmpty() && childrenToConsider.get(childrenToConsider.size() - 1).getType() == MarkdownTokenTypes.CODE_FENCE_END) {
+            List<ASTNode> childrenToConsider = MarkdownAstUtil.children(node);
+            if (!childrenToConsider.isEmpty() && childrenToConsider.get(childrenToConsider.size() - 1).getElementType() == MarkdownTokenTypes.CODE_FENCE_END) {
                 childrenToConsider = childrenToConsider.subList(0, childrenToConsider.size() - 1);
             }
 
@@ -281,12 +291,12 @@ public final class RsDocPipeline {
             boolean lastChildWasContent = false;
 
             for (ASTNode child : childrenToConsider) {
-                if (isContentStarted && (child.getType() == MarkdownTokenTypes.CODE_FENCE_CONTENT || child.getType() == MarkdownTokenTypes.EOL)) {
-                    if (skipNextEOL && child.getType() == MarkdownTokenTypes.EOL) {
+                if (isContentStarted && (child.getElementType() == MarkdownTokenTypes.CODE_FENCE_CONTENT || child.getElementType() == MarkdownTokenTypes.EOL)) {
+                    if (skipNextEOL && child.getElementType() == MarkdownTokenTypes.EOL) {
                         skipNextEOL = false;
                         continue;
                     }
-                    String rawLine = HtmlGenerator.Companion.trimIndents(text.subSequence(child.getStartOffset(), child.getEndOffset()), indentBefore).toString();
+                    String rawLine = HtmlGenerator.trimIndents(MarkdownAstUtil.getTextInNode(child, text), indentBefore).toString();
                     String trimmedLine = rawLine.stripLeading();
                     if (trimmedLine.startsWith("#") && (trimmedLine.length() <= 1 || trimmedLine.charAt(1) == ' ')) {
                         skipNextEOL = true;
@@ -299,9 +309,9 @@ public final class RsDocPipeline {
                         codeLine = rawLine;
                     }
                     codeText.append(codeLine);
-                    lastChildWasContent = child.getType() == MarkdownTokenTypes.CODE_FENCE_CONTENT;
+                    lastChildWasContent = child.getElementType() == MarkdownTokenTypes.CODE_FENCE_CONTENT;
                 }
-                if (!isContentStarted && child.getType() == MarkdownTokenTypes.EOL) {
+                if (!isContentStarted && child.getElementType() == MarkdownTokenTypes.EOL) {
                     isContentStarted = true;
                 }
             }
@@ -358,7 +368,7 @@ public final class RsDocPipeline {
         @Override
         public void renderLink(@Nonnull HtmlGenerator.HtmlGeneratingVisitor visitor, @Nonnull String text,
                                @Nonnull ASTNode node, @Nonnull RenderInfo info) {
-            super.renderLink(visitor, text, node, info.copy(info.getLabel(), markLinkAsLanguageItemIfItIsRustPath(info.getDestination()),
+            super.renderLink(visitor, text, node, new LinkGeneratingProvider.RenderInfo(info.getLabel(), markLinkAsLanguageItemIfItIsRustPath(info.getDestination()),
                 info.getTitle()));
         }
 
@@ -366,15 +376,15 @@ public final class RsDocPipeline {
         @Nullable
         public RenderInfo getRenderInfo(@Nonnull String text, @Nonnull ASTNode node) {
             ASTNode label = null;
-            for (ASTNode child : node.getChildren()) {
-                if (child.getType() == MarkdownElementTypes.LINK_LABEL) {
+            for (ASTNode child : MarkdownAstUtil.children(node)) {
+                if (child.getElementType() == MarkdownElementTypes.LINK_LABEL) {
                     label = child;
                     break;
                 }
             }
             if (label == null) return null;
 
-            CharSequence labelText = text.subSequence(label.getStartOffset(), label.getEndOffset());
+            CharSequence labelText = MarkdownAstUtil.getTextInNode(label, text);
             LinkMap.LinkInfo linkInfo = linkMap.getLinkInfo(labelText);
 
             CharSequence linkDestination;
@@ -396,18 +406,17 @@ public final class RsDocPipeline {
             }
 
             ASTNode linkTextNode = null;
-            for (ASTNode child : node.getChildren()) {
-                if (child.getType() == MarkdownElementTypes.LINK_TEXT) {
+            for (ASTNode child : MarkdownAstUtil.children(node)) {
+                if (child.getElementType() == MarkdownElementTypes.LINK_TEXT) {
                     linkTextNode = child;
                     break;
                 }
             }
 
-            EntityConverter entityConverter = EntityConverter.INSTANCE;
-            return new RenderInfo(
+            return new LinkGeneratingProvider.RenderInfo(
                 linkTextNode != null ? linkTextNode : label,
-                entityConverter.replaceEntities(linkDestination, true, true),
-                linkTitle != null ? entityConverter.replaceEntities(linkTitle, true, true) : null
+                EntityConverter.replaceEntities(linkDestination, true, true),
+                linkTitle != null ? EntityConverter.replaceEntities(linkTitle, true, true) : null
             );
         }
     }
@@ -420,7 +429,7 @@ public final class RsDocPipeline {
         @Override
         public void renderLink(@Nonnull HtmlGenerator.HtmlGeneratingVisitor visitor, @Nonnull String text,
                                @Nonnull ASTNode node, @Nonnull RenderInfo info) {
-            super.renderLink(visitor, text, node, info.copy(info.getLabel(), markLinkAsLanguageItemIfItIsRustPath(info.getDestination()),
+            super.renderLink(visitor, text, node, new LinkGeneratingProvider.RenderInfo(info.getLabel(), markLinkAsLanguageItemIfItIsRustPath(info.getDestination()),
                 info.getTitle()));
         }
     }

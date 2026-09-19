@@ -405,27 +405,14 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- JetBrains markdown library (plain Kotlin/JVM) used by RsDocPipeline to render
-             doc comments to HTML. Not an IntelliJ API. Bundled kotlin-stdlib alongside
-             so the lib's runtime calls resolve — kept non-transitive via runtime scope
-             so downstream JPMS consumers don't inherit kotlin as `requires`. -->
+        <!-- Consulo's own markdown engine. It parses straight into a PsiBuilder and its element
+             types are the platform's, so doc comments get a real AST instead of a parallel one.
+             Provided: the consulo.markdown plugin ships the jar at runtime. -->
         <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>markdown-jvm</artifactId>
-            <version>0.7.2</version>
-            <exclusions>
-                <!-- the platform already provides fastutil 8.5.14 via consulo-application-api;
-                     markdown-jvm would bundle an older fastutil-core and split the package -->
-                <exclusion>
-                    <groupId>it.unimi.dsi</groupId>
-                    <artifactId>fastutil-core</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib</artifactId>
-            <version>1.9.22</version>
+            <groupId>consulo.plugin</groupId>
+            <artifactId>consulo.markdown.engine</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
