@@ -213,6 +213,7 @@ public final class OpenApiUtil {
         }
     }
 
+    @Deprecated
     public static void checkReadAccessAllowed() {
         if (!ApplicationManager.getApplication().isReadAccessAllowed()) {
             throw new IllegalStateException("Needs read action");

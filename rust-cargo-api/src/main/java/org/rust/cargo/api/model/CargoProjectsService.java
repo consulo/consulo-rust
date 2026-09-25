@@ -5,6 +5,7 @@
 
 package org.rust.cargo.api.model;
 
+import consulo.annotation.access.RequiredReadAction;
 import org.rust.cargo.api.model.CargoProjectsRefreshListener;
 
 import consulo.project.Project;
@@ -17,6 +18,7 @@ import org.rust.cargo.api.workspace.PackageFeature;
 
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import consulo.annotation.component.ServiceAPI;
@@ -25,7 +27,7 @@ import consulo.annotation.component.TopicAPI;
 
 /**
  * Stores a list of {@link CargoProject}s associated with the current {@link Project}.
- * Use {@link CargoProjectServiceKt#getCargoProjects(Project)} to get an instance of the service.
+ * Use {@link CargoProjectsUtil#getCargoProjects(Project)} to get an instance of the service.
  */
 @ServiceAPI(ComponentScope.PROJECT)
 public interface CargoProjectsService {
@@ -34,7 +36,7 @@ public interface CargoProjectsService {
      * The cargo projects of {@code project}.
      */
     static CargoProjectsService getInstance(@Nonnull Project project) {
-        return project.getService(CargoProjectsService.class);
+        return project.getInstance(CargoProjectsService.class);
     }
 
     @Nonnull
@@ -51,6 +53,7 @@ public interface CargoProjectsService {
     CargoProject findProjectForFile(@Nonnull VirtualFile file);
 
     @Nullable
+    @RequiredReadAction
     CargoWorkspace.Package findPackageForFile(@Nonnull VirtualFile file);
 
     /**
@@ -64,17 +67,17 @@ public interface CargoProjectsService {
      * {@link #findProjectForFile} still answers {@code null} for files of the new project.
      */
     @Nonnull
-    java.util.concurrent.CompletableFuture<?> attachCargoProjectAsync(@Nonnull Path manifest);
+    CompletableFuture<?> attachCargoProjectAsync(@Nonnull Path manifest);
 
     void attachCargoProjects(@Nonnull Path... manifests);
 
     void detachCargoProject(@Nonnull CargoProject cargoProject);
 
     @Nonnull
-    CompletableFuture<? extends java.util.List<CargoProject>> refreshAllProjects();
+    CompletableFuture<? extends List<CargoProject>> refreshAllProjects();
 
     @Nonnull
-    CompletableFuture<? extends java.util.List<CargoProject>> discoverAndRefresh();
+    CompletableFuture<? extends List<CargoProject>> discoverAndRefresh();
 
     @Nonnull
     Sequence<VirtualFile> suggestManifests();
@@ -84,7 +87,6 @@ public interface CargoProjectsService {
     Class<CargoProjectsListener> CARGO_PROJECTS_TOPIC = CargoProjectsListener.class;
 
     Class<CargoProjectsRefreshListener> CARGO_PROJECTS_REFRESH_TOPIC = CargoProjectsRefreshListener.class;
-
 
 
     enum CargoRefreshStatus {

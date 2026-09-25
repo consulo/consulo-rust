@@ -6,6 +6,7 @@
 package org.rust.cargo.api.model;
 
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
@@ -15,7 +16,7 @@ import org.rust.cargo.api.workspace.CargoWorkspace;
 
 /**
  * Utility class for CargoProjectsService convenience methods.
- * Delegates to {@link CargoProjectServiceKt} where applicable.
+ * Delegates to {@link CargoProjectsService} where applicable.
  */
 public final class CargoProjectsUtil {
     private CargoProjectsUtil() {
@@ -26,6 +27,7 @@ public final class CargoProjectsUtil {
         return CargoProjectsService.getInstance(project);
     }
 
+    @RequiredReadAction
     public static boolean isGeneratedFile(@Nonnull Project project, @Nonnull VirtualFile file) {
         return isGeneratedFile(CargoProjectsService.getInstance(project), file);
     }
@@ -35,6 +37,7 @@ public final class CargoProjectsUtil {
         return getCargoProjects(project).findPackageForFile(file);
     }
 
+    @RequiredReadAction
     public static boolean isGeneratedFile(@Nonnull CargoProjectsService service, @Nonnull VirtualFile file) {
         CargoWorkspace.Package pkg = service.findPackageForFile(file);
         if (pkg == null) return false;

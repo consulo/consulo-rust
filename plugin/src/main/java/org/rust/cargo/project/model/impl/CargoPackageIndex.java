@@ -5,6 +5,7 @@
 
 package org.rust.cargo.project.model.impl;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.disposer.Disposable;
 import consulo.project.Project;
 import consulo.disposer.Disposer;
@@ -63,8 +64,9 @@ public class CargoPackageIndex implements CargoProjectsListener {
     }
 
     @Nullable
+    @RequiredReadAction
     public CargoWorkspace.Package findPackageForFile(@Nonnull VirtualFile file) {
-        OpenApiUtil.checkReadAccessAllowed();
+        project.getApplication().assertReadAccessAllowed();
         CargoProject cargoProject = service.findProjectForFile(file);
         if (cargoProject == null) return null;
         LightDirectoryIndex<Optional<CargoWorkspace.Package>> index = indices.get(cargoProject);

@@ -5,6 +5,7 @@
 
 package org.rust.cargo.project.model;
 
+import consulo.util.lang.ref.SimpleReference;
 import org.rust.cargo.api.model.CargoProjectsUtil;
 import org.rust.cargo.api.model.CargoProjectsService;
 
@@ -15,6 +16,8 @@ import consulo.virtualFileSystem.WritingAccessProvider;
 import jakarta.annotation.Nonnull;
 
 import jakarta.inject.Inject;
+
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -32,13 +35,17 @@ public class RsGeneratedSourcesWritingAccessProvider extends WritingAccessProvid
     @Override
     public Collection<VirtualFile> requestWriting(VirtualFile... files) {
         CargoProjectsService cargoProjects = CargoProjectServiceUtil.getCargoProjects(project);
-        return java.util.Arrays.stream(files)
+        return Arrays.stream(files)
             .filter(file -> CargoProjectsUtil.isGeneratedFile(cargoProjects, file))
             .collect(Collectors.toList());
     }
 
     @Override
     public boolean isPotentiallyWritable(@Nonnull VirtualFile file) {
-        return !CargoProjectsUtil.isGeneratedFile(project, file);
+        SimpleReference<Boolean> ref = new SimpleReference<>(Boolean.FALSE);
+        if (project.getApplication().tryRunReadAction(ref, () -> !CargoProjectsUtil.isGeneratedFile(project, file))) {
+            return ref.requiredGet();
+        }
+        return false;
     }
 }
