@@ -5,6 +5,8 @@
 
 package org.rust.ide.actions;
 
+import consulo.module.extension.ModuleExtensionHelper;
+import consulo.rust.module.extension.RustModuleExtension;
 import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.application.CommonBundle;
@@ -41,8 +43,9 @@ import org.rust.stdext.RsResult;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
-@ExtensionImpl(order = "last")
+@ExtensionImpl(id = "rustfmt", order = "after reformat")
 public class RustfmtCheckinFactory extends CheckinHandlerFactory {
 
     @Nonnull
@@ -51,12 +54,17 @@ public class RustfmtCheckinFactory extends CheckinHandlerFactory {
         return new CheckinHandler() {
             @Override
             public RefreshableOnComponent getBeforeCheckinConfigurationPanel() {
+                if (!ModuleExtensionHelper.getInstance(panel.getProject()).hasModuleExtension(RustModuleExtension.class)) {
+                    return null;
+                }
+
                 return BooleanCommitOption.create(panel.getProject(), this, false, RsBundle.message("run.rustfmt"),
                     () -> isEnabled(panel),
                     value -> setEnabled(panel, value));
             }
 
-            public ReturnResult beforeCheckin(CommitExecutor executor, PairConsumer<Object, Object> additionalDataConsumer) {
+            @Override
+            public ReturnResult beforeCheckin(CommitExecutor executor, BiConsumer<Object, Object> additionalDataConsumer) {
                 if (!isEnabled(panel)) return ReturnResult.COMMIT;
 
                 FileDocumentManager.getInstance().saveAllDocuments();

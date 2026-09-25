@@ -50,7 +50,7 @@ import consulo.language.psi.PsiFile;
 import consulo.annotation.component.ExtensionImpl;
 import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 
-@ExtensionImpl(id = "rust.moveFilesOrDirectories", order = "first, before moveJavaFileOrDir, before moveFileOrDir")
+@ExtensionImpl(id = "rust.moveFilesOrDirectories", order = "before moveJavaFileOrDir, before moveFileOrDir")
 public class RsMoveFilesOrDirectoriesHandler extends MoveFilesOrDirectoriesHandler {
 
     public boolean supportsLanguage(@Nonnull Language language) {

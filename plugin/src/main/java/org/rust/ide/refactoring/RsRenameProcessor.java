@@ -67,7 +67,7 @@ import consulo.localize.LocalizeValue;
 import org.rust.lang.core.psi.impl.*;
 import org.rust.lang.core.psi.ext.impl.*;
 
-@ExtensionImpl(id = "rsRenameProcessor", order = "first")
+@ExtensionImpl(id = "rsRenameProcessor")
 public class RsRenameProcessor extends RenamePsiElementProcessor {
 
     @Nonnull

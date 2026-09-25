@@ -22,7 +22,7 @@ import org.rust.openapiext.Testmark;
 import java.util.Map;
 import consulo.annotation.component.ExtensionImpl;
 
-@ExtensionImpl(id = "rsDirectoryRenameProcessor", order = "first, before rsRenameProcessor")
+@ExtensionImpl(id = "rsDirectoryRenameProcessor", order = "before rsRenameProcessor")
 public class RsDirectoryRenameProcessor extends RenamePsiFileProcessorBase {
 
     @Nonnull
