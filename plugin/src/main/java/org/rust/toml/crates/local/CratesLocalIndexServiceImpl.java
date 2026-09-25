@@ -417,7 +417,7 @@ public class CratesLocalIndexServiceImpl implements CratesLocalIndexService, Dis
             try {
                 crates = IOUtil.openCleanOrResetBroken(
                     () -> new PersistentHashMap<>(
-                        cratesFilePath.toFile(),
+                        cratesFilePath,
                         EnumeratorStringDescriptor.INSTANCE,
                         CrateExternalizer.INSTANCE,
                         4 * 1024,
