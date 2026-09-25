@@ -37,10 +37,7 @@ import org.rust.cargo.toolchain.tools.Rustc;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -124,8 +121,8 @@ public class RustBundleType extends PlatformAwareSdkType {
     }
 
     @Nonnull
-    private static java.util.List<Path> rustupToolchainsDirs(@Nonnull Platform platform) {
-        java.util.List<Path> result = new java.util.ArrayList<>();
+    private static List<Path> rustupToolchainsDirs(@Nonnull Platform platform) {
+        List<Path> result = new ArrayList<>();
         String rustupHome = platform.os().getEnvironmentVariable("RUSTUP_HOME");
         if (rustupHome != null && !rustupHome.isBlank()) {
             result.add(platform.fs().getPath(rustupHome).resolve("toolchains"));

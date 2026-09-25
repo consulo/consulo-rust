@@ -8,9 +8,11 @@ package org.rust.cargo.project.toolwindow;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.application.dumb.DumbAware;
 import consulo.localize.LocalizeValue;
+import consulo.module.extension.ModuleExtensionHelper;
 import consulo.project.Project;
 import consulo.project.ui.wm.ToolWindowFactory;
 import consulo.rust.icon.RustIconGroup;
+import consulo.rust.module.extension.RustModuleExtension;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.content.Content;
 import consulo.ui.ex.content.ContentFactory;
@@ -55,5 +57,10 @@ public class CargoToolWindowFactory implements ToolWindowFactory, DumbAware {
         Content tab = ContentFactory.getInstance().createUIContent(cargoToolWindow.getComponent(), "", false);
         tab.setCloseable(false);
         toolWindow.getContentManager().addContent(tab);
+    }
+
+    @Override
+    public boolean validate(Project project) {
+        return ModuleExtensionHelper.getInstance(project).hasModuleExtension(RustModuleExtension.class);
     }
 }
