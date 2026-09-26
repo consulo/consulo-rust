@@ -2,9 +2,9 @@
  * Use of this source code is governed by the MIT license that can be
  * found in the LICENSE file.
  */
-
 package org.rust.ide.injected;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.language.inject.advanced.AbstractLanguageInjectionSupport;
 import consulo.language.inject.advanced.BaseInjection;
@@ -12,7 +12,7 @@ import consulo.language.inject.advanced.InjectorUtils;
 import consulo.language.psi.PsiComment;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiLanguageInjectionHost;
-import consulo.util.lang.ref.Ref;
+import consulo.util.lang.ref.SimpleReference;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.RsPsiPattern;
@@ -24,7 +24,6 @@ import org.rust.lang.core.psi.ext.RsElement;
  */
 @ExtensionImpl
 public class RsLanguageInjectionSupport extends AbstractLanguageInjectionSupport {
-
     public static final String ID = "rust";
 
     @Override
@@ -60,16 +59,21 @@ public class RsLanguageInjectionSupport extends AbstractLanguageInjectionSupport
      */
     @Nullable
     @Override
-    public BaseInjection findCommentInjection(@Nonnull PsiElement host, @Nullable Ref<PsiElement> commentRef) {
-        return InjectorUtils.findNearestComment(host, comment -> {
-            if (commentRef != null) {
-                commentRef.set(comment);
+    @RequiredReadAction
+    public BaseInjection findCommentInjection(@Nonnull PsiElement host, @Nullable SimpleReference<PsiElement> commentRef) {
+        return InjectorUtils.findNearestComment(
+            host,
+            comment -> {
+                if (commentRef != null) {
+                    commentRef.set(comment);
+                }
+                return InjectorUtils.detectInjectionFromText(ID, commentText(comment));
             }
-            return InjectorUtils.detectInjectionFromText(ID, commentText(comment));
-        });
+        );
     }
 
     @Nonnull
+    @RequiredReadAction
     private static String commentText(@Nonnull PsiComment comment) {
         String text = comment.getText();
         if (text.startsWith("/*")) {
