@@ -12,8 +12,9 @@ import consulo.fileChooser.FileChooser;
 import consulo.fileChooser.FileChooserDescriptorFactory;
 import consulo.ui.ex.awt.ComboBoxWithWidePopup;
 import consulo.ui.ex.awt.ComponentWithBrowseButton;
-import consulo.ui.ex.awt.AnimatedIcon;
 import consulo.ui.ex.awt.ComboboxSpeedSearch;
+import consulo.ui.ex.awtUnsafe.TargetAWT;
+import consulo.ui.image.Image;
 import com.intellij.ui.components.fields.ExtendableTextComponent;
 import com.intellij.ui.components.fields.ExtendableTextField;
 import jakarta.annotation.Nullable;
@@ -42,7 +43,7 @@ public class RsToolchainPathChoosingComboBox extends ComponentWithBrowseButton<C
     };
 
     private final ExtendableTextComponent.Extension busyIconExtension =
-        ExtendableTextComponent.Extension.create(AnimatedIcon.Default.INSTANCE, null, null);
+        ExtendableTextComponent.Extension.create(TargetAWT.to(Image.busy()), null, null);
 
     public RsToolchainPathChoosingComboBox(Runnable onTextChanged) {
         super(new ComboBoxWithWidePopup<>(), null);
