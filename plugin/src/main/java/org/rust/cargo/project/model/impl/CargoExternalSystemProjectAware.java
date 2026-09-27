@@ -4,30 +4,35 @@
  */
 
 package org.rust.cargo.project.model.impl;
-import com.intellij.openapi.externalSystem.service.project.autoimport.ExternalSystemRefreshStatus;
-import com.intellij.openapi.externalSystem.model.ExternalSystemProjectId;
 
 import consulo.disposer.Disposable;
-import com.intellij.openapi.externalSystem.autoimport.*;
-import com.intellij.openapi.externalSystem.autoimport.ExternalSystemSettingsFilesModificationContext.ReloadStatus;
-import consulo.externalSystem.model.ProjectSystemId;
 import consulo.document.FileDocumentManager;
+import consulo.externalSystem.autoimport.ExternalSystemModificationType;
+import consulo.externalSystem.autoimport.ExternalSystemProjectAware;
+import consulo.externalSystem.autoimport.ExternalSystemProjectId;
+import consulo.externalSystem.autoimport.ExternalSystemProjectListener;
+import consulo.externalSystem.autoimport.ExternalSystemProjectReloadContext;
+import consulo.externalSystem.autoimport.ExternalSystemRefreshStatus;
+import consulo.externalSystem.autoimport.ExternalSystemSettingsFilesModificationContext;
+import consulo.externalSystem.autoimport.ExternalSystemSettingsFilesModificationContext.ReloadStatus;
+import consulo.externalSystem.model.ProjectSystemId;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import consulo.rust.icon.RustIconGroup;
 import consulo.util.io.PathUtil;
 import jakarta.annotation.Nonnull;
 import org.rust.cargo.CargoConstants;
-import org.rust.cargo.project.model.CargoProjectServiceUtil;
+import org.rust.cargo.api.model.CargoProjectsRefreshListener;
 import org.rust.cargo.api.model.CargoProjectsService;
 import org.rust.cargo.api.model.CargoProjectsService.CargoRefreshStatus;
+import org.rust.cargo.project.model.CargoProjectServiceUtil;
 
 import java.util.Map;
 import java.util.Set;
-import org.rust.cargo.api.model.CargoProjectsRefreshListener;
 
-@SuppressWarnings("UnstableApiUsage")
 public class CargoExternalSystemProjectAware implements ExternalSystemProjectAware {
 
-    public static final ProjectSystemId CARGO_SYSTEM_ID = new ProjectSystemId("Cargo");
+    public static final ProjectSystemId CARGO_SYSTEM_ID = new ProjectSystemId("Cargo", LocalizeValue.localizeTODO("Cargo"), RustIconGroup.cargo(), RustIconGroup.cargo());
 
     private final Project project;
     private final ExternalSystemProjectId projectId;
@@ -92,7 +97,7 @@ public class CargoExternalSystemProjectAware implements ExternalSystemProjectAwa
                         case FAILURE -> ExternalSystemRefreshStatus.FAILURE;
                         case CANCEL -> ExternalSystemRefreshStatus.CANCEL;
                     };
-                    listener.onProjectReloadFinish(externalStatus == ExternalSystemRefreshStatus.SUCCESS);
+                    listener.onProjectReloadFinish(externalStatus);
                 }
             }
         );

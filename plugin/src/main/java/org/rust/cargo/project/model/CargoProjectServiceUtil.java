@@ -22,7 +22,6 @@ import consulo.application.ApplicationManager;
 import consulo.project.Project;
 import consulo.project.util.ProjectUtil;
 import consulo.module.content.layer.ContentEntry;
-import consulo.application.util.registry.Registry;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
@@ -289,9 +288,5 @@ public final class CargoProjectServiceUtil {
         if (targetChild != null) {
             wrapper.addExcludeFolder(targetChild.getUrl());
         }
-    }
-
-    public static boolean isNewProjectModelImportEnabled() {
-        return Registry.is("org.rust.cargo.new.auto.import", false);
     }
 }

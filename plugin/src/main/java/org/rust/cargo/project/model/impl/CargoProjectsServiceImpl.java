@@ -24,6 +24,7 @@ import consulo.component.persist.State;
 import consulo.component.persist.Storage;
 import consulo.component.persist.StoragePathMacros;
 import consulo.disposer.Disposable;
+import consulo.externalSystem.autoimport.ExternalSystemProjectTracker;
 import consulo.ide.impl.idea.util.indexing.LightDirectoryIndex;
 import consulo.language.psi.PsiManager;
 import consulo.logging.Logger;
@@ -33,7 +34,6 @@ import consulo.project.Project;
 import consulo.project.ui.notification.NotificationType;
 import consulo.util.lang.SemVer;
 import consulo.virtualFileSystem.VirtualFile;
-import consulo.virtualFileSystem.event.BulkFileListener;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
@@ -42,7 +42,6 @@ import org.rust.RsBundle;
 import org.rust.cargo.CargoConstants;
 import org.rust.cargo.project.model.*;
 import org.rust.cargo.api.settings.RsProjectSettingsServiceBase;
-import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import org.rust.cargo.api.settings.RsSettingsListener;
 import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.cargo.api.workspace.FeatureState;
@@ -104,18 +103,23 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
         this.directoryIndex = new LightDirectoryIndex<>(project, noProjectMarker, this::fillDirectoryIndex);
         this.packageIndex = new CargoPackageIndex(project, this);
 
-        if (!OpenApiUtil.isUnitTestMode()) {
-            MessageBusConnection appConnection = ApplicationManager.getApplication().getMessageBus().connect(project);
-            appConnection.subscribe(BulkFileListener.class, new CargoTomlWatcher(this, () -> {
-                if (!RsProjectSettingsServiceUtil.getRustSettings(project).getAutoUpdateEnabled()) return;
-                refreshAllProjects();
-            }));
-        }
+        registerProjectAware(project, this);
+    }
 
-        MessageBusConnection connection = project.getMessageBus().connect(project);
+    private static void registerProjectAware(@Nonnull Project project, @Nonnull Disposable disposable) {
+        if (project.isDefault()) return;
+
+        CargoExternalSystemProjectAware cargoProjectAware = new CargoExternalSystemProjectAware(project);
+        ExternalSystemProjectTracker projectTracker = ExternalSystemProjectTracker.getInstance(project);
+        projectTracker.register(cargoProjectAware, disposable);
+        projectTracker.activate(cargoProjectAware.getProjectId());
+
+        MessageBusConnection connection = project.getMessageBus().connect(disposable);
         connection.subscribe(RsProjectSettingsServiceBase.RUST_SETTINGS_TOPIC, (RsSettingsListener) e -> {
             if (e.getAffectsCargoMetadata()) {
-                refreshAllProjects();
+                ExternalSystemProjectTracker tracker = ExternalSystemProjectTracker.getInstance(project);
+                tracker.markDirty(cargoProjectAware.getProjectId());
+                tracker.scheduleProjectRefresh();
             }
         });
     }

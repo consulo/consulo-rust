@@ -16,7 +16,6 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import org.rust.RsBundle;
-import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 
 import consulo.ui.ex.awt.FormBuilder;
@@ -67,17 +66,11 @@ public class CargoConfigurable extends RsConfigurableBase implements ProjectConf
         RustProjectSettingsService settings = RsProjectSettingsServiceUtil.getRustSettings(project);
 
         JCheckBox showFirstError = new JCheckBox(RsBundle.message("settings.rust.cargo.show.first.error.label"));
-        JCheckBox autoUpdate = new JCheckBox(RsBundle.message("settings.rust.cargo.auto.update.project.label"));
         JCheckBox compileAllTargets = new JCheckBox(RsBundle.message("settings.rust.cargo.compile.all.targets.label"));
         JCheckBox offlineMode = new JCheckBox(RsBundle.message("settings.rust.cargo.offline.mode.label"));
 
-        FormBuilder builder = FormBuilder.createFormBuilder()
-            .addComponent(showFirstError);
-        // Project model updates are driven by the build-tools settings once the new import is on.
-        if (!CargoProjectServiceUtil.isNewProjectModelImportEnabled()) {
-            builder = builder.addComponent(autoUpdate);
-        }
-        JPanel form = builder
+        JPanel form = FormBuilder.createFormBuilder()
+            .addComponent(showFirstError)
             .addComponent(compileAllTargets)
             .addTooltip(RsBundle.message("settings.rust.cargo.compile.all.targets.comment"))
             .addComponent(offlineMode)
@@ -91,10 +84,6 @@ public class CargoConfigurable extends RsConfigurableBase implements ProjectConf
             () -> showFirstError.setSelected(settings.getAutoShowErrorsInEditor().toBoolean()),
             () -> settings.modify(state -> state.autoShowErrorsInEditor = showFirstError.isSelected()),
             () -> showFirstError.isSelected() != settings.getAutoShowErrorsInEditor().toBoolean());
-        panel.bind(
-            () -> autoUpdate.setSelected(settings.getAutoUpdateEnabled()),
-            () -> settings.modify(state -> state.autoUpdateEnabled = autoUpdate.isSelected()),
-            () -> autoUpdate.isSelected() != settings.getAutoUpdateEnabled());
         panel.bind(
             () -> compileAllTargets.setSelected(settings.getCompileAllTargets()),
             () -> settings.modify(state -> state.compileAllTargets = compileAllTargets.isSelected()),

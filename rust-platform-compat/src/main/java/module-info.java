@@ -14,7 +14,6 @@ open module consulo.rust.platform.compat {
     requires consulo.document.api;
     requires consulo.execution.api;
     requires consulo.execution.test.sm.api;
-    requires consulo.external.system.api;
     requires consulo.index.io;
     requires consulo.language.api;
     requires consulo.language.code.style.api;
@@ -63,9 +62,6 @@ open module consulo.rust.platform.compat {
     exports com.intellij.ide.nls;
     exports com.intellij.openapi.components;
     exports com.intellij.openapi.editor.impl;
-    exports com.intellij.openapi.externalSystem.autoimport;
-    exports com.intellij.openapi.externalSystem.model;
-    exports com.intellij.openapi.externalSystem.service.project.autoimport;
     exports com.intellij.openapi.options;
     exports com.intellij.openapi.options.advanced;
     exports com.intellij.openapi.options.ex;
