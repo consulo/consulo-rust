@@ -154,7 +154,11 @@ public final class CargoSettingsFilesService {
     private static VirtualFile findBuildScriptFile(@Nonnull CargoWorkspace.Package pkg) {
         for (CargoWorkspace.Target target : pkg.getTargets()) {
             if (target.getKind().isCustomBuild()) {
-                return target.getCrateRoot();
+                VirtualFile crateRoot = target.getCrateRoot();
+                if (crateRoot != null) {
+                    return crateRoot;
+                }
+                break;
             }
         }
         VirtualFile contentRoot = pkg.getContentRoot();

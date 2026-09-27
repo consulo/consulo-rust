@@ -81,6 +81,11 @@ public class CargoExternalSystemProjectAware implements ExternalSystemProjectAwa
     }
 
     @Override
+    public boolean isDisabledReload(@Nonnull ExternalSystemProjectReloadContext context) {
+        return CargoProjectServiceUtil.getCargoProjects(project).getAllProjects().isEmpty();
+    }
+
+    @Override
     public void subscribe(@Nonnull ExternalSystemProjectListener listener, @Nonnull Disposable parentDisposable) {
         project.getMessageBus().connect(parentDisposable).subscribe(
             CargoProjectsService.CARGO_PROJECTS_REFRESH_TOPIC,

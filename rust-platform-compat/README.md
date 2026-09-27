@@ -34,7 +34,7 @@ compiles. Each one is a stop-gap.
 2. **Prefer the Consulo API at every call site.** When you are editing ported
    code that uses a shim, replace the usage if the Consulo equivalent is known.
 3. **When the last caller of a shim is gone, delete the shim.** This module
-   should shrink monotonically. It is currently 167 files.
+   should shrink monotonically. It is currently 112 files.
 4. **If Consulo genuinely lacks a capability, say so at the point of failure** —
    a comment where the feature degrades, not a silent no-op — and raise it
    against Consulo rather than deepening the shim.
