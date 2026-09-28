@@ -16,18 +16,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Nothing runs a Rust file unless a producer is on the extension point.
- * <p>
- * {@code ConfigurationContext} builds a configuration from context by enumerating the
- * {@link RunConfigurationProducer} extension point. The gutter icon on {@code fn main} comes from a
- * line marker contributor instead, which is registered separately - so an unregistered producer looks
- * like a working icon that does nothing when clicked, while a run configuration picked by hand still
- * runs fine. That is the shape of the regression this guards.
- * <p>
- * Only the composite is expected: it reaches the executable, test and bench producers itself so that
- * it can compare their candidates.
- */
 @ExtendWith(HeadlessApplicationExtension.class)
 public class CargoRunConfigurationProducerRegisteredTest {
 
