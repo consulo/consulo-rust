@@ -4,29 +4,24 @@
  */
 
 package org.rust.ide.hints.type;
-import com.intellij.codeInsight.hints.InlayProviderDisablingAction;
-import com.intellij.codeInsight.hints.FactoryInlayHintsCollector;
-import consulo.language.editor.inlay.InlayGroup;
 
-import consulo.language.editor.inlay.InlayPresentation;
-import com.intellij.codeInsight.hints.presentation.PresentationFactory;
-import com.intellij.codeInsight.hints.SettingsKey;
-import com.intellij.codeInsight.hints.InlayHintsProvider;
-import com.intellij.codeInsight.hints.InlayHintsCollector;
-import com.intellij.codeInsight.hints.InlayHintsSink;
-import com.intellij.codeInsight.hints.ImmediateConfigurable;
-import com.intellij.codeInsight.hints.ImmediateConfigurable.Case;
-import com.intellij.codeInsight.hints.InlayHintsProvider.ChangeListener;
-import consulo.language.editor.inlay.InlayPresentation;
-import com.intellij.codeInsight.hints.presentation.MenuOnClickPresentation;
+import consulo.annotation.component.ExtensionImpl;
 import consulo.codeEditor.Editor;
-import consulo.project.DumbService;
-import consulo.project.Project;
+import consulo.document.util.TextRange;
+import consulo.language.Language;
+import consulo.language.ast.IElementType;
+import consulo.language.editor.inlay.DeclarativeInlayHintsCollector;
+import consulo.language.editor.inlay.DeclarativeInlayHintsProvider;
+import consulo.language.editor.inlay.DeclarativeInlayOptionInfo;
+import consulo.language.editor.inlay.DeclarativeInlayPosition;
+import consulo.language.editor.inlay.DeclarativeInlayTreeSink;
+import consulo.language.editor.inlay.InlayGroup;
+import consulo.language.impl.psi.LeafPsiElement;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.SyntaxTraverser;
-import consulo.language.impl.psi.LeafPsiElement;
-import consulo.language.ast.IElementType;
+import consulo.localize.LocalizeValue;
+import consulo.project.DumbService;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
@@ -35,225 +30,214 @@ import org.rust.lang.core.crate.Crate;
 import org.rust.lang.core.macros.MacroExpansionExtUtil;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
-import org.rust.lang.core.types.RsTypesUtil;
-import org.rust.lang.core.types.ty.TyUnknown;
-import org.rust.openapiext.TestAssertUtil;
-
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Function;
-import consulo.document.util.TextRange;
-import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.impl.*;
 import org.rust.lang.core.psi.ext.impl.*;
+import org.rust.lang.core.psi.impl.*;
+import org.rust.lang.core.types.RsTypesUtil;
+import org.rust.lang.core.types.ty.Ty;
+import org.rust.lang.core.types.ty.TyUnknown;
 
-@SuppressWarnings("UnstableApiUsage")
-public class RsInlayTypeHintsProvider implements InlayHintsProvider<RsInlayTypeHintsProvider.Settings> {
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
 
-    private static final SettingsKey<Settings> KEY = new SettingsKey<>("rust.type.hints");
+@ExtensionImpl
+public class RsInlayTypeHintsProvider implements DeclarativeInlayHintsProvider {
 
-    @Nonnull
+    public static final String PROVIDER_ID = "rust.types";
+
+    private static final String OPTION_VARIABLES = "rust.types.variables";
+    private static final String OPTION_LAMBDAS = "rust.types.lambdas";
+    private static final String OPTION_ITERATORS = "rust.types.iterators";
+    private static final String OPTION_OBVIOUS_TYPES = "rust.types.obvious";
+
+    private static final RsTypeHintsFactory FACTORY = new RsTypeHintsFactory(false);
+
+    @Nullable
     @Override
-    public SettingsKey<Settings> getKey() {
-        return KEY;
+    public DeclarativeInlayHintsCollector createCollector(PsiFile file, Editor editor) {
+        if (!(file instanceof RsFile rsFile) || DumbService.isDumb(file.getProject())) {
+            return null;
+        }
+        return new Collector(rsFile);
     }
 
-    @Nonnull
     @Override
-    public String getName() {
-        return RsBundle.message("settings.rust.inlay.hints.title.types");
+    public Language getLanguage() {
+        return RsLanguage.INSTANCE;
     }
 
-    @Nonnull
     @Override
-    public String getPreviewText() {
-        return "struct Foo<T1, T2, T3> { x: T1, y: T2, z: T3 }\n\nfn main() {\n    let foo = Foo { x: 1, y: \"abc\", z: true };\n}";
+    public String getId() {
+        return PROVIDER_ID;
     }
 
-    @Nonnull
+    @Override
+    public LocalizeValue getName() {
+        return LocalizeValue.of(RsBundle.message("settings.rust.inlay.hints.title.types"));
+    }
+
+    @Override
+    public LocalizeValue getDescription() {
+        return LocalizeValue.of(RsBundle.message("settings.rust.inlay.hints.title.types"));
+    }
+
+    @Override
+    public LocalizeValue getPreviewFileText() {
+        return LocalizeValue.of("struct Foo<T1, T2, T3> { x: T1, y: T2, z: T3 }\n\nfn main() {\n    let foo = Foo { x: 1, y: \"abc\", z: true };\n}");
+    }
+
     @Override
     public InlayGroup getGroup() {
         return InlayGroup.TYPES_GROUP;
     }
 
-    @Nonnull
     @Override
-    public ImmediateConfigurable createConfigurable(@Nonnull Settings settings) {
-        return new ImmediateConfigurable() {
-            @Nonnull
-            @Override
-            public String getMainCheckboxText() {
-                return RsBundle.message("settings.rust.inlay.hints.for");
-            }
-
-            @Nonnull
-            @Override
-            public List<Case> getCases() {
-                // which cannot be properly implemented in Java.
-                return Collections.emptyList();
-            }
-
-            @Nonnull
-            public JComponent createComponent(@Nonnull ChangeListener listener) {
-                return new JPanel();
-            }
-        };
+    public Set<DeclarativeInlayOptionInfo> getOptions() {
+        return Set.of(
+            option(OPTION_VARIABLES, true, "settings.rust.inlay.hints.for.variables"),
+            option(OPTION_LAMBDAS, true, "settings.rust.inlay.hints.for.closures"),
+            option(OPTION_ITERATORS, true, "settings.rust.inlay.hints.for.loop.variables"),
+            option(OPTION_OBVIOUS_TYPES, false, "settings.rust.inlay.hints.for.obvious.types")
+        );
     }
 
-    @Nonnull
-    @Override
-    public Settings createSettings() {
-        return new Settings();
+    private static DeclarativeInlayOptionInfo option(String id, boolean enabledByDefault, String bundleKey) {
+        LocalizeValue name = LocalizeValue.of(RsBundle.message(bundleKey));
+        return new DeclarativeInlayOptionInfo(id, enabledByDefault, name, name);
     }
 
-    @Nonnull
-    @Override
-    public InlayHintsCollector getCollectorFor(@Nonnull PsiFile file, @Nonnull Editor editor, @Nonnull Settings settings, @Nonnull InlayHintsSink sink) {
-        Project project = file.getProject();
-        Crate crate = file instanceof RsFile ? ((RsFile) file).getCrate() : null;
+    private static class Collector implements DeclarativeInlayHintsCollector.SharedBypassCollector {
 
-        return new FactoryInlayHintsCollector(editor) {
-            private final RsTypeHintsPresentationFactory typeHintsFactory = new RsTypeHintsPresentationFactory(getFactory(), settings.myShowObviousTypes);
+        private final RsFile file;
+        private final Crate crate;
 
-            @Override
-            public boolean collect(@Nonnull PsiElement element, @Nonnull Editor editor, @Nonnull InlayHintsSink sink) {
-                if (DumbService.isDumb(project)) return true;
-                if (!(element instanceof RsElement)) return true;
+        Collector(RsFile file) {
+            this.file = file;
+            this.crate = file.getCrate();
+        }
 
-                if (element instanceof RsMacroCall) {
-                    processMacroCall((RsMacroCall) element, settings, crate, file, project, sink);
-                }
-                if (settings.myShowForVariables) {
-                    presentVariable((RsElement) element, false, settings, crate, file, project, sink);
-                }
-                if (settings.myShowForLambdas) {
-                    presentLambda((RsElement) element, false, settings, crate, file, project, sink);
-                }
-                if (settings.myShowForIterators) {
-                    presentIterator((RsElement) element, false, settings, crate, file, project, sink);
-                }
+        @Override
+        public void collectFromElement(PsiElement element, DeclarativeInlayTreeSink sink) {
+            if (!(element instanceof RsElement rsElement)) return;
 
-                return true;
+            if (element instanceof RsMacroCall macroCall) {
+                processMacroCall(macroCall, sink);
             }
+            sink.whenOptionEnabled(OPTION_VARIABLES, () -> presentVariable(rsElement, false, sink));
+            sink.whenOptionEnabled(OPTION_LAMBDAS, () -> presentLambda(rsElement, false, sink));
+            sink.whenOptionEnabled(OPTION_ITERATORS, () -> presentIterator(rsElement, false, sink));
+        }
 
-            private void processMacroCall(RsMacroCall call, Settings settings, Crate crate, PsiFile file, Project project, InlayHintsSink sink) {
-                if (RsElementUtil.getCodeStatus(call, crate) == RsCodeStatus.CFG_DISABLED) return;
-                RsMacroArgument macroBody = call.getMacroArgument();
-                if (macroBody == null) return;
-                SyntaxTraverser<PsiElement> traverser = SyntaxTraverser.psiTraverser(macroBody);
-                for (PsiElement leaf : traverser.preOrderDfsTraversal()) {
-                    if (!(leaf instanceof LeafPsiElement)) continue;
-                    IElementType elementType = ((LeafPsiElement) leaf).getElementType();
-                    if (elementType == RsElementTypes.LET || elementType == RsElementTypes.MATCH) {
-                        if (!settings.myShowForVariables) continue;
-                        List<PsiElement> expanded = MacroExpansionExtUtil.findExpansionElements(leaf);
-                        if (expanded == null || expanded.size() != 1) continue;
-                        PsiElement parent = expanded.get(0).getParent();
-                        if (!(parent instanceof RsElement)) continue;
-                        presentVariable((RsElement) parent, true, settings, crate, file, project, sink);
-                    } else if (elementType == RsElementTypes.FOR) {
-                        if (!settings.myShowForIterators) continue;
-                        List<PsiElement> expanded = MacroExpansionExtUtil.findExpansionElements(leaf);
-                        if (expanded == null || expanded.size() != 1) continue;
-                        PsiElement parent = expanded.get(0).getParent();
-                        if (!(parent instanceof RsForExpr)) continue;
-                        presentIterator((RsElement) parent, true, settings, crate, file, project, sink);
-                    } else if (elementType == RsElementTypes.OR) {
-                        if (!settings.myShowForLambdas) continue;
-                        List<PsiElement> expanded = MacroExpansionExtUtil.findExpansionElements(leaf);
-                        if (expanded == null || expanded.size() != 1) continue;
-                        PsiElement leafExpanded = expanded.get(0);
-                        if (!(leafExpanded.getParent() instanceof RsValueParameterList)) continue;
-                        RsValueParameterList valueParameterList = (RsValueParameterList) leafExpanded.getParent();
-                        if (RsElementUtil.stubChildOfElementType(valueParameterList, RsElementTypes.OR, PsiElement.class) != leafExpanded) continue;
-                        if (!(valueParameterList.getParent() instanceof RsLambdaExpr)) continue;
-                        presentLambda((RsElement) valueParameterList.getParent(), true, settings, crate, file, project, sink);
-                    }
+        private void processMacroCall(RsMacroCall call, DeclarativeInlayTreeSink sink) {
+            if (RsElementUtil.getCodeStatus(call, crate) == RsCodeStatus.CFG_DISABLED) return;
+            RsMacroArgument macroBody = call.getMacroArgument();
+            if (macroBody == null) return;
+            SyntaxTraverser<PsiElement> traverser = SyntaxTraverser.psiTraverser(macroBody);
+            for (PsiElement leaf : traverser.preOrderDfsTraversal()) {
+                if (!(leaf instanceof LeafPsiElement)) continue;
+                IElementType elementType = ((LeafPsiElement) leaf).getElementType();
+                if (elementType == RsElementTypes.LET || elementType == RsElementTypes.MATCH) {
+                    
+                    List<PsiElement> expanded = MacroExpansionExtUtil.findExpansionElements(leaf);
+                    if (expanded == null || expanded.size() != 1) continue;
+                    final PsiElement parent = expanded.get(0).getParent();
+                    if (!(parent instanceof RsElement)) continue;
+                    sink.whenOptionEnabled(OPTION_VARIABLES, () -> presentVariable((RsElement) parent, true, sink));
+                } else if (elementType == RsElementTypes.FOR) {
+                    
+                    List<PsiElement> expanded = MacroExpansionExtUtil.findExpansionElements(leaf);
+                    if (expanded == null || expanded.size() != 1) continue;
+                    final PsiElement parent = expanded.get(0).getParent();
+                    if (!(parent instanceof RsForExpr)) continue;
+                    sink.whenOptionEnabled(OPTION_ITERATORS, () -> presentIterator((RsElement) parent, true, sink));
+                } else if (elementType == RsElementTypes.OR) {
+                    
+                    List<PsiElement> expanded = MacroExpansionExtUtil.findExpansionElements(leaf);
+                    if (expanded == null || expanded.size() != 1) continue;
+                    PsiElement leafExpanded = expanded.get(0);
+                    if (!(leafExpanded.getParent() instanceof RsValueParameterList)) continue;
+                    final RsValueParameterList valueParameterList = (RsValueParameterList) leafExpanded.getParent();
+                    if (RsElementUtil.stubChildOfElementType(valueParameterList, RsElementTypes.OR, PsiElement.class) != leafExpanded) continue;
+                    if (!(valueParameterList.getParent() instanceof RsLambdaExpr)) continue;
+                    sink.whenOptionEnabled(OPTION_LAMBDAS, () -> presentLambda((RsElement) valueParameterList.getParent(), true, sink));
                 }
             }
+        }
 
-            private void presentVariable(RsElement element, boolean isExpanded, Settings settings, Crate crate, PsiFile file, Project project, InlayHintsSink sink) {
-                if (element instanceof RsLetDecl) {
-                    RsLetDecl letDecl = (RsLetDecl) element;
-                    if (settings.myShowForPlaceholders) {
-                        // TODO: present type placeholders
-                    }
-                    if (letDecl.getTypeReference() != null) return;
-                    RsPat pat = letDecl.getPat();
-                    if (pat == null) return;
-                    presentTypeForPat(pat, letDecl.getExpr(), isExpanded, settings, crate, file, project, sink);
-                } else if (element instanceof RsLetExpr) {
-                    RsLetExpr letExpr = (RsLetExpr) element;
-                    RsPat pat = letExpr.getPat();
-                    if (pat == null) return;
-                    presentTypeForPat(pat, letExpr.getExpr(), isExpanded, settings, crate, file, project, sink);
-                } else if (element instanceof RsMatchExpr) {
-                    RsMatchExpr matchExpr = (RsMatchExpr) element;
-                    for (RsMatchArm arm : RsMatchExprUtil.getArms(matchExpr)) {
-                        presentTypeForPat(arm.getPat(), matchExpr.getExpr(), isExpanded, settings, crate, file, project, sink);
-                    }
-                }
-            }
-
-            private void presentLambda(RsElement element, boolean isExpanded, Settings settings, Crate crate, PsiFile file, Project project, InlayHintsSink sink) {
-                if (!(element instanceof RsLambdaExpr)) return;
-                RsLambdaExpr lambda = (RsLambdaExpr) element;
-                for (RsValueParameter parameter : lambda.getValueParameterList().getValueParameterList()) {
-                    if (parameter.getTypeReference() != null) continue;
-                    RsPat pat = parameter.getPat();
-                    if (pat == null) continue;
-                    presentTypeForPat(pat, null, isExpanded, settings, crate, file, project, sink);
-                }
-            }
-
-            private void presentIterator(RsElement element, boolean isExpanded, Settings settings, Crate crate, PsiFile file, Project project, InlayHintsSink sink) {
-                if (!(element instanceof RsForExpr)) return;
-                RsForExpr forExpr = (RsForExpr) element;
-                RsPat pat = forExpr.getPat();
+        private void presentVariable(RsElement element, boolean isExpanded, DeclarativeInlayTreeSink sink) {
+            if (element instanceof RsLetDecl) {
+                RsLetDecl letDecl = (RsLetDecl) element;
+                                    if (letDecl.getTypeReference() != null) return;
+                RsPat pat = letDecl.getPat();
                 if (pat == null) return;
-                presentTypeForPat(pat, null, isExpanded, settings, crate, file, project, sink);
+                presentTypeForPat(pat, letDecl.getExpr(), isExpanded, sink);
+            } else if (element instanceof RsLetExpr) {
+                RsLetExpr letExpr = (RsLetExpr) element;
+                RsPat pat = letExpr.getPat();
+                if (pat == null) return;
+                presentTypeForPat(pat, letExpr.getExpr(), isExpanded, sink);
+            } else if (element instanceof RsMatchExpr) {
+                RsMatchExpr matchExpr = (RsMatchExpr) element;
+                for (RsMatchArm arm : RsMatchExprUtil.getArms(matchExpr)) {
+                    presentTypeForPat(arm.getPat(), matchExpr.getExpr(), isExpanded, sink);
+                }
             }
+        }
 
-            private void presentTypeForPat(RsPat pat, @Nullable RsExpr expr, boolean isExpanded, Settings settings, Crate crate, PsiFile file, Project project, InlayHintsSink sink) {
-                if (!settings.myShowObviousTypes && expr != null && isObvious(pat, expr)) return;
+        private void presentLambda(RsElement element, boolean isExpanded, DeclarativeInlayTreeSink sink) {
+            if (!(element instanceof RsLambdaExpr)) return;
+            RsLambdaExpr lambda = (RsLambdaExpr) element;
+            for (RsValueParameter parameter : lambda.getValueParameterList().getValueParameterList()) {
+                if (parameter.getTypeReference() != null) continue;
+                RsPat pat = parameter.getPat();
+                if (pat == null) continue;
+                presentTypeForPat(pat, null, isExpanded, sink);
+            }
+        }
+
+        private void presentIterator(RsElement element, boolean isExpanded, DeclarativeInlayTreeSink sink) {
+            if (!(element instanceof RsForExpr)) return;
+            RsForExpr forExpr = (RsForExpr) element;
+            RsPat pat = forExpr.getPat();
+            if (pat == null) return;
+            presentTypeForPat(pat, null, isExpanded, sink);
+        }
+
+        private void presentTypeForPat(RsPat pat, @Nullable RsExpr expr, boolean isExpanded, DeclarativeInlayTreeSink sink) {
+            Runnable present = () -> {
                 for (RsPatBinding binding : RsElementUtil.descendantsOfType(pat, RsPatBinding.class)) {
                     if (binding.getReferenceName().startsWith("_")) continue;
-                    presentTypeForBinding(binding, isExpanded, crate, file, project, sink);
+                    presentTypeForBinding(binding, isExpanded, sink);
                 }
+            };
+            if (expr != null && isObvious(pat, expr)) {
+                sink.whenOptionEnabled(OPTION_OBVIOUS_TYPES, present);
             }
-
-            private void presentTypeForBinding(RsPatBinding binding, boolean isExpanded, Crate crate, PsiFile file, Project project, InlayHintsSink sink) {
-                RsPatBinding bindingExpanded = findExpandedByLeaf(binding, crate, RsPatBinding::getIdentifier);
-                if (bindingExpanded == null) return;
-                PsiElement resolved = bindingExpanded.getReference().resolve();
-                if (resolved != null && RsElementUtil.isConstantLike(resolved)) return;
-                if (RsTypesUtil.getType(bindingExpanded) instanceof TyUnknown) return;
-
-                int offset;
-                if (isExpanded) {
-                    Integer origOffset = findOriginalOffset(binding.getIdentifier(), file);
-                    if (origOffset == null) return;
-                    offset = origOffset;
-                } else {
-                    offset = binding.getTextRange().getEndOffset();
-                }
-                InlayPresentation presentation = typeHintsFactory.typeHint(RsTypesUtil.getType(bindingExpanded));
-                InlayPresentation finalPresentation = withDisableAction(presentation, project);
-                sink.addInlineElement(offset, false, finalPresentation, false);
+            else {
+                present.run();
             }
-        };
-    }
+        }
 
-    @Nonnull
-    private InlayPresentation withDisableAction(@Nonnull InlayPresentation presentation, @Nonnull Project project) {
-        // Upstream wrapped this in an InsetPresentation for 1px of left padding; that class is
-        // internal to consulo.ide.impl and the padding is purely cosmetic.
-        return new MenuOnClickPresentation(presentation, project, () ->
-            Collections.singletonList(new InlayProviderDisablingAction(getName(), RsLanguage.INSTANCE, project, KEY))
-        );
+        private void presentTypeForBinding(RsPatBinding binding, boolean isExpanded, DeclarativeInlayTreeSink sink) {
+            RsPatBinding bindingExpanded = findExpandedByLeaf(binding, crate, RsPatBinding::getIdentifier);
+            if (bindingExpanded == null) return;
+            PsiElement resolved = bindingExpanded.getReference().resolve();
+            if (resolved != null && RsElementUtil.isConstantLike(resolved)) return;
+            if (RsTypesUtil.getType(bindingExpanded) instanceof TyUnknown) return;
+
+            int offset;
+            if (isExpanded) {
+                Integer origOffset = findOriginalOffset(binding.getIdentifier(), file);
+                if (origOffset == null) return;
+                offset = origOffset;
+            } else {
+                offset = binding.getTextRange().getEndOffset();
+            }
+            Ty type = RsTypesUtil.getType(bindingExpanded);
+            sink.addPresentation(
+                new DeclarativeInlayPosition.InlineInlayPosition(offset, false),
+                builder -> FACTORY.typeHint(type, builder));
+        }
     }
 
     private static boolean isObvious(@Nonnull RsPat pat, @Nonnull RsExpr expr) {
@@ -303,28 +287,5 @@ public class RsInlayTypeHintsProvider implements InlayHintsProvider<RsInlayTypeH
             return null;
         }
         return element;
-    }
-
-    public static class Settings {
-        private boolean myShowForVariables = true;
-        private boolean myShowForLambdas = true;
-        private boolean myShowForIterators = true;
-        private boolean myShowForPlaceholders = true;
-        private boolean myShowObviousTypes = false;
-
-        public boolean getShowForVariables() { return myShowForVariables; }
-        public void setShowForVariables(boolean value) { myShowForVariables = value; }
-
-        public boolean getShowForLambdas() { return myShowForLambdas; }
-        public void setShowForLambdas(boolean value) { myShowForLambdas = value; }
-
-        public boolean getShowForIterators() { return myShowForIterators; }
-        public void setShowForIterators(boolean value) { myShowForIterators = value; }
-
-        public boolean getShowForPlaceholders() { return myShowForPlaceholders; }
-        public void setShowForPlaceholders(boolean value) { myShowForPlaceholders = value; }
-
-        public boolean getShowObviousTypes() { return myShowObviousTypes; }
-        public void setShowObviousTypes(boolean value) { myShowObviousTypes = value; }
     }
 }

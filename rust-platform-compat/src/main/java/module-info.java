@@ -42,8 +42,6 @@ open module consulo.rust.platform.compat {
     exports com.intellij.codeInsight.completion.ml;
     exports com.intellij.codeInsight.daemon.impl.focusMode;
     exports com.intellij.codeInsight.folding;
-    exports com.intellij.codeInsight.hints;
-    exports com.intellij.codeInsight.hints.presentation;
     exports com.intellij.codeInsight.intention.preview;
     exports com.intellij.codeInsight.template.postfix.templates;
     exports com.intellij.codeInspection.ui;
