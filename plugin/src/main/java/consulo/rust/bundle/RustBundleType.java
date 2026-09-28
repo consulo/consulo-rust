@@ -7,7 +7,6 @@ package consulo.rust.bundle;
 
 import consulo.annotation.component.ExtensionImpl;
 import consulo.application.Application;
-import consulo.content.RootProvider;
 import consulo.content.base.BinariesOrderRootType;
 import consulo.content.base.SourcesOrderRootType;
 import consulo.content.bundle.PlatformAwareSdkType;
@@ -24,9 +23,12 @@ import consulo.process.util.ProcessOutput;
 import consulo.rust.icon.RustIconGroup;
 import consulo.util.collection.ArrayUtil;
 import consulo.util.io.FileUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.VirtualFileManager;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.rust.cargo.api.workspace.StandardLibrary;
 import org.rust.cargo.toolchain.RsToolchainBase;
 import org.rust.cargo.toolchain.RsToolchainProvider;
 import org.rust.cargo.toolchain.flavors.RsToolchainFlavor;
@@ -236,36 +238,17 @@ public class RustBundleType extends PlatformAwareSdkType {
                 return;
             }
 
-            Platform platform = sdk.getPlatform();
-            Path home = platform.fs().getPath(homePath);
-
-            // The standard library sources are what the bundle exists to carry. The executables are not
-            // rooted: their directory would then be watched and indexed in full, and on a system install
-            // that is the whole of /usr/bin.
-            Path stdlibSources = home.resolve(STDLIB_SOURCES_RELATIVE);
-            Path stdlibCrates = stdlibSources.resolve("library");
-            if (Files.isDirectory(stdlibCrates)) {
-                stdlibSources = stdlibCrates;
-            }
-            if (!Files.isDirectory(stdlibSources)) {
-                // rust-src is not installed. Roots the bundle already carries are kept rather than
-                // dropped, so that adding the component later is all that is needed.
-                return;
-            }
-
-            String sourcesUrl = VirtualFileUtil.pathToUrl(
-                FileUtil.toSystemIndependentName(stdlibSources.toString()));
-
-            if (hasExactly(sdk.getRootProvider(), sourcesUrl)) {
+            // The bundle carries no roots. It exists to say which toolchain a module is bound to; the
+            // standard library reaches a module as one order entry per crate, so that a file under it can
+            // be attributed to the crate that owns it. A single sources root could not do that.
+            if (sdk.getRootProvider().getUrls(SourcesOrderRootType.ID).length == 0
+                && sdk.getRootProvider().getUrls(BinariesOrderRootType.ID).length == 0) {
                 return;
             }
 
             SdkModificator modificator = sdk.getSdkModificator();
             modificator.removeRoots(SourcesOrderRootType.ID);
             modificator.removeRoots(BinariesOrderRootType.ID);
-            // The url form is used rather than the VirtualFile one so that a directory does not have to
-            // be in the virtual file system yet.
-            modificator.addRoot(sourcesUrl, SourcesOrderRootType.ID);
             modificator.commitChanges();
         }
         catch (Exception e) {
@@ -274,11 +257,26 @@ public class RustBundleType extends PlatformAwareSdkType {
     }
 
     /**
-     * Whether {@code rootProvider} already carries {@code url}, and nothing else, under both root types.
+     * The directory the standard library crates sit in, or {@code null} when {@code sdk} is not a Rust
+     * bundle or its {@code rust-src} component is not installed.
+     * <p>
+     * This is how an order entry that carries a standard library crate finds its roots: it stores the
+     * crate name rather than a path, so that the entry written into a module file holds nothing specific
+     * to the machine it was written on, and follows the bundle when the module is bound to another one.
      */
-    private static boolean hasExactly(@Nonnull RootProvider rootProvider, @Nonnull String sourcesUrl) {
-        return Arrays.equals(rootProvider.getUrls(SourcesOrderRootType.ID), new String[]{sourcesUrl})
-            && rootProvider.getUrls(BinariesOrderRootType.ID).length == 0;
+    @Nullable
+    public static VirtualFile stdlibSrcDir(@Nullable Sdk sdk) {
+        if (sdk == null || !(sdk.getSdkType() instanceof RustBundleType)) {
+            return null;
+        }
+        String homePath = sdk.getHomePath();
+        if (homePath == null || homePath.isEmpty()) {
+            return null;
+        }
+        String sourcesUrl = VirtualFileUtil.pathToUrl(
+            FileUtil.toSystemIndependentName(homePath + "/" + STDLIB_SOURCES_RELATIVE));
+        VirtualFile sources = VirtualFileManager.getInstance().findFileByUrl(sourcesUrl);
+        return sources == null ? null : StandardLibrary.findSrcDir(sources);
     }
 
     /**

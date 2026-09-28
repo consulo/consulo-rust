@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "workspace_root": "@ROOT@",
+  "workspace_members": [
+    "proxied 0.1.0 (path+file://@ROOT@)"
+  ],
+  "target_directory": "@ROOT@/target",
+  "packages": [
+    {
+      "name": "proxied",
+      "version": "0.1.0",
+      "authors": [],
+      "id": "proxied 0.1.0 (path+file://@ROOT@)",
+      "source": null,
+      "manifest_path": "@ROOT@/Cargo.toml",
+      "edition": "2021",
+      "features": {},
+      "dependencies": [],
+      "targets": [
+        {
+          "kind": [
+            "lib"
+          ],
+          "crate_types": [
+            "lib"
+          ],
+          "name": "proxied",
+          "src_path": "@ROOT@/src/lib.rs",
+          "edition": "2021",
+          "doctest": true,
+          "required-features": []
+        },
+        {
+          "kind": [
+            "bin"
+          ],
+          "crate_types": [
+            "bin"
+          ],
+          "name": "proxied",
+          "src_path": "@ROOT@/src/main.rs",
+          "edition": "2021",
+          "doctest": false,
+          "required-features": []
+        }
+      ]
+    }
+  ],
+  "resolve": {
+    "root": "proxied 0.1.0 (path+file://@ROOT@)",
+    "nodes": [
+      {
+        "id": "proxied 0.1.0 (path+file://@ROOT@)",
+        "dependencies": [],
+        "deps": []
+      }
+    ]
+  }
+}

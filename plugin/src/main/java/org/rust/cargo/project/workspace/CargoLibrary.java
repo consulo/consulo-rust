@@ -23,6 +23,8 @@ public final class CargoLibrary {
     public enum Kind {
         /** A single package resolved from a registry, a git checkout or a path dependency. */
         DEPENDENCY,
+        /** A crate of the standard library, whose roots are located through the Rust bundle of the module. */
+        STDLIB,
         /** Code written into {@code OUT_DIR} by build scripts. */
         GENERATED
     }

@@ -6,7 +6,6 @@
 package org.rust.stdext;
 
 import consulo.util.io.DigestUtil;
-import org.apache.commons.codec.binary.Hex;
 import jakarta.annotation.Nonnull;
 
 import java.io.*;
@@ -16,11 +15,13 @@ import java.security.DigestInputStream;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.util.Arrays;
+import java.util.HexFormat;
 
 public final class HashCode implements Serializable {
     public static final int ARRAY_LEN = 20;
 
     private static final ThreadLocal<MessageDigest> SHA1 = ThreadLocal.withInitial(DigestUtil::sha1);
+    private static final HexFormat HEX = HexFormat.of();
 
     private final byte[] myHash;
 
@@ -44,7 +45,7 @@ public final class HashCode implements Serializable {
     @Override
     @Nonnull
     public String toString() {
-        return Hex.encodeHexString(myHash);
+        return HEX.formatHex(myHash);
     }
 
     @Nonnull
@@ -92,7 +93,7 @@ public final class HashCode implements Serializable {
 
     @Nonnull
     public static HashCode fromHexString(@Nonnull String hex) throws Exception {
-        byte[] bytes = Hex.decodeHex(hex);
+        byte[] bytes = HEX.parseHex(hex);
         if (bytes.length != ARRAY_LEN) {
             throw new IllegalStateException("Expected " + ARRAY_LEN + " bytes, got " + bytes.length);
         }

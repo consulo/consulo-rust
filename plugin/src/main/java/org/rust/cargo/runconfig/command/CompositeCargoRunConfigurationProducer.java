@@ -4,6 +4,7 @@
  */
 
 package org.rust.cargo.runconfig.command;
+import consulo.annotation.component.ExtensionImpl;
 import consulo.execution.action.Location;
 
 import consulo.execution.action.PsiLocation;
@@ -23,13 +24,7 @@ import org.rust.cargo.runconfig.test.CargoTestRunConfigurationProducer;
 import java.util.*;
 import java.util.function.Function;
 
-/**
- * This class aggregates other Rust run configuration {@link #myProducers} and manages the search & creation of run
- * configurations, taking into account configurations that other {@link #myProducers} can create.
- * The problem with the previous approach is that if there is an existing configuration that matches the context, the
- * platform does not compare this configuration with those that can be created by other producers, even if these
- * configurations are better matched with the context (see <a href="https://github.com/intellij-rust/intellij-rust/issues/1252">#1252</a>).
- */
+@ExtensionImpl
 public class CompositeCargoRunConfigurationProducer extends CargoRunConfigurationProducer {
 
     private final List<CargoRunConfigurationProducer> myProducers = Arrays.asList(
@@ -53,8 +48,9 @@ public class CompositeCargoRunConfigurationProducer extends CargoRunConfiguratio
         return null;
     }
 
+    @Override
     @Nullable
-    public ConfigurationFromContext findOrCreateConfigurationFromContext(@Nonnull ConfigurationContext context) {
+    public ConfigurationFromContext findOrCreateConfigurationFromContext(@Nonnull ConfigurationContext context, boolean preferExisting) {
         ConfigurationFromContext preferredConfig = createPreferredConfigurationFromContext(context);
         if (preferredConfig == null) return null;
         PsiElement psiElement = preferredConfig.getSourceElement();

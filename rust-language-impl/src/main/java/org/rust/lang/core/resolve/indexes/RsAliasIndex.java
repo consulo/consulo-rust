@@ -7,6 +7,7 @@ package org.rust.lang.core.resolve.indexes;
 
 
 import consulo.annotation.component.ExtensionImpl;
+import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.fileType.FileType;
 import consulo.project.Project;
 import consulo.language.psi.stub.StubTree;
@@ -133,25 +134,38 @@ public class RsAliasIndex extends FileBasedIndexExtension<TyFingerprint, List<St
         return Collections.singletonList(RsFileType.INSTANCE);
     }
 
+    /**
+     * The aliases this index holds for {@code tyf}, restricted to files that belong to a crate.
+     * <p>
+     * The index query collects raw values only. Deciding whether a file belongs to a crate goes through
+     * {@link RsFile#getCrates()}, which can build def maps and so read the stub index; doing that inside
+     * the {@code processValues} callback is a nested index access that the platform reports as a possible
+     * deadlock. So the files are gathered first and filtered once the query has closed.
+     */
     @Nonnull
     public static List<String> findPotentialAliases(@Nonnull Project project, @Nonnull TyFingerprint tyf) {
-        HashSet<String> result = new HashSet<>();
+        Map<VirtualFile, List<String>> candidates = new LinkedHashMap<>();
         FileBasedIndex.getInstance().processValues(
             KEY,
             tyf,
             null,
             (file, value) -> {
-                Object psi = OpenApiUtil.toPsiFile(file, project);
-                if (psi instanceof RsFile) {
-                    RsFile rsFile = (RsFile) psi;
-                    if (!rsFile.getCrates().isEmpty()) {
-                        result.addAll(value);
-                    }
-                }
+                candidates.computeIfAbsent(file, it -> new ArrayList<>()).addAll(value);
                 return true;
             },
             new RsWithMacrosProjectScope(project)
         );
+        if (candidates.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Set<String> result = new HashSet<>();
+        for (Map.Entry<VirtualFile, List<String>> candidate : candidates.entrySet()) {
+            Object psi = OpenApiUtil.toPsiFile(candidate.getKey(), project);
+            if (psi instanceof RsFile rsFile && !rsFile.getCrates().isEmpty()) {
+                result.addAll(candidate.getValue());
+            }
+        }
         return new ArrayList<>(result);
     }
 

@@ -5,6 +5,9 @@
 
 package org.rust.ide.navigation.goto_;
 
+import consulo.annotation.access.RequiredReadAction;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.codeEditor.Editor;
 import consulo.language.editor.action.TypeDeclarationProvider;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
@@ -19,10 +22,21 @@ import org.rust.lang.core.psi.ext.impl.RsTraitItemUtil;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.impl.*;
 
+/**
+ * Answers Go to Type Declaration: from a function, field, constant, binding or {@code self}, navigate
+ * to the item that declares its type rather than to the symbol itself.
+ */
+@ExtensionImpl
 public class RsTypeDeclarationProvider extends TypeDeclarationProvider {
 
+    /**
+     * {@code editor} and {@code offset} let a provider disambiguate by caret position; the type of a
+     * Rust symbol does not depend on where it was clicked, so neither is read here.
+     */
     @Nullable
-    public PsiElement[] getSymbolTypeDeclarations(@Nonnull PsiElement element) {
+    @Override
+    @RequiredReadAction
+    public PsiElement[] getSymbolTypeDeclarations(@Nonnull PsiElement element, @Nullable Editor editor, int offset) {
         Ty type;
         if (element instanceof RsFunction) {
             RsRetType retType = ((RsFunction) element).getRetType();

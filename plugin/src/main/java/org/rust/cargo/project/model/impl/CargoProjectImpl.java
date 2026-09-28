@@ -9,7 +9,10 @@ import org.rust.cargo.api.model.UserDisabledFeatures;
 
 import org.rust.cargo.toolchain.RsToolchainLocator;
 import org.rust.stdext.Lazy;
+import consulo.module.Module;
+import consulo.module.ModuleManager;
 import consulo.project.Project;
+import consulo.rust.module.extension.RustModuleExtension;
 import consulo.util.dataholder.UserDataHolderBase;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
@@ -19,6 +22,8 @@ import jakarta.annotation.Nullable;
 import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.api.model.RustcInfo;
 import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
+import org.rust.cargo.api.CargoConfig;
+import org.rust.cargo.api.CfgOptions;
 import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.cargo.api.workspace.StandardLibrary;
@@ -26,6 +31,9 @@ import org.rust.cargo.toolchain.RsToolchainBase;
 import org.rust.cargo.toolchain.ProcMacroExpanderPath;
 import org.rust.cargo.api.util.AutoInjectedCrates;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
+import org.rust.cargo.project.workspace.CargoWorkspaceFactory;
+import org.rust.cargo.project.workspace.state.CargoWorkspaceState;
+import org.rust.cargo.project.workspace.state.CargoWorkspaceStates;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.openapiext.TaskResult;
 
@@ -66,12 +74,10 @@ public class CargoProjectImpl extends UserDataHolderBase implements CargoProject
     @Nullable
     private final Path procMacroExpanderPath;
 
-    // Lazy fields
+    // Lazy fields. Both are computed from the project model, which is not loaded yet when the first
+    // caller arrives, so both hold a value only once there is a real one to hold - see getWorkspace().
     private volatile CargoWorkspace workspace;
-    private volatile boolean workspaceInitialized;
-
     private volatile String presentableName;
-    private volatile boolean presentableNameInitialized;
 
     private final AtomicReference<VirtualFile> rootDirCache = new AtomicReference<>();
 
@@ -133,22 +139,38 @@ public class CargoProjectImpl extends UserDataHolderBase implements CargoProject
         return rawWorkspace;
     }
 
+    /**
+     * Absence is deliberately not cached, so there is no "already computed" flag: the field being null
+     * <em>is</em> the not-computed state.
+     * <p>
+     * A restored workspace is read out of the module extensions, and the first caller routinely arrives
+     * before that model is loaded - the publish {@code loadState} schedules alone wakes the tool window,
+     * the status bar and the editor notifications, and each of them asks. Remembering the null they see
+     * would be permanent, because opening a project no longer runs Cargo: the project would spend the
+     * whole session with no crate graph, no run line marker on {@code fn main} and no run configuration.
+     */
     @Nullable
     @Override
     public CargoWorkspace getWorkspace() {
-        if (!workspaceInitialized) {
-            synchronized (this) {
-                if (!workspaceInitialized) {
-                    workspace = computeWorkspace();
-                    workspaceInitialized = true;
-                }
+        CargoWorkspace computed = workspace;
+        if (computed != null) return computed;
+
+        synchronized (this) {
+            computed = workspace;
+            if (computed == null) {
+                computed = computeWorkspace();
+                workspace = computed;
             }
         }
-        return workspace;
+        return computed;
     }
 
     private CargoWorkspace computeWorkspace() {
-        if (rawWorkspace == null) return null;
+        if (rawWorkspace == null) {
+            // nothing resolved in this session yet: rebuild what the last sync wrote into the project
+            // model, so that opening a project does not have to run Cargo
+            return restoredWorkspace();
+        }
         if (stdlib == null) {
             if (!userDisabledFeatures.isEmpty() && OpenApiUtil.isUnitTestMode()) {
                 return rawWorkspace.withDisabledFeatures(userDisabledFeatures);
@@ -160,32 +182,71 @@ public class CargoProjectImpl extends UserDataHolderBase implements CargoProject
             .withDisabledFeatures(userDisabledFeatures);
     }
 
+    /**
+     * The workspace rebuilt from the project model, or {@code null} when nothing was persisted for this
+     * Cargo project - a project that has never been synced, which is the one case that still has to run
+     * Cargo.
+     * <p>
+     * Read lazily rather than in {@code loadState}, because the module model is not loaded yet at that
+     * point.
+     */
+    @Nullable
+    private CargoWorkspace restoredWorkspace() {
+        Project project = projectService.getProject();
+        if (project.isDisposed()) return null;
+
+        String manifestPath = manifest.toString();
+        for (Module module : ModuleManager.getInstance(project).getModules()) {
+            if (module.isDisposed()) continue;
+            RustModuleExtension extension = RustModuleExtension.findExtension(module);
+            if (extension == null) continue;
+            if (!manifestPath.equals(extension.getCargoManifestPath())) continue;
+
+            CargoWorkspaceState state = extension.getCargoWorkspaceState();
+            if (state == null) continue;
+
+            CfgOptions cfgOptions = CargoWorkspaceStates.cfgOptionsOf(state);
+            return CargoWorkspaceFactory.deserialize(
+                manifest,
+                CargoWorkspaceStates.fromState(state),
+                cfgOptions == null ? CfgOptions.DEFAULT : cfgOptions,
+                CargoConfig.DEFAULT
+            );
+        }
+        return null;
+    }
+
+    /** Cached only once the workspace has named the package; the directory fallback stays retryable. */
     @Nonnull
     @Override
     public String getPresentableName() {
-        if (!presentableNameInitialized) {
-            synchronized (this) {
-                if (!presentableNameInitialized) {
-                    presentableName = computePresentableName();
-                    presentableNameInitialized = true;
-                }
-            }
+        String cached = presentableName;
+        if (cached != null) return cached;
+
+        String packageName = packageNameFromWorkspace();
+        if (packageName == null) {
+            return workingDirectoryName();
         }
-        return presentableName;
+        presentableName = packageName;
+        return packageName;
     }
 
-    private String computePresentableName() {
+    @Nullable
+    private String packageNameFromWorkspace() {
         CargoWorkspace ws = getWorkspace();
-        if (ws != null) {
-            Path workingDir = org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(this);
-            for (CargoWorkspace.Package pkg : ws.getPackages()) {
-                if (pkg.getOrigin() == PackageOrigin.WORKSPACE && pkg.getRootDirectory().equals(workingDir)) {
-                    return pkg.getName();
-                }
+        if (ws == null) return null;
+
+        Path workingDir = org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(this);
+        for (CargoWorkspace.Package pkg : ws.getPackages()) {
+            if (pkg.getOrigin() == PackageOrigin.WORKSPACE && pkg.getRootDirectory().equals(workingDir)) {
+                return pkg.getName();
             }
         }
-        Path workingDir = org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(this);
-        return workingDir.getFileName().toString();
+        return null;
+    }
+
+    private String workingDirectoryName() {
+        return org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(this).getFileName().toString();
     }
 
     @Nullable

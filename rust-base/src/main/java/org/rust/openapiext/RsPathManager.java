@@ -14,7 +14,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Objects;
 
 import consulo.platform.Platform;
 
@@ -25,15 +24,18 @@ public final class RsPathManager {
     private RsPathManager() {
     }
 
-    @Nonnull
+    @Nullable
     public static Path prettyPrintersDir() {
-        return pluginDir().resolve("prettyPrinters");
+        Path pluginDir = pluginDir();
+        return pluginDir == null ? null : pluginDir.resolve("prettyPrinters");
     }
 
-    @Nonnull
+    /// Null whenever this class was not loaded from an installed plugin - from a test classpath, say.
+    /// Everything shipped inside the plugin directory is optional, so callers degrade rather than fail.
+    @Nullable
     private static Path pluginDir() {
         File path = PluginManager.getPluginPath(RsPathManager.class);
-        return Objects.requireNonNull(path, "Plugin must be never null").toPath();
+        return path == null ? null : path.toPath();
     }
 
     @Nullable
@@ -64,7 +66,10 @@ public final class RsPathManager {
             return null;
         }
 
-        Path nativeHelperPath = pluginDir().resolve("bin/" + os + "/" + arch + "/" + binaryName);
+        Path pluginDir = pluginDir();
+        if (pluginDir == null) return null;
+
+        Path nativeHelperPath = pluginDir.resolve("bin/" + os + "/" + arch + "/" + binaryName);
         if (!Files.exists(nativeHelperPath)) return null;
 
         if (Files.isExecutable(nativeHelperPath) || nativeHelperPath.toFile().setExecutable(true)) {

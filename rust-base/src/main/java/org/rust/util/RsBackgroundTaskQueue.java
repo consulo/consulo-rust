@@ -5,194 +5,217 @@
 
 package org.rust.util;
 
-import consulo.ui.ModalityState;
-import consulo.logging.Logger;
-import consulo.application.progress.EmptyProgressIndicator;
+import consulo.application.Application;
+import consulo.application.progress.DumbModeAction;
 import consulo.application.progress.ProgressIndicator;
-import consulo.application.progress.ProgressManager;
 import consulo.application.progress.Task;
-import consulo.ide.impl.idea.openapi.progress.impl.BackgroundableProcessIndicator;
-import consulo.ide.impl.idea.openapi.progress.impl.ProgressManagerImpl;
+import consulo.application.util.BackgroundTaskQueue;
+import consulo.component.ComponentManager;
+import consulo.localize.LocalizeValue;
+import consulo.logging.Logger;
 import consulo.project.DumbService;
-import consulo.application.util.concurrent.QueueProcessor;
+import consulo.project.Project;
+import consulo.ui.ModalityState;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.rust.RsTask;
-import org.rust.openapiext.OpenApiUtil;
-
-import consulo.util.lang.function.PairConsumer;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import consulo.project.Project;
 
-public class RsBackgroundTaskQueue {
+/**
+ * Runs backgroundable tasks one by one, adding the policy {@link RsTask} asks for: a newly submitted
+ * task can cancel queued or running tasks of a weaker type, a task can hold its slot until the project
+ * leaves dumb mode, and a task can ask to run in the calling thread under tests.
+ * <p>
+ * The queue itself, the progress indicator and the unit-test path come from the platform's
+ * {@link BackgroundTaskQueue}; only the policy above lives here. The port used to drive
+ * {@code ProgressManagerImpl} directly, which is an ide-impl internal and is not the registered
+ * progress manager outside the full IDE - so the queue simply failed in a headless application.
+ */
+public class RsBackgroundTaskQueue extends BackgroundTaskQueue {
     private static final Logger LOG = Logger.getInstance(RsBackgroundTaskQueue.class);
 
-    private final QueueProcessor<ContinuableRunnable> myProcessor;
+    private final List<QueuedTask> myCancelableTasks = new ArrayList<>();
     private volatile boolean myIsDisposed = false;
-    private final List<BackgroundableTaskData> myCancelableTasks = new ArrayList<>();
 
-    public RsBackgroundTaskQueue() {
-        QueueConsumer consumer = new QueueConsumer();
-        myProcessor = new QueueProcessor<ContinuableRunnable>(
-            (java.util.function.BiConsumer<ContinuableRunnable, Runnable>) consumer::consume,
-            true,
-            QueueProcessor.ThreadToUse.AWT,
-            () -> myIsDisposed
-        );
+    public RsBackgroundTaskQueue(@Nonnull Application application, @Nullable ComponentManager owner) {
+        super(application, owner, "Rust");
     }
 
-    public boolean isEmpty() {
-        return myProcessor.isEmpty();
-    }
-
-    public synchronized void run(@Nonnull Task.Backgroundable task) {
-        if (OpenApiUtil.isUnitTestMode() && task instanceof RsTask && ((RsTask) task).getRunSyncInUnitTests()) {
-            runTaskInCurrentThread(task);
-        } else {
-            LOG.debug("Scheduling task " + task);
-            if (task instanceof RsTask) {
-                cancelTasks(((RsTask) task).getTaskType());
-            }
-            BackgroundableTaskData data = new BackgroundableTaskData(task, this::onFinish);
-            myCancelableTasks.add(data);
-            myProcessor.add(data);
+    @Override
+    public void run(Task.Backgroundable task, @Nullable ModalityState modalityState, @Nullable ProgressIndicator indicator) {
+        if (myIsDisposed) {
+            return;
         }
+
+        LOG.debug("Scheduling task " + task);
+
+        QueuedTask queued;
+        synchronized (this) {
+            if (task instanceof RsTask rsTask) {
+                cancelTasks(rsTask.getTaskType());
+            }
+            queued = new QueuedTask(task, this::onFinish);
+            myCancelableTasks.add(queued);
+        }
+
+        super.run(queued, modalityState, indicator);
     }
 
-    private void runTaskInCurrentThread(@Nonnull Task.Backgroundable task) {
-        ProgressManagerImpl pm = (ProgressManagerImpl) ProgressManager.getInstance();
-        pm.runProcessWithProgressInCurrentThread(task, new EmptyProgressIndicator(), ModalityState.nonModal());
-    }
-
+    /** Equivalent to submitting an empty task of {@code taskType}: everything it outranks is canceled. */
     public synchronized void cancelTasks(@Nonnull RsTask.TaskType taskType) {
-        myCancelableTasks.removeIf(data -> {
-            if (data.getTask() instanceof RsTask && taskType.canCancelOther(((RsTask) data.getTask()).getTaskType())) {
-                data.cancel();
+        myCancelableTasks.removeIf(queued -> {
+            if (queued.getDelegate() instanceof RsTask other && taskType.canCancelOther(other.getTaskType())) {
+                queued.cancel();
                 return true;
             }
             return false;
         });
     }
 
-    private synchronized void onFinish(@Nonnull BackgroundableTaskData data) {
-        myCancelableTasks.remove(data);
+    private synchronized void onFinish(@Nonnull QueuedTask queued) {
+        myCancelableTasks.remove(queued);
     }
 
     public void dispose() {
         myIsDisposed = true;
-        myProcessor.clear();
+        clear();
         cancelAll();
     }
 
     private synchronized void cancelAll() {
-        for (BackgroundableTaskData task : myCancelableTasks) {
-            task.cancel();
+        for (QueuedTask queued : myCancelableTasks) {
+            queued.cancel();
         }
         myCancelableTasks.clear();
     }
 
-    private interface ContinuableRunnable {
-        void run(@Nonnull Runnable continuation);
-    }
+    /**
+     * Wraps a queued task so the queue can reach the progress indicator the platform hands it - that
+     * indicator is what {@link #cancelTasks} cancels. A task canceled before it starts never reaches
+     * the delegate at all.
+     * <p>
+     * Every callback is forwarded, so the delegate cannot tell it was wrapped. Only the parent
+     * component is not carried over, which no backgroundable task in this plugin sets.
+     */
+    private static class QueuedTask extends Task.Backgroundable {
+        private final Task.Backgroundable myDelegate;
+        private final Consumer<QueuedTask> myOnFinish;
 
-    private static class QueueConsumer implements PairConsumer<ContinuableRunnable, Runnable> {
-        @Override
-        public void consume(ContinuableRunnable t, Runnable u) {
-            t.run(u);
-        }
-    }
+        private @Nullable ProgressIndicator myIndicator;
+        private boolean myCanceled = false;
 
-    private static class BackgroundableTaskData implements ContinuableRunnable {
-        private final Task.Backgroundable myTask;
-        private final Consumer<BackgroundableTaskData> myOnFinish;
-        private State myState = State.PENDING;
-        private ProgressIndicator myIndicator;
-        private Runnable myContinuation;
-
-        BackgroundableTaskData(@Nonnull Task.Backgroundable task, @Nonnull Consumer<BackgroundableTaskData> onFinish) {
-            this.myTask = task;
-            this.myOnFinish = onFinish;
+        QueuedTask(@Nonnull Task.Backgroundable delegate, @Nonnull Consumer<QueuedTask> onFinish) {
+            super(delegate.getProject(), LocalizeValue.of(delegate.getTitle()), delegate.isCancellable());
+            myDelegate = delegate;
+            myOnFinish = onFinish;
         }
 
         @Nonnull
-        public Task.Backgroundable getTask() {
-            return myTask;
+        Task.Backgroundable getDelegate() {
+            return myDelegate;
+        }
+
+        synchronized void cancel() {
+            myCanceled = true;
+            if (myIndicator != null) {
+                myIndicator.cancel();
+            }
         }
 
         @Override
-        public synchronized void run(@Nonnull Runnable continuation) {
-            OpenApiUtil.checkIsDispatchThread();
-
-            switch (myState) {
-                case CANCELED_CONTINUED:
+        public void run(ProgressIndicator indicator) {
+            synchronized (this) {
+                if (myCanceled) {
                     return;
-                case CANCELED:
-                    continuation.run();
-                    return;
-                case RUNNING:
-                    throw new IllegalStateException("Trying to re-run already running task");
+                }
+                myIndicator = indicator;
             }
 
-            if (myTask instanceof RsTask && ((RsTask) myTask).getWaitForSmartMode()
-                && DumbService.isDumb((consulo.project.Project) myTask.getProject())) {
-                myState = State.WAIT_FOR_SMART_MODE;
-                myContinuation = continuation;
-                DumbService.getInstance((consulo.project.Project) myTask.getProject()).runWhenSmart(() -> run(continuation));
-                return;
+            // holds the queue slot while waiting, which is the ordering the task asked for
+            if (myDelegate instanceof RsTask rsTask
+                && rsTask.getWaitForSmartMode()
+                && myDelegate.getProject() instanceof Project project) {
+                DumbService.getInstance(project).waitForSmartMode();
+                indicator.checkCanceled();
             }
 
-            ProgressIndicator indicator;
-            if (OpenApiUtil.isHeadlessEnvironment()) {
-                indicator = new EmptyProgressIndicator();
-            } else {
-                // RsTask.getProgressBarShowDelay() used to select a DelayedBackgroundableProcessIndicator
-                // that postponed showing the progress UI. Reproducing it needs ProgressWindow and
-                // StatusBarEx.addProgress, both platform-internal, so the progress bar now appears
-                // immediately — cosmetic only, no behavioural difference for the task itself.
-                indicator = new BackgroundableProcessIndicator(myTask);
-            }
-
-            myState = State.RUNNING;
-            myIndicator = indicator;
-
-            ProgressManagerImpl pm = (ProgressManagerImpl) ProgressManager.getInstance();
-            pm.runProcessWithProgressAsynchronously(
-                myTask,
-                indicator,
-                () -> {
-                    myOnFinish.accept(this);
-                    continuation.run();
-                },
-                ModalityState.nonModal()
-            );
+            myDelegate.run(indicator);
         }
 
-        public synchronized void cancel() {
-            switch (myState) {
-                case PENDING:
-                    myState = State.CANCELED;
-                    break;
-                case RUNNING:
-                    if (myIndicator != null) {
-                        myIndicator.cancel();
-                    }
-                    break;
-                case WAIT_FOR_SMART_MODE:
-                    myState = State.CANCELED_CONTINUED;
-                    if (myContinuation != null) {
-                        myContinuation.run();
-                    }
-                    break;
-                case CANCELED:
-                case CANCELED_CONTINUED:
-                    break;
-            }
+        @Override
+        public void onCancel() {
+            myDelegate.onCancel();
         }
 
-        private enum State {
-            PENDING, WAIT_FOR_SMART_MODE, CANCELED, CANCELED_CONTINUED, RUNNING
+        @Override
+        public void onSuccess() {
+            myDelegate.onSuccess();
+        }
+
+        @Override
+        public void onThrowable(Throwable throwable) {
+            myDelegate.onThrowable(throwable);
+        }
+
+        @Override
+        public void onFinished() {
+            myOnFinish.accept(this);
+            myDelegate.onFinished();
+        }
+
+        @Override
+        public @Nullable NotificationInfo getNotificationInfo() {
+            return myDelegate.getNotificationInfo();
+        }
+
+        @Override
+        public @Nullable NotificationInfo notifyFinished() {
+            return myDelegate.notifyFinished();
+        }
+
+        @Override
+        public LocalizeValue getCancelTextValue() {
+            return myDelegate.getCancelTextValue();
+        }
+
+        @Override
+        public LocalizeValue getCancelTooltipTextValue() {
+            return myDelegate.getCancelTooltipTextValue();
+        }
+
+        @Override
+        public boolean shouldStartInBackground() {
+            return myDelegate.shouldStartInBackground();
+        }
+
+        @Override
+        public void processSentToBackground() {
+            myDelegate.processSentToBackground();
+        }
+
+        @Override
+        public boolean isConditionalModal() {
+            return myDelegate.isConditionalModal();
+        }
+
+        @Override
+        @SuppressWarnings("deprecation")
+        public DumbModeAction getDumbModeAction() {
+            return myDelegate.getDumbModeAction();
+        }
+
+        @Override
+        @SuppressWarnings("deprecation")
+        public boolean isHeadless() {
+            return myDelegate.isHeadless();
+        }
+
+        @Override
+        public String toString() {
+            return myDelegate.toString();
         }
     }
 }

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>consulo.plugin</groupId>
+        <artifactId>consulo.rust.parent</artifactId>
+        <version>3-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>consulo.rust.it</artifactId>
+    <version>3-SNAPSHOT</version>
+
+    <!--
+      Integration tests, modelled on consulo's own modules/it. Test sources only and no
+      module-info.java: the headless harness boots the real application and resolves @ServiceImpl
+      bindings through a classloader ServiceLoader, which skips providers in named modules. Keeping
+      this module unnamed, and surefire on the classpath, is what makes the bindings discoverable.
+      Nothing here ships - it is never packaged into the plugin.
+    -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <useModulePath>false</useModulePath>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>consulo</groupId>
+            <artifactId>consulo-it</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>consulo.plugin</groupId>
+            <artifactId>consulo.rust</artifactId>
+            <version>3-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>consulo</groupId>
+            <artifactId>consulo-execution-coverage-api</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- the sync spawns cargo and rustc, so the test application needs a real process handler -->
+        <dependency>
+            <groupId>consulo</groupId>
+            <artifactId>consulo-process-impl</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- and it asks the proxy settings before building every cargo command line -->
+        <dependency>
+            <groupId>consulo</groupId>
+            <artifactId>consulo-http-impl</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- cargo output is parsed through BuildOutputService; the build view itself stays absent -->
+        <dependency>
+            <groupId>consulo</groupId>
+            <artifactId>consulo-build-ui-impl</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.27.6</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

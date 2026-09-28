@@ -53,9 +53,30 @@ public class RustMutableModuleExtension extends RustModuleExtension implements M
         myBuildTarget = buildTarget;
     }
 
+    /** @see RustModuleExtension#getCargoPackageId() */
+    public void setCargoPackageId(@Nullable String packageId) {
+        myCargoPackageId = packageId;
+    }
+
+    /** @see RustModuleExtension#getCargoManifestPath() */
+    public void setCargoManifestPath(@Nullable String manifestPath) {
+        myCargoManifestPath = manifestPath;
+    }
+
+    /** @see RustModuleExtension#getCargoWorkspaceState() */
+    public void setCargoWorkspaceState(@Nullable org.rust.cargo.project.workspace.state.CargoWorkspaceState state) {
+        myCargoWorkspaceState = state;
+        myCargoWorkspaceFingerprint = fingerprintOf(state);
+    }
+
     @Override
     public boolean isModified(@Nonnull RustModuleExtension extension) {
         return isModifiedImpl(extension)
-            || !Objects.equals(getBuildTarget(), extension.getBuildTarget());
+            || !Objects.equals(getBuildTarget(), extension.getBuildTarget())
+            || !Objects.equals(getCargoPackageId(), extension.getCargoPackageId())
+            || !Objects.equals(getCargoManifestPath(), extension.getCargoManifestPath())
+            // without this a sync that changed only the workspace - same roots, different features or
+            // cfg - would be reported unchanged and never written to disk
+            || !Objects.equals(getCargoWorkspaceFingerprint(), extension.getCargoWorkspaceFingerprint());
     }
 }

@@ -29,9 +29,31 @@ public class RsExternalLinterWidgetFactory implements StatusBarWidgetFactory {
         return RsBundle.message("configurable.name.rust.external.linter");
     }
 
+    /**
+     * The widget is a Swing panel built on {@code consulo.ide.impl.idea...TextPanel.WithIconAndArrows},
+     * so a frontend that does not ship ide-impl cannot show it. Reported here rather than left to fail
+     * in {@link #createWidget}: the manager treats an unavailable factory as simply absent, while a
+     * createWidget that throws propagates out of the status bar and fails the whole project open.
+     */
+    private static final boolean WIDGET_AVAILABLE = isWidgetClassPresent();
+
     @Override
     public boolean isAvailable(@Nonnull Project project) {
-        return RunConfigUtil.hasCargoProject(project);
+        return WIDGET_AVAILABLE && RunConfigUtil.hasCargoProject(project);
+    }
+
+    private static boolean isWidgetClassPresent() {
+        try {
+            Class.forName(
+                "consulo.ide.impl.idea.openapi.wm.impl.status.TextPanel$WithIconAndArrows",
+                false,
+                RsExternalLinterWidgetFactory.class.getClassLoader()
+            );
+            return true;
+        }
+        catch (ClassNotFoundException | LinkageError absent) {
+            return false;
+        }
     }
 
     @Override

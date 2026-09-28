@@ -440,34 +440,41 @@ public interface CargoWorkspace {
      */
     @Nonnull
     static List<VirtualFile> additionalRoots(@Nonnull Package pkg) {
-        if (pkg.getOrigin() == PackageOrigin.STDLIB) {
-            String name = pkg.getName();
-            if (name.equals(org.rust.cargo.api.util.AutoInjectedCrates.STD)) {
-                VirtualFile contentRoot = pkg.getContentRoot();
-                if (contentRoot != null && contentRoot.getParent() != null) {
-                    VirtualFile backtrace = contentRoot.getParent().findFileByRelativePath("backtrace");
-                    if (backtrace != null) {
-                        return Collections.singletonList(backtrace);
-                    }
+        if (pkg.getOrigin() != PackageOrigin.STDLIB) {
+            return Collections.emptyList();
+        }
+        return stdlibAdditionalRoots(pkg.getName(), pkg.getContentRoot());
+    }
+
+    /**
+     * The same hack addressed by {@link #additionalRoots(Package)}, reachable without a resolved
+     * workspace: an order entry that carries a standard library crate knows only its name and the
+     * directory it was found in.
+     */
+    @Nonnull
+    static List<VirtualFile> stdlibAdditionalRoots(@Nonnull String packageName, @Nullable VirtualFile contentRoot) {
+        if (contentRoot == null || contentRoot.getParent() == null) {
+            return Collections.emptyList();
+        }
+        VirtualFile parent = contentRoot.getParent();
+        if (packageName.equals(AutoInjectedCrates.STD)) {
+            VirtualFile backtrace = parent.findFileByRelativePath("backtrace");
+            return backtrace != null ? Collections.singletonList(backtrace) : Collections.emptyList();
+        }
+        if (packageName.equals(AutoInjectedCrates.CORE)) {
+            List<VirtualFile> roots = new ArrayList<>();
+            for (String relativePath : List.of(
+                "stdarch/crates/core_arch",
+                "stdarch/crates/std_detect",
+                "portable-simd/crates/core_simd",
+                "portable-simd/crates/std_float"
+            )) {
+                VirtualFile root = parent.findFileByRelativePath(relativePath);
+                if (root != null) {
+                    roots.add(root);
                 }
-                return Collections.emptyList();
-            } else if (name.equals(org.rust.cargo.api.util.AutoInjectedCrates.CORE)) {
-                VirtualFile contentRoot = pkg.getContentRoot();
-                if (contentRoot != null && contentRoot.getParent() != null) {
-                    VirtualFile parent = contentRoot.getParent();
-                    List<VirtualFile> roots = new ArrayList<>();
-                    VirtualFile coreArch = parent.findFileByRelativePath("stdarch/crates/core_arch");
-                    if (coreArch != null) roots.add(coreArch);
-                    VirtualFile stdDetect = parent.findFileByRelativePath("stdarch/crates/std_detect");
-                    if (stdDetect != null) roots.add(stdDetect);
-                    VirtualFile coreSimd = parent.findFileByRelativePath("portable-simd/crates/core_simd");
-                    if (coreSimd != null) roots.add(coreSimd);
-                    VirtualFile stdFloat = parent.findFileByRelativePath("portable-simd/crates/std_float");
-                    if (stdFloat != null) roots.add(stdFloat);
-                    return roots;
-                }
-                return Collections.emptyList();
             }
+            return roots;
         }
         return Collections.emptyList();
     }

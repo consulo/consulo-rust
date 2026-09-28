@@ -14,6 +14,7 @@ import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
 import consulo.build.ui.BuildDescriptor;
 import consulo.build.ui.DefaultBuildDescriptor;
+import consulo.build.ui.progress.BuildProgressListener;
 import consulo.build.ui.SyncViewManager;
 import consulo.build.ui.event.MessageEvent;
 import consulo.build.ui.progress.BuildProgress;
@@ -120,8 +121,7 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
         indicator.setIndeterminate(true);
         long start = System.currentTimeMillis();
 
-        BuildProgress<BuildProgressDescriptor> syncProgress =
-            faultTolerant(SyncViewManager.getInstance(rsProject).createBuildProgress());
+        BuildProgress<BuildProgressDescriptor> syncProgress = faultTolerant(createSyncProgress());
 
         List<CargoProjectImpl> refreshedProjects;
         try {
@@ -155,19 +155,41 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
     }
 
     /**
+     * The build view is a service only a full IDE frontend provides; a headless application has none.
+     * The sync must not depend on it, so a missing view is simply no view.
+     */
+    @Nullable
+    private BuildProgress<BuildProgressDescriptor> createSyncProgress() {
+        try {
+            return SyncViewManager.getInstance(rsProject).createBuildProgress();
+        }
+        catch (ProcessCanceledException canceled) {
+            throw canceled;
+        }
+        catch (RuntimeException | LinkageError absent) {
+            LOG.warn("Cargo sync runs without a build view", absent);
+            return null;
+        }
+    }
+
+    /**
      * The sync reports into a build view that not every frontend can show. A view that fails to open or
      * to take an event must not take the sync down with it, so every call is allowed to fail and the
-     * chain carries on; only cancellation still propagates.
+     * chain carries on; only cancellation still propagates. A {@code null} delegate - no view at all -
+     * makes every call a no-op.
      */
     @SuppressWarnings("unchecked")
     @Nonnull
     private static BuildProgress<BuildProgressDescriptor> faultTolerant(
-        @Nonnull BuildProgress<BuildProgressDescriptor> delegate
+        @Nullable BuildProgress<BuildProgressDescriptor> delegate
     ) {
         return (BuildProgress<BuildProgressDescriptor>) java.lang.reflect.Proxy.newProxyInstance(
             CargoSyncTask.class.getClassLoader(),
             new Class<?>[]{BuildProgress.class},
             (proxy, method, args) -> {
+                if (delegate == null) {
+                    return BuildProgress.class.isAssignableFrom(method.getReturnType()) ? proxy : null;
+                }
                 try {
                     Object value = method.invoke(delegate, args);
                     return value == delegate ? proxy : value;
@@ -780,8 +802,24 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
         private final SyncContext context;
 
         SyncCargoBuildAdapter(@Nonnull SyncContext context, @Nonnull CargoBuildContextBase buildContext) {
-            super(buildContext, SyncViewManager.getInstance(context.project));
+            super(buildContext, buildProgressListener(context.project));
             this.context = context;
+        }
+
+        /// The build view is optional, the same way it is for the sync progress: without one the build
+        /// output has nowhere to go, which is not a reason to fail the sync.
+        @Nonnull
+        private static BuildProgressListener buildProgressListener(@Nonnull Project project) {
+            try {
+                return SyncViewManager.getInstance(project);
+            }
+            catch (ProcessCanceledException canceled) {
+                throw canceled;
+            }
+            catch (RuntimeException | LinkageError absent) {
+                return (buildId, event) -> {
+                };
+            }
         }
 
         @Override

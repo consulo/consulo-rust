@@ -214,16 +214,6 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
-        <!-- consulo-ide-impl provides consulo.ide.impl.idea.* internal classes that the
-             Rust plugin references (MessageType, VfsUtil, InsetPresentation, PresentationFactory,
-             ReformatCodeProcessor, HTMLTextPainter, ComponentValidator, LightDirectoryIndex, ...).
-             These are IntelliJ-compat internals; long-term we'd migrate to public APIs. -->
-        <dependency>
-            <groupId>consulo</groupId>
-            <artifactId>consulo-ide-impl</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>consulo</groupId>
             <artifactId>consulo-version-control-system-api</artifactId>

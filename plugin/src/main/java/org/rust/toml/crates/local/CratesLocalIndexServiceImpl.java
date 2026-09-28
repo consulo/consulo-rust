@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import consulo.annotation.component.ServiceImpl;
 import consulo.disposer.Disposable;
+import consulo.application.Application;
 import consulo.application.ApplicationManager;
 import consulo.application.WriteAction;
 import consulo.logging.Logger;
@@ -46,6 +47,7 @@ import org.eclipse.jgit.treewalk.filter.OrTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import jakarta.annotation.Nonnull;
+import jakarta.inject.Inject;
 import jakarta.annotation.Nullable;
 
 import org.rust.RsBundle;
@@ -77,7 +79,7 @@ public class CratesLocalIndexServiceImpl implements CratesLocalIndexService, Dis
     private static final String INVALID_COMMIT_HASH = "<invalid>";
     private static final int CRATES_INDEX_VERSION = 1;
 
-    private final RsBackgroundTaskQueue myQueue = new RsBackgroundTaskQueue();
+    private final RsBackgroundTaskQueue myQueue;
     private final Object myInnerStateLock = new Object();
     private volatile InnerState myInnerState = new InnerState.Loading();
     private final AtomicInteger myUpdateTaskCount = new AtomicInteger(0);
@@ -86,7 +88,9 @@ public class CratesLocalIndexServiceImpl implements CratesLocalIndexService, Dis
         return myUpdateTaskCount.get() != 0;
     }
 
-    public CratesLocalIndexServiceImpl() {
+    @Inject
+    public CratesLocalIndexServiceImpl(Application application) {
+        myQueue = new RsBackgroundTaskQueue(application, application);
         loadAsync();
     }
 

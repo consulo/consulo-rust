@@ -17,6 +17,7 @@ import consulo.virtualFileSystem.VirtualFileManager;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
+import org.rust.cargo.api.toolchain.CargoMetadata;
 import org.rust.cargo.api.CargoConfig;
 import org.rust.cargo.api.CfgOptions;
 import org.rust.cargo.api.model.RustcInfo;
@@ -37,6 +38,12 @@ final class WorkspaceImpl implements CargoWorkspace {
     private final CfgOptions myCfgOptions;
     private final CargoConfig myCargoConfig;
     private final Map<Path, Map<String, FeatureState>> myFeaturesState;
+    /**
+     * The only part of the workspace data that cannot be derived back from the live model: it is read
+     * once to work out each dependency's optional/default-features/required-features flags and then
+     * dropped. Kept so that {@link #getWorkspaceData()} can hand back a faithful copy.
+     */
+    private final Map<String, List<CargoMetadata.RawDependency>> myRawDependencies;
 
     private final CachedVirtualFile myWorkspaceRootCache;
     private volatile FeatureGraph myCachedFeatureGraph;
@@ -48,9 +55,11 @@ final class WorkspaceImpl implements CargoWorkspace {
         Collection<CargoWorkspaceData.Package> packagesData,
         CfgOptions cfgOptions,
         CargoConfig cargoConfig,
-        Map<Path, Map<String, FeatureState>> featuresState
+        Map<Path, Map<String, FeatureState>> featuresState,
+        Map<String, List<CargoMetadata.RawDependency>> rawDependencies
     ) {
         myManifestPath = manifestPath;
+        myRawDependencies = rawDependencies == null ? Collections.emptyMap() : rawDependencies;
         myWorkspaceRootUrl = workspaceRootUrl;
         myCfgOptions = cfgOptions;
         myCargoConfig = cargoConfig;
@@ -284,7 +293,8 @@ final class WorkspaceImpl implements CargoWorkspace {
             newPackagesData,
             cfgOptions,
             myCargoConfig,
-            myFeaturesState
+            myFeaturesState,
+            myRawDependencies
         );
 
         Map<String, PackageImpl> oldIdToPackage = new HashMap<>();
@@ -376,7 +386,8 @@ final class WorkspaceImpl implements CargoWorkspace {
             packagesData,
             myCfgOptions,
             myCargoConfig,
-            featuresState
+            featuresState,
+            myRawDependencies
         ).withDependenciesOf(this);
     }
 
@@ -426,7 +437,8 @@ final class WorkspaceImpl implements CargoWorkspace {
             newPackagesData,
             myCfgOptions,
             myCargoConfig,
-            myFeaturesState
+            myFeaturesState,
+            myRawDependencies
         );
 
         Map<String, PackageImpl> oldIdToPackage = new HashMap<>();
@@ -491,7 +503,8 @@ final class WorkspaceImpl implements CargoWorkspace {
             packagesData,
             myCfgOptions,
             myCargoConfig,
-            myFeaturesState
+            myFeaturesState,
+            myRawDependencies
         ).withDependenciesOf(this);
     }
 
@@ -508,7 +521,8 @@ final class WorkspaceImpl implements CargoWorkspace {
             packagesData,
             cfgOptions,
             myCargoConfig,
-            myFeaturesState
+            myFeaturesState,
+            myRawDependencies
         ).withDependenciesOf(this);
     }
 
@@ -535,7 +549,8 @@ final class WorkspaceImpl implements CargoWorkspace {
             packagesData,
             myCfgOptions,
             myCargoConfig,
-            myFeaturesState
+            myFeaturesState,
+            myRawDependencies
         ).withDependenciesOf(this).withDisabledFeatures(UserDisabledFeatures.EMPTY);
     }
 
@@ -546,6 +561,35 @@ final class WorkspaceImpl implements CargoWorkspace {
             pkgs.append("    ").append(pkg).append(",\n");
         }
         return "Workspace(packages=[\n" + pkgs + "])";
+    }
+
+    /**
+     * The workspace as data again, which is what gets written into the project model so that the next
+     * open can rebuild this workspace without running Cargo.
+     * <p>
+     * Packages and their dependencies are derived back from the live model - {@link PackageImpl#asPackageData}
+     * is the exact inverse of how they were built - while the raw dependencies are the copy kept at
+     * construction, because they are consumed into per-dependency flags and cannot be recovered.
+     */
+    CargoWorkspaceData getWorkspaceData() {
+        List<CargoWorkspaceData.Package> packagesData = new ArrayList<>();
+        Map<String, Set<CargoWorkspaceData.Dependency>> dependencies = new LinkedHashMap<>();
+        for (PackageImpl pkg : myPackages) {
+            packagesData.add(pkg.asPackageData(null));
+
+            Set<CargoWorkspaceData.Dependency> pkgDependencies = new LinkedHashSet<>();
+            for (DependencyImpl dependency : pkg.getDependenciesInternal()) {
+                pkgDependencies.add(new CargoWorkspaceData.Dependency(
+                    dependency.getPkgImpl().getId(),
+                    dependency.getName(),
+                    dependency.getDepKinds()
+                ));
+            }
+            if (!pkgDependencies.isEmpty()) {
+                dependencies.put(pkg.getId(), pkgDependencies);
+            }
+        }
+        return new CargoWorkspaceData(packagesData, dependencies, myRawDependencies, myWorkspaceRootUrl);
     }
 
     static WorkspaceImpl deserialize(
@@ -560,7 +604,8 @@ final class WorkspaceImpl implements CargoWorkspace {
             data.getPackages(),
             cfgOptions,
             cargoConfig,
-            Collections.emptyMap()
+            Collections.emptyMap(),
+            data.getRawDependencies()
         );
 
         Map<String, PackageImpl> idToPackage = new HashMap<>();

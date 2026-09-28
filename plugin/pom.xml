@@ -246,10 +246,11 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
-        <!-- consulo-ide-impl provides consulo.ide.impl.idea.* internal classes that the
-             Rust plugin references (MessageType, VfsUtil, InsetPresentation, PresentationFactory,
-             ReformatCodeProcessor, HTMLTextPainter, ComponentValidator, LightDirectoryIndex, ...).
-             These are IntelliJ-compat internals; long-term we'd migrate to public APIs. -->
+        <!-- The last module still on consulo.ide.impl.idea.*, the IntelliJ-compat internals: 30 files,
+             28 classes, all UI and editor surface - copy-paste processors, completion internals,
+             console views, member choosers, run-anything, the coverage engine and the status widget.
+             None of them has a public counterpart, so each one is its own porting job. The model and
+             sync side is clean: rust-base, rust-cargo-api and rust-language-api no longer need it. -->
         <dependency>
             <groupId>consulo</groupId>
             <artifactId>consulo-ide-impl</artifactId>

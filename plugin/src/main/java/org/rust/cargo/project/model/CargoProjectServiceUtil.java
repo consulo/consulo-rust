@@ -5,6 +5,7 @@
 
 package org.rust.cargo.project.model;
 
+import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.api.model.CargoProjectsService;
 
 import java.util.concurrent.Future;
@@ -41,6 +42,7 @@ import consulo.project.ProjectPropertiesComponent;
 import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import consulo.logging.Logger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import consulo.content.bundle.Sdk;
 import consulo.content.bundle.SdkTable;
@@ -134,6 +136,19 @@ public final class CargoProjectServiceUtil {
     }
 
     /**
+     * Whether any restored Cargo project has no workspace to rebuild from, which is the only case that
+     * still makes opening a project run Cargo.
+     */
+    private static boolean needsInitialRefresh(@Nonnull Collection<CargoProject> cargoProjects) {
+        for (CargoProject cargoProject : cargoProjects) {
+            if (cargoProject.getWorkspace() == null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Binds the modules of {@code project} to a toolchain bundle and brings its cargo projects up to
      * date. The module model is written under the write lock; the refresh that follows resolves
      * services of its own and so runs outside it.
@@ -159,8 +174,15 @@ public final class CargoProjectServiceUtil {
             .then(CodeExecution.<Void, Void>apply(input -> {
                 CompletableFuture<?> started = null;
                 try {
-                    if (!cargoProjects.getAllProjects().isEmpty()) {
-                        started = cargoProjects.refreshAllProjects();
+                    Collection<CargoProject> restored = cargoProjects.getAllProjects();
+                    if (!restored.isEmpty()) {
+                        // Opening a project does not run Cargo. The last sync wrote its resolved workspace
+                        // into the project model, so the crate graph is rebuilt from there; only a project
+                        // that has nothing persisted - never synced, or synced by an older build - still
+                        // has to ask Cargo. Refreshing otherwise is the user's call.
+                        if (needsInitialRefresh(restored)) {
+                            started = cargoProjects.refreshAllProjects();
+                        }
                     }
                     else if (discover) {
                         started = cargoProjects.discoverAndRefresh();

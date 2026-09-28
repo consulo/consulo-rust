@@ -5,9 +5,11 @@
 
 package org.rust;
 
+import consulo.application.Application;
 import consulo.disposer.Disposable;
 import consulo.application.progress.Task;
 import consulo.project.Project;
+import jakarta.inject.Inject;
 import org.rust.util.RsBackgroundTaskQueue;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
@@ -22,7 +24,12 @@ import consulo.annotation.component.ComponentScope;
 @ServiceAPI(ComponentScope.PROJECT)
 @ServiceImpl
 public final class RsProjectTaskQueueService implements Disposable {
-    private final RsBackgroundTaskQueue queue = new RsBackgroundTaskQueue();
+    private final RsBackgroundTaskQueue queue;
+
+    @Inject
+    public RsProjectTaskQueueService(Application application, Project project) {
+        queue = new RsBackgroundTaskQueue(application, project);
+    }
 
     /** Submits a task. A task can implement {@link RsTask} */
     public void run(Task.Backgroundable task) {

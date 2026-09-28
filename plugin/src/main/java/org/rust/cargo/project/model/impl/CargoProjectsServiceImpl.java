@@ -25,11 +25,16 @@ import consulo.component.persist.Storage;
 import consulo.component.persist.StoragePathMacros;
 import consulo.disposer.Disposable;
 import consulo.externalSystem.autoimport.ExternalSystemProjectTracker;
-import consulo.ide.impl.idea.util.indexing.LightDirectoryIndex;
 import consulo.language.psi.PsiManager;
 import consulo.logging.Logger;
 import consulo.module.Module;
 import consulo.module.content.ModuleRootManager;
+import consulo.module.content.ProjectFileIndex;
+import consulo.module.content.layer.orderEntry.CustomOrderEntry;
+import consulo.module.content.layer.orderEntry.OrderEntry;
+import consulo.rust.module.extension.RustModuleExtension;
+import org.rust.cargo.project.workspace.orderEntry.CargoLibraryOrderEntryModel;
+import consulo.annotation.access.RequiredReadAction;
 import consulo.project.Project;
 import consulo.project.ui.notification.NotificationType;
 import consulo.util.lang.SemVer;
@@ -85,23 +90,12 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
      */
     private final AsyncValue<List<CargoProjectImpl>> projects = new AsyncValue<>(Collections.emptyList());
 
-    /** Sentinel stored for directories that belong to no Cargo project. */
-    private final CargoProjectImpl noProjectMarker;
-
-    /** Maps a {@link VirtualFile} to the {@link CargoProject} that contains it. */
-    private final LightDirectoryIndex<CargoProjectImpl> directoryIndex;
-
-    private final CargoPackageIndex packageIndex;
-
     private volatile boolean initialized = false;
     private volatile boolean legacyRustNotificationShowed = false;
 
     @Inject
     public CargoProjectsServiceImpl(@Nonnull Project project) {
         this.project = project;
-        this.noProjectMarker = new CargoProjectImpl(Paths.get(""), this);
-        this.directoryIndex = new LightDirectoryIndex<>(project, noProjectMarker, this::fillDirectoryIndex);
-        this.packageIndex = new CargoPackageIndex(project, this);
 
         registerProjectAware(project, this);
     }
@@ -122,48 +116,6 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
                 tracker.scheduleProjectRefresh();
             }
         });
-    }
-
-    private void fillDirectoryIndex(@Nonnull LightDirectoryIndex<CargoProjectImpl> index) {
-        Set<VirtualFile> visited = new HashSet<>();
-        List<Map.Entry<CargoWorkspace.Package, CargoProjectImpl>> lowPriority = new ArrayList<>();
-
-        BiConsumer<VirtualFile, CargoProjectImpl> put = (file, cargoProject) -> {
-            if (file == null) return;
-            if (!visited.add(file)) return;
-            index.putInfo(file, cargoProject);
-        };
-
-        BiConsumer<CargoWorkspace.Package, CargoProjectImpl> putPackage = (pkg, cargoProject) -> {
-            put.accept(pkg.getContentRoot(), cargoProject);
-            put.accept(pkg.getOutDir(), cargoProject);
-            for (VirtualFile additionalRoot : CargoWorkspace.additionalRoots(pkg)) {
-                put.accept(additionalRoot, cargoProject);
-            }
-            for (CargoWorkspace.Target target : pkg.getTargets()) {
-                VirtualFile crateRoot = target.getCrateRoot();
-                if (crateRoot != null) {
-                    put.accept(crateRoot.getParent(), cargoProject);
-                }
-            }
-        };
-
-        for (CargoProjectImpl cargoProject : projects.getCurrentState()) {
-            put.accept(cargoProject.getRootDir(), cargoProject);
-            CargoWorkspace workspace = cargoProject.getWorkspace();
-            if (workspace == null) continue;
-            for (CargoWorkspace.Package pkg : workspace.getPackages()) {
-                if (pkg.getOrigin() == PackageOrigin.WORKSPACE) {
-                    putPackage.accept(pkg, cargoProject);
-                } else {
-                    lowPriority.add(Map.entry(pkg, cargoProject));
-                }
-            }
-        }
-
-        for (Map.Entry<CargoWorkspace.Package, CargoProjectImpl> entry : lowPriority) {
-            putPackage.accept(entry.getKey(), entry.getValue());
-        }
     }
 
     @Nonnull
@@ -190,25 +142,101 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
 
     @Nullable
     @Override
+    @RequiredReadAction
     public CargoProject findProjectForFile(@Nonnull VirtualFile file) {
+        CargoProject cargoProject = findProjectForExactFile(file);
+        if (cargoProject != null) return cargoProject;
         VirtualFile canonical = file.getCanonicalFile();
-        CargoProjectImpl info = directoryIndex.getInfoForFile(file);
-        if (info == noProjectMarker && canonical != null && !canonical.equals(file)) {
-            info = directoryIndex.getInfoForFile(canonical);
+        if (canonical != null && !canonical.equals(file)) {
+            return findProjectForExactFile(canonical);
         }
-        return info == noProjectMarker ? null : info;
+        return null;
     }
 
     @Nullable
     @Override
+    @RequiredReadAction
     public CargoWorkspace.Package findPackageForFile(@Nonnull VirtualFile file) {
-        CargoWorkspace.Package pkg = packageIndex.findPackageForFile(file);
+        CargoWorkspace.Package pkg = findPackageForExactFile(file);
         if (pkg != null) return pkg;
         VirtualFile canonical = file.getCanonicalFile();
         if (canonical != null && !canonical.equals(file)) {
-            return packageIndex.findPackageForFile(canonical);
+            return findPackageForExactFile(canonical);
         }
         return null;
+    }
+
+    /**
+     * Which Cargo project owns {@code file}, answered from the project model: a dependency, standard
+     * library crate or build-script output is covered by the order entry that carries it, and a
+     * workspace member by the module it belongs to.
+     */
+    @Nullable
+    @RequiredReadAction
+    private CargoProject findProjectForExactFile(@Nonnull VirtualFile file) {
+        CargoLibraryOrderEntryModel model = findCargoEntryModel(file);
+        if (model != null) {
+            CargoProject byEntry = findProjectByManifest(model.getManifestPath());
+            if (byEntry != null) return byEntry;
+        }
+        RustModuleExtension extension = moduleExtensionFor(file);
+        return extension == null ? null : findProjectByManifest(extension.getCargoManifestPath());
+    }
+
+    @Nullable
+    @RequiredReadAction
+    private CargoWorkspace.Package findPackageForExactFile(@Nonnull VirtualFile file) {
+        CargoLibraryOrderEntryModel model = findCargoEntryModel(file);
+        if (model != null) {
+            CargoProject owner = findProjectByManifest(model.getManifestPath());
+            CargoWorkspace.Package pkg = findPackageById(owner, model.getId());
+            if (pkg != null) return pkg;
+        }
+        RustModuleExtension extension = moduleExtensionFor(file);
+        if (extension == null) return null;
+        return findPackageById(findProjectByManifest(extension.getCargoManifestPath()), extension.getCargoPackageId());
+    }
+
+    /**
+     * The Cargo order entry owning {@code file}, if any. The root index answers with every entry that
+     * owns the root, sorted only by owning module, so the first Cargo one is taken - which reproduces
+     * the arbitrary-but-stable choice the old directory index made for a crate shared by two projects.
+     */
+    @Nullable
+    @RequiredReadAction
+    private CargoLibraryOrderEntryModel findCargoEntryModel(@Nonnull VirtualFile file) {
+        for (OrderEntry orderEntry : ProjectFileIndex.getInstance(project).getOrderEntriesForFile(file)) {
+            if (orderEntry instanceof CustomOrderEntry<?> customOrderEntry
+                && customOrderEntry.getModel() instanceof CargoLibraryOrderEntryModel model) {
+                return model;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    @RequiredReadAction
+    private RustModuleExtension moduleExtensionFor(@Nonnull VirtualFile file) {
+        Module module = ProjectFileIndex.getInstance(project).getModuleForFile(file);
+        return module == null ? null : RustModuleExtension.findExtension(module);
+    }
+
+    @Nullable
+    private CargoProject findProjectByManifest(@Nullable String manifestPath) {
+        if (manifestPath == null) return null;
+        for (CargoProjectImpl cargoProject : projects.getCurrentState()) {
+            if (cargoProject.getManifest().toString().equals(manifestPath)) {
+                return cargoProject;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    private static CargoWorkspace.Package findPackageById(@Nullable CargoProject cargoProject, @Nullable String packageId) {
+        if (cargoProject == null || packageId == null) return null;
+        CargoWorkspace workspace = cargoProject.getWorkspace();
+        return workspace == null ? null : workspace.findPackageById(packageId);
     }
 
     @Override
@@ -458,7 +486,6 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
         PsiManager psiManager = PsiManager.getInstance(project);
         WriteAction.run(() -> {
             if (project.isDisposed()) return;
-            directoryIndex.resetIndex();
             project.getMessageBus().syncPublisher(CargoProjectsService.CARGO_PROJECTS_TOPIC)
                 .cargoProjectsUpdated(this, Collections.unmodifiableList(new ArrayList<>(newProjects)));
             psiManager.dropPsiCaches();

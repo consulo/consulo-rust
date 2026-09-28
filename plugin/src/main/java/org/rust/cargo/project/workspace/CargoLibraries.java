@@ -17,7 +17,6 @@ import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -105,9 +104,8 @@ public final class CargoLibraries {
             return Collections.emptyMap();
         }
 
-        String projectId = cargoProject.getManifest().toString();
-
         List<CargoWorkspace.Package> dependencyPackages = new ArrayList<>();
+        List<CargoWorkspace.Package> stdlibPackages = new ArrayList<>();
         for (CargoWorkspace.Package pkg : workspace.getPackages()) {
             switch (pkg.getOrigin()) {
                 case DEPENDENCY:
@@ -115,7 +113,7 @@ public final class CargoLibraries {
                     dependencyPackages.add(pkg);
                     break;
                 case STDLIB:
-                    // the standard library comes from the Rust bundle of the module
+                    stdlibPackages.add(pkg);
                     break;
                 case WORKSPACE:
                     // workspace members are modules of their own
@@ -132,9 +130,18 @@ public final class CargoLibraries {
             }
         }
 
-        CargoLibrary generated = makeGeneratedCodeLibrary(projectId, workspace.getPackages());
-        if (generated != null) {
-            result.put(key(generated.getKind(), generated.getId()), generated);
+        for (CargoWorkspace.Package pkg : stdlibPackages) {
+            CargoLibrary library = makeStdlibLibrary(pkg);
+            if (library != null) {
+                result.put(key(library.getKind(), library.getId()), library);
+            }
+        }
+
+        for (CargoWorkspace.Package pkg : workspace.getPackages()) {
+            CargoLibrary generated = makeGeneratedCodeLibrary(pkg);
+            if (generated != null) {
+                result.put(key(generated.getKind(), generated.getId()), generated);
+            }
         }
 
         return result;
@@ -220,25 +227,46 @@ public final class CargoLibraries {
         return true;
     }
 
+    /**
+     * One crate of the standard library. It has no exclusions - the whole crate is meant to be
+     * navigable - and its roots are re-derived from the bundle when the entry is read back, so the
+     * roots given here only matter for the session that computed them.
+     */
     @Nullable
-    private static CargoLibrary makeGeneratedCodeLibrary(
-        @Nonnull String projectId,
-        @Nonnull Collection<CargoWorkspace.Package> packages
-    ) {
-        Set<VirtualFile> generatedRoots = new LinkedHashSet<>();
-        for (CargoWorkspace.Package pkg : packages) {
-            VirtualFile outDir = pkg.getOutDir();
-            if (outDir != null) {
-                generatedRoots.add(outDir);
-            }
-        }
-        if (generatedRoots.isEmpty()) return null;
+    private static CargoLibrary makeStdlibLibrary(@Nonnull CargoWorkspace.Package pkg) {
+        VirtualFile root = pkg.getContentRoot();
+        if (root == null) return null;
+
+        Set<VirtualFile> sourceRoots = new LinkedHashSet<>();
+        sourceRoots.add(root);
+        sourceRoots.addAll(CargoWorkspace.additionalRoots(pkg));
+
+        String version = pkg.getVersion();
+        return new CargoLibrary(
+            CargoLibrary.Kind.STDLIB,
+            pkg.getId(),
+            pkg.getName(),
+            version.isEmpty() ? null : version,
+            sourceRoots,
+            Collections.emptySet()
+        );
+    }
+
+    /**
+     * The build script output of one package. There is an entry per package rather than one per Cargo
+     * project, because the entry names the package it belongs to and so answers which package a file
+     * under {@code OUT_DIR} belongs to.
+     */
+    @Nullable
+    private static CargoLibrary makeGeneratedCodeLibrary(@Nonnull CargoWorkspace.Package pkg) {
+        VirtualFile outDir = pkg.getOutDir();
+        if (outDir == null) return null;
         return new CargoLibrary(
             CargoLibrary.Kind.GENERATED,
-            projectId,
-            GENERATED_NAME,
+            pkg.getId(),
+            GENERATED_NAME + " (" + pkg.getName() + ")",
             null,
-            generatedRoots,
+            Set.of(outDir),
             Collections.emptySet()
         );
     }

@@ -33,5 +33,6 @@
         <module>rust-language-api</module>
         <module>rust-language-impl</module>
         <module>plugin</module>
+        <module>rust-it</module>
     </modules>
 </project>

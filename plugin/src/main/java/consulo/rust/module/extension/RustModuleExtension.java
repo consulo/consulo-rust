@@ -16,7 +16,10 @@ import consulo.rust.bundle.RustBundleType;
 import consulo.util.lang.StringUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import consulo.util.jdom.JDOMUtil;
+import consulo.util.xml.serializer.XmlSerializer;
 import org.jdom.Element;
+import org.rust.cargo.project.workspace.state.CargoWorkspaceState;
 import org.rust.cargo.toolchain.RsToolchainBase;
 
 /**
@@ -25,9 +28,28 @@ import org.rust.cargo.toolchain.RsToolchainBase;
 public class RustModuleExtension extends ModuleExtensionWithSdkBase<RustModuleExtension> {
 
     private static final String BUILD_TARGET_ATTRIBUTE = "build-target";
+    private static final String PACKAGE_ID_ATTRIBUTE = "cargo-package-id";
+    private static final String MANIFEST_ATTRIBUTE = "cargo-manifest";
+    private static final String WORKSPACE_ELEMENT = "cargo-workspace";
 
     /** @see #getBuildTarget() */
     protected String myBuildTarget;
+
+    /** @see #getCargoPackageId() */
+    protected String myCargoPackageId;
+
+    /** @see #getCargoManifestPath() */
+    protected String myCargoManifestPath;
+
+    /** @see #getCargoWorkspaceState() */
+    protected CargoWorkspaceState myCargoWorkspaceState;
+
+    /**
+     * Serialized form of {@link #myCargoWorkspaceState}, kept so that "has the workspace changed?" is a
+     * string comparison. The state is a plain bean with no equality of its own, and comparing by
+     * identity would report a change on every sync and reindex the project each time.
+     */
+    protected String myCargoWorkspaceFingerprint;
 
     public RustModuleExtension(@Nonnull String id, @Nonnull ModuleRootLayer moduleRootLayer) {
         super(id, moduleRootLayer);
@@ -45,11 +67,62 @@ public class RustModuleExtension extends ModuleExtensionWithSdkBase<RustModuleEx
         return StringUtil.nullize(myBuildTarget, true);
     }
 
+    /**
+     * Id of the workspace member package this module stands for, or {@code null} when the module was
+     * not created from a Cargo workspace member.
+     * <p>
+     * It is also the mark of a module this plugin owns: only a module carrying one is ever disposed
+     * when its member leaves the workspace.
+     */
+    @Nullable
+    public String getCargoPackageId() {
+        return StringUtil.nullize(myCargoPackageId, true);
+    }
+
+    /**
+     * Manifest of the Cargo project this module belongs to, which is what identifies that project
+     * across refreshes.
+     */
+    @Nullable
+    public String getCargoManifestPath() {
+        return StringUtil.nullize(myCargoManifestPath, true);
+    }
+
+    /**
+     * The resolved Cargo workspace of the project this module owns, as last written by a sync, or
+     * {@code null} for a module that owns no Cargo project.
+     * <p>
+     * This is what lets a project open without running Cargo: the workspace is rebuilt from here rather
+     * than from {@code cargo metadata}.
+     */
+    @Nullable
+    public CargoWorkspaceState getCargoWorkspaceState() {
+        return myCargoWorkspaceState;
+    }
+
+    /** @see #myCargoWorkspaceFingerprint */
+    @Nullable
+    public String getCargoWorkspaceFingerprint() {
+        return myCargoWorkspaceFingerprint;
+    }
+
+    /** The one place a workspace fingerprint is computed, so both writing and reading agree on it. */
+    @Nullable
+    protected static String fingerprintOf(@Nullable CargoWorkspaceState state) {
+        if (state == null) return null;
+        Element element = XmlSerializer.serialize(state);
+        return element == null ? null : JDOMUtil.writeElement(element);
+    }
+
     @Override
     @RequiredReadAction
     public void commit(RustModuleExtension mutableModuleExtension) {
         super.commit(mutableModuleExtension);
         myBuildTarget = mutableModuleExtension.myBuildTarget;
+        myCargoPackageId = mutableModuleExtension.myCargoPackageId;
+        myCargoManifestPath = mutableModuleExtension.myCargoManifestPath;
+        myCargoWorkspaceState = mutableModuleExtension.myCargoWorkspaceState;
+        myCargoWorkspaceFingerprint = mutableModuleExtension.myCargoWorkspaceFingerprint;
     }
 
     @Override
@@ -59,6 +132,21 @@ public class RustModuleExtension extends ModuleExtensionWithSdkBase<RustModuleEx
         if (buildTarget != null) {
             element.setAttribute(BUILD_TARGET_ATTRIBUTE, buildTarget);
         }
+        String packageId = getCargoPackageId();
+        if (packageId != null) {
+            element.setAttribute(PACKAGE_ID_ATTRIBUTE, packageId);
+        }
+        String manifestPath = getCargoManifestPath();
+        if (manifestPath != null) {
+            element.setAttribute(MANIFEST_ATTRIBUTE, manifestPath);
+        }
+        if (myCargoWorkspaceState != null) {
+            Element workspace = XmlSerializer.serialize(myCargoWorkspaceState);
+            if (workspace != null) {
+                workspace.setName(WORKSPACE_ELEMENT);
+                element.addContent(workspace);
+            }
+        }
     }
 
     @Override
@@ -66,6 +154,11 @@ public class RustModuleExtension extends ModuleExtensionWithSdkBase<RustModuleEx
     protected void loadStateImpl(@Nonnull Element element) {
         super.loadStateImpl(element);
         myBuildTarget = element.getAttributeValue(BUILD_TARGET_ATTRIBUTE);
+        myCargoPackageId = element.getAttributeValue(PACKAGE_ID_ATTRIBUTE);
+        myCargoManifestPath = element.getAttributeValue(MANIFEST_ATTRIBUTE);
+        Element workspace = element.getChild(WORKSPACE_ELEMENT);
+        myCargoWorkspaceState = workspace == null ? null : XmlSerializer.deserialize(workspace, CargoWorkspaceState.class);
+        myCargoWorkspaceFingerprint = fingerprintOf(myCargoWorkspaceState);
     }
 
     @Nonnull

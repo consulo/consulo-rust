@@ -83,7 +83,6 @@ open module consulo.rust.base {
     requires transitive consulo.external.system.api;
     requires transitive consulo.version.control.system.api;
     requires transitive consulo.http.api;
-    requires consulo.ide.impl;
     requires transitive org.toml.lang;
 
     exports consulo.rust.icon;
