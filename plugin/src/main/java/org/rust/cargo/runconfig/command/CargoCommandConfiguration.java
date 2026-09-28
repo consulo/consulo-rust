@@ -5,44 +5,38 @@
 
 package org.rust.cargo.runconfig.command;
 
-import org.rust.cargo.api.toolchain.BacktraceMode;
-import org.rust.cargo.api.toolchain.RustChannel;
-import org.rust.cargo.toolchain.RsToolchainLocator;
-import consulo.execution.RuntimeConfigurationWarning;
-
-import consulo.execution.executor.Executor;
-import consulo.execution.configuration.EnvironmentVariablesData;
-import consulo.execution.configuration.ConfigurationFactory;
-import consulo.execution.configuration.RunConfiguration;
-import consulo.execution.configuration.RunProfileState;
-import consulo.execution.configuration.RuntimeConfigurationError;
+import com.intellij.openapi.options.advanced.AdvancedSettings;
 import consulo.execution.RuntimeConfigurationException;
+import consulo.execution.RuntimeConfigurationWarning;
+import consulo.execution.configuration.*;
+import consulo.execution.configuration.ui.SettingsEditor;
+import consulo.execution.executor.Executor;
 import consulo.execution.runner.ExecutionEnvironment;
-import com.intellij.execution.target.LanguageRuntimeType;
-import com.intellij.execution.target.TargetEnvironmentAwareRunProfile;
-import com.intellij.execution.target.TargetEnvironmentConfiguration;
-import com.intellij.execution.testframework.actions.ConsolePropertiesProvider;
+import consulo.execution.test.sm.runner.SMRunnerConsolePropertiesProvider;
 import consulo.execution.test.sm.runner.SMTRunnerConsoleProperties;
 import consulo.execution.util.ProgramParametersUtil;
-import consulo.execution.configuration.ui.SettingsEditor;
-import com.intellij.openapi.options.advanced.AdvancedSettings;
+import consulo.process.cmd.ParametersListUtil;
 import consulo.project.Project;
 import consulo.util.io.FileUtil;
-import consulo.process.cmd.ParametersListUtil;
 import consulo.util.lang.SemVer;
-import org.jdom.Element;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.jdom.Element;
 import org.rust.RsBundle;
 import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.api.toolchain.BacktraceMode;
+import org.rust.cargo.api.toolchain.RustChannel;
 import org.rust.cargo.project.model.CargoProjectLocator;
-import org.rust.cargo.runconfig.*;
+import org.rust.cargo.runconfig.CargoRunState;
+import org.rust.cargo.runconfig.CargoTestRunState;
+import org.rust.cargo.runconfig.RsCommandConfiguration;
+import org.rust.cargo.runconfig.RunConfigUtil;
 import org.rust.cargo.runconfig.target.BuildTarget;
-import org.rust.cargo.runconfig.target.RsLanguageRuntimeConfiguration;
-import org.rust.cargo.runconfig.target.RsLanguageRuntimeType;
 import org.rust.cargo.runconfig.test.CargoTestConsoleProperties;
 import org.rust.cargo.runconfig.ui.CargoCommandConfigurationEditor;
-import org.rust.cargo.toolchain.*;
+import org.rust.cargo.toolchain.CargoCommandLine;
+import org.rust.cargo.toolchain.RsToolchainBase;
+import org.rust.cargo.toolchain.RsToolchainLocator;
 import org.rust.cargo.toolchain.tools.Cargo;
 import org.rust.cargo.toolchain.tools.Rustup;
 
@@ -56,8 +50,7 @@ import java.util.List;
  * It is basically a bunch of values which are persisted to .xml files in the project configuration,
  * or displayed in the GUI form. It has to be mutable to satisfy various IDE's APIs.
  */
-public class CargoCommandConfiguration extends RsCommandConfiguration
-    implements ConsolePropertiesProvider, TargetEnvironmentAwareRunProfile {
+public class CargoCommandConfiguration extends RsCommandConfiguration implements SMRunnerConsolePropertiesProvider {
 
     private String command = "run";
     private RustChannel channel = RustChannel.DEFAULT;
@@ -143,8 +136,12 @@ public class CargoCommandConfiguration extends RsCommandConfiguration
 
     @Nullable
     private File getRedirectInputFile() {
-        if (!isRedirectInput) return null;
-        if (redirectInputPath == null || redirectInputPath.isEmpty()) return null;
+        if (!isRedirectInput) {
+            return null;
+        }
+        if (redirectInputPath == null || redirectInputPath.isEmpty()) {
+            return null;
+        }
         String path = FileUtil.toSystemDependentName(
             ProgramParametersUtil.expandPath(redirectInputPath, null, getProject())
         );
@@ -172,24 +169,6 @@ public class CargoCommandConfiguration extends RsCommandConfiguration
         redirectInputPath = value;
     }
 
-    public boolean canRunOn(@Nonnull TargetEnvironmentConfiguration target) {
-        return target.getRuntimes().findByType(RsLanguageRuntimeConfiguration.class) != null;
-    }
-
-    @Nullable
-    public LanguageRuntimeType<?> getDefaultLanguageRuntimeType() {
-        return LanguageRuntimeType.EXTENSION_NAME.findExtension(RsLanguageRuntimeType.class);
-    }
-
-    @Nullable
-    public String getDefaultTargetName() {
-        return null;
-    }
-
-    public void setDefaultTargetName(@Nullable String targetName) {
-        // no-op: remote target storage not implemented in Consulo port yet
-    }
-
     @Override
     public void writeExternal(@Nonnull Element element) {
         super.writeExternal(element);
@@ -209,27 +188,49 @@ public class CargoCommandConfiguration extends RsCommandConfiguration
         super.readExternal(element);
         String channelStr = RunConfigUtil.readString(element, "channel");
         if (channelStr != null) {
-            try { channel = RustChannel.valueOf(channelStr); } catch (IllegalArgumentException ignored) {}
+            try {
+                channel = RustChannel.valueOf(channelStr);
+            }
+            catch (IllegalArgumentException ignored) {
+            }
         }
         Boolean rf = RunConfigUtil.readBool(element, "requiredFeatures");
-        if (rf != null) requiredFeatures = rf;
+        if (rf != null) {
+            requiredFeatures = rf;
+        }
         Boolean af = RunConfigUtil.readBool(element, "allFeatures");
-        if (af != null) allFeatures = af;
+        if (af != null) {
+            allFeatures = af;
+        }
         Boolean ws = RunConfigUtil.readBool(element, "withSudo");
-        if (ws != null) withSudo = ws;
+        if (ws != null) {
+            withSudo = ws;
+        }
         String btStr = RunConfigUtil.readString(element, "buildTarget");
         if (btStr != null) {
-            try { buildTarget = BuildTarget.valueOf(btStr); } catch (IllegalArgumentException ignored) {}
+            try {
+                buildTarget = BuildTarget.valueOf(btStr);
+            }
+            catch (IllegalArgumentException ignored) {
+            }
         }
         String btModeStr = RunConfigUtil.readString(element, "backtrace");
         if (btModeStr != null) {
-            try { backtrace = BacktraceMode.valueOf(btModeStr); } catch (IllegalArgumentException ignored) {}
+            try {
+                backtrace = BacktraceMode.valueOf(btModeStr);
+            }
+            catch (IllegalArgumentException ignored) {
+            }
         }
         env = EnvironmentVariablesData.readExternal(element);
         Boolean ri = RunConfigUtil.readBool(element, "isRedirectInput");
-        if (ri != null) isRedirectInput = ri;
+        if (ri != null) {
+            isRedirectInput = ri;
+        }
         String rip = RunConfigUtil.readString(element, "redirectInputPath");
-        if (rip != null) redirectInputPath = rip;
+        if (rip != null) {
+            redirectInputPath = rip;
+        }
     }
 
     public void setFromCmd(CargoCommandLine cmd) {
@@ -252,7 +253,9 @@ public class CargoCommandConfiguration extends RsCommandConfiguration
 
     private String toRawCommand(CargoCommandLine cmd) {
         List<String> parts = new ArrayList<>();
-        if (cmd.getToolchain() != null) parts.add("+" + cmd.getToolchain());
+        if (cmd.getToolchain() != null) {
+            parts.add("+" + cmd.getToolchain());
+        }
         parts.add(cmd.getCommand());
         parts.addAll(cmd.getAdditionalArguments());
         return ParametersListUtil.join(parts);
@@ -271,7 +274,9 @@ public class CargoCommandConfiguration extends RsCommandConfiguration
         }
 
         CleanConfiguration config = clean();
-        if (config instanceof CleanConfiguration.Err err) throw err.getError();
+        if (config instanceof CleanConfiguration.Err err) {
+            throw err.getError();
+        }
         CleanConfiguration.Ok ok = (CleanConfiguration.Ok) config;
 
         if (withSudo && showTestToolWindow(ok.getCmd())) {
@@ -292,20 +297,31 @@ public class CargoCommandConfiguration extends RsCommandConfiguration
     @Override
     public RunProfileState getState(@Nonnull Executor executor, @Nonnull ExecutionEnvironment environment) {
         CleanConfiguration.Ok config = clean().getOk();
-        if (config == null) return null;
+        if (config == null) {
+            return null;
+        }
         if (showTestToolWindow(config.getCmd())) {
             return new CargoTestRunState(environment, this, config);
-        } else {
+        }
+        else {
             return new CargoRunState(environment, this, config);
         }
     }
 
     private boolean showTestToolWindow(CargoCommandLine commandLine) {
         if (!AdvancedSettings.getBoolean(CargoTestConsoleProperties.TEST_TOOL_WINDOW_SETTING_KEY,
-            CargoTestConsoleProperties.TEST_TOOL_WINDOW_DEFAULT)) return false;
-        if (!List.of("test", "bench").contains(commandLine.getCommand())) return false;
-        if (commandLine.getAdditionalArguments().contains("--nocapture")) return false;
-        if (Cargo.TEST_NOCAPTURE_ENABLED_KEY.asBoolean()) return false;
+            CargoTestConsoleProperties.TEST_TOOL_WINDOW_DEFAULT)) {
+            return false;
+        }
+        if (!List.of("test", "bench").contains(commandLine.getCommand())) {
+            return false;
+        }
+        if (commandLine.getAdditionalArguments().contains("--nocapture")) {
+            return false;
+        }
+        if (Cargo.TEST_NOCAPTURE_ENABLED_KEY.asBoolean()) {
+            return false;
+        }
         return !RunConfigUtil.getHasRemoteTarget(this);
     }
 
@@ -313,8 +329,12 @@ public class CargoCommandConfiguration extends RsCommandConfiguration
     @Override
     public SMTRunnerConsoleProperties createTestConsoleProperties(@Nonnull Executor executor) {
         CleanConfiguration.Ok config = clean().getOk();
-        if (config == null) return null;
-        if (!showTestToolWindow(config.getCmd())) return null;
+        if (config == null) {
+            return null;
+        }
+        if (!showTestToolWindow(config.getCmd())) {
+            return null;
+        }
         CargoProject cargoProject = CargoProjectLocator.findCargoProject(getProject(), config.getCmd().getAdditionalArguments(), config.getCmd().getWorkingDirectory());
         SemVer version = cargoProject != null && cargoProject.getRustcInfo() != null && cargoProject.getRustcInfo().getVersion() != null
             ? cargoProject.getRustcInfo().getVersion().getSemver() : null;

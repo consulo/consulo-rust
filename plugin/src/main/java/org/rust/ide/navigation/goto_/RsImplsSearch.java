@@ -48,6 +48,6 @@ public class RsImplsSearch extends QueryExecutorBase<PsiElement, DefinitionsScop
         }
 
         Query<? extends PsiElement> filteredQuery = QueryExtUtil.filterQuery(query, it -> it != null);
-        filteredQuery.forEach((consulo.application.util.function.Processor<PsiElement>) consumer::test);
+        filteredQuery.forEach(consumer);
     }
 }

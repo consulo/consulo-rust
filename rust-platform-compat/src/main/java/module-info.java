@@ -38,26 +38,18 @@ open module consulo.rust.platform.compat {
     requires org.jdom;
 
     exports com.intellij;
-    exports com.intellij.codeHighlighting;
-    exports com.intellij.codeInsight;
     exports com.intellij.codeInsight.completion;
     exports com.intellij.codeInsight.completion.ml;
     exports com.intellij.codeInsight.daemon.impl.focusMode;
-    exports com.intellij.codeInsight.editorActions;
     exports com.intellij.codeInsight.folding;
     exports com.intellij.codeInsight.hints;
     exports com.intellij.codeInsight.hints.presentation;
     exports com.intellij.codeInsight.intention.preview;
-    exports com.intellij.codeInsight.template;
-    exports com.intellij.codeInsight.template.impl;
     exports com.intellij.codeInsight.template.postfix.templates;
-    exports com.intellij.codeInsight.template.postfix.templates.editable;
     exports com.intellij.codeInspection.ui;
     exports com.intellij.execution.configurations;
     exports com.intellij.execution.console;
     exports com.intellij.execution.process;
-    exports com.intellij.execution.target;
-    exports com.intellij.execution.testframework.actions;
     exports com.intellij.formatting.service;
     exports com.intellij.ide.nls;
     exports com.intellij.openapi.components;
@@ -87,7 +79,6 @@ open module consulo.rust.platform.compat {
     exports com.intellij.ui.components.fields;
     exports com.intellij.ui.dsl.builder;
     exports com.intellij.ui.dsl.gridLayout;
-    exports com.intellij.util;
     exports com.intellij.util.io.externalizer;
     exports com.intellij.util.text;
     exports com.jetbrains.jsonSchema.extension;

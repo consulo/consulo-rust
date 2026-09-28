@@ -5,29 +5,15 @@
 
 package org.rust.ide.template.postfix;
 
-import com.intellij.codeInsight.template.TemplateSettings;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.codeEditor.Editor;
 import consulo.language.editor.postfixTemplate.PostfixTemplate;
 import consulo.language.editor.postfixTemplate.PostfixTemplateProvider;
-import consulo.language.editor.refactoring.postfixTemplate.PostfixTemplateWithExpressionSelector;
-import com.intellij.codeInsight.template.postfix.templates.PostfixTemplatesUtils;
-import com.intellij.codeInsight.template.postfix.templates.editable.DefaultPostfixTemplateEditor;
-import com.intellij.codeInsight.template.postfix.templates.editable.PostfixTemplateEditor;
-import consulo.codeEditor.Editor;
-import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
-import org.jdom.Element;
-import org.rust.RsBundle;
-import org.rust.ide.template.postfix.editable.RsEditablePostfixTemplate;
-import org.rust.ide.template.postfix.editable.RsPostfixTemplateEditor;
-import org.rust.ide.template.postfix.editable.RsPostfixTemplateExpressionCondition;
 import org.rust.lang.RsLanguage;
-import org.rust.lang.core.psi.RsExpr;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
-import consulo.annotation.component.ExtensionImpl;
-import consulo.language.Language;
 
 @ExtensionImpl
 public class RsPostfixTemplateProvider extends PostfixTemplateProvider {
@@ -37,7 +23,9 @@ public class RsPostfixTemplateProvider extends PostfixTemplateProvider {
 
     @jakarta.annotation.Nonnull
     @Override
-    public consulo.language.Language getLanguage() { return RsLanguage.INSTANCE; }
+    public consulo.language.Language getLanguage() {
+        return RsLanguage.INSTANCE;
+    }
 
     @Override
     protected Set<PostfixTemplate> buildTemplates() {

@@ -23,10 +23,6 @@ import org.rust.lang.core.types.ty.TyTypeParameter;
 import org.rust.openapiext.QueryExt;
 
 import java.util.*;
-import org.rust.lang.core.psi.ext.impl.RsTraitRefUtil;
-import consulo.language.psi.PsiElement;
-import consulo.language.psi.PsiReference;
-import org.rust.lang.core.psi.ext.*;
 
 /**
  * functions and properties.
@@ -216,7 +212,7 @@ public final class RsTraitItemUtil {
     public static Query<RsImplItem> searchForImplementations(@Nonnull RsTraitItem trait) {
         Query<consulo.language.psi.PsiReference> refs = ReferencesSearch.search(trait, trait.getUseScope());
         // Map references to their grandparent (ImplItem)
-        Query<consulo.language.psi.PsiElement> mapped = QueryExt.mapQuery(refs, ref -> {
+        Query<consulo.language.psi.PsiElement> mapped = refs.mapping(ref -> {
             consulo.language.psi.PsiElement element = ref.getElement();
             consulo.language.psi.PsiElement parent = element.getParent();
             return parent != null ? parent.getParent() : null;

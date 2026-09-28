@@ -4,7 +4,6 @@ import consulo.codeEditor.Editor;
 import consulo.document.Document;
 import consulo.document.util.TextRange;
 import consulo.language.editor.postfixTemplate.PostfixTemplateProvider;
-import com.intellij.codeInsight.template.postfix.templates.PostfixTemplatesUtils;
 import consulo.language.editor.refactoring.postfixTemplate.PostfixTemplateExpressionSelector;
 import consulo.language.editor.refactoring.postfixTemplate.PostfixTemplateWithExpressionSelector;
 import consulo.language.editor.template.Template;

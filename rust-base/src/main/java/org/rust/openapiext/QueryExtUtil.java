@@ -9,6 +9,8 @@ import consulo.util.lang.function.Condition;
 import jakarta.annotation.Nonnull;
 import consulo.application.util.query.Query;
 
+import java.util.function.Function;
+
 /**
  * Bridge class delegating to {@link QueryExt}.
  */
@@ -18,7 +20,7 @@ public final class QueryExtUtil {
 
     @Nonnull
     public static <U, V> consulo.application.util.query.Query<V> mapQuery(@Nonnull consulo.application.util.query.Query<U> query,
-                                                                @Nonnull com.intellij.util.Function<U, V> f) {
+                                                                @Nonnull Function<U, V> f) {
         return QueryExt.mapQuery(query, f);
     }
 

@@ -6,32 +6,27 @@
 package org.rust.cargo.runconfig;
 
 import consulo.execution.configuration.CommandLineState;
-import consulo.process.cmd.GeneralCommandLine;
-import consulo.process.ProcessHandler;
 import consulo.execution.process.ProcessTerminatedListener;
 import consulo.execution.runner.ExecutionEnvironment;
-import com.intellij.execution.target.TargetEnvironmentConfiguration;
 import consulo.logging.Logger;
+import consulo.process.ProcessHandler;
+import consulo.process.cmd.GeneralCommandLine;
 import consulo.project.Project;
-import consulo.util.lang.StringUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.api.toolchain.RustcVersion;
 import org.rust.cargo.runconfig.buildtool.Utils;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
-import org.rust.cargo.runconfig.target.RsLanguageRuntimeConfiguration;
 import org.rust.cargo.toolchain.CargoCommandLine;
 import org.rust.cargo.toolchain.RsToolchainBase;
-import org.rust.cargo.api.toolchain.RustcVersion;
 import org.rust.cargo.toolchain.tools.Cargo;
-import org.rust.cargo.toolchain.tools.CargoExtUtil;
 import org.rust.cargo.toolchain.tools.Rustc;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import consulo.process.ExecutionException;
 
 public abstract class CargoRunStateBase extends CommandLineState {
 

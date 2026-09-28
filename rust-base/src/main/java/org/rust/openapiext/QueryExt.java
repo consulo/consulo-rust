@@ -27,7 +27,7 @@ public final class QueryExt {
     }
 
     @Nonnull
-    public static <U, V> Query<V> mapQuery(@Nonnull Query<U> query, @Nonnull com.intellij.util.Function<U, V> f) {
-        return query.mapping(f::fun);
+    public static <U, V> Query<V> mapQuery(@Nonnull Query<U> query, @Nonnull Function<U, V> f) {
+        return query.mapping(f::apply);
     }
 }

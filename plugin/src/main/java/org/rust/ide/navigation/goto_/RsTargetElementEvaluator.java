@@ -5,29 +5,33 @@
 
 package org.rust.ide.navigation.goto_;
 
-import com.intellij.codeInsight.TargetElementEvaluatorEx2;
-import consulo.language.editor.TargetElementUtil;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.ast.IElementType;
+import consulo.language.editor.TargetElementUtilExtender;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiReference;
-import consulo.language.ast.IElementType;
-import consulo.util.lang.BitUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.*;
-import org.rust.lang.core.psi.ext.*;
-import org.rust.lang.core.resolve.ref.*;
-import org.rust.lang.core.types.infer.TypeInference;
-import org.rust.lang.core.types.ty.TyAdt;
+import org.rust.lang.core.psi.ext.RsAbstractable;
+import org.rust.lang.core.psi.ext.RsAbstractableOwner;
+import org.rust.lang.core.psi.ext.RsNameIdentifierOwner;
+import org.rust.lang.core.psi.ext.RsStructOrEnumItemElement;
+import org.rust.lang.core.psi.ext.impl.RsAbstractableImplUtil;
+import org.rust.lang.core.psi.ext.impl.RsStructOrEnumItemElementUtil;
+import org.rust.lang.core.resolve.ref.RsPatBindingReferenceImpl;
+import org.rust.lang.core.resolve.ref.RsPathReference;
+import org.rust.lang.core.resolve.ref.RsPathReferenceImpl;
+import org.rust.lang.core.resolve.ref.RsReference;
+import org.rust.lang.core.types.RsTypesUtil;
 import org.rust.lang.core.types.ty.Ty;
+import org.rust.lang.core.types.ty.TyAdt;
 
 import java.util.List;
 import java.util.Map;
-import org.rust.lang.core.types.RsTypesUtil;
-import org.rust.lang.core.psi.ext.impl.RsStructOrEnumItemElementUtil;
-import org.rust.lang.core.macros.RsExpandedElementUtil;
-import org.rust.lang.core.psi.ext.impl.*;
 
-public class RsTargetElementEvaluator extends TargetElementEvaluatorEx2 {
+@ExtensionImpl
+public class RsTargetElementEvaluator implements TargetElementUtilExtender {
 
     /**
      * Allows to intercept platform calls to {@link PsiReference#resolve()}
@@ -37,7 +41,9 @@ public class RsTargetElementEvaluator extends TargetElementEvaluatorEx2 {
      */
     @Nullable
     public PsiElement getElementByReference(@Nonnull PsiReference ref, int flags) {
-        if (!(ref instanceof RsReference)) return null;
+        if (!(ref instanceof RsReference)) {
+            return null;
+        }
 
         // prefer pattern binding to its target if element name is accepted
         // ELEMENT_NAME_ACCEPTED flag isn't part of Consulo's int-based flags; skip pattern-binding shortcut
@@ -54,7 +60,9 @@ public class RsTargetElementEvaluator extends TargetElementEvaluatorEx2 {
 
         // Filter invocations from CtrlMouseHandler (see RsQuickNavigationInfoTest)
         // and leave invocations from GotoDeclarationAction only.
-        if (!RsGoToDeclarationRunningService.getInstance().isGoToDeclarationAction()) return null;
+        if (!RsGoToDeclarationRunningService.getInstance().isGoToDeclarationAction()) {
+            return null;
+        }
 
         return tryResolveToDeriveMetaItem(ref);
     }
@@ -67,10 +75,14 @@ public class RsTargetElementEvaluator extends TargetElementEvaluatorEx2 {
     @Nullable
     private PsiElement tryResolveToDeriveMetaItem(@Nonnull PsiReference ref) {
         PsiElement resolved = ref.resolve();
-        if (!(resolved instanceof RsAbstractable)) return null;
+        if (!(resolved instanceof RsAbstractable)) {
+            return null;
+        }
         RsAbstractable target = (RsAbstractable) resolved;
         RsAbstractableOwner owner = RsAbstractableImplUtil.getOwner(target);
-        if (!(owner instanceof RsAbstractableOwner.Trait)) return null;
+        if (!(owner instanceof RsAbstractableOwner.Trait)) {
+            return null;
+        }
         RsTraitItem trait = ((RsAbstractableOwner.Trait) owner).getTrait();
 
         PsiElement element = ref.getElement();
@@ -78,29 +90,40 @@ public class RsTargetElementEvaluator extends TargetElementEvaluatorEx2 {
         if (element instanceof RsPath) {
             RsPath path = (RsPath) element;
             RsPath parentPath = path.getPath();
-            if (parentPath == null) return null;
+            if (parentPath == null) {
+                return null;
+            }
             PsiReference parentRef = parentPath.getReference();
-            if (!(parentRef instanceof RsPathReference)) return null;
+            if (!(parentRef instanceof RsPathReference)) {
+                return null;
+            }
             PsiElement deepResolved = RsPathReferenceImpl.deepResolve((RsPathReference) parentRef);
             item = deepResolved instanceof RsStructOrEnumItemElement ? (RsStructOrEnumItemElement) deepResolved : null;
-        } else {
+        }
+        else {
             Ty receiver;
             if (element instanceof RsMethodCall) {
                 RsMethodCall methodCall = (RsMethodCall) element;
                 RsDotExpr dotExpr = (RsDotExpr) methodCall.getParent();
                 receiver = RsTypesUtil.getType(dotExpr.getExpr());
-            } else if (element instanceof RsBinaryOp) {
+            }
+            else if (element instanceof RsBinaryOp) {
                 PsiElement parent = element.getParent();
-                if (!(parent instanceof RsBinaryExpr)) return null;
+                if (!(parent instanceof RsBinaryExpr)) {
+                    return null;
+                }
                 RsBinaryExpr binaryExpr = (RsBinaryExpr) parent;
                 receiver = RsTypesUtil.getType(binaryExpr.getLeft());
-            } else {
+            }
+            else {
                 return null;
             }
             item = receiver instanceof TyAdt ? ((TyAdt) receiver).getItem() : null;
         }
 
-        if (item == null) return null;
+        if (item == null) {
+            return null;
+        }
         Map<RsTraitItem, RsMetaItem> derivedTraitsToMetaItems = RsStructOrEnumItemElementUtil.getDerivedTraitsToMetaItems(item);
         return derivedTraitsToMetaItems.get(trait);
     }
@@ -118,7 +141,9 @@ public class RsTargetElementEvaluator extends TargetElementEvaluatorEx2 {
         IElementType elementType = element.getNode().getElementType();
         if (elementType == RsElementTypes.IDENTIFIER || elementType == RsElementTypes.QUOTE_IDENTIFIER) {
             List<PsiElement> expansionElements = org.rust.lang.core.macros.RsExpandedElementUtil.findExpansionElements(element);
-            if (expansionElements == null || expansionElements.isEmpty()) return null;
+            if (expansionElements == null || expansionElements.isEmpty()) {
+                return null;
+            }
             PsiElement delegate = expansionElements.get(0);
             PsiElement delegateParent = delegate.getParent();
             if (delegateParent instanceof RsNameIdentifierOwner) {
