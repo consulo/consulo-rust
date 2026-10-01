@@ -132,6 +132,8 @@ cargo:
     text: 'Cargo'
 cargo.commandline.description:
     text: 'Configures Cargo projects under the given folder'
+checkbox.redirect.input.from:
+    text: '&Redirect input from:'
 group.Rust.MacroExpansionActions.text:
     text: 'Show Macro Expansion'
 group.Rust.Tools.text:

@@ -4,44 +4,41 @@
  */
 
 package org.rust.cargo.runconfig.ui;
-import consulo.ui.ex.awt.FormBuilder;
 
+import consulo.execution.localize.ExecutionLocalize;
+import consulo.fileChooser.FileChooserTextBoxBuilder;
+import consulo.language.editor.ui.EditorBox;
+import consulo.language.editor.ui.awt.TextFieldCompletionProvider;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import consulo.rust.localize.RustLocalize;
+import consulo.ui.CheckBox;
+import consulo.ui.Component;
+import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.util.FormBuilder;
 import jakarta.annotation.Nonnull;
-import org.rust.RsBundle;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import org.rust.cargo.runconfig.wasmpack.WasmPackCommandConfiguration;
 import org.rust.cargo.runconfig.wasmpack.util.WasmPackCommandCompletionProvider;
-import org.rust.cargo.util.RsCommandLineEditor;
-import org.rust.openapiext.ui.UiDslUtil;
-
-import javax.swing.*;
 
 public class WasmPackCommandConfigurationEditor extends RsCommandConfigurationEditor<WasmPackCommandConfiguration> {
-
-    @Nonnull
-    private final RsCommandLineEditor command;
-
     public WasmPackCommandConfigurationEditor(@Nonnull Project project) {
         super(project);
-        this.command = new RsCommandLineEditor(
-            project, new WasmPackCommandCompletionProvider(CargoProjectServiceUtil.getCargoProjects(project), () -> currentWorkspace())
-        );
     }
 
     @Nonnull
     @Override
-    public RsCommandLineEditor getCommand() {
-        return command;
+    protected TextFieldCompletionProvider createCommandCompletionProvider() {
+        return new WasmPackCommandCompletionProvider(CargoProjectServiceUtil.getCargoProjects(project), this::currentWorkspace);
     }
 
-    @Nonnull
     @Override
-    protected JComponent createEditor() {
-        consulo.ui.ex.awt.FormBuilder builder = consulo.ui.ex.awt.FormBuilder.createFormBuilder();
-        builder.addLabeledComponent(RsBundle.message("command2"), command);
-        builder.addComponent(emulateTerminal);
-        builder.addLabeledComponent(workingDirectory.getLabel(), workingDirectory.getComponent());
-        return builder.getPanel();
+    @RequiredUIAccess
+    protected Component createForm(EditorBox command, CheckBox emulateTerminal, FileChooserTextBoxBuilder.Controller workingDirectory) {
+        return FormBuilder.create()
+            .addLabeled(RustLocalize.command2(), command)
+            .addLabeled(LocalizeValue.empty(), emulateTerminal)
+            .addLabeled(ExecutionLocalize.runConfigurationWorkingDirectoryLabel(), workingDirectory.getComponent())
+            .build();
     }
 }

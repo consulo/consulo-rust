@@ -5,83 +5,128 @@
 
 package org.rust.cargo.runconfig.ui;
 
-import consulo.execution.ExecutionBundle;
-import consulo.fileChooser.FileChooserDescriptorFactory;
+import consulo.configurable.ConfigurationException;
 import consulo.execution.configuration.ui.SettingsEditor;
+import consulo.fileChooser.FileChooserDescriptorFactory;
+import consulo.fileChooser.FileChooserTextBoxBuilder;
+import consulo.language.editor.ui.EditorBox;
+import consulo.language.editor.ui.EditorBoxBuilderFactory;
+import consulo.language.editor.ui.awt.TextFieldCompletionProvider;
 import consulo.project.Project;
-import consulo.ui.ex.awt.LabeledComponent;
-import consulo.ui.ex.awt.TextFieldWithBrowseButton;
-import consulo.ui.ex.awt.JBCheckBox;
-// // import consulo.util.nodep.text.StringUtilRt; // REMOVED // REMOVED
+import consulo.rust.localize.RustLocalize;
+import consulo.ui.CheckBox;
+import consulo.ui.Component;
+import consulo.ui.annotation.RequiredUIAccess;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.RsBundle;
+import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.api.workspace.CargoWorkspace;
+import org.rust.cargo.project.model.CargoProjectLocator;
 import org.rust.cargo.runconfig.RsCommandConfiguration;
-import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
-import org.rust.cargo.util.RsCommandLineEditor;
 
-import javax.swing.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import consulo.configurable.ConfigurationException;
 
 public abstract class RsCommandConfigurationEditor<T extends RsCommandConfiguration> extends SettingsEditor<T> {
-
     @Nonnull
     protected final Project project;
 
-    @Nonnull
-    public abstract RsCommandLineEditor getCommand();
-
-    protected final JCheckBox emulateTerminal =
-        new JBCheckBox(RsBundle.message("checkbox.emulate.terminal.in.output.console"), RsCommandConfiguration.getEmulateTerminalDefault());
+    @Nullable
+    private EditorBox myCommand;
+    @Nullable
+    private CheckBox myEmulateTerminal;
+    @Nullable
+    private FileChooserTextBoxBuilder.Controller myWorkingDirectory;
 
     protected RsCommandConfigurationEditor(@Nonnull Project project) {
         this.project = project;
     }
 
+    @Nonnull
+    protected abstract TextFieldCompletionProvider createCommandCompletionProvider();
+
+    @RequiredUIAccess
+    protected abstract Component createForm(
+        EditorBox command,
+        CheckBox emulateTerminal,
+        FileChooserTextBoxBuilder.Controller workingDirectory
+    );
+
+    @Override
+    @RequiredUIAccess
+    protected Component createUIComponent() {
+        EditorBox command = project.getApplication()
+            .getInstance(EditorBoxBuilderFactory.class)
+            .create(project)
+            .completion(createCommandCompletionProvider())
+            .build();
+        myCommand = command;
+
+        CheckBox emulateTerminal =
+            CheckBox.create(RustLocalize.checkboxEmulateTerminalInOutputConsole(), RsCommandConfiguration.getEmulateTerminalDefault());
+        myEmulateTerminal = emulateTerminal;
+
+        FileChooserTextBoxBuilder.Controller workingDirectory = FileChooserTextBoxBuilder.create(project)
+            .fileChooserDescriptor(FileChooserDescriptorFactory.createSingleFolderDescriptor())
+            .build();
+        myWorkingDirectory = workingDirectory;
+
+        return createForm(command, emulateTerminal, workingDirectory);
+    }
+
     @Nullable
     protected CargoWorkspace currentWorkspace() {
-        return org.rust.cargo.project.model.CargoProjectLocator.findCargoProject(project, getCommand().getText(), getCurrentWorkingDirectory()) != null
-            ? org.rust.cargo.project.model.CargoProjectLocator.findCargoProject(project, getCommand().getText(), getCurrentWorkingDirectory()).getWorkspace()
-            : null;
+        EditorBox command = myCommand;
+        CargoProject cargoProject = CargoProjectLocator.findCargoProject(
+            project,
+            command == null ? "" : command.getValue(),
+            getCurrentWorkingDirectory()
+        );
+        return cargoProject == null ? null : cargoProject.getWorkspace();
     }
 
     @Nullable
     protected Path getCurrentWorkingDirectory() {
-        String text = workingDirectory.getComponent().getText();
-        if (text == null || text.isEmpty()) return null;
+        FileChooserTextBoxBuilder.Controller workingDirectory = myWorkingDirectory;
+        String text = workingDirectory == null ? null : workingDirectory.getValue();
+        if (text == null || text.isEmpty()) {
+            return null;
+        }
         return Paths.get(text);
     }
 
-    protected final LabeledComponent<TextFieldWithBrowseButton> workingDirectory = createWorkingDirectoryComponent();
+    @RequiredUIAccess
+    protected void setWorkingDirectory(@Nullable Path path) {
+        FileChooserTextBoxBuilder.Controller workingDirectory = myWorkingDirectory;
+        if (workingDirectory != null) {
+            workingDirectory.setValue(path != null ? path.toString() : "");
+        }
+    }
 
     @Override
+    @RequiredUIAccess
     protected void resetEditorFrom(@Nonnull T configuration) {
-        getCommand().setText(configuration.getCommand());
-        Path wd = configuration.getWorkingDirectory();
-        workingDirectory.getComponent().setText(wd != null ? wd.toString() : "");
-        emulateTerminal.setSelected(configuration.getEmulateTerminal());
+        EditorBox command = myCommand;
+        CheckBox emulateTerminal = myEmulateTerminal;
+        if (command == null || emulateTerminal == null) {
+            return;
+        }
+
+        command.setValue(configuration.getCommand());
+        setWorkingDirectory(configuration.getWorkingDirectory());
+        emulateTerminal.setValue(configuration.getEmulateTerminal());
     }
 
     @Override
-    protected void applyEditorTo(@Nonnull T configuration) throws consulo.configurable.ConfigurationException {
-        configuration.setCommand(getCommand().getText());
-        configuration.setWorkingDirectory(getCurrentWorkingDirectory());
-        configuration.setEmulateTerminal(emulateTerminal.isSelected());
-    }
+    protected void applyEditorTo(@Nonnull T configuration) throws ConfigurationException {
+        EditorBox command = myCommand;
+        CheckBox emulateTerminal = myEmulateTerminal;
+        if (command == null || emulateTerminal == null) {
+            return;
+        }
 
-    @Nonnull
-    private static LabeledComponent<TextFieldWithBrowseButton> createWorkingDirectoryComponent() {
-        LabeledComponent<TextFieldWithBrowseButton> component = new LabeledComponent<>();
-        TextFieldWithBrowseButton textField = new TextFieldWithBrowseButton();
-        textField.addBrowseFolderListener(
-            null, null, null,
-            FileChooserDescriptorFactory.createSingleFolderDescriptor()
-        );
-        component.setComponent(textField);
-        component.setText(ExecutionBundle.message("run.configuration.working.directory.label"));
-        return component;
+        configuration.setCommand(command.getValue());
+        configuration.setWorkingDirectory(getCurrentWorkingDirectory());
+        configuration.setEmulateTerminal(emulateTerminal.getValueOrError());
     }
 }
