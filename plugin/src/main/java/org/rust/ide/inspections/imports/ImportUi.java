@@ -9,11 +9,13 @@ import consulo.navigation.NavigationUtil;
 import consulo.language.editor.ui.DefaultPsiElementCellRenderer;
 import consulo.dataContext.DataContext;
 import consulo.project.Project;
+import consulo.ui.ex.awt.popup.AWTListPopup;
+import consulo.ui.ex.awt.popup.AWTPopupFactory;
+import consulo.ui.ex.popup.JBPopupFactory;
 import consulo.ui.ex.popup.PopupStep;
 import consulo.ui.ex.popup.BaseListPopupStep;
 import consulo.language.psi.PsiElement;
 import consulo.language.impl.psi.FakePsiElement;
-import consulo.ide.impl.idea.ui.popup.list.ListPopupImpl;
 import consulo.ui.ex.awt.popup.PopupListElementRenderer;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -128,23 +130,20 @@ public final class ImportUi {
                 }
             };
 
-            ListPopupImpl popup = new ListPopupImpl(myProject, step) {
-                @Override
-                protected ListCellRenderer<?> getListElementRenderer() {
-                    @SuppressWarnings("unchecked")
-                    PopupListElementRenderer<Object> baseRenderer = (PopupListElementRenderer<Object>) super.getListElementRenderer();
-                    RsImportCandidateCellRenderer psiRenderer = new RsImportCandidateCellRenderer();
-                    return (list, value, index, isSelected, cellHasFocus) -> {
-                        JPanel panel = new JPanel(new BorderLayout());
-                        baseRenderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                        panel.add(baseRenderer.getNextStepLabel(), BorderLayout.EAST);
-                        @SuppressWarnings({"unchecked", "rawtypes"})
-                        Component psiComp = psiRenderer.getListCellRendererComponent((JList) list, (PsiElement) value, index, isSelected, cellHasFocus);
-                        panel.add(psiComp);
-                        return panel;
-                    };
-                }
-            };
+            AWTListPopup popup = ((AWTPopupFactory) JBPopupFactory.getInstance()).createListPopup(myProject, step, listPopup -> {
+                PopupListElementRenderer<Object> baseRenderer = new PopupListElementRenderer<>(listPopup);
+                RsImportCandidateCellRenderer psiRenderer = new RsImportCandidateCellRenderer();
+                ListCellRenderer<Object> renderer = (list, value, index, isSelected, cellHasFocus) -> {
+                    JPanel panel = new JPanel(new BorderLayout());
+                    baseRenderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                    panel.add(baseRenderer.getNextStepLabel(), BorderLayout.EAST);
+                    @SuppressWarnings({"unchecked", "rawtypes"})
+                    Component psiComp = psiRenderer.getListCellRendererComponent((JList) list, (PsiElement) value, index, isSelected, cellHasFocus);
+                    panel.add(psiComp);
+                    return panel;
+                };
+                return renderer;
+            });
             consulo.language.editor.ui.PopupNavigationUtil.hidePopupIfDumbModeStarts(popup, myProject);
             popup.showInBestPositionFor(myDataContext);
         }
