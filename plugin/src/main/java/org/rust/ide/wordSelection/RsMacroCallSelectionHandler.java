@@ -158,13 +158,13 @@ public class RsMacroCallSelectionHandler extends ExtendWordSelectionHandlerBase 
 
         @Nonnull
         @Override
-        public JComponent getPermanentHeaderComponent() { throw notImplemented(); }
+        public consulo.ui.Component getPermanentHeaderComponent() { throw notImplemented(); }
 
         @Override
         public void setViewer(boolean isViewer) { throw notImplemented(); }
 
         @Override
-        public void setPermanentHeaderComponent(@Nullable JComponent component) { throw notImplemented(); }
+        public void setPermanentHeaderComponent(@Nullable consulo.ui.Component component) { throw notImplemented(); }
 
         @Override
         public void setHighlighter(@Nonnull EditorHighlighter highlighter) { throw notImplemented(); }
