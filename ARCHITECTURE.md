@@ -24,13 +24,18 @@ plugin/                everything else that ships
   src/main/java/org/rust/...      ported language + IDE support
   src/main/java/consulo/rust/...  Consulo-specific integration
   src/main/resources/META-INF/plugin.xml
+  src/main/dist/       files copied into the plugin directory (bundled pretty printers)
 tests/                 parser tests; a plain jar module, NOT a consulo-plugin
-legacy/                upstream modules not ported (clion, debugger, profiler, ...)
+tools/attributes-info/ Rust tool regenerating plugin/src/main/resources/compiler-info/*.json
+legacy/                upstream modules still to port (duplicates, js)
 exampleProject/        template sources for the new-project wizard
 ```
 
 `legacy/` is kept for reference only. Nothing in it is built, and none of it is
-reachable from `plugin/`.
+reachable from `plugin/`. Debugging and profiling come from consulo-native-dev.
+
+`tools/attributes-info` pins a nightly toolchain; run `cargo run` inside it (add
+`GENERATE_BUILTIN_ATTRIBUTES_JSON=1` to regenerate the attribute list too).
 
 Tests cannot live in a module that produces the plugin. `PluginManager` picks its
 backend from the first `PluginManagerInternal` that `ServiceLoader` offers, so

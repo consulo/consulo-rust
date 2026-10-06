@@ -250,27 +250,13 @@ public class ProcMacroServerPool implements ProcMacroServer, Disposable {
 
     @Nullable
     public static Path findExpanderExecutablePath(@Nonnull RsToolchainBase toolchain, @Nonnull String sysroot) {
-        Path fromToolchain = findExpanderFromToolchain(toolchain, sysroot);
-        if (fromToolchain != null) {
-            return fromToolchain;
-        }
-        return findEmbeddedExpander(toolchain);
-    }
-
-    @Nullable
-    private static Path findExpanderFromToolchain(@Nonnull RsToolchainBase toolchain, @Nonnull String sysroot) {
-        String binaryName = toolchain.getExecutableName("rust-analyzer-proc-macro-srv");
+        String binaryName = toolchain.getExecutableName(ProcMacroExpander.EXPANDER_EXECUTABLE);
         Path expanderPath = Path.of(sysroot, "libexec", binaryName);
 
         if (!expanderPath.toFile().canExecute()) {
             return null;
         }
         return expanderPath;
-    }
-
-    @Nullable
-    private static Path findEmbeddedExpander(@Nonnull RsToolchainBase toolchain) {
-        return RsPathManager.INSTANCE.nativeHelper(false);
     }
 }
 

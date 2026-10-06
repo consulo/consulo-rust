@@ -9,10 +9,11 @@ import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.ext.RsElement;
+import org.rust.lang.core.psi.ext.RsInferenceContextOwner;
 import org.rust.lang.core.psi.ext.RsItemsOwner;
 import org.rust.lang.core.psi.*;
 
-public class RsExpressionCodeFragment extends RsCodeFragment {
+public class RsExpressionCodeFragment extends RsCodeFragment implements RsInferenceContextOwner {
 
     public RsExpressionCodeFragment(
         @Nonnull Project project,

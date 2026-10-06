@@ -585,7 +585,7 @@ macro.expansion.error.ProcMacroExpansionError.IOExceptionThrown.message:
 macro.expansion.error.ProcMacroExpansionError.CantRunExpander.message:
     text: 'error occurred during `{0}` process creation; see logs for more details'
 macro.expansion.error.ProcMacroExpansionError.ExecutableNotFound.message:
-    text: '`{0}` executable is not found; (maybe it''''s not provided for your platform by IntelliJ-Rust)'
+    text: '`{0}` executable is not found in the Rust toolchain (expected in `<sysroot>/libexec`)'
 macro.expansion.error.ProcMacroExpansionError.ProcMacroExpansionIsDisabled.message:
     text: 'procedural macro expansion is not enabled'
 macro.expansion.error.ModDataNotFound.message:

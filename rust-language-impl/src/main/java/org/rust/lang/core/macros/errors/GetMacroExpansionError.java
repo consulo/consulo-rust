@@ -9,8 +9,8 @@ package org.rust.lang.core.macros.errors;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.lang.core.macros.MacroExpansionContext;
+import org.rust.lang.core.macros.proc.ProcMacroExpander;
 import org.rust.lang.core.psi.impl.RsProcMacroKind;
-import org.rust.openapiext.RsPathManager;
 
 /**
  * An error type for {@code org.rust.lang.core.psi.ext.expansionResult}
@@ -264,9 +264,9 @@ public abstract class GetMacroExpansionError {
             } else if (e == ProcMacroExpansionError.IOExceptionThrown) {
                 return RsBundle.message("macro.expansion.error.ProcMacroExpansionError.IOExceptionThrown.message");
             } else if (e == ProcMacroExpansionError.CantRunExpander) {
-                return RsBundle.message("macro.expansion.error.ProcMacroExpansionError.CantRunExpander.message", RsPathManager.INTELLIJ_RUST_NATIVE_HELPER);
+                return RsBundle.message("macro.expansion.error.ProcMacroExpansionError.CantRunExpander.message", ProcMacroExpander.EXPANDER_EXECUTABLE);
             } else if (e == ProcMacroExpansionError.ExecutableNotFound) {
-                return RsBundle.message("macro.expansion.error.ProcMacroExpansionError.ExecutableNotFound.message", RsPathManager.INTELLIJ_RUST_NATIVE_HELPER);
+                return RsBundle.message("macro.expansion.error.ProcMacroExpansionError.ExecutableNotFound.message", ProcMacroExpander.EXPANDER_EXECUTABLE);
             } else if (e == ProcMacroExpansionError.ProcMacroExpansionIsDisabled) {
                 return RsBundle.message("macro.expansion.error.ProcMacroExpansionError.ProcMacroExpansionIsDisabled.message");
             }

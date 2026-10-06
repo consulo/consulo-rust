@@ -6,20 +6,15 @@
 package org.rust.openapiext;
 
 import consulo.container.plugin.PluginManager;
-import consulo.platform.CpuArchitecture;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import consulo.platform.Platform;
-
 public final class RsPathManager {
     public static final RsPathManager INSTANCE = new RsPathManager();
-    public static final String INTELLIJ_RUST_NATIVE_HELPER = "intellij-rust-native-helper";
 
     private RsPathManager() {
     }
@@ -36,47 +31,6 @@ public final class RsPathManager {
     private static Path pluginDir() {
         File path = PluginManager.getPluginPath(RsPathManager.class);
         return path == null ? null : path.toPath();
-    }
-
-    @Nullable
-    public static Path nativeHelper(boolean isWslToolchain) {
-        String os;
-        String binaryName;
-
-        if (Platform.current().os().isLinux() || isWslToolchain) {
-            os = "linux";
-            binaryName = INTELLIJ_RUST_NATIVE_HELPER;
-        } else if (Platform.current().os().isMac()) {
-            os = "macos";
-            binaryName = INTELLIJ_RUST_NATIVE_HELPER;
-        } else if (Platform.current().os().isWindows()) {
-            os = "windows";
-            binaryName = INTELLIJ_RUST_NATIVE_HELPER + ".exe";
-        } else {
-            return null;
-        }
-
-        String arch;
-        CpuArchitecture cpuArchitecture = Platform.current().jvm().arch();
-        if (cpuArchitecture == CpuArchitecture.X86_64) {
-            arch = "x86-64";
-        } else if (cpuArchitecture == CpuArchitecture.AARCH64) {
-            arch = "arm64";
-        } else {
-            return null;
-        }
-
-        Path pluginDir = pluginDir();
-        if (pluginDir == null) return null;
-
-        Path nativeHelperPath = pluginDir.resolve("bin/" + os + "/" + arch + "/" + binaryName);
-        if (!Files.exists(nativeHelperPath)) return null;
-
-        if (Files.isExecutable(nativeHelperPath) || nativeHelperPath.toFile().setExecutable(true)) {
-            return nativeHelperPath;
-        } else {
-            return null;
-        }
     }
 
     @Nonnull

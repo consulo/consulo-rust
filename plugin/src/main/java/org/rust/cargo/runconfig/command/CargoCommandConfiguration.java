@@ -9,6 +9,7 @@ import com.intellij.openapi.options.advanced.AdvancedSettings;
 import consulo.execution.RuntimeConfigurationException;
 import consulo.execution.RuntimeConfigurationWarning;
 import consulo.execution.configuration.*;
+import consulo.nativeDev.profiler.NativeProfilableRunProfile;
 import consulo.execution.configuration.ui.SettingsEditor;
 import consulo.execution.executor.Executor;
 import consulo.execution.runner.ExecutionEnvironment;
@@ -50,7 +51,7 @@ import java.util.List;
  * It is basically a bunch of values which are persisted to .xml files in the project configuration,
  * or displayed in the GUI form. It has to be mutable to satisfy various IDE's APIs.
  */
-public class CargoCommandConfiguration extends RsCommandConfiguration implements SMRunnerConsolePropertiesProvider {
+public class CargoCommandConfiguration extends RsCommandConfiguration implements SMRunnerConsolePropertiesProvider, NativeProfilableRunProfile {
 
     private String command = "run";
     private RustChannel channel = RustChannel.DEFAULT;

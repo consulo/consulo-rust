@@ -28,7 +28,7 @@ import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.cargo.api.workspace.StandardLibrary;
 import org.rust.cargo.toolchain.RsToolchainBase;
-import org.rust.cargo.toolchain.ProcMacroExpanderPath;
+import org.rust.cargo.macros.ProcMacroServerPool;
 import org.rust.cargo.api.util.AutoInjectedCrates;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 import org.rust.cargo.project.workspace.CargoWorkspaceFactory;
@@ -105,7 +105,7 @@ public class CargoProjectImpl extends UserDataHolderBase implements CargoProject
         if (rustcInfo != null) {
             RsToolchainBase toolchain = RsToolchainLocator.getToolchain(getProject());
             this.procMacroExpanderPath = toolchain != null
-                ? ProcMacroExpanderPath.find(toolchain, rustcInfo.getSysroot())
+                ? ProcMacroServerPool.findExpanderExecutablePath(toolchain, rustcInfo.getSysroot())
                 : null;
         } else {
             this.procMacroExpanderPath = null;

@@ -87,6 +87,8 @@ open module consulo.rust {
     requires consulo.process.api;
     requires consulo.execution.api;
     requires consulo.execution.debug.api;
+    requires consulo.nativeDev.debugger.api;
+    requires consulo.nativeDev.profiler.api;
     requires consulo.execution.test.api;
     requires consulo.execution.test.sm.api;
     requires consulo.execution.impl;

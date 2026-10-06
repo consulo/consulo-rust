@@ -20,7 +20,6 @@ import org.rust.lang.core.macros.errors.ProcMacroExpansionError;
 import org.rust.lang.core.macros.tt.*;
 import org.rust.lang.core.psi.*;
 // import removed - placeholder
-import org.rust.openapiext.RsPathManager;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.stdext.RsResult;
 import consulo.util.lang.SemVer;
@@ -39,6 +38,7 @@ public class ProcMacroExpander extends MacroExpander<RsProcMacroData, ProcMacroE
     private static final int DEFAULT_TIMEOUT_MS = 20000;
 
     public static final int EXPANDER_VERSION = 11;
+    public static final String EXPANDER_EXECUTABLE = "rust-analyzer-proc-macro-srv";
     private static final SemVer MIN_RUSTC_VERSION_WITH_EXPANDER_VERSION_CHECK =
         ToolchainUtil.parseSemVer("1.70.0");
 
@@ -191,7 +191,7 @@ public class ProcMacroExpander extends MacroExpander<RsProcMacroData, ProcMacroE
         if (error instanceof RequestSendError.Timeout) {
             return new ProcMacroExpansionError.Timeout(myTimeout);
         } else if (error instanceof RequestSendError.ProcessCreation) {
-            MacroExpansionManagerUtil.MACRO_LOG.warn("Failed to run `" + RsPathManager.INTELLIJ_RUST_NATIVE_HELPER + "` process",
+            MacroExpansionManagerUtil.MACRO_LOG.warn("Failed to run `" + EXPANDER_EXECUTABLE + "` process",
                 ((RequestSendError.ProcessCreation) error).getException());
             return ProcMacroExpansionError.CantRunExpander;
         } else if (error instanceof RequestSendError.IO) {
@@ -201,7 +201,7 @@ public class ProcMacroExpander extends MacroExpander<RsProcMacroData, ProcMacroE
             } else {
                 if (!OpenApiUtil.isUnitTestMode()) {
                     MacroExpansionManagerUtil.MACRO_LOG.error(
-                        "Error communicating with `" + RsPathManager.INTELLIJ_RUST_NATIVE_HELPER + "` process", e);
+                        "Error communicating with `" + EXPANDER_EXECUTABLE + "` process", e);
                 }
                 return ProcMacroExpansionError.IOExceptionThrown;
             }

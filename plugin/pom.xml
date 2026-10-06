@@ -16,23 +16,12 @@
     <packaging>consulo-plugin</packaging>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
     </properties>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <parameters>true</parameters>
-                    <compilerArgs combine.children="append">
-                        <arg>-Xmaxerrs</arg>
-                        <arg>20000</arg>
-                    </compilerArgs>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>consulo.maven</groupId>
                 <artifactId>maven-consulo-plugin</artifactId>
@@ -42,6 +31,7 @@
                         <dependency>org.toml.lang</dependency>
                         <dependency>com.intellij.regexp</dependency>
                         <dependency>consulo.markdown</dependency>
+                        <dependency>consulo.nativeDev</dependency>
                     </dependencies>
                     <packaging>
                         <skip>${dev.mode}</skip>
@@ -476,10 +466,6 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
-
-        <!-- Consulo's own markdown engine. It parses straight into a PsiBuilder and its element
-             types are the platform's, so doc comments get a real AST instead of a parallel one.
-             Provided: the consulo.markdown plugin ships the jar at runtime. -->
         <dependency>
             <groupId>consulo.plugin</groupId>
             <artifactId>consulo.markdown.engine</artifactId>
@@ -500,6 +486,25 @@
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-parameter-names</artifactId>
             <version>2.21.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>consulo.plugin</groupId>
+            <artifactId>consulo.nativeDev.debugger.api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>consulo.plugin</groupId>
+            <artifactId>consulo.nativeDev.profiler.api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>consulo</groupId>
+            <artifactId>consulo-execution-profiler-api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

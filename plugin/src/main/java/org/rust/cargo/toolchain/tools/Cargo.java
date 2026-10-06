@@ -74,7 +74,6 @@ public class Cargo extends RustupComponent {
     private static final TomlMapper TOML_MAPPER = new TomlMapper();
 
     public static final RegistryValue TEST_NOCAPTURE_ENABLED_KEY = Registry.get("org.rust.cargo.test.nocapture");
-    public static final RegistryValue USE_BUILD_SCRIPT_WRAPPER = Registry.get("org.rust.cargo.evaluate.build.scripts.wrapper");
 
     public static final String NAME = "cargo";
     public static final String WRAPPER_NAME = "xargo";
@@ -448,10 +447,6 @@ public class Cargo extends RustupComponent {
             if (originalRustcBootstrapValue != null) {
                 envMap.put(RsToolchainBase.ORIGINAL_RUSTC_BOOTSTRAP, originalRustcBootstrapValue);
             }
-        }
-        Path nativeHelper = RsPathManager.nativeHelper(false);
-        if (nativeHelper != null && USE_BUILD_SCRIPT_WRAPPER.asBoolean(true)) {
-            envMap.put(RsToolchainBase.RUSTC_WRAPPER, nativeHelper.toString());
         }
 
         EnvironmentVariablesData envs = EnvironmentVariablesData.create(envMap, true);

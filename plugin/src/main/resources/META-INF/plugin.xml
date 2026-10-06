@@ -18,4 +18,5 @@
     <depends>org.toml.lang</depends>
     <depends>com.intellij.regexp</depends>
     <depends>consulo.markdown</depends>
+    <depends>consulo.nativeDev</depends>
 </consulo-plugin>
