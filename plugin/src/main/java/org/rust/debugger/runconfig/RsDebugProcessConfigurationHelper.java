@@ -6,7 +6,7 @@
 package org.rust.debugger.runconfig;
 
 import consulo.logging.Logger;
-import consulo.nativeDev.debugger.driver.NativeDebuggerKind;
+import consulo.nativeDev.debugger.NativeDebuggerProvider;
 import consulo.nativeDev.debugger.driver.NativeDebuggerSetup;
 import consulo.util.io.FileUtil;
 import consulo.util.lang.StringUtil;
@@ -34,6 +34,8 @@ public class RsDebugProcessConfigurationHelper implements NativeDebuggerSetup {
     private static final String GDB_LOOKUP = "gdb_formatters.gdb_lookup";
     private static final String COMPILER_GDB_LOOKUP = "gdb_lookup";
     private static final String RUST_LANGUAGE = "rust";
+    // the id of the CodeLLDB debugger of native-dev
+    private static final String CODELLDB_ID = "codelldb";
 
     private static final boolean BREAK_ON_PANIC = true;
     private static final boolean SKIP_STDLIB_IN_STEPPING = false;
@@ -69,21 +71,25 @@ public class RsDebugProcessConfigurationHelper implements NativeDebuggerSetup {
 
     @Nonnull
     @Override
-    public List<String> getInitCommands(@Nonnull NativeDebuggerKind kind) {
+    public List<String> getInitCommands(@Nonnull NativeDebuggerProvider debugger) {
+        String family = debugger.getFamilyId();
         List<String> commands = new ArrayList<>();
-        loadRustcSources(kind, commands);
-        loadPrettyPrinters(kind, commands);
-        if (BREAK_ON_PANIC) {
-            setBreakOnPanic(kind, commands);
+        loadRustcSources(family, commands);
+        // CodeLLDB brings its own Rust formatters
+        if (!CODELLDB_ID.equals(debugger.getId())) {
+            loadPrettyPrinters(family, commands);
         }
-        setSteppingFilters(kind, commands);
+        if (BREAK_ON_PANIC) {
+            setBreakOnPanic(family, commands);
+        }
+        setSteppingFilters(family, commands);
         return commands;
     }
 
-    private static void setBreakOnPanic(NativeDebuggerKind kind, List<String> commands) {
-        switch (kind) {
-            case LLDB, CODELLDB -> commands.add("breakpoint set -n rust_panic");
-            case GDB -> {
+    private static void setBreakOnPanic(String family, List<String> commands) {
+        switch (family) {
+            case NativeDebuggerProvider.LLDB_FAMILY -> commands.add("breakpoint set -n rust_panic");
+            case NativeDebuggerProvider.GDB_FAMILY -> {
                 commands.add("set breakpoint pending on");
                 commands.add("break rust_panic");
             }
@@ -92,14 +98,14 @@ public class RsDebugProcessConfigurationHelper implements NativeDebuggerSetup {
         }
     }
 
-    private static void setSteppingFilters(NativeDebuggerKind kind, List<String> commands) {
+    private static void setSteppingFilters(String family, List<String> commands) {
         List<String> regexes = new ArrayList<>();
         if (SKIP_STDLIB_IN_STEPPING) {
             regexes.add("^(std|core|alloc)::.*");
         }
-        String command = switch (kind) {
-            case LLDB, CODELLDB -> "settings set target.process.thread.step-avoid-regexp";
-            case GDB -> "skip -rfu";
+        String command = switch (family) {
+            case NativeDebuggerProvider.LLDB_FAMILY -> "settings set target.process.thread.step-avoid-regexp";
+            case NativeDebuggerProvider.GDB_FAMILY -> "skip -rfu";
             default -> null;
         };
         if (command == null) {
@@ -110,13 +116,13 @@ public class RsDebugProcessConfigurationHelper implements NativeDebuggerSetup {
         }
     }
 
-    private void loadRustcSources(NativeDebuggerKind kind, List<String> commands) {
+    private void loadRustcSources(String family, List<String> commands) {
         if (myCommitHash == null) {
             return;
         }
-        String sourceMapCommand = switch (kind) {
-            case LLDB, CODELLDB -> "settings set target.source-map";
-            case GDB -> "set substitute-path";
+        String sourceMapCommand = switch (family) {
+            case NativeDebuggerProvider.LLDB_FAMILY -> "settings set target.source-map";
+            case NativeDebuggerProvider.GDB_FAMILY -> "set substitute-path";
             default -> null;
         };
         if (sourceMapCommand == null) {
@@ -131,10 +137,10 @@ public class RsDebugProcessConfigurationHelper implements NativeDebuggerSetup {
         commands.add(sourceMapCommand + " \"" + rustcHash + "\" \"" + rustcSources + "\" ");
     }
 
-    private void loadPrettyPrinters(NativeDebuggerKind kind, List<String> commands) {
-        switch (kind) {
-            case LLDB -> loadLldbPrettyPrinters(commands);
-            case GDB -> loadGdbPrettyPrinters(commands);
+    private void loadPrettyPrinters(String family, List<String> commands) {
+        switch (family) {
+            case NativeDebuggerProvider.LLDB_FAMILY -> loadLldbPrettyPrinters(commands);
+            case NativeDebuggerProvider.GDB_FAMILY -> loadGdbPrettyPrinters(commands);
             default -> {
             }
         }
