@@ -247,9 +247,10 @@ public class RsMoveConflictsDetector {
     ) {
         for (RsImplItem impl : inherentImplsToMove) {
             RsStructOrEnumItemElement struct = RsImplItemUtil.getImplementingType(impl) != null
-                ? RsImplItemUtil.getImplementingType(impl).getItem() : null;
+                ? RsImplItemUtil.getImplementingType(impl).getItem()
+                : null;
             if (struct != null && !structsToMove.contains(struct)) {
-                String structDescription = RefactoringUIUtil.getDescription(struct, true);
+                LocalizeValue structDescription = RefactoringUIUtil.getDescription(struct, true);
                 conflicts.putValue(impl, consulo.localize.LocalizeValue.of("Inherent implementation should be moved together with " + structDescription));
             }
         }
@@ -275,8 +276,8 @@ public class RsMoveConflictsDetector {
                 if (impls == null) continue;
                 for (RsImplItem impl : impls) {
                     if (!inherentImplsToMove.contains(impl)) {
-                        String structDescription = RefactoringUIUtil.getDescription(struct, true);
-                        conflicts.putValue(impl, consulo.localize.LocalizeValue.of("Inherent implementation should be moved together with " + structDescription));
+                        LocalizeValue structDescription = RefactoringUIUtil.getDescription(struct, true);
+                        conflicts.putValue(impl, consulo.localize.LocalizeValue.of("Inherent implementation should be moved together with " + structDescription.get()));
                     }
                 }
             }
@@ -288,9 +289,9 @@ public class RsMoveConflictsDetector {
         @Nonnull RsElement reference,
         @Nonnull RsElement target
     ) {
-        String referenceDescription = RefactoringUIUtil.getDescription(reference.getContainingMod(), true);
-        String targetDescription = RefactoringUIUtil.getDescription(target, true);
-        String message = referenceDescription + " uses " + targetDescription + " which will be inaccessible after move";
+        LocalizeValue referenceDescription = RefactoringUIUtil.getDescription(reference.getContainingMod(), true);
+        LocalizeValue targetDescription = RefactoringUIUtil.getDescription(target, true);
+        String message = referenceDescription.get() + " uses " + targetDescription.get() + " which will be inaccessible after move";
         conflicts.putValue(reference, consulo.localize.LocalizeValue.of(StringUtil.capitalize(message)));
     }
 }

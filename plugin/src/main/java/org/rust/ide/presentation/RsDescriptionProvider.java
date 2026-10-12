@@ -2,81 +2,83 @@
  * Use of this source code is governed by the MIT license that can be
  * found in the LICENSE file.
  */
-
 package org.rust.ide.presentation;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.highlight.HighlightUsagesDescriptionLocation;
+import consulo.language.editor.refactoring.util.CommonRefactoringUtil;
+import consulo.language.editor.refactoring.util.RefactoringDescriptionLocation;
 import consulo.language.psi.ElementDescriptionLocation;
 import consulo.language.psi.ElementDescriptionProvider;
 import consulo.language.psi.PsiElement;
-import consulo.language.editor.refactoring.util.CommonRefactoringUtil;
-import consulo.language.editor.refactoring.util.RefactoringDescriptionLocation;
-import consulo.usage.UsageInfo;
-import consulo.usage.UsageViewDescriptor;
-import consulo.usage.UsageViewUtil;
-import consulo.usage.UsageViewLongNameLocation;
-import consulo.usage.UsageViewNodeTextLocation;
-import consulo.usage.UsageViewShortNameLocation;
-import consulo.usage.UsageViewTypeLocation;
+import consulo.localize.LocalizeValue;
+import consulo.usage.*;
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
-import org.rust.RsBundle;
+import org.rust.lang.core.presentation.PresentationInfo;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.psi.ext.RsNamedElement;
 import org.rust.lang.core.psi.ext.RsQualifiedNamedElement;
-import org.rust.lang.core.presentation.PresentationInfo;
 
 @ExtensionImpl
 public class RsDescriptionProvider implements ElementDescriptionProvider {
-
-    @Nullable
     @Override
-    public String getElementDescription(@Nonnull PsiElement element, @Nonnull ElementDescriptionLocation location) {
+    @RequiredReadAction
+    public LocalizeValue getElementDescription(@Nonnull PsiElement element, @Nonnull ElementDescriptionLocation location) {
         if (location instanceof UsageViewNodeTextLocation
             || location instanceof UsageViewShortNameLocation
             || location instanceof UsageViewLongNameLocation
             || location instanceof HighlightUsagesDescriptionLocation) {
             return defaultDescription(element);
-        } else if (location instanceof UsageViewTypeLocation) {
+        }
+        else if (location instanceof UsageViewTypeLocation) {
             if (element instanceof RsNamedElement rsNamedElement) {
                 PresentationInfo info = PresentationInfo.getPresentationInfo(rsNamedElement);
-                return info != null ? info.getType() : null;
+                return info != null ? LocalizeValue.ofNullable(info.getType()) : LocalizeValue.empty();
             }
-            return null;
-        } else if (location instanceof RefactoringDescriptionLocation refLoc) {
+            return LocalizeValue.empty();
+        }
+        else if (location instanceof RefactoringDescriptionLocation refLoc) {
             return refactoringDescription(element, refLoc.includeParent());
         }
-        return null;
+        return LocalizeValue.empty();
     }
 
-    @Nullable
-    private static String defaultDescription(@Nonnull PsiElement element) {
+    @RequiredReadAction
+    private static LocalizeValue defaultDescription(@Nonnull PsiElement element) {
         if (element instanceof RsMod mod) {
-            return mod.getModName();
-        } else if (element instanceof RsNamedElement named) {
-            return named.getName();
+            return LocalizeValue.ofNullable(mod.getModName());
         }
-        return null;
+        else if (element instanceof RsNamedElement named) {
+            return LocalizeValue.ofNullable(named.getName());
+        }
+        return LocalizeValue.empty();
     }
 
-    @Nullable
-    private static String refactoringDescription(@Nonnull PsiElement element, boolean includeParent) {
+    @RequiredReadAction
+    private static LocalizeValue refactoringDescription(@Nonnull PsiElement element, boolean includeParent) {
         String type = UsageViewUtil.getType(element);
-        String elementName = defaultDescription(element);
-        if (elementName == null) return null;
+        LocalizeValue elementName = defaultDescription(element);
+        if (elementName.isEmpty()) {
+            return null;
+        }
 
         PsiElement parent = element.getParent();
-        String name;
+        LocalizeValue name;
         if (includeParent && element instanceof RsMod mod) {
-            String qName = mod instanceof RsQualifiedNamedElement ? ((RsQualifiedNamedElement) mod).qualifiedName() : null;
-            name = qName != null ? qName : elementName;
-        } else if (includeParent && parent instanceof RsMod parentMod) {
-            String parentQName = parentMod instanceof RsQualifiedNamedElement ? ((RsQualifiedNamedElement) parentMod).qualifiedName() : null;
-            name = parentQName != null ? RsBundle.message("0.1", parentQName, elementName) : elementName;
-        } else {
+            LocalizeValue qName =
+                mod instanceof RsQualifiedNamedElement ? LocalizeValue.ofNullable(mod.qualifiedName()) : LocalizeValue.empty();
+            name = qName.orIfEmpty(elementName);
+        }
+        else if (includeParent && parent instanceof RsMod parentMod) {
+            LocalizeValue parentQName = parentMod instanceof RsQualifiedNamedElement
+                ? LocalizeValue.ofNullable(parentMod.qualifiedName())
+                : LocalizeValue.empty();
+            name = parentQName.isNotEmpty() ? LocalizeValue.join(parentQName, LocalizeValue.of("::"), elementName) : elementName;
+        }
+        else {
             name = elementName;
         }
-        return type + " " + CommonRefactoringUtil.htmlEmphasize(name);
+        return LocalizeValue.join(LocalizeValue.of(type), LocalizeValue.space(), name.map(CommonRefactoringUtil::htmlEmphasize));
     }
 }
