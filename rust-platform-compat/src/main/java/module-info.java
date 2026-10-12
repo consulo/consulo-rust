@@ -38,7 +38,6 @@ open module consulo.rust.platform.compat {
     requires org.jdom;
 
     exports com.intellij;
-    exports com.intellij.codeInsight.completion;
     exports com.intellij.codeInsight.completion.ml;
     exports com.intellij.codeInsight.daemon.impl.focusMode;
     exports com.intellij.codeInsight.folding;

@@ -8,10 +8,13 @@ package org.rust.ide.settings;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.configurable.ConfigurationException;
 import consulo.configurable.ProjectConfigurable;
+import consulo.disposer.Disposable;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import consulo.ui.Component;
 import consulo.ui.ex.awt.JBCheckBox;
 import consulo.ui.ex.awt.VerticalFlowLayout;
+import consulo.ui.ex.awtUnsafe.TargetAWT;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
@@ -59,7 +62,7 @@ public class RsAutoImportOptions implements ProjectConfigurable {
     }
 
     @Override
-    public JComponent createComponent() {
+    public Component createUIComponent(Disposable parentDisposable) {
         showImportPopup = new JBCheckBox(RsBundle.message("settings.rust.auto.import.show.popup"));
         importOutOfScopeItems = new JBCheckBox(RsBundle.message("settings.rust.auto.import.on.completion"));
         importOnPaste = new JBCheckBox(RsBundle.message("settings.rust.auto.import.on.paste"));
@@ -71,7 +74,7 @@ public class RsAutoImportOptions implements ProjectConfigurable {
         panel.add(addUnambiguousImportsOnTheFly);
         panel.add(Box.createVerticalStrut(8));
         panel.add(excludeTable.getComponent());
-        return panel;
+        return TargetAWT.wrap(panel);
     }
 
     @Override

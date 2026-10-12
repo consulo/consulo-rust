@@ -8,6 +8,9 @@ import jakarta.annotation.Nullable;
 
 import javax.swing.JComponent;
 import consulo.configurable.ConfigurationException;
+import consulo.disposer.Disposable;
+import consulo.ui.Component;
+import consulo.ui.ex.awtUnsafe.TargetAWT;
 
 /** Configurable whose UI is a {@link DialogPanel} that carries its own settings bindings. */
 public abstract class BoundConfigurable implements Configurable {
@@ -38,12 +41,12 @@ public abstract class BoundConfigurable implements Configurable {
 
     @Nullable
     @Override
-    public JComponent createComponent() {
+    public Component createUIComponent(Disposable parentDisposable) {
         if (panel == null) {
             panel = createPanel();
             panel.reset();
         }
-        return panel;
+        return TargetAWT.wrap(panel);
     }
 
     @Override
