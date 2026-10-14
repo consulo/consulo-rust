@@ -60,7 +60,7 @@ public class RsDescriptionProvider implements ElementDescriptionProvider {
         String type = UsageViewUtil.getType(element);
         LocalizeValue elementName = defaultDescription(element);
         if (elementName.isEmpty()) {
-            return null;
+            return LocalizeValue.empty();
         }
 
         PsiElement parent = element.getParent();
