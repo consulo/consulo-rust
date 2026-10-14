@@ -19,7 +19,7 @@ import jakarta.annotation.Nullable;
 import consulo.util.jdom.JDOMUtil;
 import consulo.util.xml.serializer.XmlSerializer;
 import org.jdom.Element;
-import org.rust.cargo.project.workspace.state.CargoWorkspaceState;
+import org.rust.cargo.api.workspace.state.CargoWorkspaceState;
 import org.rust.cargo.toolchain.RsToolchainBase;
 
 /**

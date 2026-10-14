@@ -64,7 +64,7 @@ public class RustMutableModuleExtension extends RustModuleExtension implements M
     }
 
     /** @see RustModuleExtension#getCargoWorkspaceState() */
-    public void setCargoWorkspaceState(@Nullable org.rust.cargo.project.workspace.state.CargoWorkspaceState state) {
+    public void setCargoWorkspaceState(@Nullable org.rust.cargo.api.workspace.state.CargoWorkspaceState state) {
         myCargoWorkspaceState = state;
         myCargoWorkspaceFingerprint = fingerprintOf(state);
     }

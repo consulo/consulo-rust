@@ -7,8 +7,7 @@ package org.rust.cargo.api.settings;
 
 import consulo.language.editor.DaemonCodeAnalyzer;
 import consulo.disposer.Disposable;
-import com.intellij.openapi.components.BaseState;
-import com.intellij.openapi.components.SimplePersistentStateComponent;
+import consulo.component.persist.PersistentStateComponent;
 import consulo.project.Project;
 import consulo.disposer.Disposer;
 import jakarta.annotation.Nonnull;
@@ -27,17 +26,31 @@ import consulo.annotation.component.TopicAPI;
 import consulo.annotation.component.TopicBroadcastDirection;
 
 public abstract class RsProjectSettingsServiceBase<T extends RsProjectSettingsServiceBase.RsProjectSettingsBase<T>>
-    extends SimplePersistentStateComponent<T> {
+    implements PersistentStateComponent<T> {
 
     @Nonnull
     public final Project project;
 
+    @Nonnull
+    private T myState;
+
     protected RsProjectSettingsServiceBase(@Nonnull Project project, @Nonnull T state) {
-        super(state);
         this.project = project;
+        this.myState = state;
     }
 
-    public abstract static class RsProjectSettingsBase<T extends RsProjectSettingsBase<T>> extends BaseState {
+    @Nonnull
+    @Override
+    public T getState() {
+        return myState;
+    }
+
+    @Override
+    public void loadState(@Nonnull T state) {
+        myState = state;
+    }
+
+    public abstract static class RsProjectSettingsBase<T extends RsProjectSettingsBase<T>> {
         public abstract T copy();
     }
 

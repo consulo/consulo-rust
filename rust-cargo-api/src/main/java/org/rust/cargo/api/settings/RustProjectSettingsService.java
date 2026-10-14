@@ -29,7 +29,7 @@ import consulo.util.xml.serializer.annotation.Transient;
 @ServiceAPI(ComponentScope.PROJECT)
 @ServiceImpl
 public class RustProjectSettingsService
-    extends RsProjectSettingsServiceBase<RustProjectSettingsService.RustProjectSettings> {
+    extends RsProjectSettingsServiceBase<RustProjectSettings> {
 
     @Inject
 
@@ -54,42 +54,6 @@ public class RustProjectSettingsService
 
     public boolean getDoctestInjectionEnabled() { return getState().doctestInjectionEnabled; }
 
-
-    public static class RustProjectSettings extends RsProjectSettingsBase<RustProjectSettings> {
-        @AffectsCargoMetadata
-        public String toolchainHomeDirectory;
-        public boolean autoShowErrorsInEditor = true;
-        public boolean autoUpdateEnabled = true;
-        /**
-         * Stdlib is normally located through rustup; this is the escape hatch for toolchains
-         * that were not installed with rustup.
-         */
-        @AffectsCargoMetadata
-        public String explicitPathToStdlib;
-        @AffectsHighlighting
-        public boolean compileAllTargets = true;
-        public boolean useOffline = false;
-        public MacroExpansionEngine macroExpansionEngine = MacroExpansionEngine.NEW;
-        @AffectsHighlighting
-        public boolean doctestInjectionEnabled = true;
-
-
-
-        @Nonnull
-        @Override
-        public RustProjectSettings copy() {
-            RustProjectSettings state = new RustProjectSettings();
-            state.toolchainHomeDirectory = this.toolchainHomeDirectory;
-            state.autoShowErrorsInEditor = this.autoShowErrorsInEditor;
-            state.autoUpdateEnabled = this.autoUpdateEnabled;
-            state.explicitPathToStdlib = this.explicitPathToStdlib;
-            state.compileAllTargets = this.compileAllTargets;
-            state.useOffline = this.useOffline;
-            state.macroExpansionEngine = this.macroExpansionEngine;
-            state.doctestInjectionEnabled = this.doctestInjectionEnabled;
-            return state;
-        }
-    }
 
     @Override
     public void loadState(@Nonnull RustProjectSettings state) {
@@ -127,10 +91,4 @@ public class RustProjectSettingsService
         }
     }
 
-
-    public enum MacroExpansionEngine {
-        DISABLED,
-        OLD, // OLD can't be selected by a user anymore, it exists for backcompat with saved user settings
-        NEW
-    }
 }

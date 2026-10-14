@@ -5,11 +5,13 @@
 
 package org.rust.settings;
 
+import com.dslplatform.json.CompiledJson;
 import jakarta.annotation.Nonnull;
 
 /**
  * Must have default constructor and mutable fields for deserialization.
  */
+@CompiledJson
 public class ExcludedPath {
 
     @Nonnull

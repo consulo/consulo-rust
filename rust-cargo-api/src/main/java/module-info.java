@@ -20,4 +20,5 @@ open module consulo.rust.cargo.api {
     exports org.rust.cargo.api.toolchain;
     exports org.rust.cargo.api.util;
     exports org.rust.cargo.api.workspace;
+    exports org.rust.cargo.api.workspace.state;
 }

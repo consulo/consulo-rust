@@ -3,7 +3,7 @@
  * found in the LICENSE file.
  */
 
-package org.rust.cargo.project.workspace.state;
+package org.rust.cargo.api.workspace.state;
 
 import consulo.util.lang.StringUtil;
 import jakarta.annotation.Nonnull;

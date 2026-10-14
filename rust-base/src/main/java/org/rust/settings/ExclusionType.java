@@ -5,6 +5,9 @@
 
 package org.rust.settings;
 
+import com.dslplatform.json.CompiledJson;
+
+@CompiledJson
 public enum ExclusionType {
     ItemsAndMethods,
     Methods

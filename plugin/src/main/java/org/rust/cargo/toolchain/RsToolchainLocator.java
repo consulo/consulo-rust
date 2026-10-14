@@ -7,6 +7,7 @@ import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import consulo.rust.module.extension.RustModuleExtension;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.rust.cargo.api.settings.RustProjectSettings;
 
 /**
  * Finds the toolchain a project is configured with.
@@ -40,13 +41,13 @@ public final class RsToolchainLocator {
 
     /** The toolchain described by {@code state}; the inverse of {@link #store}. */
     @Nullable
-    public static RsToolchainBase load(@Nonnull org.rust.cargo.api.settings.RustProjectSettingsService.RustProjectSettings state) {
+    public static RsToolchainBase load(@Nonnull RustProjectSettings state) {
         String home = state.toolchainHomeDirectory;
         return home != null ? RsToolchainProvider.getToolchainStatic(java.nio.file.Paths.get(home)) : null;
     }
 
     /** Persists {@code toolchain} as the project's toolchain. */
-    public static void store(@Nonnull org.rust.cargo.api.settings.RustProjectSettingsService.RustProjectSettings state,
+    public static void store(@Nonnull RustProjectSettings state,
                              @Nullable RsToolchainBase toolchain) {
         state.toolchainHomeDirectory = toolchain != null
             ? toolchain.getLocation().toString().replace('\\', '/')

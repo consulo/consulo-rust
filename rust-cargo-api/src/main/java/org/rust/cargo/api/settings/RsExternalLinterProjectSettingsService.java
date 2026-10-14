@@ -26,7 +26,7 @@ import jakarta.inject.Inject;
 @ServiceAPI(ComponentScope.PROJECT)
 @ServiceImpl
 public class RsExternalLinterProjectSettingsService
-    extends RsProjectSettingsServiceBase<RsExternalLinterProjectSettingsService.RsExternalLinterProjectSettings> {
+    extends RsProjectSettingsServiceBase<RsExternalLinterProjectSettings> {
 
     @Inject
 
@@ -47,31 +47,6 @@ public class RsExternalLinterProjectSettingsService
     public Map<String, String> getEnvs() { return getState().envs; }
 
     public boolean getRunOnTheFly() { return getState().runOnTheFly; }
-
-    public static class RsExternalLinterProjectSettings extends RsProjectSettingsBase<RsExternalLinterProjectSettings> {
-        @AffectsHighlighting
-        public ExternalLinter tool = ExternalLinter.DEFAULT;
-        @AffectsHighlighting
-        public String additionalArguments = "";
-        @AffectsHighlighting
-        public RustChannel channel = RustChannel.DEFAULT;
-        @AffectsHighlighting
-        public Map<String, String> envs = Collections.emptyMap();
-        @AffectsHighlighting
-        public boolean runOnTheFly = false;
-
-        @Nonnull
-        @Override
-        public RsExternalLinterProjectSettings copy() {
-            RsExternalLinterProjectSettings state = new RsExternalLinterProjectSettings();
-            state.tool = this.tool;
-            state.additionalArguments = this.additionalArguments;
-            state.channel = this.channel;
-            state.envs = this.envs;
-            state.runOnTheFly = this.runOnTheFly;
-            return state;
-        }
-    }
 
     @Nonnull
     @Override

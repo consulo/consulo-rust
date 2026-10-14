@@ -49,7 +49,6 @@ open module consulo.rust.platform.compat {
     exports com.intellij.execution.process;
     exports com.intellij.formatting.service;
     exports com.intellij.ide.nls;
-    exports com.intellij.openapi.components;
     exports com.intellij.openapi.editor.impl;
     exports com.intellij.openapi.options;
     exports com.intellij.openapi.options.advanced;

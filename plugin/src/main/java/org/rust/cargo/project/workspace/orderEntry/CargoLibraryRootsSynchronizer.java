@@ -43,7 +43,7 @@ import org.rust.cargo.project.workspace.CargoLibrary;
 import org.rust.cargo.project.workspace.CargoWorkspaceFactory;
 import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.cargo.api.workspace.CargoWorkspaceData;
-import org.rust.cargo.project.workspace.state.CargoWorkspaceStates;
+import org.rust.cargo.api.workspace.state.CargoWorkspaceStates;
 
 import java.util.ArrayList;
 import java.util.Collection;

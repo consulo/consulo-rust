@@ -32,8 +32,8 @@ import org.rust.cargo.macros.ProcMacroServerPool;
 import org.rust.cargo.api.util.AutoInjectedCrates;
 import org.rust.cargo.runconfig.command.CargoCommandConfiguration;
 import org.rust.cargo.project.workspace.CargoWorkspaceFactory;
-import org.rust.cargo.project.workspace.state.CargoWorkspaceState;
-import org.rust.cargo.project.workspace.state.CargoWorkspaceStates;
+import org.rust.cargo.api.workspace.state.CargoWorkspaceState;
+import org.rust.cargo.api.workspace.state.CargoWorkspaceStates;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.openapiext.TaskResult;
 

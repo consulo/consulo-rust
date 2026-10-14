@@ -35,7 +35,7 @@ import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.cargo.project.model.impl.CargoProjectsServiceImpl;
 import org.rust.cargo.project.toolwindow.CargoTreeModel;
 import org.rust.cargo.project.toolwindow.CargoTreeNode;
-import org.rust.cargo.project.workspace.state.CargoWorkspaceStates;
+import org.rust.cargo.api.workspace.state.CargoWorkspaceStates;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

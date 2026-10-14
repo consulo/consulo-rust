@@ -5,41 +5,38 @@
 
 package org.rust.ide.settings;
 
-import com.intellij.openapi.components.SimplePersistentStateComponent;
+import org.rust.settings.RsProjectCodeInsightSettingsState;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.component.persist.PersistentStateComponent;
 import consulo.component.persist.State;
 import consulo.component.persist.Storage;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
-import consulo.annotation.component.ServiceAPI;
-import consulo.annotation.component.ServiceImpl;
-import consulo.annotation.component.ComponentScope;
-import org.rust.settings.ExcludedPath;
+import jakarta.inject.Singleton;
+import org.jspecify.annotations.Nullable;
 
 @State(name = "RsProjectCodeInsightSettings", storages = @Storage("rust"))
 @ServiceAPI(ComponentScope.PROJECT)
 @ServiceImpl
-public class RsProjectCodeInsightSettings extends SimplePersistentStateComponent<RsProjectCodeInsightSettings.State> {
-
-    public RsProjectCodeInsightSettings() {
-        super(new State());
-    }
-
-    public static class State extends com.intellij.openapi.components.BaseState {
-        private ExcludedPath[] excludedPaths = new ExcludedPath[0];
-
-        @Nonnull
-        public ExcludedPath[] getExcludedPaths() {
-            return excludedPaths;
-        }
-
-        public void setExcludedPaths(@Nonnull ExcludedPath[] excludedPaths) {
-            this.excludedPaths = excludedPaths;
-            incrementModificationCount();
-        }
-    }
-
+@Singleton
+public class RsProjectCodeInsightSettings implements PersistentStateComponent<RsProjectCodeInsightSettingsState> {
     @Nonnull
     public static RsProjectCodeInsightSettings getInstance(@Nonnull Project project) {
-        return project.getService(RsProjectCodeInsightSettings.class);
+        return project.getInstance(RsProjectCodeInsightSettings.class);
+    }
+
+    private RsProjectCodeInsightSettingsState myState = new RsProjectCodeInsightSettingsState();
+
+    @Nullable
+    @Override
+    public RsProjectCodeInsightSettingsState getState() {
+        return myState;
+    }
+
+    @Override
+    public void loadState(RsProjectCodeInsightSettingsState state) {
+        myState = state;
     }
 }

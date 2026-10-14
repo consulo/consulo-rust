@@ -26,7 +26,7 @@ import org.rust.cargo.api.model.CargoProjectsService;
 import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.cargo.api.workspace.CargoWorkspaceData;
 import org.rust.cargo.api.workspace.PackageOrigin;
-import org.rust.cargo.project.workspace.state.CargoWorkspaceStates;
+import org.rust.cargo.api.workspace.state.CargoWorkspaceStates;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

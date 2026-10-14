@@ -16,6 +16,7 @@ import consulo.ui.ex.awt.UIUtil;
 import jakarta.annotation.Nonnull;
 import org.rust.RsBundle;
 import org.rust.cargo.project.configurable.RsExternalLinterConfigurable;
+import org.rust.cargo.api.settings.RsExternalLinterProjectSettings;
 import org.rust.cargo.api.settings.RsExternalLinterProjectSettingsService;
 import org.rust.cargo.api.settings.RsProjectSettingsServiceBase;
 import org.rust.cargo.api.settings.RsSettingsListener;
@@ -106,8 +107,8 @@ public class RsExternalLinterWidget extends TextPanel.WithIconAndArrows implemen
                         if (!(e instanceof RsExternalLinterProjectSettingsService.SettingsChangedEvent)) return;
                         RsExternalLinterProjectSettingsService.SettingsChangedEvent event =
                             (RsExternalLinterProjectSettingsService.SettingsChangedEvent) e;
-                        RsExternalLinterProjectSettingsService.RsExternalLinterProjectSettings oldState = event.getOldState();
-                        RsExternalLinterProjectSettingsService.RsExternalLinterProjectSettings newState = event.getNewState();
+                        RsExternalLinterProjectSettings oldState = event.getOldState();
+                        RsExternalLinterProjectSettings newState = event.getNewState();
                         if (oldState.tool != newState.tool || oldState.runOnTheFly != newState.runOnTheFly) {
                             update();
                         }
