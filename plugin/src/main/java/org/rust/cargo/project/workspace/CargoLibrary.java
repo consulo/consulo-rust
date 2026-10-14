@@ -5,6 +5,8 @@
 
 package org.rust.cargo.project.workspace;
 
+import consulo.rust.icon.RustIconGroup;
+import consulo.ui.image.Image;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -22,11 +24,21 @@ public final class CargoLibrary {
 
     public enum Kind {
         /** A single package resolved from a registry, a git checkout or a path dependency. */
-        DEPENDENCY,
+        DEPENDENCY(RustIconGroup.cargo()),
         /** A crate of the standard library, whose roots are located through the Rust bundle of the module. */
-        STDLIB,
+        STDLIB(RustIconGroup.rust()),
         /** Code written into {@code OUT_DIR} by build scripts. */
-        GENERATED
+        GENERATED(RustIconGroup.rustbuild());
+
+        private final Image myIcon;
+
+        private Kind(Image icon) {
+            myIcon = icon;
+        }
+
+        public Image getIcon() {
+            return myIcon;
+        }
     }
 
     private final Kind myKind;
