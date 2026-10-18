@@ -74,16 +74,17 @@ public final class RsExternalLinterSlowRunNotifier {
                 HtmlChunk.br(),
                 HtmlChunk.link(DISABLE_LINK, RsBundle.message("disable")),
                 HtmlChunk.link(DO_NOT_SHOW_LINK, RsBundle.message("don.t.show.again")));
-            ApplicationManager.getApplication().invokeLater(() -> {
-                if (myProject.isDisposed()) return;
-                NotificationUtils.showComponentBalloon(
-                    linterWidget,
-                    content,
-                    NotificationType.WARNING,
-                    myProject,
-                    this::handleLink
-                );
-            });
+            // TODO we need component for showing balloon
+//            ApplicationManager.getApplication().invokeLater(() -> {
+//                if (myProject.isDisposed()) return;
+//                NotificationUtils.showComponentBalloon(
+//                    linterWidget,
+//                    content,
+//                    NotificationType.WARNING,
+//                    myProject,
+//                    this::handleLink
+//                );
+//            });
         }
     }
 

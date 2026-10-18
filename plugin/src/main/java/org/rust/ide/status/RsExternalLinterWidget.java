@@ -6,39 +6,33 @@
 package org.rust.ide.status;
 
 import consulo.ide.setting.ShowSettingsUtil;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
-import consulo.project.ui.wm.CustomStatusBarWidget;
 import consulo.project.ui.wm.StatusBar;
-import consulo.ide.impl.idea.openapi.wm.impl.status.TextPanel;
-import consulo.ui.ex.awt.ClickListener;
-import consulo.ui.ex.awt.JBUI;
+import consulo.project.ui.wm.StatusBarWidget;
+import consulo.ui.Component;
+import consulo.ui.event.ClickEvent;
+import consulo.ui.event.ComponentEventListener;
 import consulo.ui.ex.awt.UIUtil;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.rust.RsBundle;
-import org.rust.cargo.project.configurable.RsExternalLinterConfigurable;
-import org.rust.cargo.api.settings.RsExternalLinterProjectSettings;
-import org.rust.cargo.api.settings.RsExternalLinterProjectSettingsService;
-import org.rust.cargo.api.settings.RsProjectSettingsServiceBase;
-import org.rust.cargo.api.settings.RsSettingsListener;
+import org.rust.cargo.api.settings.*;
 import org.rust.cargo.api.settings.RsProjectSettingsServiceBase.SettingsChangedEventBase;
 import org.rust.cargo.api.toolchain.ExternalLinter;
-import org.rust.icons.RsIcons;
+import org.rust.cargo.project.configurable.RsExternalLinterConfigurable;
 import org.rust.ide.notifications.RsExternalLinterTooltipService;
-import org.rust.openapiext.OpenApiUtil;
 
-import javax.swing.*;
-import java.awt.event.MouseEvent;
-import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
-import consulo.project.ui.wm.StatusBarWidget;
-
-public class RsExternalLinterWidget extends TextPanel.WithIconAndArrows implements CustomStatusBarWidget {
+public class RsExternalLinterWidget implements StatusBarWidget, StatusBarWidget.TextPresentation {
 
     public static final String ID = "rustExternalLinterWidget";
 
     @Nonnull
     private final Project project;
-    private StatusBar statusBar;
     private boolean inProgress;
+
+    private String myText;
+    private LocalizeValue myToolTipText = LocalizeValue.empty();
 
     @Nonnull
     @Override
@@ -46,16 +40,14 @@ public class RsExternalLinterWidget extends TextPanel.WithIconAndArrows implemen
         return ID;
     }
 
-    @jakarta.annotation.Nullable
+    @Nullable
     @Override
-    public consulo.project.ui.wm.StatusBarWidget.WidgetPresentation getPresentation() {
-        return null;
+    public StatusBarWidget.WidgetPresentation getPresentation() {
+        return this;
     }
 
     public RsExternalLinterWidget(@Nonnull Project project) {
         this.project = project;
-        setTextAlignment(CENTER_ALIGNMENT);
-        setBorder(javax.swing.BorderFactory.createEmptyBorder());
     }
 
     @Nonnull
@@ -77,89 +69,66 @@ public class RsExternalLinterWidget extends TextPanel.WithIconAndArrows implemen
     }
 
     @Override
-    @Nonnull
-    public String ID() {
-        return ID;
+    public @Nullable ComponentEventListener<Component, ClickEvent> getClickListener() {
+        return clickEvent -> {
+            if (!project.isDisposed()) {
+                ShowSettingsUtil.getInstance().showSettingsDialog(project, RsExternalLinterConfigurable.class);
+            }
+        };
     }
 
     @Override
     public void install(@Nonnull StatusBar statusBar) {
-        this.statusBar = statusBar;
-
-        if (!project.isDisposed()) {
-            new ClickListener() {
+        project.getMessageBus().connect(this).subscribe(
+            RsProjectSettingsServiceBase.RUST_SETTINGS_TOPIC,
+            new RsSettingsListener() {
                 @Override
-                public boolean onClick(@Nonnull MouseEvent event, int clickCount) {
-                    if (!project.isDisposed()) {
-                        ShowSettingsUtil.getInstance().showSettingsDialog(project, RsExternalLinterConfigurable.class);
+                public void settingsChanged(
+                    @Nonnull SettingsChangedEventBase<?> e
+                ) {
+                    if (!(e instanceof RsExternalLinterProjectSettingsService.SettingsChangedEvent)) {
+                        return;
                     }
-                    return true;
-                }
-            }.installOn(this, true);
-
-            project.getMessageBus().connect(this).subscribe(
-                RsProjectSettingsServiceBase.RUST_SETTINGS_TOPIC,
-                new RsSettingsListener() {
-                    @Override
-                    public void settingsChanged(
-                        @Nonnull SettingsChangedEventBase<?> e
-                    ) {
-                        if (!(e instanceof RsExternalLinterProjectSettingsService.SettingsChangedEvent)) return;
-                        RsExternalLinterProjectSettingsService.SettingsChangedEvent event =
-                            (RsExternalLinterProjectSettingsService.SettingsChangedEvent) e;
-                        RsExternalLinterProjectSettings oldState = event.getOldState();
-                        RsExternalLinterProjectSettings newState = event.getNewState();
-                        if (oldState.tool != newState.tool || oldState.runOnTheFly != newState.runOnTheFly) {
-                            update();
-                        }
+                    RsExternalLinterProjectSettingsService.SettingsChangedEvent event =
+                        (RsExternalLinterProjectSettingsService.SettingsChangedEvent) e;
+                    RsExternalLinterProjectSettings oldState = event.getOldState();
+                    RsExternalLinterProjectSettings newState = event.getNewState();
+                    if (oldState.tool != newState.tool || oldState.runOnTheFly != newState.runOnTheFly) {
+                        update();
                     }
                 }
-            );
+            }
+        );
 
-            project.getService(RsExternalLinterTooltipService.class).showTooltip(this);
-        }
+        // TODO we need component for showing balloon
+        //project.getService(RsExternalLinterTooltipService.class).showTooltip(this);
 
         update();
-        statusBar.updateWidget(ID());
+        statusBar.updateWidget(getId());
     }
 
     @Override
     public void dispose() {
-        statusBar = null;
-        UIUtil.dispose(this);
     }
 
     @Override
-    @Nonnull
-    public JComponent getComponent() {
-        return this;
+    public String getText() {
+        return myText;
+    }
+
+    public LocalizeValue getTooltipText() {
+        return myToolTipText;
     }
 
     private void update() {
-        if (project.isDisposed()) return;
-        UIUtil.invokeLaterIfNeeded(() -> {
-            if (project.isDisposed()) return;
-            ExternalLinter linter = getLinter();
-            boolean turnedOn = isTurnedOn();
-            setText(linter.getTitle());
-            String status = turnedOn ? RsBundle.message("on") : RsBundle.message("off");
-            setToolTipText(RsBundle.message("0.2.choice.0.is.in.progress.1.on.the.fly.analysis.is.turned.1",
-                linter.getTitle(), status, inProgress ? 0 : 1));
-
-            repaint();
-        });
-    }
-
-    /** @deprecated Use {@link RsExternalLinterWidgetFactory} directly. */
-    @Deprecated
-    public static class Factory extends RsExternalLinterWidgetFactory {
-    }
-
-    /** @deprecated Use {@link RsExternalLinterWidgetUpdater} directly. */
-    @Deprecated
-    public static class Updater extends RsExternalLinterWidgetUpdater {
-        public Updater(@Nonnull Project project) {
-            super(project);
+        if (project.isDisposed()) {
+            return;
         }
+
+        ExternalLinter linter = getLinter();
+        boolean turnedOn = isTurnedOn();
+        myText = linter.getTitle();
+        String status = turnedOn ? RsBundle.message("on") : RsBundle.message("off");
+        myToolTipText = LocalizeValue.localizeTODO(RsBundle.message("0.2.choice.0.is.in.progress.1.on.the.fly.analysis.is.turned.1", linter.getTitle(), status, inProgress ? 0 : 1));
     }
 }

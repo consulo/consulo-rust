@@ -5,27 +5,23 @@
 
 package org.rust.notifications;
 
-import consulo.project.ui.notification.Notification;
-import consulo.project.ui.notification.event.NotificationListener;
-import consulo.project.ui.notification.NotificationType;
-import consulo.project.ui.notification.Notifications;
-import consulo.disposer.Disposable;
-import consulo.ui.ex.action.AnAction;
 import consulo.application.ApplicationManager;
+import consulo.disposer.Disposable;
 import consulo.project.Project;
-import consulo.ui.ex.popup.Balloon;
-import consulo.ui.ex.popup.JBPopupFactory;
+import consulo.project.ui.notification.Notification;
+import consulo.project.ui.notification.NotificationType;
+import consulo.project.ui.notification.event.NotificationListener;
+import consulo.project.ui.wm.StatusBar;
 import consulo.project.ui.wm.WindowManager;
 import consulo.ui.ex.RelativePoint;
+import consulo.ui.ex.action.AnAction;
+import consulo.ui.ex.popup.Balloon;
+import consulo.ui.ex.popup.JBPopupFactory;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.rust.RsBundle;
 
 import javax.swing.event.HyperlinkListener;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Point;
-import consulo.project.ui.wm.StatusBar;
+import java.awt.*;
 
 public final class NotificationUtils {
 
@@ -56,7 +52,7 @@ public final class NotificationUtils {
         if (action != null) {
             notification.addAction(action);
         }
-        Notifications.Bus.notify(notification, project);
+        notification.notify(project);
     }
 
     public static void showComponentBalloon(
@@ -70,7 +66,9 @@ public final class NotificationUtils {
             disposable = ApplicationManager.getApplication();
         }
         JBPopupFactory popupFactory = JBPopupFactory.getInstance();
-        if (popupFactory == null) return;
+        if (popupFactory == null) {
+            return;
+        }
         Balloon balloon = popupFactory.createHtmlTextBalloonBuilder(content, type.toUI(), listener)
             .setShadow(false)
             .setAnimationCycle(200)
@@ -86,7 +84,8 @@ public final class NotificationUtils {
             x = 0;
             y = 0;
             position = Balloon.Position.above;
-        } else {
+        }
+        else {
             x = size.width / 2;
             y = 0;
             position = Balloon.Position.above;
@@ -96,7 +95,8 @@ public final class NotificationUtils {
 
     public static void showBalloonWithoutProject(@Nonnull String content, @Nonnull NotificationType type) {
         Notification notification = RsNotifications.pluginNotifications().createNotification(content, type);
-        Notifications.Bus.notify(notification);
+
+        notification.notify(null);
     }
 
     /**
@@ -105,7 +105,9 @@ public final class NotificationUtils {
      */
     public static void setStatusBarText(@Nonnull Project project, @Nonnull String text) {
         ApplicationManager.getApplication().invokeLater(() -> {
-            if (project.isDisposed()) return;
+            if (project.isDisposed()) {
+                return;
+            }
             StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
             if (statusBar != null) {
                 statusBar.notifyProgressByBalloon(consulo.ui.NotificationType.INFO, text);
