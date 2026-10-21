@@ -100,11 +100,14 @@ public class RsExternalLinterWidget implements StatusBarWidget, StatusBarWidget.
             }
         );
 
-        // TODO we need component for showing balloon
-        //project.getService(RsExternalLinterTooltipService.class).showTooltip(this);
-
         update();
         statusBar.updateWidget(getId());
+
+        project.getUIAccess().give(() -> {
+            if (!project.isDisposed()) {
+                project.getInstance(RsExternalLinterTooltipService.class).showTooltip(statusBar, getId());
+            }
+        });
     }
 
     @Override

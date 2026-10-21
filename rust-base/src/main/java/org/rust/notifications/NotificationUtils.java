@@ -110,7 +110,7 @@ public final class NotificationUtils {
             }
             StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
             if (statusBar != null) {
-                statusBar.notifyProgressByBalloon(consulo.ui.NotificationType.INFO, text);
+                statusBar.notifyByBalloon(StatusBar.PROGRESS_WIDGET_ID, NotificationType.INFORMATION, text);
             }
         });
     }

@@ -14,20 +14,22 @@ import consulo.application.util.HtmlChunk;
 import consulo.disposer.Disposable;
 import consulo.project.Project;
 import consulo.project.ui.notification.NotificationType;
+import consulo.project.ui.wm.StatusBar;
+import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.event.HyperlinkEvent;
 import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import org.rust.RsBundle;
 import org.rust.cargo.project.configurable.RsExternalLinterConfigurable;
 import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import org.rust.cargo.api.toolchain.ExternalLinter;
 import org.rust.openapiext.OpenApiUtil;
 
-import javax.swing.JComponent;
-import javax.swing.event.HyperlinkEvent;
-import org.rust.notifications.NotificationUtils;
 
 @ServiceAPI(ComponentScope.PROJECT)
 @ServiceImpl
+@Singleton
 public final class RsExternalLinterTooltipService implements Disposable {
 
     /** Remembers that the tooltip has already been shown, so it is only presented once per installation. */
@@ -41,18 +43,13 @@ public final class RsExternalLinterTooltipService implements Disposable {
         myProject = project;
     }
 
-    public void showTooltip(@Nonnull JComponent component) {
+    @RequiredUIAccess
+    public void showTooltip(@Nonnull StatusBar statusBar, @Nonnull String widgetId) {
         ApplicationPropertiesComponent properties = ApplicationPropertiesComponent.getInstance();
         if (properties.getBoolean(ALREADY_SHOWN_KEY, false)) return;
         properties.setValue(ALREADY_SHOWN_KEY, true, false);
 
-        NotificationUtils.showComponentBalloon(
-            component,
-            buildContent(),
-            NotificationType.INFORMATION,
-            myProject,
-            this::handleLink
-        );
+        statusBar.notifyByBalloon(widgetId, NotificationType.INFORMATION, buildContent(), null, this::handleLink);
     }
 
     @Override
@@ -76,7 +73,6 @@ public final class RsExternalLinterTooltipService implements Disposable {
     }
 
     private void handleLink(@Nonnull HyperlinkEvent event) {
-        if (event.getEventType() != HyperlinkEvent.EventType.ACTIVATED) return;
         if (CONFIGURE_LINK.equals(event.getDescription())) {
             ShowSettingsUtil.getInstance().showSettingsDialog(myProject, RsExternalLinterConfigurable.class);
         }
