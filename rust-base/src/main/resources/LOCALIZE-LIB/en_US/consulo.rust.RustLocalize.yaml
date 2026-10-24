@@ -206,6 +206,14 @@ refactoring.change.signature.refactor.super.function:
     text: 'Method {0} implements base method of trait {1}.\nDo you want to refactor the base method?'
 refactoring.change.signature.visibility.conflict:
     text: 'The function will not be visible from {0} after the refactoring'
+run.configuration.fragment.backtrace:
+    text: Backtrace
+run.configuration.fragment.channel:
+    text: Channel
+run.configuration.fragment.command:
+    text: Command
+run.configuration.fragment.redirect.input:
+    text: Redirect input
 rust.external.linter.cargo.check.item:
     text: 'Cargo Check'
 rust.external.linter.clippy.item:

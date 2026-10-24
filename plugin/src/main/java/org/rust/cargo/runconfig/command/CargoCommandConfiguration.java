@@ -10,7 +10,8 @@ import consulo.execution.RuntimeConfigurationException;
 import consulo.execution.RuntimeConfigurationWarning;
 import consulo.execution.configuration.*;
 import consulo.nativeDev.profiler.NativeProfilableRunProfile;
-import consulo.execution.configuration.ui.SettingsEditor;
+import consulo.execution.configuration.fragment.EnvironmentFragmentState;
+import consulo.execution.configuration.fragment.RunConfigurationFragment;
 import consulo.execution.executor.Executor;
 import consulo.execution.runner.ExecutionEnvironment;
 import consulo.execution.test.sm.runner.SMRunnerConsolePropertiesProvider;
@@ -22,7 +23,6 @@ import consulo.util.io.FileUtil;
 import consulo.util.lang.SemVer;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.jdom.Element;
 import org.rust.RsBundle;
 import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.api.toolchain.BacktraceMode;
@@ -34,7 +34,7 @@ import org.rust.cargo.runconfig.RsCommandConfiguration;
 import org.rust.cargo.runconfig.RunConfigUtil;
 import org.rust.cargo.runconfig.target.BuildTarget;
 import org.rust.cargo.runconfig.test.CargoTestConsoleProperties;
-import org.rust.cargo.runconfig.ui.CargoCommandConfigurationEditor;
+import org.rust.cargo.runconfig.ui.*;
 import org.rust.cargo.toolchain.CargoCommandLine;
 import org.rust.cargo.toolchain.RsToolchainBase;
 import org.rust.cargo.toolchain.RsToolchainLocator;
@@ -51,93 +51,132 @@ import java.util.List;
  * It is basically a bunch of values which are persisted to .xml files in the project configuration,
  * or displayed in the GUI form. It has to be mutable to satisfy various IDE's APIs.
  */
-public class CargoCommandConfiguration extends RsCommandConfiguration implements SMRunnerConsolePropertiesProvider, NativeProfilableRunProfile {
-
-    private String command = "run";
-    private RustChannel channel = RustChannel.DEFAULT;
-    private boolean requiredFeatures = true;
-    private boolean allFeatures = false;
-    private boolean withSudo = false;
-    private BuildTarget buildTarget = BuildTarget.REMOTE;
-    private BacktraceMode backtrace = BacktraceMode.SHORT;
-    private EnvironmentVariablesData env = EnvironmentVariablesData.DEFAULT;
-    private boolean isRedirectInput = false;
-    @Nullable
-    private String redirectInputPath = null;
+public class CargoCommandConfiguration extends RsCommandConfiguration implements SMRunnerConsolePropertiesProvider, NativeProfilableRunProfile,
+    EnvironmentAware {
 
     public CargoCommandConfiguration(Project project, String name, ConfigurationFactory factory) {
         super(project, name, factory);
     }
 
     @Override
-    public String getCommand() {
-        return command;
+    protected Class<? extends RunConfigurationOptions> getOptionsClass() {
+        return CargoCommandConfigurationOptions.class;
     }
 
     @Override
-    public void setCommand(String command) {
-        this.command = command;
+    public CargoCommandConfigurationOptions getOptions() {
+        return (CargoCommandConfigurationOptions) super.getOptions();
+    }
+
+    @Override
+    protected void convertLegacyState(LegacyRunConfigurationConverter converter) {
+        super.convertLegacyState(converter);
+
+        CargoCommandConfigurationLegacyState old = converter.readXml(CargoCommandConfigurationLegacyState.class);
+
+        CargoCommandConfigurationOptions options = new CargoCommandConfigurationOptions();
+        convertLegacyCommandState(old, options);
+        options.setChannel(old.channel);
+        options.setRequiredFeatures(old.requiredFeatures);
+        options.setAllFeatures(old.allFeatures);
+        options.setWithSudo(old.withSudo);
+        options.setBuildTarget(old.buildTarget);
+        options.setBacktrace(old.backtrace);
+        options.setRedirectInput(old.isRedirectInput);
+        options.setRedirectInputPath(old.redirectInputPath);
+        converter.setOptions(options);
+
+        EnvironmentVariablesData env = EnvironmentVariablesData.readExternal(converter.getElement());
+        converter.addFragment(new EnvironmentFragmentState(env.getEnvs(), env.isPassParentEnvs()));
+    }
+
+    @Override
+    public List<RunConfigurationFragment<?>> createFragments() {
+        return List.of(
+            new CargoCommandFragment(),
+            new CargoChannelFragment(),
+            new CargoBacktraceFragment(),
+            new CargoRedirectInputFragment(),
+            new RsEmulateTerminalFragment<CargoCommandConfiguration>(),
+            new CargoRequiredFeaturesFragment(),
+            new CargoAllFeaturesFragment(),
+            new CargoWithSudoFragment()
+        );
     }
 
     public RustChannel getChannel() {
-        return channel;
+        return valueOf(RustChannel.class, getOptions().getChannel(), RustChannel.DEFAULT);
     }
 
     public void setChannel(RustChannel channel) {
-        this.channel = channel;
+        getOptions().setChannel(channel == RustChannel.DEFAULT ? null : channel.name());
     }
 
     public boolean getRequiredFeatures() {
-        return requiredFeatures;
+        return getOptions().isRequiredFeatures();
     }
 
     public void setRequiredFeatures(boolean requiredFeatures) {
-        this.requiredFeatures = requiredFeatures;
+        getOptions().setRequiredFeatures(requiredFeatures);
     }
 
     public boolean getAllFeatures() {
-        return allFeatures;
+        return getOptions().isAllFeatures();
     }
 
     public void setAllFeatures(boolean allFeatures) {
-        this.allFeatures = allFeatures;
+        getOptions().setAllFeatures(allFeatures);
     }
 
     public boolean getWithSudo() {
-        return withSudo;
+        return getOptions().isWithSudo();
     }
 
     public void setWithSudo(boolean withSudo) {
-        this.withSudo = withSudo;
+        getOptions().setWithSudo(withSudo);
     }
 
     public BuildTarget getBuildTarget() {
-        return buildTarget;
+        return valueOf(BuildTarget.class, getOptions().getBuildTarget(), BuildTarget.REMOTE);
     }
 
     public void setBuildTarget(BuildTarget buildTarget) {
-        this.buildTarget = buildTarget;
+        getOptions().setBuildTarget(buildTarget == BuildTarget.REMOTE ? null : buildTarget.name());
     }
 
     public BacktraceMode getBacktrace() {
-        return backtrace;
+        return valueOf(BacktraceMode.class, getOptions().getBacktrace(), BacktraceMode.SHORT);
     }
 
     public void setBacktrace(BacktraceMode backtrace) {
-        this.backtrace = backtrace;
+        getOptions().setBacktrace(backtrace == BacktraceMode.SHORT ? null : backtrace.name());
     }
 
     public EnvironmentVariablesData getEnv() {
-        return env;
+        return EnvironmentVariablesData.create(getEnvs(), isPassParentEnvs());
     }
 
     public void setEnv(EnvironmentVariablesData env) {
-        this.env = env;
+        setEnvs(env.getEnvs());
+        setPassParentEnvs(env.isPassParentEnvs());
+    }
+
+    private static <E extends Enum<E>> E valueOf(Class<E> enumClass, @Nullable String name, E defaultValue) {
+        if (name == null) {
+            return defaultValue;
+        }
+        try {
+            return Enum.valueOf(enumClass, name);
+        }
+        catch (IllegalArgumentException e) {
+            return defaultValue;
+        }
     }
 
     @Nullable
     private File getRedirectInputFile() {
-        if (!isRedirectInput) {
+        String redirectInputPath = getRedirectInputPath();
+        if (!isRedirectInput()) {
             return null;
         }
         if (redirectInputPath == null || redirectInputPath.isEmpty()) {
@@ -154,102 +193,38 @@ public class CargoCommandConfiguration extends RsCommandConfiguration implements
     }
 
     public boolean isRedirectInput() {
-        return isRedirectInput;
+        return getOptions().isRedirectInput();
     }
 
     public void setRedirectInput(boolean value) {
-        isRedirectInput = value;
+        getOptions().setRedirectInput(value);
     }
 
     @Nullable
     public String getRedirectInputPath() {
-        return redirectInputPath;
+        return getOptions().getRedirectInputPath();
     }
 
     public void setRedirectInputPath(@Nullable String value) {
-        redirectInputPath = value;
-    }
-
-    @Override
-    public void writeExternal(@Nonnull Element element) {
-        super.writeExternal(element);
-        RunConfigUtil.writeEnum(element, "channel", channel);
-        RunConfigUtil.writeBool(element, "requiredFeatures", requiredFeatures);
-        RunConfigUtil.writeBool(element, "allFeatures", allFeatures);
-        RunConfigUtil.writeBool(element, "withSudo", withSudo);
-        RunConfigUtil.writeEnum(element, "buildTarget", buildTarget);
-        RunConfigUtil.writeEnum(element, "backtrace", backtrace);
-        env.writeExternal(element);
-        RunConfigUtil.writeBool(element, "isRedirectInput", isRedirectInput);
-        RunConfigUtil.writeString(element, "redirectInputPath", redirectInputPath != null ? redirectInputPath : "");
-    }
-
-    @Override
-    public void readExternal(@Nonnull Element element) {
-        super.readExternal(element);
-        String channelStr = RunConfigUtil.readString(element, "channel");
-        if (channelStr != null) {
-            try {
-                channel = RustChannel.valueOf(channelStr);
-            }
-            catch (IllegalArgumentException ignored) {
-            }
-        }
-        Boolean rf = RunConfigUtil.readBool(element, "requiredFeatures");
-        if (rf != null) {
-            requiredFeatures = rf;
-        }
-        Boolean af = RunConfigUtil.readBool(element, "allFeatures");
-        if (af != null) {
-            allFeatures = af;
-        }
-        Boolean ws = RunConfigUtil.readBool(element, "withSudo");
-        if (ws != null) {
-            withSudo = ws;
-        }
-        String btStr = RunConfigUtil.readString(element, "buildTarget");
-        if (btStr != null) {
-            try {
-                buildTarget = BuildTarget.valueOf(btStr);
-            }
-            catch (IllegalArgumentException ignored) {
-            }
-        }
-        String btModeStr = RunConfigUtil.readString(element, "backtrace");
-        if (btModeStr != null) {
-            try {
-                backtrace = BacktraceMode.valueOf(btModeStr);
-            }
-            catch (IllegalArgumentException ignored) {
-            }
-        }
-        env = EnvironmentVariablesData.readExternal(element);
-        Boolean ri = RunConfigUtil.readBool(element, "isRedirectInput");
-        if (ri != null) {
-            isRedirectInput = ri;
-        }
-        String rip = RunConfigUtil.readString(element, "redirectInputPath");
-        if (rip != null) {
-            redirectInputPath = rip;
-        }
+        getOptions().setRedirectInputPath(value);
     }
 
     public void setFromCmd(CargoCommandLine cmd) {
-        channel = cmd.getChannel();
-        command = toRawCommand(cmd);
-        requiredFeatures = cmd.getRequiredFeatures();
-        allFeatures = cmd.getAllFeatures();
+        setChannel(cmd.getChannel());
+        setCommand(toRawCommand(cmd));
+        setRequiredFeatures(cmd.getRequiredFeatures());
+        setAllFeatures(cmd.getAllFeatures());
         setEmulateTerminal(cmd.getEmulateTerminal());
-        withSudo = cmd.getWithSudo();
-        backtrace = cmd.getBacktraceMode();
+        setWithSudo(cmd.getWithSudo());
+        setBacktrace(cmd.getBacktraceMode());
         setWorkingDirectory(cmd.getWorkingDirectory());
-        env = cmd.getEnvironmentVariables();
-        isRedirectInput = cmd.getRedirectInputFrom() != null;
-        redirectInputPath = cmd.getRedirectInputFrom() != null ? cmd.getRedirectInputFrom().getPath() : null;
+        setEnv(cmd.getEnvironmentVariables());
+        setRedirectInput(cmd.getRedirectInputFrom() != null);
+        setRedirectInputPath(cmd.getRedirectInputFrom() != null ? cmd.getRedirectInputFrom().getPath() : null);
     }
 
     public boolean canBeFrom(CargoCommandLine cmd) {
-        return command.equals(toRawCommand(cmd));
+        return getCommand().equals(toRawCommand(cmd));
     }
 
     private String toRawCommand(CargoCommandLine cmd) {
@@ -264,7 +239,7 @@ public class CargoCommandConfiguration extends RsCommandConfiguration implements
 
     @Override
     public void checkConfiguration() throws RuntimeConfigurationException {
-        if (isRedirectInput) {
+        if (isRedirectInput()) {
             File file = getRedirectInputFile();
             if (file == null || !file.exists()) {
                 throw new RuntimeConfigurationWarning(RsBundle.message("dialog.message.input.file.doesn.t.exist"));
@@ -280,18 +255,12 @@ public class CargoCommandConfiguration extends RsCommandConfiguration implements
         }
         CleanConfiguration.Ok ok = (CleanConfiguration.Ok) config;
 
-        if (withSudo && showTestToolWindow(ok.getCmd())) {
+        if (getWithSudo() && showTestToolWindow(ok.getCmd())) {
             String message = consulo.platform.Platform.current().os().isWindows()
                 ? RsBundle.message("notification.run.tests.as.root.windows")
                 : RsBundle.message("notification.run.tests.as.root.unix");
             throw new RuntimeConfigurationWarning(message);
         }
-    }
-
-    @Nonnull
-    @Override
-    public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
-        return new CargoCommandConfigurationEditor(getProject());
     }
 
     @Nullable
@@ -390,7 +359,7 @@ public class CargoCommandConfiguration extends RsCommandConfiguration implements
             return CleanConfiguration.error(RsBundle.message("dialog.message.no.working.directory.specified"));
         }
 
-        ParsedCommand parsed = ParsedCommand.parse(command);
+        ParsedCommand parsed = ParsedCommand.parse(getCommand());
         if (parsed == null) {
             return CleanConfiguration.error(RsBundle.message("dialog.message.no.command.specified"));
         }
@@ -401,13 +370,13 @@ public class CargoCommandConfiguration extends RsCommandConfiguration implements
             parsed.additionalArguments(),
             getRedirectInputFile(),
             getEmulateTerminal(),
-            backtrace,
+            getBacktrace(),
             parsed.toolchain(),
-            channel,
-            env,
-            requiredFeatures,
-            allFeatures,
-            withSudo
+            getChannel(),
+            getEnv(),
+            getRequiredFeatures(),
+            getAllFeatures(),
+            getWithSudo()
         );
 
         RsToolchainBase toolchain = RsToolchainLocator.getToolchain(getProject());
@@ -419,6 +388,7 @@ public class CargoCommandConfiguration extends RsCommandConfiguration implements
             return CleanConfiguration.error(RsBundle.message("dialog.message.invalid.toolchain", toolchain.getPresentableLocation()));
         }
 
+        RustChannel channel = getChannel();
         if (!Rustup.isRustupAvailable(toolchain) && channel != RustChannel.DEFAULT) {
             return CleanConfiguration.error(RsBundle.message("dialog.message.channel.set.explicitly.with.no.rustup.available", channel));
         }

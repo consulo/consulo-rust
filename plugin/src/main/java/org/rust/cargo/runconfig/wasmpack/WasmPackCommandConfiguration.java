@@ -9,17 +9,20 @@ package org.rust.cargo.runconfig.wasmpack;
 import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.execution.executor.Executor;
 import consulo.execution.configuration.ConfigurationFactory;
-import consulo.execution.configuration.RunConfiguration;
+import consulo.execution.configuration.LegacyRunConfigurationConverter;
+import consulo.execution.configuration.RunConfigurationOptions;
 import consulo.execution.configuration.RunProfileState;
 import consulo.execution.runner.ExecutionEnvironment;
-import consulo.execution.configuration.ui.SettingsEditor;
+import consulo.execution.configuration.fragment.RunConfigurationFragment;
 import consulo.project.Project;
 import consulo.process.cmd.ParametersListUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import org.rust.cargo.runconfig.RsCommandConfiguration;
-import org.rust.cargo.runconfig.ui.WasmPackCommandConfigurationEditor;
+import org.rust.cargo.runconfig.RsCommandConfigurationLegacyState;
+import org.rust.cargo.runconfig.ui.RsEmulateTerminalFragment;
+import org.rust.cargo.runconfig.ui.WasmPackCommandFragment;
 import org.rust.cargo.toolchain.RsToolchainBase;
 import org.rust.cargo.toolchain.WasmPackCommandLine;
 import org.rust.cargo.toolchain.tools.WasmPack;
@@ -31,27 +34,29 @@ import java.util.List;
 
 public class WasmPackCommandConfiguration extends RsCommandConfiguration {
 
-    private String command = "build";
-
     public WasmPackCommandConfiguration(@Nonnull Project project, @Nonnull String name, @Nonnull ConfigurationFactory factory) {
         super(project, name, factory);
     }
 
-    @Nonnull
     @Override
-    public String getCommand() {
-        return command;
+    protected Class<? extends RunConfigurationOptions> getOptionsClass() {
+        return WasmPackCommandConfigurationOptions.class;
     }
 
     @Override
-    public void setCommand(@Nonnull String command) {
-        this.command = command;
+    protected void convertLegacyState(LegacyRunConfigurationConverter converter) {
+        super.convertLegacyState(converter);
+
+        RsCommandConfigurationLegacyState old = converter.readXml(RsCommandConfigurationLegacyState.class);
+
+        WasmPackCommandConfigurationOptions options = new WasmPackCommandConfigurationOptions();
+        convertLegacyCommandState(old, options);
+        converter.setOptions(options);
     }
 
-    @Nonnull
     @Override
-    public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
-        return new WasmPackCommandConfigurationEditor(getProject());
+    public List<RunConfigurationFragment<?>> createFragments() {
+        return List.of(new WasmPackCommandFragment(), new RsEmulateTerminalFragment<WasmPackCommandConfiguration>());
     }
 
     @Nullable
