@@ -35,6 +35,8 @@ import org.rust.cargo.CargoConstants;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.function.Consumer;
 
 /**
@@ -58,11 +60,12 @@ public class CargoModuleImportProvider implements ModuleImportProvider<ModuleImp
     }
 
     @Override
-    public boolean canImport(@Nonnull File fileOrDirectory) {
-        if (fileOrDirectory.isDirectory()) {
-            return new File(fileOrDirectory, CargoConstants.MANIFEST_FILE).isFile();
+    public boolean canImport(@Nonnull Path fileOrDirectory) {
+        if (Files.isDirectory(fileOrDirectory)) {
+            return Files.exists(fileOrDirectory.resolve(CargoConstants.MANIFEST_FILE));
         }
-        return CargoConstants.MANIFEST_FILE.equalsIgnoreCase(fileOrDirectory.getName());
+        return CargoConstants.MANIFEST_FILE.equalsIgnoreCase(fileOrDirectory.getFileName().toString())
+            && Files.exists(fileOrDirectory);
     }
 
     @Override
