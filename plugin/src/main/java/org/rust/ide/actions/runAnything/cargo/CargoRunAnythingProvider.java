@@ -7,7 +7,7 @@ package org.rust.ide.actions.runAnything.cargo;
 
 import consulo.annotation.component.ExtensionImpl;
 import consulo.execution.executor.Executor;
-import consulo.ide.runAnything.RunAnythingItem;
+import consulo.execution.runAnything.RunAnythingItem;
 import consulo.dataContext.DataContext;
 import consulo.project.Project;
 import org.rust.RsBundle;

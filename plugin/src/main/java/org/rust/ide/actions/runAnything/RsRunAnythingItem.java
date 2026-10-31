@@ -5,7 +5,7 @@
 
 package org.rust.ide.actions.runAnything;
 
-import consulo.ide.runAnything.RunAnythingItemBase;
+import consulo.execution.runAnything.RunAnythingItemBase;
 import consulo.util.lang.StringUtil;
 import consulo.ui.ex.awt.SimpleColoredComponent;
 import consulo.ui.ex.SimpleTextAttributes;
