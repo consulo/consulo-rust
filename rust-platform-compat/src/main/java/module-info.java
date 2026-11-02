@@ -60,8 +60,6 @@ open module consulo.rust.platform.compat {
     exports com.intellij.refactoring.actions;
     exports com.intellij.refactoring.move;
     exports com.intellij.refactoring.suggested;
-    exports com.intellij.spellchecker;
-    exports com.intellij.spellchecker.generator;
     exports com.intellij.structuralsearch;
     exports com.intellij.structuralsearch.impl.matcher;
     exports com.intellij.structuralsearch.impl.matcher.compiler;

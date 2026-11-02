@@ -5,12 +5,21 @@
 
 package org.rust.ide.spelling;
 
-import com.intellij.spellchecker.BundledDictionaryProvider;
-import jakarta.annotation.Nonnull;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.spellchecker.editor.dictionary.BundledDictionaryProvider;
 
+import java.io.InputStream;
+import java.util.function.BiConsumer;
+
+@ExtensionImpl
 public class RsBundledDictionaryProvider implements BundledDictionaryProvider {
+    private static final String DICTIONARY = "rust.dic";
+
     @Override
-    public @Nonnull String [] getBundledDictionaries() {
-        return new String[]{"rust.dic"};
+    public void loadDictionaries(BiConsumer<String, InputStream> consumer) {
+        InputStream stream = getClass().getResourceAsStream(DICTIONARY);
+        if (stream != null) {
+            consumer.accept(DICTIONARY, stream);
+        }
     }
 }

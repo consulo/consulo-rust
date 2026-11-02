@@ -7,13 +7,15 @@ package org.rust.ide.spelling;
 
 import consulo.project.Project;
 import consulo.language.psi.PsiFile;
-import com.intellij.spellchecker.generator.SpellCheckerDictionaryGenerator;
+import consulo.language.Language;
+import consulo.language.editor.refactoring.NamesValidator;
+import consulo.language.spellchecker.editor.dictionary.SpellCheckerDictionaryGenerator;
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.RsNameIdentifierOwner;
 
-import java.util.HashSet;
+import java.util.Set;
 import org.rust.lang.core.psi.impl.*;
 
 public class RsSpellCheckerDictionaryGenerator extends SpellCheckerDictionaryGenerator {
@@ -23,7 +25,7 @@ public class RsSpellCheckerDictionaryGenerator extends SpellCheckerDictionaryGen
     }
 
     @Override
-    protected void processFile(@Nonnull PsiFile file, @Nonnull HashSet<String> seenNames) {
+    protected void processFile(@Nonnull PsiFile file, @Nonnull Set<String> seenNames) {
         file.accept(new RsRecursiveVisitor() {
             @Override
             public void visitElement(@Nonnull RsElement element) {
@@ -42,5 +44,11 @@ public class RsSpellCheckerDictionaryGenerator extends SpellCheckerDictionaryGen
                 super.visitElement(element);
             }
         });
+    }
+
+    @Override
+    protected boolean isKeyword(String word, Language language) {
+        NamesValidator namesValidator = NamesValidator.forLanguage(language);
+        return namesValidator != null && namesValidator.isKeyword(word, myProject);
     }
 }
