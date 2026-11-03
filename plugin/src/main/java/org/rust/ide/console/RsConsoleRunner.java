@@ -320,7 +320,6 @@ public class RsConsoleRunner extends AbstractConsoleRunnerWithHistory<RsConsoleV
 
     private void connect() {
         ApplicationManager.getApplication().invokeLater(() -> {
-            getConsoleView().removeBorders();
             getConsoleView().initVariablesWindow();
             getConsoleView().setExecuteActionHandler(getConsoleExecuteActionHandler());
 

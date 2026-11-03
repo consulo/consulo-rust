@@ -128,11 +128,6 @@ public class RsConsoleView extends LanguageConsoleImpl implements ObservableCons
         }
     }
 
-    public void removeBorders() {
-        getHistoryViewer().setBorder(null);
-        getConsoleEditor().setBorder(null);
-    }
-
     public boolean isShowVariables() {
         return options.showVariables;
     }
