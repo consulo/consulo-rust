@@ -477,7 +477,7 @@
         </dependency>
         <dependency>
             <groupId>consulo.plugin</groupId>
-            <artifactId>consulo.markdown.engine</artifactId>
+            <artifactId>consulo.markdown.documentation.api</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>

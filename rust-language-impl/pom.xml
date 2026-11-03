@@ -406,12 +406,12 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Consulo's own markdown engine. It parses straight into a PsiBuilder and its element
+        <!-- Consulo's own markdown language: the engine parses straight into a PsiBuilder and its element
              types are the platform's, so doc comments get a real AST instead of a parallel one.
-             Provided: the consulo.markdown plugin ships the jar at runtime. -->
+             Provided: the consulo.markdown plugin ships the jars at runtime. -->
         <dependency>
             <groupId>consulo.plugin</groupId>
-            <artifactId>consulo.markdown.engine</artifactId>
+            <artifactId>consulo.markdown.documentation.api</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>

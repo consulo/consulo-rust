@@ -5,6 +5,11 @@
 
 package org.rust.lang.doc;
 
+import org.rust.lang.core.injected.DoctestInfo;
+import org.rust.lang.RsLanguage;
+import org.intellij.plugins.markdown.injection.aliases.CodeFenceLanguageGuesser;
+import consulo.markdown.documentation.MarkdownDocumentationRenderer;
+import consulo.language.Language;
 import consulo.language.editor.documentation.DocumentationManagerProtocol;
 import consulo.colorScheme.EditorColorsManager;
 import consulo.colorScheme.EditorColorsScheme;
@@ -12,8 +17,6 @@ import consulo.language.psi.PsiElement;
 import consulo.ui.ex.awt.util.ColorUtil;
 import consulo.language.ast.ASTNode;
 import consulo.language.ast.IElementType;
-import consulo.language.psi.PsiFile;
-import consulo.language.psi.PsiFileFactory;
 import org.intellij.markdown.MarkdownAstUtil;
 import org.intellij.markdown.MarkdownElementTypes;
 import org.intellij.markdown.MarkdownTokenTypes;
@@ -22,8 +25,8 @@ import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor;
 import org.intellij.markdown.html.*;
 import org.intellij.markdown.html.entities.EntityConverter;
 import org.intellij.markdown.parser.LinkMap;
+import org.rust.lang.doc.psi.RsDocCommentElementType;
 import org.intellij.plugins.markdown.html.MarkdownHtmlRenderer;
-import org.intellij.plugins.markdown.lang.MarkdownFileType;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -153,12 +156,10 @@ public final class RsDocPipeline {
         GFMFlavourDescriptor gfm = new GFMFlavourDescriptor(false, true, false);
         MarkdownFlavourDescriptor flavour = new RustDocMarkdownFlavourDescriptor(context, baseURI, renderMode, gfm);
 
-        // The markdown is parsed by the platform, so the tree below is a real AST. The flavour only
+        // The markdown is parsed into a standalone tree of the platform AST. The flavour only
         // supplies the HTML generating providers, which is where the Rust-specific link and code
         // fence handling lives.
-        PsiFile markdownFile = PsiFileFactory.getInstance(context.getProject())
-            .createFileFromText("doc.md", MarkdownFileType.INSTANCE, rawDocumentationText);
-        ASTNode root = markdownFile.getNode();
+        ASTNode root = RsDocCommentElementType.parseMarkdown(rawDocumentationText);
 
         HtmlGenerator.TagRenderer tagRenderer = new HtmlGenerator.TagRenderer() {
                 @Override
@@ -319,11 +320,28 @@ public final class RsDocPipeline {
                 codeText.append("\n");
             }
 
-            visitor.consumeHtml(convertToHtmlWithHighlighting(codeText.toString()));
+            visitor.consumeHtml(convertToHtmlWithHighlighting(codeText.toString(), findFenceLanguage(node, text)));
         }
 
-        private String convertToHtmlWithHighlighting(String codeText) {
-            String htmlCodeText = codeText;
+        /**
+         * The language of the code: Rust for a fence without a language or with rustdoc attributes, else the language the fence names
+         */
+        private static @Nullable Language findFenceLanguage(@Nonnull ASTNode node, @Nonnull String text) {
+            String info = "";
+            for (ASTNode child : MarkdownAstUtil.children(node)) {
+                if (child.getElementType() == MarkdownTokenTypes.FENCE_LANG) {
+                    info = MarkdownAstUtil.getTextInNode(child, text).toString();
+                    break;
+                }
+            }
+            if (DoctestInfo.isRustLanguage(info)) {
+                return RsLanguage.INSTANCE;
+            }
+            return CodeFenceLanguageGuesser.guessLanguageForInjection(info);
+        }
+
+        private String convertToHtmlWithHighlighting(String codeText, @Nullable Language language) {
+            String htmlCodeText = MarkdownDocumentationRenderer.appendCodeBlock(new StringBuilder(), context.getProject(), language, codeText).toString();
 
             EditorColorsScheme scheme = EditorColorsManager.getInstance().getGlobalScheme();
             htmlCodeText = htmlCodeText.replaceFirst("<pre>",

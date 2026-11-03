@@ -14,6 +14,7 @@ open module consulo.rust.language.impl {
     requires consulo.localize.api;
     requires consulo.annotation;
     requires com.intellij.regexp;
+    requires consulo.markdown.documentation.api;
     requires jakarta.annotation;
     requires transitive consulo.rust.language.api;
 

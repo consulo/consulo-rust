@@ -85,6 +85,17 @@ public class DoctestInfo {
         return result;
     }
 
+    /**
+     * @return Whether the info string of a code fence names Rust - an empty info string does, as rustdoc treats it as Rust
+     */
+    public static boolean isRustLanguage(@Nonnull String lang) {
+        for (String part : LANG_SPLIT_REGEX.split(lang)) {
+            if (part.isBlank()) continue;
+            if (!RUST_LANG_ALIASES.contains(part)) return false;
+        }
+        return true;
+    }
+
     @Nullable
     public static DoctestInfo fromCodeFence(@Nonnull RsDocCodeFence codeFence) {
         if (!RsProjectSettingsServiceUtil.getRustSettings(codeFence.getProject()).getDoctestInjectionEnabled()) return null;
@@ -92,12 +103,7 @@ public class DoctestInfo {
         if (hasUnbalancedCodeFencesBefore(codeFence)) return null;
 
         PsiElement langElement = codeFence.getLang();
-        String lang = langElement != null ? langElement.getText() : "";
-        String[] parts = LANG_SPLIT_REGEX.split(lang);
-        for (String part : parts) {
-            if (part.isBlank()) continue;
-            if (!RUST_LANG_ALIASES.contains(part)) return null;
-        }
+        if (!isRustLanguage(langElement != null ? langElement.getText() : "")) return null;
 
         PsiElement start = codeFence.getStart();
         String startText = start.getText();

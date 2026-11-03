@@ -17,7 +17,7 @@ open module consulo.rust {
     requires com.fasterxml.jackson.databind;
     requires com.fasterxml.jackson.module.paramnames;
     requires com.fasterxml.jackson.dataformat.toml;
-    requires consulo.markdown.engine;
+    requires consulo.markdown.documentation.api;
     requires javasemver;
     requires org.apache.commons.lang3;
     requires org.jdom;

@@ -11,10 +11,11 @@ import consulo.language.impl.ast.SharedImplUtil;
 import consulo.language.psi.PsiElement;
 import consulo.language.util.CharTable;
 import jakarta.annotation.Nonnull;
-import consulo.language.psi.PsiFile;
-import consulo.language.psi.PsiFileFactory;
+import org.intellij.markdown.MarkdownElementTypes;
 import org.intellij.markdown.parser.LinkMap;
-import org.intellij.plugins.markdown.lang.MarkdownFileType;
+import org.intellij.markdown.parser.MarkdownParser;
+import org.intellij.markdown.parser.MarkdownParserManager;
+import org.intellij.plugins.markdown.html.TreeBuildingSink;
 import org.rust.lang.RsLanguage;
 import org.rust.lang.doc.psi.impl.RsDocCommentImpl;
 
@@ -35,14 +36,21 @@ public class RsDocCommentElementType extends ILazyParseableElementType {
 
         RsDocCommentImpl root = new RsDocCommentImpl(this, null);
         String markdownText = textMap.getMappedText();
-        // Parsed by the platform, so what comes back is a real AST rather than a parallel one.
-        PsiFile markdownFile = PsiFileFactory.getInstance(psi.getProject())
-            .createFileFromText("doc.md", MarkdownFileType.INSTANCE, markdownText);
-        ASTNode markdownRoot = markdownFile.getNode();
+        ASTNode markdownRoot = parseMarkdown(markdownText);
         LinkMap linkMap = LinkMap.buildLinkMap(markdownRoot, markdownText);
         new RsDocMarkdownAstBuilder(textMap, charTable, linkMap).buildTree(root, markdownRoot);
 
         return root.getFirstChildNode();
+    }
+
+    /**
+     * Parses Markdown text into a standalone tree with the inlines expanded, with the flavour of Markdown files.
+     */
+    public static ASTNode parseMarkdown(String markdownText) {
+        MarkdownParser parser = new MarkdownParser(MarkdownParserManager.FLAVOUR);
+        TreeBuildingSink sink = new TreeBuildingSink(markdownText);
+        parser.walkBlocks(parser.parseBlocks(MarkdownElementTypes.MARKDOWN_FILE, markdownText), markdownText, true, sink);
+        return sink.getRoot();
     }
 
     @Override
