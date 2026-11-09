@@ -233,12 +233,6 @@
         </dependency>
         <dependency>
             <groupId>consulo</groupId>
-            <artifactId>consulo-language-editor-impl</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>consulo</groupId>
             <artifactId>consulo-project-ui-api</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
@@ -294,12 +288,6 @@
         <dependency>
             <groupId>consulo</groupId>
             <artifactId>consulo-execution-test-sm-api</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>consulo</groupId>
-            <artifactId>consulo-project-api</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
