@@ -36,8 +36,8 @@ fn read_in_loop() {
 }
 
 fn shadowed() -> i32 {
-    let /*missing:unused_variables*/x = 1;
-    let /*false:unused_variables*/x = 2;
+    let /*unused_variables*/x = 1;
+    let x = 2;
     x
 }
 

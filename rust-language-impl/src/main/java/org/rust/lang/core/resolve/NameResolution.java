@@ -1319,23 +1319,23 @@ public final class NameResolution {
         @Nonnull java.util.Set<String> seen,
         @Nonnull RsResolveProcessor processor
     ) {
-        // Items declared anywhere in the block are visible from everywhere; let-bindings only
-        // from later statements.
+        // Let bindings are visible only from later statements, the nearest one first: `let x = 1; let x = 2; x` is the
+        // second `x`. They shadow the items of the block, which are visible from everywhere in it.
+        if (ns.contains(Namespace.Values)) {
+            PsiElement last = cameFrom.getParent() == block ? cameFrom.getPrevSibling() : block.getLastChild();
+            for (PsiElement child = last; child != null; child = child.getPrevSibling()) {
+                if (child instanceof RsLetDecl) {
+                    RsPat pat = ((RsLetDecl) child).getPat();
+                    if (pat != null && processPatternBindings(pat, ns, seen, processor)) return true;
+                }
+            }
+        }
         for (PsiElement child = block.getFirstChild(); child != null; child = child.getNextSibling()) {
             if (child instanceof RsItemElement && child instanceof RsNamedElement) {
                 String name = ((RsNamedElement) child).getName();
                 if (name == null || !seen.add(name)) continue;
                 if (!anyNsMatches((RsItemElement) child, ns)) continue;
                 if (Processors.processEntry(processor, name, elementNamespaces((RsItemElement) child), (RsItemElement) child)) return true;
-            }
-        }
-        if (ns.contains(Namespace.Values)) {
-            // Let bindings: only those declared textually before cameFrom.
-            for (PsiElement child = block.getFirstChild(); child != null && child != cameFrom; child = child.getNextSibling()) {
-                if (child instanceof RsLetDecl) {
-                    RsPat pat = ((RsLetDecl) child).getPat();
-                    if (pat != null && processPatternBindings(pat, ns, seen, processor)) return true;
-                }
             }
         }
 
