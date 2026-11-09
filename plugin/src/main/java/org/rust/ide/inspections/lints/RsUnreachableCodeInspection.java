@@ -96,7 +96,7 @@ public class RsUnreachableCodeInspection extends RsLintInspection {
             : null;
         if (chars == null) return;
         TextRange strippedRange = Utils.stripWhitespace(range, chars);
-        TextRange strippedRangeInFunction = strippedRange.shiftLeft(func.getTextOffset());
+        TextRange strippedRangeInFunction = strippedRange.shiftLeft(func.getTextRange().getStartOffset());
 
         registerLintProblem(
             holder,
