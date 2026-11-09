@@ -372,8 +372,9 @@ public final class RsElementUtil {
     // Misc utility
     // ========================
 
+    /** A constant, a const parameter, or a struct or enum variant without fields: what a name in a pattern can refer to. */
     public static boolean isConstantLike(@Nonnull PsiElement element) {
-        return element instanceof RsConstant || element instanceof RsConstParameter;
+        return element instanceof RsConstant || element instanceof RsConstParameter || RsPsiJavaUtil.isConstantLike(element);
     }
 
     public static boolean isContextOf(@Nonnull PsiElement ancestor, @Nonnull PsiElement child) {

@@ -765,7 +765,8 @@ public final class NameResolution {
         return processNestedScopesUpwards(
             binding,
             isCompletion ? Namespace.TYPES_N_VALUES : Namespace.VALUES,
-            filtered);
+            filtered,
+            false);
     }
 
     /**
@@ -1146,6 +1147,19 @@ public final class NameResolution {
         @Nullable PathResolutionContext ctx,
         @Nonnull RsResolveProcessor processor
     ) {
+        return processNestedScopesUpwards(scopeStart, ns, processor, true);
+    }
+
+    /**
+     * The same; without {@code bindings} the local variables (let, parameter, pattern bindings) are left out, as for
+     * the name of a pattern binding, which can only refer to an item - and must not be shadowed by itself.
+     */
+    private static boolean processNestedScopesUpwards(
+        @Nonnull RsElement scopeStart,
+        @Nonnull Set<Namespace> ns,
+        @Nonnull RsResolveProcessor processor,
+        boolean bindings
+    ) {
         java.util.Set<String> seen = new java.util.HashSet<>();
         PsiElement cameFrom = scopeStart;
         PsiElement scope = scopeStart.getContext();
@@ -1156,13 +1170,15 @@ public final class NameResolution {
                 // imports, extern crates and the prelude - comes from the crate's def map.
                 return processModScope((RsMod) scope, ns, seen, processor);
             } else if (scope instanceof RsBlock) {
-                if (processBlockScope((RsBlock) scope, cameFrom, ns, seen, processor)) return true;
+                if (processBlockScope((RsBlock) scope, cameFrom, ns, seen, processor, bindings)) return true;
             } else if (scope instanceof RsFunction) {
-                if (processFunctionScope((RsFunction) scope, ns, seen, processor)) return true;
+                if (processFunctionScope((RsFunction) scope, ns, seen, processor, bindings)) return true;
             } else if (scope instanceof RsLambdaExpr) {
-                if (processLambdaScope((RsLambdaExpr) scope, ns, seen, processor)) return true;
+                if (bindings && processLambdaScope((RsLambdaExpr) scope, ns, seen, processor)) return true;
             } else if (scope instanceof RsGenericDeclaration) {
                 if (processGenericParamsScope((RsGenericDeclaration) scope, ns, seen, processor)) return true;
+            } else if (!bindings) {
+                // the rest are local variables
             } else if (scope instanceof RsForExpr) {
                 RsPat pat = ((RsForExpr) scope).getPat();
                 if (pat != null && processPatternBindings(pat, ns, seen, processor)) return true;
@@ -1317,11 +1333,12 @@ public final class NameResolution {
         @Nonnull PsiElement cameFrom,
         @Nonnull Set<Namespace> ns,
         @Nonnull java.util.Set<String> seen,
-        @Nonnull RsResolveProcessor processor
+        @Nonnull RsResolveProcessor processor,
+        boolean bindings
     ) {
         // Let bindings are visible only from later statements, the nearest one first: `let x = 1; let x = 2; x` is the
         // second `x`. They shadow the items of the block, which are visible from everywhere in it.
-        if (ns.contains(Namespace.Values)) {
+        if (bindings && ns.contains(Namespace.Values)) {
             PsiElement last = cameFrom.getParent() == block ? cameFrom.getPrevSibling() : block.getLastChild();
             for (PsiElement child = last; child != null; child = child.getPrevSibling()) {
                 if (child instanceof RsLetDecl) {
@@ -1350,9 +1367,10 @@ public final class NameResolution {
         @Nonnull RsFunction fn,
         @Nonnull Set<Namespace> ns,
         @Nonnull java.util.Set<String> seen,
-        @Nonnull RsResolveProcessor processor
+        @Nonnull RsResolveProcessor processor,
+        boolean bindings
     ) {
-        if (ns.contains(Namespace.Values)) {
+        if (bindings && ns.contains(Namespace.Values)) {
             RsValueParameterList plist = fn.getValueParameterList();
             if (plist != null) {
                 for (RsValueParameter p : plist.getValueParameterList()) {

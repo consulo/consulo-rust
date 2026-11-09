@@ -54,7 +54,7 @@ fn if_let_binding(o: Option<i32>) {
 fn match_binding(o: Option<i32>) -> i32 {
     match o {
         Some(/*unused_variables*/v) => 1,
-        /*false:unused_variables*/None => 0,
+        None => 0,
     }
 }
 
