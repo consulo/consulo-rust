@@ -1,0 +1,61 @@
+# fn let_else
+  0(3) Entry
+  1(2) Exit
+  2() Termination
+  3(4,7) o
+  4(5) v
+  5(6) v
+  6(12) Some(v)
+  7(8) 0
+  8(1) return 0
+! 9(10) Unreachable
+! 10(11) return 0;
+! 11(12) BLOCK
+  12(13) let Some(v) = o else { return 0; };
+  13(14) v
+  14(1) BLOCK
+
+# fn while_let
+  0(3) Entry
+  1(2) Exit
+  2() Termination
+  3(5) Dummy
+  4(18) WHILE
+  5(4,7) o
+  6(10) Dummy
+  7(8) v
+  8(9) v
+  9(6) Some(v)
+  10(11) o
+  11(12) None
+  12(13) o = None
+  13(14) o = None;
+  14(15) v
+  15(16) _
+  16(17) let _ = v;
+  17(3) BLOCK
+  18(1) BLOCK
+
+# fn uninit
+  0(3) Entry
+  1(2) Exit
+  2() Termination
+  3(4) x
+  4(5) x
+  5(6) let x;
+  6(7,12) c
+  7(8) x
+  8(9) 1
+  9(10) x = 1
+  10(11) x = 1;
+  11(17) BLOCK
+  12(13) x
+  13(14) 2
+  14(15) x = 2
+  15(16) x = 2;
+  16(17) BLOCK
+  17(18) IF
+  18(19) IF;
+  19(20) x
+  20(1) BLOCK
+

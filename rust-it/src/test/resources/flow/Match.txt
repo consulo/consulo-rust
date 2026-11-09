@@ -1,0 +1,73 @@
+# fn arms
+  0(3) Entry
+  1(2) Exit
+  2() Termination
+  3(6,9,14) e
+  4(18) MATCH
+  5(7) Dummy
+  6(5) E::A
+  7(4) 0
+  8(12) Dummy
+  9(10) v
+  10(11) v
+  11(8) E::B(v)
+  12(4) v
+  13(17) Dummy
+  14(15) x
+  15(16) x
+  16(13) E::C { x }
+  17(4) x
+  18(1) BLOCK
+
+# fn guards
+  0(3) Entry
+  1(2) Exit
+  2() Termination
+  3(6,16,20) e
+  4(23) MATCH
+  5(14) Dummy
+  6(7) v
+  7(8) v
+  8(9) E::B(v)
+  9(10) Dummy
+  10(11) v
+  11(12) 0
+  12(13) v > 0
+  13(5) if v > 0
+  14(4) v
+  15(18) Dummy
+  16(17) _
+  17(15) E::B(_)
+  18(4) 0
+  19(21) Dummy
+  20(19) _
+  21(22) 1
+  22(4) -1
+  23(1) BLOCK
+
+# fn or_pats
+  0(3) Entry
+  1(2) Exit
+  2() Termination
+  3(6,7,10,13) n
+  4(15) MATCH
+  5(8) Dummy
+  6(5) 1
+  7(5) 2
+  8(4) 1
+  9(11) Dummy
+  10(9) 3..=5
+  11(4) 2
+  12(14) Dummy
+  13(12) _
+  14(4) 3
+  15(1) BLOCK
+
+# fn empty_match
+  0(3) Entry
+  1(2) Exit
+  2() Termination
+  3(4) e
+  4(5) MATCH
+  5(1) BLOCK
+

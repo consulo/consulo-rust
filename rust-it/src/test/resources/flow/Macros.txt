@@ -1,0 +1,15 @@
+# fn macro_return
+  0(3) Entry
+  1(2) Exit
+  2() Termination
+  3(4) 2
+  4(1) BLOCK
+
+# fn macro_expr
+  0(3) Entry
+  1(2) Exit
+  2() Termination
+  3(4) a
+  4(5) twice!(a)
+  5(1) BLOCK
+

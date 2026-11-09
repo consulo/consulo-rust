@@ -1,0 +1,126 @@
+# fn diverge
+  0(3) Entry
+! 1(2) Exit
+  2() Termination
+  3(2,5) Dummy
+! 4(6) LOOP
+  5(3) BLOCK
+! 6(1) BLOCK
+
+# fn after_return
+  0(3) Entry
+  1(2) Exit
+  2() Termination
+  3(4) 1
+  4(1) return 1
+! 5(6) Unreachable
+! 6(7) return 1;
+! 7(8) 2
+! 8(9) x
+! 9(10) x
+! 10(11) let x = 2;
+! 11(12) x
+! 12(1) BLOCK
+unreachable: let x = 2;
+unreachable: x
+
+# fn after_call
+  0(3) Entry
+! 1(2) Exit
+  2() Termination
+  3(4) diverge
+  4(2) diverge()
+! 5(6) Unreachable
+! 6(7) diverge();
+! 7(8) 1
+! 8(9) _
+! 9(10) let _ = 1;
+! 10(1) BLOCK
+unreachable: let _ = 1;
+
+# fn after_break
+  0(3) Entry
+  1(2) Exit
+  2() Termination
+  3(2,5) Dummy
+  4(12) LOOP
+  5(2,4) break
+! 6(7) Unreachable
+! 7(8) break;
+! 8(9) 1
+! 9(10) _
+! 10(11) let _ = 1;
+! 11(3) BLOCK
+  12(1) BLOCK
+unreachable: let _ = 1;
+
+# fn after_continue
+  0(4) Entry
+  1(2) Exit
+  2() Termination
+  3(16) FOR
+  4(5) 1
+  5(6) 2
+  6(7) [1, 2]
+  7(3,8) Dummy
+  8(9) _
+  9(2,7) continue
+! 10(11) Unreachable
+! 11(12) continue;
+! 12(13) 1
+! 13(14) _
+! 14(15) let _ = 1;
+! 15(7) BLOCK
+  16(1) BLOCK
+unreachable: let _ = 1;
+
+# fn return_in_branch
+  0(3) Entry
+  1(2) Exit
+  2() Termination
+  3(4,9) c
+  4(5) 1
+  5(1) return 1
+! 6(7) Unreachable
+! 7(8) return 1;
+! 8(14) BLOCK
+  9(10) 2
+  10(1) return 2
+! 11(12) Unreachable
+! 12(13) return 2;
+! 13(14) BLOCK
+! 14(15) IF
+! 15(16) IF;
+! 16(17) 3
+! 17(1) BLOCK
+unreachable: 3
+
+# fn try_op
+  0(4) Entry
+  1(2) Exit
+  2() Termination
+  3(6) r?
+  4(3,5) r
+  5(1) Dummy
+  6(7) v
+  7(8) v
+  8(9) let v = r?;
+  9(10) Ok
+  10(11) v
+  11(12) Ok(v)
+  12(1) BLOCK
+
+# fn after_infinite
+  0(3) Entry
+! 1(2) Exit
+  2() Termination
+  3(2,5) Dummy
+! 4(6) LOOP
+  5(3) BLOCK
+! 6(7) LOOP;
+! 7(8) 1
+! 8(9) _
+! 9(10) let _ = 1;
+! 10(1) BLOCK
+unreachable: let _ = 1;
+

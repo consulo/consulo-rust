@@ -1,0 +1,82 @@
+# fn if_else
+  0(3) Entry
+  1(2) Exit
+  2() Termination
+  3(4,6) c
+  4(5) 1
+  5(8) BLOCK
+  6(7) 2
+  7(8) BLOCK
+  8(9) IF
+  9(1) BLOCK
+
+# fn if_no_else
+  0(3) Entry
+  1(2) Exit
+  2() Termination
+  3(4) 0
+  4(5) mut x
+  5(6) mut x
+  6(7) let mut x = 0;
+  7(8,13) c
+  8(9) x
+  9(10) 1
+  10(11) x = 1
+  11(12) x = 1;
+  12(13) BLOCK
+  13(14) IF
+  14(15) IF;
+  15(16) x
+  16(17) _
+  17(18) let _ = x;
+  18(1) BLOCK
+
+# fn else_if
+  0(3) Entry
+  1(2) Exit
+  2() Termination
+  3(4) a
+  4(5) 0
+  5(6,9) a < 0
+  6(7) 1
+  7(8) -1
+  8(17) BLOCK
+  9(10) a
+  10(11) 0
+  11(12,14) a == 0
+  12(13) 0
+  13(16) BLOCK
+  14(15) 1
+  15(16) BLOCK
+  16(17) IF
+  17(18) IF
+  18(1) BLOCK
+
+# fn short_circuit
+  0(3) Entry
+  1(2) Exit
+  2() Termination
+  3(4,5) a
+  4(5) b
+  5(6,8) a && b
+  6(7) a
+  7(8) !a
+  8(9) a && b || !a
+  9(1) BLOCK
+
+# fn if_let
+  0(3) Entry
+  1(2) Exit
+  2() Termination
+  3(5,10) o
+  4(8) Dummy
+  5(6) v
+  6(7) v
+  7(4) Some(v)
+  8(9) v
+  9(12) BLOCK
+  10(11) 0
+  11(12) BLOCK
+  12(13) IF
+  13(1) BLOCK
+

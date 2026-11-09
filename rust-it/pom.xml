@@ -52,6 +52,13 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- string literals are regexp language hosts -->
+        <dependency>
+            <groupId>consulo.plugin</groupId>
+            <artifactId>com.intellij.regexp</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>consulo</groupId>
             <artifactId>consulo-execution-coverage-api</artifactId>
@@ -88,6 +95,12 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${junit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
