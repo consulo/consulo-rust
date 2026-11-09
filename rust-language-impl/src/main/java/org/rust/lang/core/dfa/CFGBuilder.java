@@ -479,11 +479,12 @@ public class CFGBuilder extends RsVisitor {
 
         if (labelDeclaration != null) {
             breakableBlockScopes.push(new BlockScope(blockExpr, exprExit));
+            RsBlockUtil.ExpandedStmtsAndTailExpr expanded = RsBlockUtil.getExpandedStmtsAndTailExpr(blockExpr.getBlock());
             Node<CFGNodeData, CFGEdgeData> stmtsExit = getPred();
-            for (RsStmt stmt : blockExpr.getBlock().getStmtList()) {
+            for (RsElement stmt : expanded.getStmts()) {
                 stmtsExit = process(stmt, stmtsExit);
             }
-            Node<CFGNodeData, CFGEdgeData> blockExprExit = process(RsBlockUtil.getExpandedTailExpr(blockExpr.getBlock()), stmtsExit);
+            Node<CFGNodeData, CFGEdgeData> blockExprExit = process(expanded.getTailExpr(), stmtsExit);
             addContainedEdge(blockExprExit, exprExit);
             breakableBlockScopes.pop();
         } else {
