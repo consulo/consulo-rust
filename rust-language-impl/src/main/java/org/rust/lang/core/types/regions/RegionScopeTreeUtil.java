@@ -64,6 +64,7 @@ public final class RegionScopeTreeUtil {
 
     private static final class Visitor {
         @Nonnull private final ScopeTree tree;
+        @Nonnull private final java.util.ArrayDeque<Scope> enclosing = new java.util.ArrayDeque<>();
         private Scope current;
         private int depth;
 
@@ -72,11 +73,13 @@ public final class RegionScopeTreeUtil {
         }
 
         void pushCurrent(@Nonnull Scope scope) {
+            if (current != null) enclosing.push(current);
             current = scope;
             depth++;
         }
 
         void popCurrent() {
+            current = enclosing.isEmpty() ? null : enclosing.pop();
             depth--;
         }
 
@@ -108,32 +111,36 @@ public final class RegionScopeTreeUtil {
             pushCurrent(blockScope);
 
             RsBlockUtil.ExpandedStmtsAndTailExpr pair = RsBlockUtil.getExpandedStmtsAndTailExpr(block);
+            int remainders = 0;
             for (RsStmt stmt : pair.getStmts()) {
                 if (stmt instanceof RsLetDecl) {
                     // Remainder(block, letDecl) is the sub-scope covering the suffix of `block`
-                    // after this let declaration.
+                    // after this let declaration: the scope of its bindings, enclosing the statements that follow.
                     Scope remainder = new Scope.Remainder(block, (RsLetDecl) stmt);
-                    recordScope(remainder, blockScope);
+                    recordScope(remainder, current);
                     pushCurrent(remainder);
-                    visitStmt(stmt);
-                    popCurrent();
-                } else {
-                    visitStmt(stmt);
+                    remainders++;
                 }
+                visitStmt(stmt);
             }
             RsExpr tail = pair.getTailExpr();
             if (tail != null) visitExpr(tail);
 
+            for (int i = 0; i < remainders; i++) {
+                popCurrent();
+            }
             popCurrent();
         }
 
         void visitStmt(@Nonnull RsStmt stmt) {
+            // the bindings of a let live in the remainder visitBlock entered for it
+            Scope variableScope = current;
             Scope stmtScope = new Scope.Node(stmt);
             recordScope(stmtScope, current);
             pushCurrent(stmtScope);
             if (stmt instanceof RsLetDecl) {
                 RsLetDecl let = (RsLetDecl) stmt;
-                if (let.getPat() != null) bindPatterns(let.getPat(), current);
+                if (let.getPat() != null) bindPatterns(let.getPat(), variableScope);
                 if (let.getExpr() != null) visitExpr(let.getExpr());
             } else if (stmt instanceof RsExprStmt) {
                 RsExpr e = ((RsExprStmt) stmt).getExpr();
