@@ -52,7 +52,7 @@ fn move_in_labeled_block() {
 fn copy_is_fine() -> i32 {
     let a = 1;
     let b = a;
-    /*false:E0382*/a + b
+    a + b
 }
 
 fn move_into_closure() {

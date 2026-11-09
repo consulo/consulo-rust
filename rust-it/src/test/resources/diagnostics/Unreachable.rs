@@ -51,12 +51,12 @@ fn while_true_is_not_infinite(mut n: i32) {
 fn reachable_after_loop_with_break() -> i32 {
     let mut i = 0;
     loop {
-        /*false:E0382*/i += 1;
+        i += 1;
         if i > 3 {
             break;
         }
     }
-    /*false:E0382*/i
+    i
 }
 
 fn labeled_block(c: bool) -> i32 {

@@ -31,7 +31,7 @@ fn overwritten_before_read() -> i32 {
 fn read_in_loop() {
     let mut i = 0;
     while i < 10 {
-        /*false:E0382*/i += 1;
+        i += 1;
     }
 }
 

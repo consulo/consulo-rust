@@ -593,7 +593,32 @@ public class ImplLookup {
         List<SelectionCandidate> candidates = new ArrayList<>();
         assembleCandidatesFromImpls(ref, candidates);
         assembleCandidatesFromCallerBounds(ref, candidates);
+        if (candidates.isEmpty()) {
+            assembleCopyCloneCandidates(ref, candidates);
+        }
         return candidates;
+    }
+
+    /**
+     * {@code Copy} and {@code Clone} of the scalar types. {@code core} implements them with macros
+     * ({@code marker_impls!}, {@code impl_clone!}), so without macro expansion there is no impl to find; only asked when
+     * no impl applies, so an expanded {@code core} never makes the selection ambiguous.
+     */
+    private void assembleCopyCloneCandidates(@Nonnull TraitRef ref, @Nonnull List<SelectionCandidate> candidates) {
+        RsTraitItem trait = ref.getTrait().getTypedElement();
+        if (trait != items.getCopy() && trait != items.getClone()) return;
+        Ty ty = ref.getSelfTy();
+        boolean scalar = (ty instanceof TyPrimitive && !(ty instanceof TyStr))
+            || ty instanceof TyInfer.IntVar
+            || ty instanceof TyInfer.FloatVar
+            || ty instanceof TyNever
+            || ty instanceof TyPointer
+            || ty instanceof TyFunctionDef
+            || ty instanceof TyFunctionPointer
+            || (ty instanceof TyReference && !((TyReference) ty).getMutability().isMut());
+        if (scalar) {
+            candidates.add(new SelectionCandidate.BuiltinCandidate(false));
+        }
     }
 
     private void assembleCandidatesFromImpls(@Nonnull TraitRef ref, @Nonnull List<SelectionCandidate> candidates) {
