@@ -19,6 +19,7 @@ import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiElementVisitor;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.util.PsiTreeUtil;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -58,6 +59,33 @@ public class DiagnosticsTest {
     public void check(String fileName, HeadlessProjects projects) throws Exception {
         String text = RsFlowTesting.read(DIRECTORY, fileName);
         try (RsFlowTesting.CargoSource source = RsFlowTesting.openCargoSource(projects, text)) {
+            check(source.getFile(), text);
+        }
+    }
+
+    @Test
+    @AllowLogError({
+        "consulo.component.impl.internal.messagebus.MessageBusConnectionImpl",
+        "consulo.application.internal.BackgroundTaskUtil"
+    })
+    public void codeThatDoesNotParseIsNotAnalysed(HeadlessProjects projects) throws Exception {
+        // unreachable code, an unused variable and a use after move - but the body does not parse
+        String text = """
+            struct NotCopy;
+
+            fn consume(_: NotCopy) {}
+
+            fn broken() -> i32 {
+                let unused = 1;
+                let a = NotCopy;
+                consume(a);
+                consume(a);
+                return 1;
+                let x = ;
+            }
+            """;
+        try (RsFlowTesting.CargoSource source = RsFlowTesting.openCargoSource(projects, text, true)) {
+            assertThat(ReadAction.compute(() -> PsiTreeUtil.hasErrorElements(source.getFile()))).isTrue();
             check(source.getFile(), text);
         }
     }

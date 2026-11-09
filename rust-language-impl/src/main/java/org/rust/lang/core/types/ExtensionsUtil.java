@@ -9,6 +9,7 @@ import consulo.util.dataholder.Key;
 import consulo.language.psi.PsiElement;
 import consulo.application.util.CachedValue;
 import consulo.application.util.CachedValuesManager;
+import consulo.language.psi.util.PsiTreeUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.dfa.ControlFlowGraph;
@@ -189,8 +190,12 @@ public final class ExtensionsUtil {
             if (!RsElementUtil.existsAfterExpansion(owner)) {
                 return RsInferenceContextOwnerUtil.createCachedResult(owner, null);
             }
-            ScopeTree regionScopeTree = RegionScopeTreeUtil.getRegionScopeTree(owner);
             RsElement body = RsInferenceContextOwnerUtil.getBody(owner);
+            // flow results on code that does not parse are noise: no graph, so the flow checks skip the owner
+            if (body != null && PsiTreeUtil.hasErrorElements(body)) {
+                return RsInferenceContextOwnerUtil.createCachedResult(owner, null);
+            }
+            ScopeTree regionScopeTree = RegionScopeTreeUtil.getRegionScopeTree(owner);
             ControlFlowGraph cfg = body instanceof RsBlock
                 ? ControlFlowGraph.buildFor((RsBlock) body, regionScopeTree)
                 : null;

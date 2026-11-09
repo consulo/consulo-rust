@@ -106,6 +106,13 @@ public final class RsFlowTesting {
      * toolchain bundle.
      */
     public static CargoSource openCargoSource(HeadlessProjects projects, String text) throws Exception {
+        CargoSource source = openCargoSource(projects, text, false);
+        assertThat(ReadAction.compute(() -> PsiTreeUtil.findChildrenOfType(source.file, PsiErrorElement.class))).as("parse errors").isEmpty();
+        return source;
+    }
+
+    /** The same, for a {@code text} that may not parse. */
+    public static CargoSource openCargoSource(HeadlessProjects projects, String text, boolean parseErrors) throws Exception {
         Path directory = CargoProxyToolchain.writeProject("consulo-rust-it-flow");
         Files.writeString(directory.resolve("src/lib.rs"), text, StandardCharsets.UTF_8);
         Path home = CargoProxyToolchain.writeToolchain(directory, Map.of(
@@ -148,7 +155,6 @@ public final class RsFlowTesting {
         assertThat(file).isNotNull();
         source.file = ReadAction.compute(() -> PsiManager.getInstance(project).findFile(file));
         assertThat(source.file).isNotNull();
-        assertThat(ReadAction.compute(() -> PsiTreeUtil.findChildrenOfType(source.file, PsiErrorElement.class))).as("parse errors").isEmpty();
         return source;
     }
 
