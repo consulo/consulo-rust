@@ -8,6 +8,7 @@ package org.rust.lang.core.dfa;
 
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.ext.RsElement;
+import consulo.application.progress.ProgressManager;
 import consulo.language.controlFlow.Instruction;
 
 import java.util.*;
@@ -217,6 +218,7 @@ public class DataFlow {
 
             boolean changed = true;
             while (changed) {
+                ProgressManager.checkCanceled();
                 changed = false;
                 for (CFGInstruction node : orderedNodes) {
                     int start = getStart(node);

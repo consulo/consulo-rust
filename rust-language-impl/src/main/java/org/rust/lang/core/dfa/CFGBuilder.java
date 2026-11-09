@@ -16,6 +16,7 @@ import org.rust.lang.core.types.regions.Scope;
 import org.rust.lang.core.types.regions.ScopeTree;
 import org.rust.lang.core.types.ty.TyNever;
 import org.rust.lang.core.types.ty.TyPrimitive;
+import consulo.application.progress.ProgressManager;
 import consulo.language.controlFlow.ControlFlowBuilder;
 import consulo.language.controlFlow.ControlFlow;
 
@@ -221,6 +222,7 @@ public class CFGBuilder extends RsVisitor {
     @Nonnull
     public CFGInstruction process(@Nullable RsElement element, @Nonnull CFGInstruction pred) {
         if (element == null) return pred;
+        ProgressManager.checkCanceled();
 
         if (element instanceof RsDocAndAttributeOwner && !RsDocAndAttributeOwnerUtil.existsAfterExpansionSelf((RsDocAndAttributeOwner) element)) {
             return pred;
