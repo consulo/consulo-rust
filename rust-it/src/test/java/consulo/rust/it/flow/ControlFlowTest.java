@@ -9,15 +9,13 @@ import consulo.annotation.access.RequiredReadAction;
 import consulo.application.ReadAction;
 import consulo.it.HeadlessProjectExtension;
 import consulo.it.HeadlessProjects;
+import consulo.language.controlFlow.Instruction;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.util.PsiTreeUtil;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.rust.common.graph.Edge;
-import org.rust.common.graph.Node;
-import org.rust.lang.core.dfa.CFGEdgeData;
-import org.rust.lang.core.dfa.CFGNodeData;
+import org.rust.lang.core.dfa.CFGInstruction;
 import org.rust.lang.core.dfa.ControlFlowGraph;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.ext.RsElement;
@@ -25,9 +23,7 @@ import org.rust.lang.core.types.RsTypesUtil;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Stream;
 
@@ -63,21 +59,16 @@ public class ControlFlowTest {
             }
             builder.append("# fn ").append(function.getName()).append('\n');
 
-            Set<Node<CFGNodeData, CFGEdgeData>> reachable = new HashSet<>();
-            for (Node<CFGNodeData, CFGEdgeData> node : cfg.graph.depthFirstTraversal(cfg.entry)) {
-                reachable.add(node);
-            }
-            for (int i = 0; i < cfg.graph.getNodesCount(); i++) {
-                Node<CFGNodeData, CFGEdgeData> node = cfg.graph.getNode(i);
+            for (CFGInstruction instruction : cfg.getInstructions()) {
                 List<Integer> successors = new ArrayList<>();
-                for (Edge<CFGNodeData, CFGEdgeData> edge : cfg.graph.outgoingEdges(node)) {
-                    successors.add(edge.getTarget().getIndex());
+                for (Instruction succ : instruction.allSucc()) {
+                    successors.add(succ.num());
                 }
                 successors.sort(Comparator.naturalOrder());
                 StringJoiner joiner = new StringJoiner(",", "(", ")");
                 successors.forEach(index -> joiner.add(String.valueOf(index)));
-                builder.append(reachable.contains(node) ? "  " : "! ")
-                    .append(i).append(joiner).append(' ').append(oneLine(node.getData().getText())).append('\n');
+                builder.append(cfg.isReachable(instruction) ? "  " : "! ")
+                    .append(instruction.num()).append(joiner).append(' ').append(oneLine(instruction.getData().getText())).append('\n');
             }
 
             List<RsElement> unreachable = new ArrayList<>(cfg.unreachableElements);

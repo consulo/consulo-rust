@@ -8,11 +8,10 @@ package org.rust.lang.core.dfa;
 
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.common.graph.Node;
+import consulo.language.controlFlow.Instruction;
 
 import java.util.*;
 import java.util.function.IntPredicate;
-import org.rust.common.graph.Edge;
 
 public class DataFlow {
     private DataFlow() {
@@ -62,7 +61,7 @@ public class DataFlow {
         @Nonnull private final int[] scopeKills;
         @Nonnull private final int[] actionKills;
         @Nonnull private final int[] onEntry;
-        @Nonnull private final Map<RsElement, List<Node<CFGNodeData, CFGEdgeData>>> cfgTable;
+        @Nonnull private final Map<RsElement, List<CFGInstruction>> cfgTable;
 
         public DataFlowContext(
             @Nonnull ControlFlowGraph cfg,
@@ -76,17 +75,17 @@ public class DataFlow {
             this.flowDirection = flowDirection;
             this.wordsPerElement = (bitsPerElement + BITS_PER_INT - 1) / BITS_PER_INT;
 
-            int size = cfg.graph.getNodesCount() * wordsPerElement;
+            int size = cfg.getInstructions().length * wordsPerElement;
             this.gens = new int[size];
             this.actionKills = new int[size];
             this.scopeKills = new int[size];
             this.onEntry = new int[size];
             Arrays.fill(this.onEntry, oper.getNeutralElement());
-            this.cfgTable = cfg.buildLocalIndex();
+            this.cfgTable = cfg.getLocalIndex();
         }
 
         @Nonnull
-        private List<Node<CFGNodeData, CFGEdgeData>> getCfgNodes(@Nonnull RsElement element) {
+        private List<CFGInstruction> getCfgNodes(@Nonnull RsElement element) {
             return cfgTable.getOrDefault(element, Collections.emptyList());
         }
 
@@ -94,11 +93,11 @@ public class DataFlow {
             return cfgTable.containsKey(element);
         }
 
-        private int getStart(@Nonnull Node<CFGNodeData, CFGEdgeData> node) {
-            return node.getIndex() * wordsPerElement;
+        private int getStart(@Nonnull CFGInstruction node) {
+            return node.num() * wordsPerElement;
         }
 
-        private int getEnd(@Nonnull Node<CFGNodeData, CFGEdgeData> node) {
+        private int getEnd(@Nonnull CFGInstruction node) {
             return getStart(node) + wordsPerElement;
         }
 
@@ -113,13 +112,13 @@ public class DataFlow {
         }
 
         public void addGen(@Nonnull RsElement element, int bit) {
-            for (Node<CFGNodeData, CFGEdgeData> node : getCfgNodes(element)) {
+            for (CFGInstruction node : getCfgNodes(element)) {
                 setBit(gens, getStart(node), bit);
             }
         }
 
         public void addKill(@Nonnull KillFrom kind, @Nonnull RsElement element, int bit) {
-            for (Node<CFGNodeData, CFGEdgeData> node : getCfgNodes(element)) {
+            for (CFGInstruction node : getCfgNodes(element)) {
                 int start = getStart(node);
                 switch (kind) {
                     case ScopeEnd:
@@ -133,7 +132,7 @@ public class DataFlow {
         }
 
         @Nonnull
-        private int[] applyGenKill(@Nonnull Node<CFGNodeData, CFGEdgeData> node, @Nonnull int[] bits) {
+        private int[] applyGenKill(@Nonnull CFGInstruction node, @Nonnull int[] bits) {
             int start = getStart(node);
             int[] result = Arrays.copyOf(bits, bits.length);
             bitwiseRange(UNION, result, gens, start, wordsPerElement);
@@ -143,21 +142,25 @@ public class DataFlow {
         }
 
         private static void bitwiseRange(@Nonnull BitwiseOperator op, @Nonnull int[] out, @Nonnull int[] in, int inOffset, int len) {
+            bitwiseRange(op, out, 0, in, inOffset, len);
+        }
+
+        private static void bitwiseRange(@Nonnull BitwiseOperator op, @Nonnull int[] out, int outOffset, @Nonnull int[] in, int inOffset, int len) {
             for (int i = 0; i < len; i++) {
-                out[i] = op.join(out[i], in[inOffset + i]);
+                out[outOffset + i] = op.join(out[outOffset + i], in[inOffset + i]);
             }
         }
 
         public boolean eachBitOnEntry(@Nonnull RsElement element, @Nonnull IntPredicate predicate) {
             if (!hasBitSetForElement(element)) return true;
-            List<Node<CFGNodeData, CFGEdgeData>> nodes = getCfgNodes(element);
-            for (Node<CFGNodeData, CFGEdgeData> node : nodes) {
+            List<CFGInstruction> nodes = getCfgNodes(element);
+            for (CFGInstruction node : nodes) {
                 if (!eachBitForNode(EntryOrExit.Entry, node, predicate)) return false;
             }
             return true;
         }
 
-        private boolean eachBitForNode(@Nonnull EntryOrExit e, @Nonnull Node<CFGNodeData, CFGEdgeData> node, @Nonnull IntPredicate predicate) {
+        private boolean eachBitForNode(@Nonnull EntryOrExit e, @Nonnull CFGInstruction node, @Nonnull IntPredicate predicate) {
             if (bitsPerElement == 0) return true;
             int start = getStart(node);
             int[] slice;
@@ -188,67 +191,92 @@ public class DataFlow {
 
         public void addKillsFromFlowExits() {
             if (bitsPerElement == 0) return;
-            cfg.graph.forEachEdge(edge -> {
-                Node<CFGNodeData, CFGEdgeData> flowExit = edge.getSource();
-                int start = getStart(flowExit);
-                int[] originalKills = Arrays.copyOfRange(scopeKills, start, start + wordsPerElement);
-
-                boolean changed = false;
-                for (RsElement element : edge.getData().getExitingScopes()) {
-                    List<Node<CFGNodeData, CFGEdgeData>> cfgNodes = cfgTable.get(element);
-                    if (cfgNodes == null) continue;
-                    for (Node<CFGNodeData, CFGEdgeData> cfgNode : cfgNodes) {
-                        int nodeStart = getStart(cfgNode);
-                        int[] kills = Arrays.copyOfRange(scopeKills, nodeStart, nodeStart + wordsPerElement);
-                        int[] temp = new int[wordsPerElement];
-                        System.arraycopy(originalKills, 0, temp, 0, wordsPerElement);
-                        if (UNION.bitwise(temp, kills)) {
-                            System.arraycopy(temp, 0, originalKills, 0, wordsPerElement);
-                            changed = true;
+            for (CFGInstruction flowExit : cfg.getInstructions()) {
+                for (Instruction target : flowExit.allSucc()) {
+                    List<RsElement> scopes = cfg.getExitingScopes(flowExit, target);
+                    if (scopes.isEmpty()) continue;
+                    int start = getStart(flowExit);
+                    for (RsElement element : scopes) {
+                        List<CFGInstruction> cfgNodes = cfgTable.get(element);
+                        if (cfgNodes == null) continue;
+                        for (CFGInstruction cfgNode : cfgNodes) {
+                            bitwiseRange(UNION, scopeKills, start, scopeKills, getStart(cfgNode), wordsPerElement);
                         }
                     }
                 }
-                if (changed) {
-                    System.arraycopy(originalKills, 0, scopeKills, start, wordsPerElement);
-                }
-            });
+            }
         }
 
         public void propagate() {
             if (bitsPerElement == 0) return;
 
-            List<Node<CFGNodeData, CFGEdgeData>> orderedNodes;
-            List<Node<CFGNodeData, CFGEdgeData>> postOrder = cfg.graph.nodesInPostOrder(cfg.entry);
+            List<CFGInstruction> orderedNodes = postOrder(cfg);
             if (flowDirection == FlowDirection.Forward) {
-                orderedNodes = new ArrayList<>(postOrder);
                 Collections.reverse(orderedNodes);
-            } else {
-                orderedNodes = postOrder;
             }
 
             boolean changed = true;
             while (changed) {
                 changed = false;
-                for (Node<CFGNodeData, CFGEdgeData> node : orderedNodes) {
+                for (CFGInstruction node : orderedNodes) {
                     int start = getStart(node);
                     int[] nodeOnEntry = Arrays.copyOfRange(onEntry, start, start + wordsPerElement);
                     int[] result = applyGenKill(node, nodeOnEntry);
-                    if (flowDirection == FlowDirection.Forward) {
-                        for (Object edge : cfg.graph.outgoingEdges(node)) {
-                            Node<CFGNodeData, CFGEdgeData> target = ((org.rust.common.graph.Edge<CFGNodeData, CFGEdgeData>) edge).getTarget();
-                            if (propagateBitsIntoEntrySetFor(result, target)) changed = true;
-                        }
-                    } else {
-                        for (Object edge : cfg.graph.incomingEdges(node)) {
-                            Node<CFGNodeData, CFGEdgeData> source = ((org.rust.common.graph.Edge<CFGNodeData, CFGEdgeData>) edge).getSource();
-                            if (propagateBitsIntoEntrySetFor(result, source)) changed = true;
-                        }
+                    Collection<Instruction> next = flowDirection == FlowDirection.Forward ? node.allSucc() : node.allPred();
+                    for (Instruction target : next) {
+                        if (propagateBitsIntoEntrySetFor(result, (CFGInstruction) target)) changed = true;
                     }
                 }
             }
         }
 
-        private boolean propagateBitsIntoEntrySetFor(@Nonnull int[] predBits, @Nonnull Node<CFGNodeData, CFGEdgeData> node) {
+        /**
+         * Every instruction, each after all its successors except along back edges: a depth-first walk from the entry,
+         * then from each instruction not reached yet, so that unreachable code is analysed too
+         */
+        @Nonnull
+        private static List<CFGInstruction> postOrder(@Nonnull ControlFlowGraph cfg) {
+            CFGInstruction[] instructions = cfg.getInstructions();
+            List<CFGInstruction> result = new ArrayList<>(instructions.length);
+            boolean[] visited = new boolean[instructions.length];
+            Deque<CFGInstruction> stack = new ArrayDeque<>();
+            Deque<Iterator<Instruction>> successors = new ArrayDeque<>();
+            List<CFGInstruction> roots = new ArrayList<>(instructions.length + 1);
+            roots.add(cfg.entry);
+            roots.addAll(Arrays.asList(instructions));
+            for (CFGInstruction root : roots) {
+                if (visited[root.num()]) continue;
+                visited[root.num()] = true;
+                stack.push(root);
+                successors.push(root.allSucc().iterator());
+                walk(stack, successors, visited, result);
+            }
+            return result;
+        }
+
+        private static void walk(
+            @Nonnull Deque<CFGInstruction> stack,
+            @Nonnull Deque<Iterator<Instruction>> successors,
+            @Nonnull boolean[] visited,
+            @Nonnull List<CFGInstruction> result
+        ) {
+            while (!stack.isEmpty()) {
+                Iterator<Instruction> iterator = successors.peek();
+                if (iterator.hasNext()) {
+                    CFGInstruction succ = (CFGInstruction) iterator.next();
+                    if (!visited[succ.num()]) {
+                        visited[succ.num()] = true;
+                        stack.push(succ);
+                        successors.push(succ.allSucc().iterator());
+                    }
+                } else {
+                    successors.pop();
+                    result.add(stack.pop());
+                }
+            }
+        }
+
+        private boolean propagateBitsIntoEntrySetFor(@Nonnull int[] predBits, @Nonnull CFGInstruction node) {
             int start = getStart(node);
             boolean changed = false;
             for (int i = 0; i < wordsPerElement; i++) {
