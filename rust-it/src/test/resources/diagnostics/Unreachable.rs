@@ -5,7 +5,7 @@ fn diverge() -> ! {
 fn after_return() -> i32 {
     return 1;
     /*unreachable_code*/let x = 2;
-    /*false:unreachable_code*/x
+    x
 }
 
 fn after_call() {

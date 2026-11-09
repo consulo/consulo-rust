@@ -18,7 +18,9 @@ import java.util.regex.Pattern;
  * <li>{@code /*missing:CODE*&#47;} - rustc reports it, the IDE does not (a known gap)</li>
  * <li>{@code /*false:CODE*&#47;} - the IDE reports it, rustc does not (a known false positive)</li>
  * </ul>
- * Only the codes in {@link #CODES} are compared; everything else either side reports is ignored.
+ * Only the codes in {@link #CODES} are compared; everything else either side reports is ignored. A marker is a comment
+ * in the PSI, a sibling of the code after it: where that changes what the IDE reports (merged ranges, as of unreachable
+ * statements), leave the marker out and keep the case in the comparison by its absence.
  */
 public final class DiagnosticMarkers {
     public static final List<String> CODES = List.of("unreachable_code", "unused_variables", "unused_assignments", "E0381", "E0382");

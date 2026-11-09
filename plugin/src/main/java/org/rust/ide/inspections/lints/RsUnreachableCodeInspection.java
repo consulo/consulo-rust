@@ -14,6 +14,7 @@ import org.rust.RsBundle;
 import org.rust.ide.fixes.SubstituteTextFix;
 import org.rust.ide.inspections.RsProblemsHolder;
 import org.rust.ide.inspections.RsWithMacrosInspectionVisitor;
+import org.rust.lang.core.psi.RsExprStmt;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsVisitor;
 import org.rust.lang.core.psi.ext.impl.RsPsiElementExtUtil;
@@ -54,7 +55,10 @@ public class RsUnreachableCodeInspection extends RsLintInspection {
                 List<TextRange> sortedRanges = new ArrayList<>();
                 for (PsiElement el : elementsToReport) {
                     if (el.isPhysical()) {
-                        sortedRanges.add(RsPsiElementExtUtil.getRangeWithPrevSpace(el));
+                        // a tail expression is wrapped into a statement without `;`: take that, so that it merges with
+                        // the unreachable statements before it into one warning, as rustc reports it
+                        PsiElement stmt = el.getParent() instanceof RsExprStmt exprStmt && exprStmt.getExpr() == el ? exprStmt : el;
+                        sortedRanges.add(RsPsiElementExtUtil.getRangeWithPrevSpace(stmt));
                     }
                 }
                 if (sortedRanges.isEmpty()) return;
