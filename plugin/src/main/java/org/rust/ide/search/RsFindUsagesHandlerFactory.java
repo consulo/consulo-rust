@@ -11,6 +11,11 @@ import consulo.find.FindUsagesHandlerFactory;
 import consulo.project.Project;
 import consulo.ui.ex.awt.Messages;
 import consulo.language.psi.PsiElement;
+import consulo.localize.LocalizeValue;
+import consulo.ui.MessageBoxBuilder;
+import consulo.ui.MessageButtonRole;
+import consulo.ui.annotation.RequiredUIAccess;
+import org.jspecify.annotations.Nullable;
 import org.rust.RsBundle;
 import org.rust.lang.core.psi.ext.RsAbstractable;
 import org.rust.lang.core.psi.ext.RsAbstractableOwner;
@@ -21,6 +26,7 @@ import org.rust.lang.core.psi.ext.RsNamedElement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @ExtensionImpl
 public class RsFindUsagesHandlerFactory extends FindUsagesHandlerFactory {
@@ -36,6 +42,35 @@ public class RsFindUsagesHandlerFactory extends FindUsagesHandlerFactory {
         return new RsFindUsagesHandler(element, secondaryElements);
     }
 
+    @Override
+    @RequiredUIAccess
+    public CompletableFuture<@Nullable FindUsagesHandler> createFindUsagesHandlerAsync(PsiElement element, boolean forHighlightUsages) {
+        if (forHighlightUsages || !(element instanceof RsAbstractable abstractable)
+            || RsAbstractableOwnerUtil.getOwner(abstractable) instanceof RsAbstractableOwner.Trait
+            || abstractable.getSuperItem() == null) {
+            return CompletableFuture.completedFuture(createFindUsagesHandler(element, forHighlightUsages));
+        }
+
+        RsAbstractable superItem = abstractable.getSuperItem();
+        return MessageBoxBuilder.<Boolean>create()
+            .asQuestion()
+            .title(LocalizeValue.of(RsBundle.message("dialog.title.find.usages")))
+            .text(LocalizeValue.of(RsBundle.message("dialog.message.do.you.want.to.find.usages.base.declaration")))
+            .button(MessageButtonRole.YES, Boolean.TRUE)
+            .asDefaultButton()
+            .button(MessageButtonRole.NO, Boolean.FALSE)
+            .asExitButton()
+            .showAsync(element.getProject())
+            .thenApply(search -> new RsFindUsagesHandler(element, search ? superItemElements(element, superItem) : Collections.emptyList()));
+    }
+
+    private static List<PsiElement> superItemElements(PsiElement element, RsAbstractable superItem) {
+        List<PsiElement> result = new ArrayList<>(findImplDeclarations(superItem));
+        result.remove(element);
+        result.add(superItem);
+        return result;
+    }
+
     private static List<PsiElement> findSecondaryElements(PsiElement element) {
         if (!(element instanceof RsAbstractable)) return Collections.emptyList();
         RsAbstractable abstractable = (RsAbstractable) element;
@@ -49,10 +84,7 @@ public class RsFindUsagesHandlerFactory extends FindUsagesHandlerFactory {
         if (superItem == null) return Collections.emptyList();
 
         if (askWhetherShouldSearchForUsagesOfSuperItem(element.getProject())) {
-            List<PsiElement> result = new ArrayList<>(findImplDeclarations(superItem));
-            result.remove(element);
-            result.add(superItem);
-            return result;
+            return superItemElements(element, superItem);
         } else {
             return Collections.emptyList();
         }
