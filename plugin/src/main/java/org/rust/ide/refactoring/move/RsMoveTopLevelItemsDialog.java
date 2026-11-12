@@ -12,10 +12,8 @@ import consulo.ui.ex.awt.TextFieldWithBrowseButton;
 import consulo.util.dataholder.Key;
 
 import consulo.util.lang.StringUtil;
-import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFileManager;
 import consulo.virtualFileSystem.VirtualFile;
-import consulo.virtualFileSystem.VirtualFileSystem;
-import consulo.virtualFileSystem.util.VirtualFileUtil;
 import consulo.language.editor.refactoring.RefactoringBundle;
 import consulo.language.editor.refactoring.ui.RefactoringDialog;
 import consulo.language.editor.refactoring.util.CommonRefactoringUtil;
@@ -215,7 +213,8 @@ public class RsMoveTopLevelItemsDialog extends RefactoringDialog {
 
     private void doActionUndoCommand() {
         Set<RsItemElement> items = getSelectedItems();
-        Path targetFilePath = java.nio.file.Paths.get(targetFileChooser.getText());
+        // a path of the machine the project lives on
+        Path targetFilePath = myProject.getPlatform().fs().getPath(targetFileChooser.getText());
         RsMod targetMod = getOrCreateTargetMod(targetFilePath, myProject, sourceMod.getCrateRoot());
         if (targetMod == null) return;
         try {
@@ -231,7 +230,7 @@ public class RsMoveTopLevelItemsDialog extends RefactoringDialog {
 
     @Nullable
     public static RsMod getOrCreateTargetMod(@Nonnull Path targetFilePath, @Nonnull Project project, @Nullable RsMod crateRoot) {
-        VirtualFile targetFile = LocalFileSystem.getInstance().findFileByNioFile(targetFilePath);
+        VirtualFile targetFile = VirtualFileManager.getInstance().findFileByNioPath(targetFilePath);
         if (targetFile != null) {
             consulo.language.psi.PsiFile psiFile = VirtualFileExtUtil.toPsiFile(targetFile, project);
             if (psiFile instanceof RsMod) {
@@ -262,10 +261,7 @@ public class RsMoveTopLevelItemsDialog extends RefactoringDialog {
     @Nullable
     private static RsFile createNewRustFile(@Nonnull Path filePath, @Nonnull Project project, @Nullable RsMod crateRoot) {
         return org.rust.openapiext.OpenApiUtil.runWriteCommandAction(project, RefactoringBundle.message("move.title"), () -> {
-            VirtualFileSystem fileSystem = crateRoot instanceof RsFile && ((RsFile) crateRoot).getVirtualFile() != null
-                ? ((RsFile) crateRoot).getVirtualFile().getFileSystem()
-                : LocalFileSystem.getInstance();
-            return createNewFile(filePath, fileSystem, virtualFile -> {
+            return createNewFile(filePath, virtualFile -> {
                 consulo.language.psi.PsiFile psiFile = VirtualFileExtUtil.toPsiFile(virtualFile, project);
                 if (psiFile == null) return null;
                 RsFile rsFile = psiFile instanceof RsFile ? (RsFile) psiFile : null;
@@ -295,33 +291,42 @@ public class RsMoveTopLevelItemsDialog extends RefactoringDialog {
         return true;
     }
 
+    /**
+     * Creates the file and its missing directories through the virtual file system - the path may be one of a remote platform
+     */
     @Nullable
     private static <T> T createNewFile(
         @Nonnull Path filePath,
-        @Nonnull VirtualFileSystem fileSystem,
         @Nonnull java.util.function.Function<VirtualFile, T> action
     ) {
-        Path directoryPath = filePath.getParent();
-        List<Path> directoriesToCreate = new ArrayList<>();
-        Path current = directoryPath;
-        while (current != null && fileSystem.findFileByPath(current.toString()) == null) {
-            directoriesToCreate.add(current);
+        VirtualFileManager fileManager = VirtualFileManager.getInstance();
+        List<String> directoriesToCreate = new ArrayList<>();
+        Path current = filePath.getParent();
+        VirtualFile existing = null;
+        while (current != null) {
+            existing = fileManager.refreshAndFindFileByNioPath(current);
+            if (existing != null) break;
+            Path name = current.getFileName();
+            if (name == null) break;
+            directoriesToCreate.add(0, name.toString());
             current = current.getParent();
         }
+        if (existing == null) return null;
 
+        VirtualFile firstCreated = null;
         try {
-            VirtualFile parentDirectory = VirtualFileUtil.createDirectoryIfMissing(directoryPath.toString());
-            if (parentDirectory == null) return null;
+            VirtualFile parentDirectory = existing;
+            for (String name : directoriesToCreate) {
+                parentDirectory = parentDirectory.createChildDirectory(null, name);
+                if (firstCreated == null) firstCreated = parentDirectory;
+            }
             VirtualFile file = parentDirectory.createChildData(null, filePath.getFileName().toString());
             T result = action.apply(file);
             if (result != null) return result;
 
             // Need to delete created file and directories
             file.delete(null);
-            for (Path dir : directoriesToCreate) {
-                VirtualFile vf = fileSystem.findFileByPath(dir.toString());
-                if (vf != null) vf.delete(null);
-            }
+            if (firstCreated != null) firstCreated.delete(null);
             return null;
         } catch (Exception e) {
             return null;

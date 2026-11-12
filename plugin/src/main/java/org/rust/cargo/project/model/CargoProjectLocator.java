@@ -5,6 +5,7 @@
 
 package org.rust.cargo.project.model;
 
+import consulo.virtualFileSystem.VirtualFileManager;
 import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.api.model.CargoProjectsService;
 
@@ -42,7 +43,10 @@ public final class CargoProjectLocator {
         int idx = additionalArgs.indexOf("--manifest-path");
         Path manifestPath = null;
         if (idx != -1 && idx + 1 < additionalArgs.size()) {
-            manifestPath = Paths.get(additionalArgs.get(idx + 1));
+            // the manifest is a path of the machine the project lives on
+            manifestPath = workingDirectory != null
+                ? workingDirectory.getFileSystem().getPath(additionalArgs.get(idx + 1))
+                : Paths.get(additionalArgs.get(idx + 1));
         }
 
         List<Path> dirs = new ArrayList<>();
@@ -50,7 +54,7 @@ public final class CargoProjectLocator {
         if (workingDirectory != null) dirs.add(workingDirectory);
 
         for (Path dir : dirs) {
-            VirtualFile vFile = LocalFileSystem.getInstance().findFileByIoFile(dir.toFile());
+            VirtualFile vFile = VirtualFileManager.getInstance().findFileByNioPath(dir);
             if (vFile != null) {
                 CargoProject found = cargoProjects.findProjectForFile(vFile);
                 if (found != null) return found;

@@ -24,7 +24,7 @@ import consulo.ui.Space;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.layout.DockLayout;
 import consulo.util.lang.StringUtil;
-import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFileManager;
 import consulo.virtualFileSystem.VirtualFile;
 import org.jspecify.annotations.Nullable;
 import org.rust.cargo.api.model.CargoProject;
@@ -35,7 +35,6 @@ import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import org.rust.cargo.runconfig.RsCommandConfiguration;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -84,7 +83,7 @@ public abstract class RsCommandFragment<T extends RsCommandConfiguration> implem
                 CargoProject cargoProject = CargoProjectLocator.findCargoProject(
                     project,
                     commandRef[0] == null ? "" : commandRef[0].getValue(),
-                    toPath(workingDirectory.getValue())
+                    toPath(project, workingDirectory.getValue())
                 );
                 return cargoProject == null ? null : cargoProject.getWorkspace();
             }))
@@ -124,7 +123,7 @@ public abstract class RsCommandFragment<T extends RsCommandConfiguration> implem
                 Path path = target.getWorkingDirectory();
                 workingDirectory.setValue(path == null ? "" : path.toString(), false);
 
-                VirtualFile file = path == null ? null : LocalFileSystem.getInstance().findFileByNioFile(path);
+                VirtualFile file = path == null ? null : VirtualFileManager.getInstance().findFileByNioPath(path);
                 CargoProject projectForDirectory = file == null ? null : cargoProjects.findProjectForFile(file);
                 if (projectForDirectory != null) {
                     cargoProject.setValue(projectForDirectory, false);
@@ -135,12 +134,15 @@ public abstract class RsCommandFragment<T extends RsCommandConfiguration> implem
             @Override
             public void apply(T target) {
                 target.setCommand(command.getValue());
-                target.setWorkingDirectory(toPath(workingDirectory.getValue()));
+                target.setWorkingDirectory(toPath(project, workingDirectory.getValue()));
             }
         };
     }
 
-    private static @Nullable Path toPath(@Nullable String text) {
-        return StringUtil.isEmptyOrSpaces(text) ? null : Paths.get(text.trim());
+    /**
+     * A path of the machine the project lives on
+     */
+    private static @Nullable Path toPath(Project project, @Nullable String text) {
+        return StringUtil.isEmptyOrSpaces(text) ? null : project.getPlatform().fs().getPath(text.trim());
     }
 }

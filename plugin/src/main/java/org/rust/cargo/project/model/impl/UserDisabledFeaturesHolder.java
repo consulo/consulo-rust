@@ -20,7 +20,6 @@ import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
@@ -98,10 +97,17 @@ public final class UserDisabledFeaturesHolder implements PersistentStateComponen
                     String name = featureElem.getAttributeValue("name");
                     if (name != null) features.add(name);
                 }
-                pkgFeatures.put(Paths.get(packageFile), features);
+                pkgFeatures.put(toPath(packageFile), features);
             }
-            result.put(Paths.get(projectFile), UserDisabledFeatures.of(pkgFeatures));
+            result.put(toPath(projectFile), UserDisabledFeatures.of(pkgFeatures));
         }
         loadedUserDisabledFeatures = result;
+    }
+
+    /**
+     * The stored paths are paths of the machine the project lives on - they are compared with the manifests cargo reports there
+     */
+    private Path toPath(String path) {
+        return project.getPlatform().fs().getPath(path);
     }
 }

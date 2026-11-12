@@ -119,6 +119,15 @@ final class PackageImpl extends UserDataHolderBase implements CargoWorkspace.Pac
 
     @Override
     public Path getRootDirectory() {
+        VirtualFile contentRoot = getContentRoot();
+        if (contentRoot != null) {
+            // a package of a project on a remote platform - the path of that machine
+            try {
+                return contentRoot.toNioPath();
+            }
+            catch (UnsupportedOperationException ignored) {
+            }
+        }
         return Paths.get(VirtualFileManager.extractPath(myContentRootUrl));
     }
 

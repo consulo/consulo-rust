@@ -1,5 +1,6 @@
 package org.rust.cargo.project.workspace;
 
+import consulo.virtualFileSystem.VirtualFileManager;
 import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.cargo.api.workspace.CargoWorkspaceData;
 import org.rust.cargo.api.workspace.PackageOrigin;
@@ -90,7 +91,8 @@ public final class StandardLibraryFactory {
         boolean isPartOfCargoProject,
         @Nullable ProcessProgressListener listener
     ) {
-        VirtualFile file = LocalFileSystem.getInstance().findFileByPath(path);
+        // the path is one of the machine the project lives on
+        VirtualFile file = VirtualFileManager.getInstance().findFileByNioPath(project.getPlatform().fs().getPath(path));
         if (file == null) return null;
         return fromFile(project, file, rustcInfo, cargoConfig, isPartOfCargoProject, listener);
     }

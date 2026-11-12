@@ -250,6 +250,10 @@ public class ProcMacroServerPool implements ProcMacroServer, Disposable {
 
     @Nullable
     public static Path findExpanderExecutablePath(@Nonnull RsToolchainBase toolchain, @Nonnull String sysroot) {
+        if (toolchain.getPlatform() != consulo.platform.Platform.current()) {
+            // the expander would have to run on the machine of the toolchain, next to the macros built there
+            return null;
+        }
         String binaryName = toolchain.getExecutableName(ProcMacroExpander.EXPANDER_EXECUTABLE);
         Path expanderPath = Path.of(sysroot, "libexec", binaryName);
 

@@ -100,7 +100,7 @@ public class StdlibDataFetcher {
             if (packageSrcDir != null) packageSrcDir = packageSrcDir.getCanonicalFile();
             if (packageSrcDir == null) continue;
 
-            String packageManifestPath = Paths.get(packageSrcDir.getPath()).resolve(CargoConstants.MANIFEST_FILE).toString();
+            String packageManifestPath = packageSrcDir.toNioPath().resolve(CargoConstants.MANIFEST_FILE).toString();
             CargoMetadata.Package pkg = null;
             for (CargoMetadata.Package p : myAllPackages) {
                 if (p.getManifest_path().equals(packageManifestPath)) {
@@ -120,9 +120,10 @@ public class StdlibDataFetcher {
             new CargoMetadata.Resolve(myAllNodes),
             1,
             myWorkspaceMembers,
-            mySrcDir.getPath()
+            mySrcDir.toNioPath().toString()
         );
-        CargoWorkspaceData stdlibWorkspaceData = CargoMetadata.clean(stdlibMetadataProject);
+        // the standard library may live on a remote platform - its paths are paths of that machine
+        CargoWorkspaceData stdlibWorkspaceData = CargoMetadata.clean(stdlibMetadataProject, null, mySrcDir.toNioPath().getFileSystem());
         List<CargoWorkspaceData.Package> stdlibPackages = new ArrayList<>();
         for (CargoWorkspaceData.Package pkg : stdlibWorkspaceData.getPackages()) {
             PackageOrigin newOrigin = pkg.getSource() == null ? PackageOrigin.STDLIB : PackageOrigin.STDLIB_DEPENDENCY;
@@ -132,7 +133,8 @@ public class StdlibDataFetcher {
     }
 
     private String remapPath(String pathStr, String libName, String version) {
-        Path path = org.rust.stdext.PathUtil.toPath(pathStr);
+        // a path of the machine cargo runs on - parsed by its file system, C:\a is no file name there
+        Path path = myStdlibDependenciesDir.getFileSystem().getPath(pathStr);
         for (int i = path.getNameCount() - 1; i >= 0; i--) {
             String fileName = path.getName(i).getFileName().toString();
             if (fileName.startsWith(libName) && fileName.endsWith(version)) {
@@ -217,7 +219,7 @@ public class StdlibDataFetcher {
             return;
         }
 
-        Path dirPath = Paths.get(dir.getPath());
+        Path dirPath = dir.toNioPath();
         org.rust.stdext.RsResult<CargoMetadata.Project, ?> result = myCargo.fetchMetadata(
             myProject,
             dirPath,
@@ -301,9 +303,42 @@ public class StdlibDataFetcher {
     }
 
     
-    public static Path stdlibVendorDir(VirtualFile srcDir, RustcVersion version) {
+    public static Path stdlibVendorDir(Project project, VirtualFile srcDir, RustcVersion version) {
         String stdlibHash = stdlibHash(srcDir, version);
-        return RsPathManager.stdlibDependenciesDir().resolve(version.getSemver().getParsedVersion() + "-" + stdlibHash + "/vendor");
+        return stdlibDependenciesDir(project, srcDir).resolve(version.getSemver().getParsedVersion() + "-" + stdlibHash + "/vendor");
+    }
+
+    /**
+     * Where the dependencies of the standard library are vendored - on the machine the standard library lives on, since
+     * {@code cargo vendor} runs there: the IDE system directory for a local one, the user cache directory of the machine
+     * for a remote one.
+     */
+    private static Path stdlibDependenciesDir(Project project, VirtualFile srcDir) {
+        Path srcPath;
+        try {
+            srcPath = srcDir.toNioPath();
+        }
+        catch (UnsupportedOperationException e) {
+            return RsPathManager.stdlibDependenciesDir();
+        }
+        if (srcPath.getFileSystem() == java.nio.file.FileSystems.getDefault()) {
+            return RsPathManager.stdlibDependenciesDir();
+        }
+        return userCacheDir(project.getPlatform()).resolve("consulo-rust").resolve("stdlib-dependencies");
+    }
+
+    private static Path userCacheDir(consulo.platform.Platform platform) {
+        consulo.platform.PlatformOperatingSystem os = platform.os();
+        Path home = platform.user().homePath();
+        if (os.isWindows()) {
+            String localAppData = os.getEnvironmentVariable("LOCALAPPDATA");
+            return localAppData != null ? platform.fs().getPath(localAppData) : home.resolve("AppData").resolve("Local");
+        }
+        if (os.isMac()) {
+            return home.resolve("Library").resolve("Caches");
+        }
+        String xdgCacheHome = os.getEnvironmentVariable("XDG_CACHE_HOME");
+        return xdgCacheHome != null && !xdgCacheHome.isEmpty() ? platform.fs().getPath(xdgCacheHome) : home.resolve(".cache");
     }
 
     @Nullable
@@ -317,7 +352,7 @@ public class StdlibDataFetcher {
         @Nullable ProcessProgressListener listener,
         boolean cleanVendorDir
     ) {
-        Path stdlibVendor = stdlibVendorDir(srcDir, version);
+        Path stdlibVendor = stdlibVendorDir(project, srcDir, version);
         boolean stdlibVendorExists = Files.exists(stdlibVendor);
         if (stdlibVendorExists && cleanVendorDir) {
             if (!consulo.util.io.FileUtil.delete(stdlibVendor)) {
@@ -330,7 +365,7 @@ public class StdlibDataFetcher {
         if (!stdlibVendorExists) {
             // `test` package depends on all other stdlib packages,
             // so it's enough to vendor only its dependencies
-            Path testPath = Paths.get(testPackageSrcDir.getPath());
+            Path testPath = testPackageSrcDir.toNioPath();
             org.rust.stdext.RsResult<?, ?> result = cargo.vendorDependencies(
                 project, testPath, stdlibVendor, activeToolchain,
                 additionalEnvVariables(version), listener

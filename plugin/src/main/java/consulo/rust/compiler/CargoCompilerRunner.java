@@ -51,7 +51,6 @@ import org.rust.cargo.api.toolchain.RustcMessage.RustcDiagnostic;
 import org.rust.cargo.api.toolchain.RustcMessage.RustcSpan;
 import org.rust.cargo.toolchain.tools.Cargo;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -205,7 +204,7 @@ public class CargoCompilerRunner implements CompilerRunner {
                 if (outputType == ProcessOutputTypes.STDOUT) {
                     // Only stdout carries the JSON stream; anything unparseable there is still
                     // worth showing, so it falls through to the plain output below.
-                    if (consume(text, buildProgress, artifacts)) {
+                    if (consume(text, buildProgress, artifacts, generalCommandLine.getWorkingDirectory())) {
                         return;
                     }
                 }
@@ -231,7 +230,8 @@ public class CargoCompilerRunner implements CompilerRunner {
     private static boolean consume(
         String line,
         BuildProgress<BuildProgressDescriptor> buildProgress,
-        List<CompilerArtifactMessage> artifacts
+        List<CompilerArtifactMessage> artifacts,
+        @Nullable Path workingDirectory
     ) {
         String trimmed = line.trim();
         if (!trimmed.startsWith("{")) {
@@ -249,7 +249,7 @@ public class CargoCompilerRunner implements CompilerRunner {
         try {
             CargoTopMessage topMessage = CargoTopMessage.fromJson(json);
             if (topMessage != null) {
-                report(topMessage.getMessage(), buildProgress);
+                report(topMessage.getMessage(), buildProgress, workingDirectory);
                 return true;
             }
 
@@ -267,7 +267,7 @@ public class CargoCompilerRunner implements CompilerRunner {
         return true;
     }
 
-    private static void report(RustcDiagnostic diagnostic, BuildProgress<BuildProgressDescriptor> buildProgress) {
+    private static void report(RustcDiagnostic diagnostic, BuildProgress<BuildProgressDescriptor> buildProgress, @Nullable Path workingDirectory) {
         MessageEvent.Kind kind = kindOf(diagnostic.getLevel());
         if (kind == null) {
             return;
@@ -288,13 +288,24 @@ public class CargoCompilerRunner implements CompilerRunner {
             message,
             kind,
             new FilePosition(
-                new File(span.getFile_name()),
+                spanFile(span.getFile_name(), workingDirectory),
                 span.getLine_start() - 1,
                 span.getColumn_start() - 1,
                 span.getLine_end() - 1,
                 span.getColumn_end() - 1
             )
         );
+    }
+
+    /**
+     * A file of a span - a path of the machine cargo ran on, relative to the working directory of the build
+     */
+    private static Path spanFile(String fileName, @Nullable Path workingDirectory) {
+        if (workingDirectory == null) {
+            return Path.of(fileName);
+        }
+        Path path = workingDirectory.getFileSystem().getPath(fileName);
+        return path.isAbsolute() ? path : workingDirectory.resolve(path);
     }
 
     @Nullable

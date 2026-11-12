@@ -55,6 +55,7 @@ import consulo.util.io.FileUtil;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.VirtualFileManager;
 import consulo.virtualFileSystem.VirtualFileWithId;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
@@ -258,12 +259,27 @@ public final class OpenApiUtil {
 
     @Nullable
     public static VirtualFile findFileByMaybeRelativePath(@Nonnull VirtualFile base, @Nonnull String path) {
-        if (FileUtil.isAbsolute(path)) {
-            return base.getFileSystem().findFileByPath(path);
-        } else {
-            return base.findFileByRelativePath(path);
+        Path basePath;
+        try {
+            basePath = base.toNioPath();
         }
+        catch (UnsupportedOperationException e) {
+            return FileUtil.isAbsolute(path) ? base.getFileSystem().findFileByPath(path) : base.findFileByRelativePath(path);
+        }
+        // a path of the machine the base lives on - absolute or not by the rules of that machine (C:\a on windows)
+        Path filePath;
+        try {
+            filePath = basePath.getFileSystem().getPath(path);
+        }
+        catch (java.nio.file.InvalidPathException e) {
+            return null;
+        }
+        if (filePath.isAbsolute()) {
+            return VirtualFileManager.getInstance().findFileByNioPath(filePath);
+        }
+        return base.findFileByRelativePath(FileUtil.toSystemIndependentName(path));
     }
+
 
     @Nonnull
     public static Pair<VirtualFile, List<String>> findNearestExistingFile(@Nonnull VirtualFile base, @Nonnull String path) {
@@ -281,7 +297,13 @@ public final class OpenApiUtil {
 
     @Nonnull
     public static Path getPathAsPath(@Nonnull VirtualFile file) {
-        return Paths.get(file.getPath());
+        try {
+            // a file of a remote platform answers with a path of that machine
+            return file.toNioPath();
+        }
+        catch (UnsupportedOperationException e) {
+            return Paths.get(file.getPath());
+        }
     }
 
     @Nullable

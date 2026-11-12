@@ -29,9 +29,7 @@ import org.rust.cargo.api.toolchain.RustcMessage;
 import org.rust.openapiext.JsonUtils;
 import org.rust.stdext.Utils;
 
-import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -295,12 +293,13 @@ public class RsBuildEventsConverter implements BuildOutputParser {
     private FilePosition getFilePosition(RustcMessage.RustcDiagnostic message) {
         RustcMessage.RustcSpan span = message.getMainSpan();
         if (span == null) return null;
-        Path filePath = Paths.get(span.getFile_name());
+        // a path of the machine cargo runs on
+        Path filePath = context.getWorkingDirectory().getFileSystem().getPath(span.getFile_name());
         if (!filePath.isAbsolute()) {
             filePath = context.getWorkingDirectory().resolve(filePath);
         }
         return new FilePosition(
-            filePath.toFile(),
+            filePath,
             span.getLine_start() - 1,
             span.getColumn_start() - 1,
             span.getLine_end() - 1,
@@ -347,7 +346,7 @@ public class RsBuildEventsConverter implements BuildOutputParser {
             null,
             LocalizeValue.of(message),
             LocalizeValue.ofNullable(detailedMessage),
-            filePosition != null ? filePosition : new FilePosition(workingDirectory.toFile(), 0, 0)
+            filePosition != null ? filePosition : new FilePosition(workingDirectory, 0, 0)
         );
     }
 }

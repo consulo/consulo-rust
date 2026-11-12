@@ -78,7 +78,16 @@ public class RustBundleType extends PlatformAwareSdkType {
         if (homePath == null || homePath.isEmpty()) {
             return null;
         }
-        return RsToolchainProvider.getToolchainStatic(binDirectory(Paths.get(homePath)));
+        Platform platform;
+        try {
+            platform = sdk.getPlatform();
+        }
+        catch (IllegalStateException e) {
+            // the machine of the bundle is not reachable right now
+            return null;
+        }
+        // the home is a path of the bundle's machine - the local one, or a remote one
+        return RsToolchainProvider.getToolchainStatic(binDirectory(sdk.getHomeNioPath()), platform);
     }
 
     public RustBundleType() {
@@ -92,10 +101,6 @@ public class RustBundleType extends PlatformAwareSdkType {
      */
     @Override
     public void collectHomePaths(@Nonnull Platform platform, @Nonnull Consumer<Path> consumer) {
-        if (!Platform.LOCAL.equals(platform.getId())) {
-            return;
-        }
-
         Set<Path> paths = new LinkedHashSet<>();
         for (Path toolchainsDir : rustupToolchainsDirs(platform)) {
             try (java.util.stream.Stream<Path> children = Files.list(toolchainsDir)) {
@@ -107,8 +112,8 @@ public class RustBundleType extends PlatformAwareSdkType {
 
         // Whatever `rustc` is on the path answers with the toolchain it belongs to, which covers both a
         // rustup shim and a toolchain installed outside rustup.
-        for (RsToolchainFlavor flavor : RsToolchainFlavor.getApplicableFlavors()) {
-            flavor.suggestHomePaths().forEach(binDir -> {
+        for (RsToolchainFlavor flavor : RsToolchainFlavor.getApplicableFlavors(platform)) {
+            flavor.suggestHomePaths(platform).forEach(binDir -> {
                 // Ask only a directory that actually holds a rustc - the flavors offer every PATH entry,
                 // and running a program that is not there just fails once per directory.
                 if (!hasExecutable(platform, binDir, Rustc.NAME)) return;
@@ -156,7 +161,7 @@ public class RustBundleType extends PlatformAwareSdkType {
 
     @Override
     public boolean canCreatePredefinedSdks(@Nonnull Platform platform) {
-        return Platform.LOCAL.equals(platform.getId());
+        return true;
     }
 
     @Override
@@ -183,6 +188,9 @@ public class RustBundleType extends PlatformAwareSdkType {
             return parent;
         }
         // Or a directory holding a toolchain, in which case ask it where its own root is.
+        if (!hasExecutable(platform, homePath, Rustc.NAME)) {
+            return homePath;
+        }
         String sysroot = querySysroot(platform, homePath);
         if (sysroot != null) {
             Path root = platform.fs().getPath(sysroot);
@@ -273,9 +281,15 @@ public class RustBundleType extends PlatformAwareSdkType {
         if (homePath == null || homePath.isEmpty()) {
             return null;
         }
-        String sourcesUrl = VirtualFileUtil.pathToUrl(
-            FileUtil.toSystemIndependentName(homePath + "/" + STDLIB_SOURCES_RELATIVE));
-        VirtualFile sources = VirtualFileManager.getInstance().findFileByUrl(sourcesUrl);
+        // the home is a path of the bundle's machine - resolved there, not on the local file system
+        Path sourcesPath;
+        try {
+            sourcesPath = sdk.getHomeNioPath().resolve(STDLIB_SOURCES_RELATIVE);
+        }
+        catch (IllegalStateException e) {
+            return null;
+        }
+        VirtualFile sources = VirtualFileManager.getInstance().findFileByNioPath(sourcesPath);
         return sources == null ? null : StandardLibrary.findSrcDir(sources);
     }
 

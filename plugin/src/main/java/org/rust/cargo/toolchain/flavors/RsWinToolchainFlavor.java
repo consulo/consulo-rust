@@ -6,39 +6,39 @@
 package org.rust.cargo.toolchain.flavors;
 
 import consulo.annotation.component.ExtensionImpl;
+import consulo.platform.Platform;
 import consulo.util.io.FileUtil;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.List;
 import java.util.stream.Stream;
-import consulo.platform.Platform;
 
 @ExtensionImpl(id = "rust.winToolchainFlavor")
 public class RsWinToolchainFlavor extends RsToolchainFlavor {
-
     @Override
-    protected Stream<Path> getHomePathCandidates() {
-        String programFilesEnv = System.getenv("ProgramFiles");
+    protected Stream<Path> getHomePathCandidates(Platform platform) {
+        String programFilesEnv = platform.os().getEnvironmentVariable("ProgramFiles");
         if (programFilesEnv == null) return Stream.empty();
-        Path programFiles = Paths.get(programFilesEnv);
-        if (!Files.exists(programFiles) || !Files.isDirectory(programFiles)) return Stream.empty();
-        try {
-            return Files.list(programFiles)
+        Path programFiles = platform.fs().getPath(programFilesEnv);
+        if (!Files.isDirectory(programFiles)) return Stream.empty();
+        try (Stream<Path> children = Files.list(programFiles)) {
+            List<Path> bins = children
                 .filter(Files::isDirectory)
-                .filter(p -> {
-                    String name = FileUtil.getNameWithoutExtension(p.getFileName().toString());
-                    return name.toLowerCase().startsWith("rust");
-                })
+                .filter(p -> FileUtil.getNameWithoutExtension(p.getFileName().toString()).toLowerCase().startsWith("rust"))
                 .map(p -> p.resolve("bin"))
-                .filter(Files::isDirectory);
-        } catch (Exception e) {
+                .filter(Files::isDirectory)
+                .toList();
+            return bins.stream();
+        }
+        catch (IOException e) {
             return Stream.empty();
         }
     }
 
     @Override
-    protected boolean isApplicable() {
-        return consulo.platform.Platform.current().os().isWindows();
+    protected boolean isApplicable(Platform platform) {
+        return platform.os().isWindows();
     }
 }

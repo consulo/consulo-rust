@@ -5,6 +5,7 @@
 
 package org.rust.cargo.project.model.impl;
 
+import consulo.virtualFileSystem.VirtualFileManager;
 import org.rust.cargo.project.workspace.StandardLibraryFactory;
 
 import org.rust.cargo.project.workspace.CargoWorkspaceFactory;
@@ -361,7 +362,7 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
                 // the config rather than kept beside it because the stdlib fetch reads the build
                 // targets from there as well, and the two must not disagree.
                 String selectedTarget = ReadAction.compute(() -> {
-                    VirtualFile rootDir = LocalFileSystem.getInstance().findFileByNioFile(projectDirectory);
+                    VirtualFile rootDir = VirtualFileManager.getInstance().findFileByNioPath(projectDirectory);
                     RustModuleExtension extension =
                         RustModuleExtension.findExtension(childContext.project, rootDir);
                     return extension == null ? null : extension.getBuildTarget();
@@ -478,7 +479,15 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
                     String explicitPath = settings.getExplicitPathToStdlib();
                     if (explicitPath == null) {
                         VirtualFile fromSysroot = Rustc.create(childContext.toolchain).getStdlibFromSysroot(workingDirectory);
-                        explicitPath = fromSysroot != null ? fromSysroot.getPath() : null;
+                        if (fromSysroot != null) {
+                            // used as found - its virtual file path is not a path of the machine it lives on
+                            StandardLibrary lib = StandardLibraryFactory.fromFile(
+                                childContext.project, fromSysroot, rustcInfo, cargoConfig, false, null);
+                            if (lib == null) {
+                                return new TaskResult.Err<>(RsBundle.message("invalid.standard.library.0", fromSysroot.getPresentableUrl()));
+                            }
+                            return new TaskResult.Ok<>(lib);
+                        }
                     }
                     if (explicitPath == null) {
                         return new TaskResult.Err<>(RsBundle.message("no.explicit.stdlib.or.rustup.found"));

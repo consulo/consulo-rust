@@ -5,6 +5,7 @@
 
 package org.rust.cargo.project;
 
+import consulo.virtualFileSystem.VirtualFileManager;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.application.concurrent.coroutine.ReadLock;
 import consulo.application.concurrent.coroutine.WriteLock;
@@ -26,7 +27,6 @@ import consulo.rust.module.extension.RustMutableModuleExtension;
 import consulo.ui.image.Image;
 import consulo.util.concurrent.coroutine.Coroutine;
 import consulo.util.lang.StringUtil;
-import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import jakarta.annotation.Nonnull;
@@ -75,9 +75,12 @@ public class CargoModuleImportProvider implements ModuleImportProvider<ModuleImp
                                              @Nonnull Consumer<Module> newModuleConsumer) {
         return ReadLock.<Object, ModifiableRootModel>apply(input -> {
                 String path = context.getPath();
-                VirtualFile contentRoot = LocalFileSystem.getInstance().refreshAndFindFileByPath(path);
+                // the imported directory may be on a remote platform - resolved on its own file system
+                VirtualFile contentRoot = VirtualFileManager.getInstance().refreshAndFindFileByNioPath(context.getNioPath());
 
-                Module module = model.newModule(moduleName(context, contentRoot, project), path);
+                Module module = contentRoot != null
+                    ? model.newModule(moduleName(context, contentRoot, project), contentRoot)
+                    : model.newModule(moduleName(context, null, project), path);
                 newModuleConsumer.accept(module);
 
                 ModifiableRootModel rootModel = ModuleRootManager.getInstance(module).getModifiableModel();
@@ -88,7 +91,7 @@ public class CargoModuleImportProvider implements ModuleImportProvider<ModuleImp
                     ContentEntry contentEntry = rootModel.addContentEntry(contentRoot);
                     CargoProjectServiceUtil.setup(contentEntry, contentRoot);
                 }
-                enableRustExtension(rootModel);
+                enableRustExtension(rootModel, project);
                 return rootModel;
             })
             .toCoroutine()
@@ -109,7 +112,7 @@ public class CargoModuleImportProvider implements ModuleImportProvider<ModuleImp
      * that carries the bundle roots, and with them the standard library sources, has to be added as
      * well.
      */
-    private static void enableRustExtension(@Nonnull ModifiableRootModel rootModel) {
+    private static void enableRustExtension(@Nonnull ModifiableRootModel rootModel, @Nonnull Project project) {
         RustMutableModuleExtension extension = rootModel.getExtensionWithoutCheck(RustMutableModuleExtension.class);
         if (extension == null) {
             return;
@@ -117,7 +120,7 @@ public class CargoModuleImportProvider implements ModuleImportProvider<ModuleImp
 
         extension.setEnabled(true);
 
-        Sdk toolchainBundle = SdkTable.getInstance().findMostRecentSdk(sdk -> sdk.getSdkType() instanceof RustBundleType);
+        Sdk toolchainBundle = CargoProjectServiceUtil.findToolchainBundle(project);
         if (toolchainBundle != null) {
             extension.getInheritableSdk().set(null, toolchainBundle);
             rootModel.addModuleExtensionSdkEntry(extension);

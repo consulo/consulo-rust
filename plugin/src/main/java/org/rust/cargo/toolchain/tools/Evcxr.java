@@ -5,11 +5,11 @@
 
 package org.rust.cargo.toolchain.tools;
 
+import java.nio.file.Path;
 import com.intellij.execution.configurations.PtyCommandLine;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.toolchain.RsToolchainBase;
 
-import java.io.File;
 
 public class Evcxr extends CargoBinary {
 
@@ -19,10 +19,10 @@ public class Evcxr extends CargoBinary {
         super(NAME, toolchain);
     }
 
-    public PtyCommandLine createCommandLine(File workingDirectory) {
+    public PtyCommandLine createCommandLine(Path workingDirectory) {
         var commandLine = createBaseCommandLine(
             new String[]{"--ide-mode", "--disable-readline", "--opt", "0"},
-            workingDirectory.toPath(),
+            workingDirectory,
             java.util.Collections.emptyMap()
         );
         return new PtyCommandLine(commandLine).withInitialColumns(PtyCommandLine.MAX_COLUMNS);

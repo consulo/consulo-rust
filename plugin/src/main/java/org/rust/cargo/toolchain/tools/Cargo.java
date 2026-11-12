@@ -51,7 +51,6 @@ import org.rust.stdext.RsResult;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -242,7 +241,8 @@ public class Cargo extends RustupComponent {
         Object[] replaced = replacePathsSymlinkIfNeeded(rawData, buildScriptsInfo, projectDirectory);
         CargoMetadata.Project rawDataAdjusted = (CargoMetadata.Project) replaced[0];
         BuildMessages buildScriptsInfoAdjusted = (BuildMessages) replaced[1];
-        CargoWorkspaceData workspaceData = CargoMetadata.clean(rawDataAdjusted, buildScriptsInfoAdjusted);
+        // the paths cargo reports are paths of the machine it ran on - the project's
+        CargoWorkspaceData workspaceData = CargoMetadata.clean(rawDataAdjusted, buildScriptsInfoAdjusted, projectDirectory.getFileSystem());
         ProjectDescriptionStatus status = buildScriptsInfo.isSuccessful() ? ProjectDescriptionStatus.OK : ProjectDescriptionStatus.BUILD_SCRIPT_EVALUATION_ERROR;
         return new RsResult.Ok<>(new ProjectDescription(workspaceData, status));
     }
@@ -487,11 +487,12 @@ public class Cargo extends RustupComponent {
         Path projectDirectory = projectDirectoryRel.toAbsolutePath();
         String workspaceRoot = project.getWorkspace_root();
 
-        if (projectDirectory.toString().equals(workspaceRoot)) {
+        // the workspace root is a path of the machine cargo runs on - C:\a on windows is our C:/a
+        Path workspaceRootPath = projectDirectory.getFileSystem().getPath(workspaceRoot);
+        if (projectDirectory.toString().equals(workspaceRoot) || projectDirectory.equals(workspaceRootPath)) {
             return new Object[]{project, buildMessages};
         }
 
-        Path workspaceRootPath = Paths.get(workspaceRoot);
         try {
             if (!Files.isSameFile(projectDirectory, workspaceRootPath)) {
                 return new Object[]{project, buildMessages};
@@ -522,7 +523,7 @@ public class Cargo extends RustupComponent {
         boolean createBinary,
         @Nullable String vcs
     ) {
-        Path path = Paths.get(directory.getPath());
+        Path path = directory.toNioPath();
         String crateType = createBinary ? "--bin" : "--lib";
         List<String> args = new ArrayList<>(List.of(crateType, "--name", name));
         if (vcs != null) {
@@ -565,7 +566,7 @@ public class Cargo extends RustupComponent {
         String templateUrl,
         @Nullable String vcs
     ) {
-        Path path = Paths.get(directory.getPath());
+        Path path = directory.toNioPath();
         List<String> args = new ArrayList<>(List.of("--name", name, "--git", templateUrl, "--init", "--force"));
         if (vcs != null) {
             args.addAll(List.of("--vcs", vcs));

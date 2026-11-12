@@ -5,26 +5,24 @@
 
 package org.rust.cargo.toolchain.flavors;
 
-
 import consulo.annotation.component.ExtensionImpl;
-import org.rust.stdext.PathUtil;
+import consulo.platform.Platform;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
-import consulo.platform.Platform;
 
 @ExtensionImpl(id = "rust.unixToolchainFlavor")
 public class RsUnixToolchainFlavor extends RsToolchainFlavor {
-
     @Override
-    protected Stream<Path> getHomePathCandidates() {
+    protected Stream<Path> getHomePathCandidates(Platform platform) {
         return Stream.of("/usr/local/bin", "/usr/bin")
-            .map(PathUtil::toPath)
-            .filter(PathUtil::isDirectory);
+            .map(path -> platform.fs().getPath(path))
+            .filter(Files::isDirectory);
     }
 
     @Override
-    protected boolean isApplicable() {
-        return consulo.platform.Platform.current().os().isUnix();
+    protected boolean isApplicable(Platform platform) {
+        return platform.os().isUnix();
     }
 }

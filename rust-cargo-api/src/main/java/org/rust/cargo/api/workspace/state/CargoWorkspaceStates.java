@@ -16,7 +16,6 @@ import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.stdext.HashCode;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -76,9 +75,17 @@ public final class CargoWorkspaceStates {
 
     @Nonnull
     public static CargoWorkspaceData fromState(@Nonnull CargoWorkspaceState state) {
+        return fromState(state, java.nio.file.FileSystems.getDefault());
+    }
+
+    /**
+     * @param fileSystem the file system of the machine the workspace lives on - the stored paths are paths of that machine
+     */
+    @Nonnull
+    public static CargoWorkspaceData fromState(@Nonnull CargoWorkspaceState state, @Nonnull java.nio.file.FileSystem fileSystem) {
         List<CargoWorkspaceData.Package> packages = new ArrayList<>();
         for (CargoWorkspaceState.PackageState pkg : state.packages) {
-            packages.add(fromState(pkg));
+            packages.add(fromState(pkg, fileSystem));
         }
 
         Map<String, Set<CargoWorkspaceData.Dependency>> dependencies = new LinkedHashMap<>();
@@ -153,7 +160,7 @@ public final class CargoWorkspaceStates {
     }
 
     @Nonnull
-    private static CargoWorkspaceData.Package fromState(@Nonnull CargoWorkspaceState.PackageState state) {
+    private static CargoWorkspaceData.Package fromState(@Nonnull CargoWorkspaceState.PackageState state, @Nonnull java.nio.file.FileSystem fileSystem) {
         List<CargoWorkspaceData.Target> targets = new ArrayList<>();
         for (CargoWorkspaceState.TargetState target : state.targets) {
             targets.add(fromState(target));
@@ -175,7 +182,7 @@ public final class CargoWorkspaceStates {
 
         CargoWorkspaceData.ProcMacroArtifact procMacro = null;
         if (state.procMacroPath != null) {
-            procMacro = new CargoWorkspaceData.ProcMacroArtifact(Paths.get(state.procMacroPath), hash(state.procMacroHash));
+            procMacro = new CargoWorkspaceData.ProcMacroArtifact(fileSystem.getPath(state.procMacroPath), hash(state.procMacroHash));
         }
 
         return new CargoWorkspaceData.Package(

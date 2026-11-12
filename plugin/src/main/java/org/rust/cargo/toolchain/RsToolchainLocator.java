@@ -36,7 +36,10 @@ public final class RsToolchainLocator {
      */
     @Nullable
     public static RsToolchainBase fromSettings(@Nonnull Project project) {
-        return load(RsProjectSettingsServiceUtil.getRustSettings(project).getState());
+        RustProjectSettings state = RsProjectSettingsServiceUtil.getRustSettings(project).getState();
+        String home = state.toolchainHomeDirectory;
+        // the home is a path of the machine the project lives on
+        return home != null ? RsToolchainProvider.getToolchainStatic(project.getPlatform().fs().getPath(home), project.getPlatform()) : null;
     }
 
     /** The toolchain described by {@code state}; the inverse of {@link #store}. */

@@ -5,6 +5,7 @@
 
 package org.rust.cargo.project.model.impl;
 
+import consulo.virtualFileSystem.VirtualFileManager;
 import org.rust.cargo.api.model.UserDisabledFeatures;
 
 import org.rust.cargo.toolchain.RsToolchainLocator;
@@ -208,7 +209,7 @@ public class CargoProjectImpl extends UserDataHolderBase implements CargoProject
             CfgOptions cfgOptions = CargoWorkspaceStates.cfgOptionsOf(state);
             return CargoWorkspaceFactory.deserialize(
                 manifest,
-                CargoWorkspaceStates.fromState(state),
+                CargoWorkspaceStates.fromState(state, manifest.getFileSystem()),
                 cfgOptions == null ? CfgOptions.DEFAULT : cfgOptions,
                 CargoConfig.DEFAULT
             );
@@ -255,7 +256,7 @@ public class CargoProjectImpl extends UserDataHolderBase implements CargoProject
         VirtualFile cached = rootDirCache.get();
         if (cached != null && cached.isValid()) return cached;
         Path workingDir = org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(this);
-        VirtualFile file = LocalFileSystem.getInstance().findFileByIoFile(workingDir.toFile());
+        VirtualFile file = VirtualFileManager.getInstance().findFileByNioPath(workingDir);
         rootDirCache.set(file);
         return file;
     }

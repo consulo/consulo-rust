@@ -5,13 +5,13 @@
 
 package org.rust.cargo.toolchain.tools;
 
+import java.nio.file.Path;
 import consulo.process.cmd.GeneralCommandLine;
 import com.intellij.execution.configurations.PtyCommandLine;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.toolchain.RsToolchainBase;
 import org.rust.cargo.util.CargoArgsParserUtil;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +25,7 @@ public class WasmPack extends CargoBinary {
     }
 
     public GeneralCommandLine createCommandLine(
-        File workingDirectory,
+        Path workingDirectory,
         String command,
         List<String> args,
         boolean emulateTerminal
@@ -51,7 +51,7 @@ public class WasmPack extends CargoBinary {
             allArgs.addAll(post);
         }
 
-        GeneralCommandLine commandLine = createBaseCommandLine(allArgs, workingDirectory.toPath())
+        GeneralCommandLine commandLine = createBaseCommandLine(allArgs, workingDirectory)
             .withRedirectErrorStream(true);
 
         if (emulateTerminal) {

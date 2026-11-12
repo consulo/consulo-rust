@@ -82,7 +82,7 @@ public abstract class RsRunAnythingProvider extends RunAnythingProviderBase<Stri
             ? ((RunAnythingContext.ProjectContext) executionContext).getProject().getBasePath()
             : null;
         if (pathStr == null) return;
-        Path path = java.nio.file.Paths.get(pathStr);
+        Path path = project.getPlatform().fs().getPath(pathStr);
         Executor executor = dataContext.getData(RunAnythingAction.EXECUTOR_KEY);
         if (executor == null) executor = DefaultRunExecutor.getRunExecutorInstance();
         String command = params.isEmpty() ? "--help" : params.get(0);

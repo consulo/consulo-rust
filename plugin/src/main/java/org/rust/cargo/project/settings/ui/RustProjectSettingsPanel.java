@@ -5,6 +5,7 @@
 
 package org.rust.cargo.project.settings.ui;
 
+import consulo.platform.Platform;
 import com.intellij.ui.components.ActionLink;
 import com.intellij.ui.dsl.builder.Panel;
 import consulo.configurable.ConfigurationException;
@@ -112,8 +113,10 @@ public class RustProjectSettingsPanel implements Disposable {
     public void loadToolchains() {
         pathToToolchainComboBox.addToolchainsAsync(() -> {
             LinkedHashSet<Path> paths = new LinkedHashSet<>();
-            for (RsToolchainFlavor flavor : RsToolchainFlavor.getApplicableFlavors()) {
-                java.util.Iterator<Path> iterator = flavor.suggestHomePaths().iterator();
+            // the settings of the default project - the toolchains of the local machine
+            Platform platform = Platform.current();
+            for (RsToolchainFlavor flavor : RsToolchainFlavor.getApplicableFlavors(platform)) {
+                java.util.Iterator<Path> iterator = flavor.suggestHomePaths(platform).iterator();
                 while (iterator.hasNext()) {
                     paths.add(iterator.next());
                 }
@@ -134,8 +137,10 @@ public class RustProjectSettingsPanel implements Disposable {
 
         pathToToolchainComboBox.addToolchainsAsync(() -> {
             LinkedHashSet<Path> paths = new LinkedHashSet<>();
-            for (RsToolchainFlavor flavor : RsToolchainFlavor.getApplicableFlavors()) {
-                java.util.Iterator<Path> iterator = flavor.suggestHomePaths().iterator();
+            // the settings of the default project - the toolchains of the local machine
+            Platform platform = Platform.current();
+            for (RsToolchainFlavor flavor : RsToolchainFlavor.getApplicableFlavors(platform)) {
+                java.util.Iterator<Path> iterator = flavor.suggestHomePaths(platform).iterator();
                 while (iterator.hasNext()) {
                     paths.add(iterator.next());
                 }

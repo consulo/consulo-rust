@@ -315,7 +315,7 @@ public class RsConsoleRunner extends AbstractConsoleRunnerWithHistory<RsConsoleV
         }
 
         var workingDir = org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(cargoProject);
-        return evcxr.createCommandLine(workingDir.toFile());
+        return evcxr.createCommandLine(workingDir);
     }
 
     private void connect() {

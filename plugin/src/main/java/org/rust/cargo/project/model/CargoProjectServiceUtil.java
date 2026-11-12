@@ -5,6 +5,7 @@
 
 package org.rust.cargo.project.model;
 
+import java.util.Objects;
 import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.api.model.CargoProjectsService;
 
@@ -91,7 +92,7 @@ public final class CargoProjectServiceUtil {
         // Resolved once here and carried into the setup, so the module is bound to the very bundle this
         // decision was made on. Null while the bundle is still being registered, and for good when none
         // is configured - either way there is nothing to bind to.
-        Sdk toolchainBundle = findToolchainBundle();
+        Sdk toolchainBundle = findToolchainBundle(project);
 
         CargoProjectsService cargoProjects = getCargoProjects(project);
         boolean hasWorkspace = cargoProjects.getHasAtLeastOneValidProject();
@@ -240,10 +241,14 @@ public final class CargoProjectServiceUtil {
      * bundle. The toolchain of a project is read back from that binding, so a module which owns a
      * Cargo project but carries no Rust extension would otherwise have no toolchain at all.
      */
-    /** The most recent Rust toolchain bundle, or {@code null} when none is configured. */
+    /**
+     * The most recent Rust toolchain bundle of the machine the project lives on, or {@code null} when none is
+     * configured there - a toolchain of another machine cannot build or run the project.
+     */
     @Nullable
-    private static Sdk findToolchainBundle() {
-        return SdkTable.getInstance().findMostRecentSdk(sdk -> sdk.getSdkType() instanceof RustBundleType);
+    public static Sdk findToolchainBundle(@Nonnull Project project) {
+        return SdkTable.getInstance().findMostRecentSdk(sdk -> sdk.getSdkType() instanceof RustBundleType
+            && Objects.equals(sdk.getPlatformTargetId(), project.getPlatformTargetId()));
     }
 
     private static void setupRustModules(@Nonnull Project project, @Nonnull Sdk toolchainBundle) {

@@ -109,7 +109,8 @@ public abstract class RsCommandConfiguration extends LocatableConfigurationBase
     @Nullable
     public Path getWorkingDirectory() {
         String workingDirectory = getOptions().getWorkingDirectory();
-        return workingDirectory == null ? null : Paths.get(FileUtil.toSystemDependentName(workingDirectory));
+        // a path of the machine the project lives on
+        return workingDirectory == null ? null : getProject().getPlatform().fs().getPath(workingDirectory);
     }
 
     public void setWorkingDirectory(@Nullable Path workingDirectory) {

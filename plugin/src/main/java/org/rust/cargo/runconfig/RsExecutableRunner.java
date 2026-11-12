@@ -92,8 +92,9 @@ public abstract class RsExecutableRunner extends RsDefaultProgramRunnerBase {
             executableArguments.add("--bench");
         }
 
+        // the artifact is a path of the machine cargo ran on
         GeneralCommandLine runExecutable = cargoState.getToolchain().createGeneralCommandLine(
-            Path.of(binary),
+            cargoState.getToolchain().getPlatform().fs().getPath(binary),
             workingDirectory,
             runCargoCommand.getRedirectInputFrom(),
             runCargoCommand.getBacktraceMode(),

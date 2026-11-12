@@ -9,9 +9,9 @@ import consulo.application.progress.ProgressIndicator;
 import consulo.process.ExecutionException;
 import consulo.process.KillableProcessHandler;
 import consulo.process.ProcessHandler;
+import consulo.process.ProcessHandlerBuilder;
 import consulo.process.cmd.GeneralCommandLine;
 import consulo.process.event.ProcessListener;
-import consulo.process.local.ProcessHandlerFactory;
 import consulo.process.util.CapturingProcessRunner;
 import consulo.process.util.ProcessOutput;
 import jakarta.annotation.Nonnull;
@@ -21,7 +21,7 @@ import org.rust.stdext.RsResult;
 /**
  * Runs a command line and captures its stdout/stderr.
  * <p>
- * Built on public API only: {@link ProcessHandlerFactory} creates the handler and
+ * Built on public API only: {@link ProcessHandlerBuilder} creates the handler and
  * {@link CapturingProcessRunner} does the capturing. Consulo's own
  * {@code consulo.process.internal.CapturingProcessHandler} — which pairs both roles in one class —
  * lives in a package exported only to platform modules, so a plugin cannot use it.
@@ -37,7 +37,8 @@ public final class RsCapturingProcessHandler {
     private final CapturingProcessRunner runner;
 
     private RsCapturingProcessHandler(@Nonnull GeneralCommandLine commandLine) throws ExecutionException {
-        this.processHandler = ProcessHandlerFactory.getInstance().createKillableProcessHandler(commandLine);
+        // the builder routes a command line of a remote platform to that platform - the factory always starts locally
+        this.processHandler = ProcessHandlerBuilder.create(commandLine).killable().build();
         this.runner = new CapturingProcessRunner(processHandler);
     }
 

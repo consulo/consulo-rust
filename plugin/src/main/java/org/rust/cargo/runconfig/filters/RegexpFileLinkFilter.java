@@ -13,13 +13,14 @@ import consulo.application.dumb.DumbAware;
 import consulo.project.Project;
 import consulo.util.io.FileUtil;
 import consulo.virtualFileSystem.VirtualFile;
+import java.nio.file.Path;
+import consulo.virtualFileSystem.VirtualFileManager;
 import org.intellij.lang.annotations.Language;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 
-import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -126,15 +127,15 @@ public class RegexpFileLinkFilter implements Filter, DumbAware {
         if (externalPath != null) return externalPath;
 
         // try to resolve absolute path
-        VirtualFile absFile = myCargoProjectDirectory.getFileSystem().findFileByPath(path);
+        VirtualFile absFile = findAbsoluteFile(path);
         return absFile != null ? new ResolvedPath.Unknown(absFile) : null;
     }
 
     @Nullable
     private ResolvedPath resolveCargoPath(@Nonnull String path) {
         if (!path.startsWith("/cargo")) return null;
-        String fullPath = Paths.get(getCargoRoot(), path.substring("/cargo".length())).toString();
-        VirtualFile file = myCargoProjectDirectory.getFileSystem().findFileByPath(fullPath);
+        String fullPath = getCargoRoot() + path.substring("/cargo".length());
+        VirtualFile file = findAbsoluteFile(fullPath);
         return file != null ? new ResolvedPath.CargoDependency(file) : null;
     }
 
@@ -144,8 +145,29 @@ public class RegexpFileLinkFilter implements Filter, DumbAware {
         if (sysroot == null) return null;
         String normalizedPath = normalizeStdLibPath(path);
         String fullPath = sysroot + "/lib/rustlib/src/rust/" + normalizedPath;
-        VirtualFile file = myCargoProjectDirectory.getFileSystem().findFileByPath(fullPath);
+        VirtualFile file = findAbsoluteFile(fullPath);
         return file != null ? new ResolvedPath.Stdlib(file) : null;
+    }
+
+    /**
+     * An absolute path of the machine the project lives on - found through the file system of that machine
+     */
+    @Nullable
+    private VirtualFile findAbsoluteFile(@Nonnull String path) {
+        Path base;
+        try {
+            base = myCargoProjectDirectory.toNioPath();
+        }
+        catch (UnsupportedOperationException e) {
+            return myCargoProjectDirectory.getFileSystem().findFileByPath(path);
+        }
+        try {
+            Path file = base.getFileSystem().getPath(path);
+            return file.isAbsolute() ? VirtualFileManager.getInstance().findFileByNioPath(file) : null;
+        }
+        catch (java.nio.file.InvalidPathException e) {
+            return null;
+        }
     }
 
     // /rustc/<commit hash>/src/libstd/... -> src/libstd/...

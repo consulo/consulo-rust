@@ -6,6 +6,7 @@
 package org.rust.cargo.runconfig.wasmpack;
 
 
+import java.nio.file.Path;
 import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.execution.executor.Executor;
 import consulo.execution.configuration.ConfigurationFactory;
@@ -28,7 +29,6 @@ import org.rust.cargo.toolchain.WasmPackCommandLine;
 import org.rust.cargo.toolchain.tools.WasmPack;
 import org.rust.stdext.Utils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,7 +66,7 @@ public class WasmPackCommandConfiguration extends RsCommandConfiguration {
         if (toolchain == null) return null;
         var wasmPack = WasmPack.create(toolchain);
         if (wasmPack == null) return null;
-        File workingDir = getWorkingDirectory() != null ? getWorkingDirectory().toFile() : null;
+        Path workingDir = getWorkingDirectory();
         if (workingDir == null) return null;
         return new WasmPackCommandRunState(environment, this, wasmPack, workingDir);
     }

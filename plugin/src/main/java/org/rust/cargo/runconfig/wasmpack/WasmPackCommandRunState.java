@@ -5,6 +5,7 @@
 
 package org.rust.cargo.runconfig.wasmpack;
 
+import java.nio.file.Path;
 import consulo.execution.configuration.CommandLineState;
 import consulo.process.cmd.GeneralCommandLine;
 import consulo.process.ProcessHandler;
@@ -16,7 +17,6 @@ import org.rust.cargo.runconfig.RsProcessHandler;
 import org.rust.cargo.runconfig.console.RsConsoleBuilder;
 import org.rust.cargo.toolchain.tools.WasmPack;
 
-import java.io.File;
 import java.util.List;
 import consulo.process.ExecutionException;
 
@@ -27,13 +27,13 @@ public class WasmPackCommandRunState extends CommandLineState {
     @Nonnull
     private final WasmPack wasmPack;
     @Nonnull
-    private final File workingDirectory;
+    private final Path workingDirectory;
 
     public WasmPackCommandRunState(
         @Nonnull ExecutionEnvironment environment,
         @Nonnull WasmPackCommandConfiguration runConfiguration,
         @Nonnull WasmPack wasmPack,
-        @Nonnull File workingDirectory
+        @Nonnull Path workingDirectory
     ) {
         super(environment);
         this.runConfiguration = runConfiguration;

@@ -591,7 +591,8 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
         for (Element cargoProject : cargoProjects) {
             String file = cargoProject.getAttributeValue("FILE");
             if (file == null) continue;
-            Path manifest = Paths.get(file);
+            // the manifest is a path of the machine the project lives on
+            Path manifest = getProject().getPlatform().fs().getPath(file);
             UserDisabledFeatures userDisabledFeatures = userDisabledFeaturesMap.getOrDefault(manifest, UserDisabledFeatures.EMPTY);
             loaded.add(new CargoProjectImpl(manifest, this, userDisabledFeatures));
         }

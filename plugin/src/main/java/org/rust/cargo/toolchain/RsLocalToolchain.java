@@ -5,9 +5,9 @@
 
 package org.rust.cargo.toolchain;
 
+import org.rust.cargo.toolchain.flavors.RsToolchainFlavor;
 import consulo.process.cmd.GeneralCommandLine;
 import consulo.util.io.FileUtil;
-import org.rust.cargo.api.util.ToolchainUtil;
 import org.rust.stdext.Utils;
 
 import java.io.File;
@@ -18,13 +18,32 @@ import org.rust.stdext.PathUtil;
 
 public class RsLocalToolchain extends RsToolchainBase {
 
+    private final Platform myPlatform;
+
     public RsLocalToolchain(Path location) {
+        this(location, Platform.current());
+    }
+
+    /**
+     * A toolchain of {@code platform} - the local machine, or a remote one whose executables run there.
+     */
+    public RsLocalToolchain(Path location, Platform platform) {
         super(location);
+        myPlatform = platform;
+    }
+
+    @Override
+    public Platform getPlatform() {
+        return myPlatform;
+    }
+
+    private boolean isLocal() {
+        return myPlatform == Platform.current();
     }
 
     @Override
     public String getFileSeparator() {
-        return File.separator;
+        return isLocal() ? File.separator : myPlatform.fs().getSeparator();
     }
 
     @Override
@@ -34,7 +53,8 @@ public class RsLocalToolchain extends RsToolchainBase {
 
     @Override
     public GeneralCommandLine patchCommandLine(GeneralCommandLine commandLine, boolean withSudo) {
-        return commandLine;
+        // the tools of a remote toolchain run on its platform
+        return isLocal() ? commandLine : commandLine.withPlatform(myPlatform);
     }
 
     @Override
@@ -49,22 +69,35 @@ public class RsLocalToolchain extends RsToolchainBase {
 
     @Override
     public String expandUserHome(String remotePath) {
-        return consulo.application.util.UserHomeFileUtil.expandUserHome(remotePath);
+        if (isLocal()) {
+            return consulo.application.util.UserHomeFileUtil.expandUserHome(remotePath);
+        }
+        if (remotePath.equals("~") || remotePath.startsWith("~/")) {
+            return myPlatform.user().homePath() + remotePath.substring(1);
+        }
+        return remotePath;
     }
 
     @Override
     public String getExecutableName(String toolName) {
-        return consulo.platform.Platform.current().os().isWindows() ? toolName + ".exe" : toolName;
+        return myPlatform.os().isWindows() ? toolName + ".exe" : toolName;
     }
 
     @Override
     public Path pathToExecutable(String toolName) {
-        return ToolchainUtil.pathToExecutable(getLocation(), toolName);
+        Path inToolchain = getLocation().resolve(getExecutableName(toolName));
+        if (org.rust.stdext.PathUtil.isExecutable(inToolchain)) {
+            return inToolchain;
+        }
+        // a tool which is not part of the toolchain - rustup manages all toolchains and lives elsewhere - is looked up
+        // where the flavors know of on the toolchain's machine
+        Path found = RsToolchainFlavor.findExecutable(myPlatform, toolName);
+        return found != null ? found : inToolchain;
     }
 
     @Override
     public boolean hasExecutable(String exec) {
-        return ToolchainUtil.hasExecutable(getLocation(), exec);
+        return org.rust.stdext.PathUtil.isExecutable(pathToExecutable(exec));
     }
 
     @Override

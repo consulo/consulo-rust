@@ -14,7 +14,7 @@ import org.rust.cargo.api.toolchain.CargoMetadataException;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import consulo.logging.Logger;
-import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFileManager;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.util.io.PathUtil;
 import consulo.util.lang.SemVer;
@@ -27,6 +27,8 @@ import org.rust.openapiext.OpenApiUtil;
 import org.rust.stdext.HashCode;
 import org.rust.stdext.CollectionsUtil;
 
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -509,8 +511,19 @@ public final class CargoMetadata {
         Project project,
         @Nullable BuildMessages buildMessages
     ) {
-        LocalFileSystem fs = LocalFileSystem.getInstance();
-        VirtualFile workspaceRoot = fs.refreshAndFindFileByPath(project.getWorkspace_root());
+        return clean(project, buildMessages, FileSystems.getDefault());
+    }
+
+    /**
+     * @param fs the file system the paths reported by {@code cargo metadata} belong to - the one of the machine cargo ran
+     *           on, which for a project on a remote platform is not the local one
+     */
+    public static CargoWorkspaceData clean(
+        Project project,
+        @Nullable BuildMessages buildMessages,
+        FileSystem fs
+    ) {
+        VirtualFile workspaceRoot = findFile(fs, project.getWorkspace_root());
         if (workspaceRoot == null) {
             throw new IllegalArgumentException(
                 "`cargo metadata` reported a workspace path which does not exist at `" + project.getWorkspace_root() + "`"
@@ -562,15 +575,20 @@ public final class CargoMetadata {
         return new CargoWorkspaceData(packages, dependencyMap, rawDeps, workspaceRoot.getUrl());
     }
 
+    @Nullable
+    private static VirtualFile findFile(FileSystem fs, String path) {
+        return VirtualFileManager.getInstance().refreshAndFindFileByNioPath(fs.getPath(path));
+    }
+
     private static CargoWorkspaceData.Package cleanPackage(
-        LocalFileSystem fs,
+        FileSystem fs,
         Package pkg,
         boolean isWorkspaceMember,
         Set<String> enabledFeatures,
         List<RustcMessage.CompilerMessage> buildMessagesList
     ) {
         String rootPath = PathUtil.getParentPath(pkg.getManifest_path());
-        VirtualFile root = fs.refreshAndFindFileByPath(rootPath);
+        VirtualFile root = findFile(fs, rootPath);
         if (root != null && !isWorkspaceMember) {
             root = root.getCanonicalFile();
         }
@@ -604,7 +622,7 @@ public final class CargoMetadata {
             }
         }
 
-        CargoWorkspaceData.ProcMacroArtifact procMacroArtifact = getProcMacroArtifact(buildMessagesList);
+        CargoWorkspaceData.ProcMacroArtifact procMacroArtifact = getProcMacroArtifact(fs, buildMessagesList);
 
         CfgOptions cfgOptions = buildScriptMessage != null && buildScriptMessage.getCfgs() != null
             ? CfgOptions.parse(buildScriptMessage.getCfgs())
@@ -639,7 +657,8 @@ public final class CargoMetadata {
 
         String outDirUrl = null;
         if (buildScriptMessage != null && buildScriptMessage.getOutDir() != null) {
-            VirtualFile outDir = root.getFileSystem().refreshAndFindFileByPath(buildScriptMessage.getOutDir());
+            // a path of the machine cargo runs on
+            VirtualFile outDir = findFile(fs, buildScriptMessage.getOutDir());
             if (outDir != null) {
                 if (!isWorkspaceMember) {
                     outDir = outDir.getCanonicalFile();
@@ -675,7 +694,7 @@ public final class CargoMetadata {
     }
 
     @Nullable
-    private static CargoWorkspaceData.ProcMacroArtifact getProcMacroArtifact(List<RustcMessage.CompilerMessage> buildMessages) {
+    private static CargoWorkspaceData.ProcMacroArtifact getProcMacroArtifact(FileSystem fs, List<RustcMessage.CompilerMessage> buildMessages) {
         List<String> DYNAMIC_LIBRARY_EXTENSIONS = List.of(".dll", ".so", ".dylib");
 
         List<RustcMessage.CompilerArtifactMessage> procMacroArtifacts = buildMessages.stream()
@@ -692,13 +711,18 @@ public final class CargoMetadata {
 
         if (procMacroArtifactPath == null) return null;
 
-        Path originPath = Path.of(procMacroArtifactPath);
+        Path originPath = fs.getPath(procMacroArtifactPath);
         HashCode hash;
         try {
             hash = HashCode.ofFile(originPath);
         } catch (IOException e) {
             LOG.warn(e);
             return null;
+        }
+
+        if (fs != java.nio.file.FileSystems.getDefault()) {
+            // built for the machine cargo runs on - only an expander running there can load it, a local copy is of no use
+            return new CargoWorkspaceData.ProcMacroArtifact(originPath, hash);
         }
 
         Path path = copyProcMacroArtifactToTempDir(originPath, hash);

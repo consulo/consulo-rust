@@ -5,10 +5,12 @@
 
 package org.rust.debugger.runconfig;
 
+import java.io.IOException;
+import consulo.platform.Platform;
+import consulo.application.platform.PlatformTransfer;
 import consulo.logging.Logger;
 import consulo.nativeDev.debugger.NativeDebuggerProvider;
 import consulo.nativeDev.debugger.driver.NativeDebuggerSetup;
-import consulo.util.io.FileUtil;
 import consulo.util.lang.StringUtil;
 import consulo.util.lang.lazy.LazyValue;
 import jakarta.annotation.Nonnull;
@@ -42,16 +44,30 @@ public class RsDebugProcessConfigurationHelper implements NativeDebuggerSetup {
 
     @Nullable
     private final String myCommitHash;
-    @Nullable
-    private final String myPrettyPrintersPath;
+    // the machine the debugger and the program run on - the toolchain's
+    private final Platform myPlatform;
+    // the pretty printers of the plugin as a path of that machine - copied there first when it is a remote one
+    private final Supplier<String> myPrettyPrintersPath;
     private final Supplier<String> mySysroot;
 
     public RsDebugProcessConfigurationHelper(@Nonnull RsToolchainBase toolchain, @Nullable CargoProject cargoProject) {
         RustcInfo rustcInfo = cargoProject == null ? null : cargoProject.getRustcInfo();
         RustcVersion version = rustcInfo == null ? null : rustcInfo.getVersion();
         myCommitHash = version == null ? null : version.getCommitHash();
-        Path prettyPrintersDir = RsPathManager.prettyPrintersDir();
-        myPrettyPrintersPath = prettyPrintersDir != null && Files.isDirectory(prettyPrintersDir) ? prettyPrintersDir.toString() : null;
+        myPlatform = toolchain.getPlatform();
+        myPrettyPrintersPath = LazyValue.nullable(() -> {
+            Path prettyPrintersDir = RsPathManager.prettyPrintersDir();
+            if (prettyPrintersDir == null || !Files.isDirectory(prettyPrintersDir)) {
+                return null;
+            }
+            try {
+                return PlatformTransfer.getInstance().transfer(prettyPrintersDir, myPlatform).toString();
+            }
+            catch (IOException e) {
+                LOG.warn("Can't copy the Rust pretty printers to " + myPlatform.getName(), e);
+                return null;
+            }
+        });
         mySysroot = LazyValue.nullable(() -> {
             if (rustcInfo != null) {
                 return rustcInfo.getSysroot();
@@ -155,8 +171,9 @@ public class RsDebugProcessConfigurationHelper implements NativeDebuggerSetup {
             commands.add("command source \"" + lldbCommandsPath + "\" ");
             return;
         }
-        if (myPrettyPrintersPath != null) {
-            String path = systemDependentAndEscaped(myPrettyPrintersPath);
+        String prettyPrintersPath = myPrettyPrintersPath.get();
+        if (prettyPrintersPath != null) {
+            String path = systemDependentAndEscaped(prettyPrintersPath);
             commands.add("command script import \"" + path + "/lldb_formatters\" ");
         }
     }
@@ -169,8 +186,8 @@ public class RsDebugProcessConfigurationHelper implements NativeDebuggerSetup {
             path = systemDependentAndEscaped(basePath);
             lookup = COMPILER_GDB_LOOKUP;
         }
-        else if (myPrettyPrintersPath != null) {
-            path = systemDependentAndEscaped(myPrettyPrintersPath);
+        else if (myPrettyPrintersPath.get() != null) {
+            path = systemDependentAndEscaped(myPrettyPrintersPath.get());
             lookup = GDB_LOOKUP;
         }
         else {
@@ -189,7 +206,8 @@ public class RsDebugProcessConfigurationHelper implements NativeDebuggerSetup {
         if (sysroot == null) {
             return null;
         }
-        Path basePath = Path.of(sysroot, "lib", "rustlib", "etc");
+        // the sysroot is a path of the toolchain's machine
+        Path basePath = myPlatform.fs().getPath(sysroot, "lib", "rustlib", "etc");
         // MSVC toolchain does not contain Python pretty-printers.
         return Files.isRegularFile(basePath.resolve(lookupModule + ".py")) ? sysroot + "/lib/rustlib/etc" : null;
     }
@@ -203,8 +221,12 @@ public class RsDebugProcessConfigurationHelper implements NativeDebuggerSetup {
         return sysroot;
     }
 
+    /**
+     * A path for the debugger - with the separators of the machine it runs on, not the ones of the IDE.
+     */
     @Nonnull
-    private static String systemDependentAndEscaped(@Nonnull String value) {
-        return StringUtil.escapeStringCharacters(FileUtil.toSystemDependentName(value));
+    private String systemDependentAndEscaped(@Nonnull String value) {
+        String separator = myPlatform.fs().getSeparator();
+        return StringUtil.escapeStringCharacters(value.replace("/", separator).replace("\\", separator));
     }
 }

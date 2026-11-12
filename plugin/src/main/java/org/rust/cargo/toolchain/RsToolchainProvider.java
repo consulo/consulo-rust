@@ -5,6 +5,7 @@
 
 package org.rust.cargo.toolchain;
 
+import consulo.platform.Platform;
 import jakarta.annotation.Nullable;
 
 import java.nio.file.Files;
@@ -15,6 +16,17 @@ public interface RsToolchainProvider {
     static RsToolchainBase getToolchainStatic(Path homePath) {
         if (Files.exists(homePath)) {
             return new RsLocalToolchain(homePath);
+        }
+        return null;
+    }
+
+    /**
+     * A toolchain of {@code platform} - {@code homePath} is a path of that platform.
+     */
+    @Nullable
+    static RsToolchainBase getToolchainStatic(Path homePath, Platform platform) {
+        if (Files.exists(homePath)) {
+            return new RsLocalToolchain(homePath, platform);
         }
         return null;
     }

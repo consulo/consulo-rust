@@ -153,6 +153,8 @@ public final class CratesLocalIndexUpdater implements Disposable {
             ? null
             : RsToolchainLocator.getToolchain(project);
         if (toolchain == null) return false;
+        // the update project lives in the local system directory - a toolchain of a remote platform cannot reach it
+        if (toolchain.getLocation().getFileSystem() != projectPath.getFileSystem()) return false;
         return triggerCratesIoGitIndexUpdate(toolchain, disposable, projectPath);
     }
 

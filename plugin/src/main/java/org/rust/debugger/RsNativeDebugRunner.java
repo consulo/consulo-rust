@@ -21,7 +21,6 @@ import org.rust.cargo.runconfig.CargoRunStateBase;
 import org.rust.cargo.runconfig.RsExecutableRunner;
 import org.rust.debugger.runconfig.RsDebugProcessConfigurationHelper;
 
-import java.io.File;
 import java.nio.file.Path;
 
 @ExtensionImpl
@@ -45,11 +44,11 @@ public class RsNativeDebugRunner extends RsExecutableRunner {
                                                   @Nonnull ExecutionEnvironment environment,
                                                   @Nonnull GeneralCommandLine runExecutable) throws ExecutionException {
         CargoProject cargoProject = state.getCargoProject();
-        File executableWorkDirectory = runExecutable.getWorkDirectory();
+        // paths of the machine the toolchain lives on - getWorkDirectory() would turn a remote one into a local File
         NativeDebugTarget target = NativeDebugTarget.launch(
-            Path.of(runExecutable.getExePath()),
+            state.getToolchain().getPlatform().fs().getPath(runExecutable.getExePath()),
             runExecutable.getParametersList().getList(),
-            executableWorkDirectory == null ? null : executableWorkDirectory.toPath(),
+            runExecutable.getWorkingDirectory(),
             runExecutable.getEnvironment(),
             null
         ).withSetup(new RsDebugProcessConfigurationHelper(state.getToolchain(), cargoProject));

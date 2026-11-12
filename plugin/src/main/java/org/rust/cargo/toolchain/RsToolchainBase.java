@@ -5,6 +5,7 @@
 
 package org.rust.cargo.toolchain;
 
+import consulo.platform.Platform;
 import consulo.annotation.DeprecationInfo;
 import org.rust.cargo.api.toolchain.BacktraceMode;
 
@@ -48,8 +49,15 @@ public abstract class RsToolchainBase {
 
     public abstract int getExecutionTimeoutInMilliseconds();
 
+    /**
+     * The machine the toolchain is installed on - its tools run there.
+     */
+    public Platform getPlatform() {
+        return Platform.current();
+    }
+
     public boolean looksLikeValidToolchain() {
-        return RsToolchainFlavor.getFlavor(location) != null;
+        return RsToolchainFlavor.getFlavor(getPlatform(), location) != null;
     }
 
     /**
@@ -77,7 +85,7 @@ public abstract class RsToolchainBase {
         if (Files.exists(exePath)) return exePath;
         String cargoBin = expandUserHome("~/.cargo/bin");
         String exeName = getExecutableName(toolName);
-        return Paths.get(cargoBin, exeName);
+        return getLocation().getFileSystem().getPath(cargoBin, exeName);
     }
 
     public abstract boolean hasExecutable(String exec);
@@ -183,8 +191,9 @@ public abstract class RsToolchainBase {
             // WSL support not available in Consulo; skip WSL toolchain suggestion
         }
 
-        for (RsToolchainFlavor flavor : RsToolchainFlavor.getApplicableFlavors()) {
-            for (Path homePath : flavor.suggestHomePaths().toList()) {
+        Platform platform = Platform.current();
+        for (RsToolchainFlavor flavor : RsToolchainFlavor.getApplicableFlavors(platform)) {
+            for (Path homePath : flavor.suggestHomePaths(platform).toList()) {
                 if (Files.exists(homePath)) {
                     RsToolchainBase toolchain = new RsLocalToolchain(homePath.toAbsolutePath());
                     return toolchain;

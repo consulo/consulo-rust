@@ -5,6 +5,7 @@
 
 package org.rust.cargo.toolchain.tools;
 
+import consulo.virtualFileSystem.VirtualFileManager;
 import consulo.process.event.ProcessListener;
 import consulo.process.util.ProcessOutput;
 import consulo.disposer.Disposable;
@@ -123,8 +124,8 @@ public class Rustc extends RustupComponent {
     public VirtualFile getStdlibFromSysroot(Path projectDirectory) {
         String stdlibPath = getStdlibPathFromSysroot(projectDirectory);
         if (stdlibPath == null) return null;
-        LocalFileSystem fs = LocalFileSystem.getInstance();
-        return fs.refreshAndFindFileByPath(stdlibPath);
+        // the sysroot is a path of the machine rustc ran on - the project's
+        return VirtualFileManager.getInstance().refreshAndFindFileByNioPath(projectDirectory.getFileSystem().getPath(stdlibPath));
     }
 
     @Nullable

@@ -27,14 +27,32 @@ public final class ToolchainUtil {
     }
 
     public static boolean hasExecutable(Path path, String toolName) {
-        return PathUtil.isExecutable(pathToExecutable(path, toolName));
+        return hasExecutable(Platform.current(), path, toolName);
+    }
+
+    /**
+     * Whether the tool is found for {@code platform} - inside {@code path}, or on that machine's {@code PATH}.
+     */
+    public static boolean hasExecutable(Platform platform, Path path, String toolName) {
+        return PathUtil.isExecutable(pathToExecutable(platform, path, toolName));
     }
 
     /** The tool inside {@code path} itself, with no fall back to {@code PATH}. */
     public static boolean hasLocalExecutable(@jakarta.annotation.Nullable Path path, String toolName) {
+        return hasExecutableIn(Platform.current(), path, toolName);
+    }
+
+    /** The tool inside {@code path} of {@code platform} itself, with no fall back to {@code PATH}. */
+    public static boolean hasExecutableIn(Platform platform, @jakarta.annotation.Nullable Path path, String toolName) {
         if (path == null) return false;
-        String exeName = Platform.current().os().isWindows() ? toolName + ".exe" : toolName;
-        return PathUtil.isExecutable(path.resolve(exeName).toAbsolutePath());
+        return PathUtil.isExecutable(path.resolve(executableName(platform, toolName)).toAbsolutePath());
+    }
+
+    /**
+     * The file name of a tool on {@code platform} - the operating system of that machine decides, not the one of the IDE.
+     */
+    public static String executableName(Platform platform, String toolName) {
+        return platform.os().isWindows() ? toolName + ".exe" : toolName;
     }
 
     /**
@@ -43,28 +61,20 @@ public final class ToolchainUtil {
      * {@code rustup} manages all of them and is installed once, somewhere else entirely.
      */
     public static Path pathToExecutable(Path path, String toolName) {
-        String exeName = Platform.current().os().isWindows() ? toolName + ".exe" : toolName;
+        return pathToExecutable(Platform.current(), path, toolName);
+    }
+
+    /**
+     * Like {@link #pathToExecutable(Path, String)} for a toolchain of {@code platform} - its {@code PATH} is the one of
+     * that machine.
+     */
+    public static Path pathToExecutable(Platform platform, Path path, String toolName) {
+        String exeName = executableName(platform, toolName);
         Path inToolchain = path.resolve(exeName).toAbsolutePath();
         if (PathUtil.isExecutable(inToolchain)) {
             return inToolchain;
         }
-        Path onPath = findOnPath(exeName);
+        Path onPath = platform.findExecutableInPath(exeName);
         return onPath != null ? onPath : inToolchain;
-    }
-
-    @jakarta.annotation.Nullable
-    private static Path findOnPath(String exeName) {
-        String pathEnv = Platform.current().os().getEnvironmentVariable("PATH");
-        if (pathEnv == null || pathEnv.isEmpty()) return null;
-        for (String entry : pathEnv.split(java.io.File.pathSeparator)) {
-            if (entry.isEmpty()) continue;
-            try {
-                Path candidate = Path.of(entry).resolve(exeName);
-                if (PathUtil.isExecutable(candidate)) return candidate.toAbsolutePath();
-            }
-            catch (java.nio.file.InvalidPathException ignored) {
-            }
-        }
-        return null;
     }
 }
