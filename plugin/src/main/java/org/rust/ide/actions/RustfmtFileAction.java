@@ -84,7 +84,7 @@ public class RustfmtFileAction extends LegacyDumbAwareAction {
         VirtualFile file = OpenApiUtil.getVirtualFile(document);
         if (file == null) return null;
         // a file of a remote platform is formatted by the rustfmt of that platform
-        if (!(consulo.virtualFileSystem.util.VirtualFileUtil.isInLocalOrPlatformFileSystem(file) && RsFile.isRustFile(file))) return null;
+        if (!(file.isInLocalLikeFileSystem() && RsFile.isRustFile(file))) return null;
         CargoProject cargoProject = CargoProjectServiceUtil.getCargoProjects(project).findProjectForFile(file);
         if (cargoProject == null) return null;
         return new Context(cargoProject, rustfmt, document);
