@@ -75,5 +75,4 @@ open module consulo.rust.platform.compat {
     exports com.intellij.ui.dsl.gridLayout;
     exports com.intellij.util.io.externalizer;
     exports com.intellij.util.text;
-    exports com.jetbrains.jsonSchema.extension;
 }

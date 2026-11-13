@@ -5,6 +5,7 @@
 
 package org.rust.toml.jsonSchema;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.application.dumb.DumbAware;
 import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
@@ -18,6 +19,7 @@ import org.rust.RsBundle;
 import java.util.Collections;
 import java.util.List;
 
+@ExtensionImpl
 public class CargoTomlJsonSchemaProviderFactory implements JsonSchemaProviderFactory, DumbAware {
     @Nonnull
     @Override

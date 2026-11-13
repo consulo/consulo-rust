@@ -19,4 +19,5 @@
     <depends>com.intellij.regexp</depends>
     <depends>consulo.markdown</depends>
     <depends>consulo.nativeDev</depends>
+    <depends optional="true">consulo.json</depends>
 </consulo-plugin>

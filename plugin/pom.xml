@@ -31,6 +31,7 @@
                         <dependency>org.toml.lang</dependency>
                         <dependency>com.intellij.regexp</dependency>
                         <dependency>consulo.markdown</dependency>
+                        <dependency>consulo.json</dependency>
                         <dependency>consulo.nativeDev</dependency>
                     </dependencies>
                     <packaging>
@@ -60,6 +61,11 @@
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>consulo.plugin</groupId>
+            <artifactId>consulo.rust.json</artifactId>
+            <version>3-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>consulo.plugin</groupId>
             <artifactId>consulo.rust.cargo.api</artifactId>
