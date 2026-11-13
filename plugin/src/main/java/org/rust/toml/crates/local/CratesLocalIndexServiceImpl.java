@@ -18,6 +18,7 @@ import consulo.logging.Logger;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
 import consulo.application.progress.Task;
+import consulo.virtualFileSystem.FileWatchService;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import consulo.virtualFileSystem.VirtualFile;
@@ -302,7 +303,7 @@ public class CratesLocalIndexServiceImpl implements CratesLocalIndexService, Dis
         private final Path myCargoRegistryIndexPath;
         private final PersistentHashMap<String, CratesLocalIndexService.CargoRegistryCrate> myCrates;
         private final String myCargoRegistryIndexRefsLocation;
-        private final LocalFileSystem.WatchRequest myWatchRequest;
+        private final FileWatchService.WatchRequest myWatchRequest;
         private final Path myIndexedCommitHashFile;
         private String myIndexedCommitHash;
         private final Object myIsClosedLock = new Object();
@@ -311,7 +312,7 @@ public class CratesLocalIndexServiceImpl implements CratesLocalIndexService, Dis
         CratesLocalIndexServiceImplInner(@Nonnull Path cargoRegistryIndexPath,
                                           @Nonnull PersistentHashMap<String, CratesLocalIndexService.CargoRegistryCrate> crates,
                                           @Nonnull String cargoRegistryIndexRefsLocation,
-                                          @Nullable LocalFileSystem.WatchRequest watchRequest,
+                                          @Nullable FileWatchService.WatchRequest watchRequest,
                                           @Nonnull Path indexedCommitHashFile,
                                           @Nonnull String indexedCommitHash) {
             myCargoRegistryIndexPath = cargoRegistryIndexPath;
@@ -376,7 +377,7 @@ public class CratesLocalIndexServiceImpl implements CratesLocalIndexService, Dis
                 myIsClosed = true;
             }
             if (myWatchRequest != null) {
-                LocalFileSystem.getInstance().removeWatchedRoot(myWatchRequest);
+                FileWatchService.getInstance().removeWatchedRoot(myWatchRequest);
             }
             try { myCrates.close(); } catch (IOException e) { LOG.warn(e); } catch (Throwable t) { LOG.error(t); }
         }
@@ -439,8 +440,8 @@ public class CratesLocalIndexServiceImpl implements CratesLocalIndexService, Dis
                 return new RsResult.Err<>(new Error.InternalError.PersistentHashMapInitError(cratesFilePath, e.toString()));
             }
 
-            LocalFileSystem.WatchRequest watchRequest =
-                LocalFileSystem.getInstance().addRootToWatch(cargoRegistryIndexRefsLocation, true);
+            FileWatchService.WatchRequest watchRequest =
+                FileWatchService.getInstance().addRootToWatch(cargoRegistryIndexRefsVFile.toNioPath(), true);
 
             VirtualFileUtil.processFilesRecursively(cargoRegistryIndexRefsVFile, f -> true);
             RefreshQueue.getInstance().refresh(true, true, null, cargoRegistryIndexRefsVFile);
