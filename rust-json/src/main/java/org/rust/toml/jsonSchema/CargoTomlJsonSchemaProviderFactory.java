@@ -53,6 +53,7 @@ public class CargoTomlJsonSchemaProviderFactory implements JsonSchemaProviderFac
             return SchemaType.embeddedSchema;
         }
 
+        @Override
         public boolean isUserVisible() {
             return false;
         }
