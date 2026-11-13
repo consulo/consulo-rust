@@ -104,6 +104,20 @@ public abstract class RsToolchainBase {
         return location.hashCode();
     }
 
+    /**
+     * The {@code PATH} of the toolchain's machine with the toolchain's own directory in front. Cargo runs
+     * {@code rustc}, {@code rustdoc} and the other tools it needs from {@code PATH}: without this they would come
+     * from a rustup proxy, which picks the default toolchain rather than this one, or not be found at all - a
+     * remote agent is started without a login shell, so {@code ~/.cargo/bin} is not on its {@code PATH}.
+     */
+    public String pathWithToolchainFirst() {
+        Platform platform = getPlatform();
+        String path = platform.os().getEnvironmentVariable("PATH");
+        String toolchainDir = location.toString();
+        if (path == null || path.isEmpty()) return toolchainDir;
+        return toolchainDir + (platform.os().isWindows() ? ";" : ":") + path;
+    }
+
     public GeneralCommandLine createGeneralCommandLine(
         Path executable,
         Path workingDirectory,
@@ -120,6 +134,7 @@ public abstract class RsToolchainBase {
         CommandLineExt.withWorkDirectory(commandLine, workingDirectory);
         // Consulo's GeneralCommandLine has no withInput; redirectInputFrom ignored
         commandLine.withEnvironment("TERM", "ansi");
+        commandLine.withEnvironment("PATH", pathWithToolchainFirst());
         commandLine.withParameters(parameters);
         commandLine.withCharset(java.nio.charset.StandardCharsets.UTF_8);
         commandLine.withRedirectErrorStream(true);

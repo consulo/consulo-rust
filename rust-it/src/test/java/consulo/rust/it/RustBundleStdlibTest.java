@@ -15,6 +15,8 @@ import consulo.it.HeadlessProjectExtension;
 import consulo.it.HeadlessProjects;
 import consulo.platform.Platform;
 import consulo.rust.bundle.RustBundleType;
+import org.rust.cargo.toolchain.RsToolchainBase;
+import org.rust.cargo.toolchain.RsToolchainProvider;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import org.junit.jupiter.api.Test;
@@ -114,6 +116,19 @@ public class RustBundleStdlibTest {
 
         Files.delete(rustc);
         assertThat(type.isValidSdkHome(platform, home)).as("cargo alone is not a toolchain").isFalse();
+    }
+
+    @Test
+    public void toolsOfABundleRunWithItsDirectoryFirstOnPath(HeadlessProjects projects) throws Exception {
+        Path home = Files.createTempDirectory("consulo-rust-it-bundle-path");
+        Files.createDirectories(home.resolve("bin"));
+        executable(home.resolve("bin/rustc"));
+        executable(home.resolve("bin/cargo"));
+
+        RsToolchainBase toolchain = RsToolchainProvider.getToolchainStatic(home.resolve("bin"), Platform.current());
+        assertThat(toolchain).isNotNull();
+        // cargo looks rustc up on PATH: it must find the bundle's own, not a rustup proxy's default toolchain
+        assertThat(toolchain.pathWithToolchainFirst()).startsWith(home.resolve("bin") + ":");
     }
 
     private static Path executable(Path path) throws Exception {
