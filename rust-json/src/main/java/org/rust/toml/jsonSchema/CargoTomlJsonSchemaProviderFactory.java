@@ -21,6 +21,12 @@ import java.util.List;
 
 @ExtensionImpl
 public class CargoTomlJsonSchemaProviderFactory implements JsonSchemaProviderFactory, DumbAware {
+    static final String CARGO_TOML = "Cargo.toml";
+
+    static boolean isCargoToml(@Nullable String fileName) {
+        return CARGO_TOML.equals(fileName);
+    }
+
     @Nonnull
     @Override
     public List<JsonSchemaFileProvider> getProviders(@Nonnull Project project) {
@@ -28,17 +34,15 @@ public class CargoTomlJsonSchemaProviderFactory implements JsonSchemaProviderFac
     }
 
     /**
-     * Provides empty json schema for Cargo.toml files.
-     * It's a temporary hack not to use remote scheme for Cargo.toml from https://json.schemastore.org/cargo.json
-     * by providing own empty embedded scheme (embedded schemes have more priority than remote ones)
-     * because it suggests unexpected completion variants like {@code {}}.
+     * Supplies the bundled {@code Cargo.toml} schema. Being embedded, it takes priority over the
+     * remote one from schemastore.org.
      */
     public static class CargoTomlJsonSchemaFileProvider implements JsonSchemaFileProvider {
         public static final String SCHEMA_PATH = "/jsonSchema/cargo.toml-schema.json";
 
         @Override
         public boolean isAvailable(@Nonnull VirtualFile file) {
-            return "Cargo.toml".equals(file.getName());
+            return isCargoToml(file.getName());
         }
 
         @Nonnull
@@ -53,10 +57,6 @@ public class CargoTomlJsonSchemaProviderFactory implements JsonSchemaProviderFac
             return SchemaType.embeddedSchema;
         }
 
-        @Override
-        public boolean isUserVisible() {
-            return false;
-        }
 
         @Nullable
         @Override

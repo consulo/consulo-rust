@@ -5,6 +5,8 @@
 
 package org.rust.ide.actions;
 
+import consulo.rust.localize.RustLocalize;
+import consulo.platform.base.icon.PlatformIconGroup;
 import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.process.ExecutionException;
 import consulo.ui.ex.action.AnActionEvent;
@@ -38,6 +40,12 @@ import consulo.document.FileDocumentManager;
     )
 )
 public class RustfmtFileAction extends LegacyDumbAwareAction {
+    public RustfmtFileAction() {
+        getTemplatePresentation().setText(RustLocalize.actionCargoRustfmtfileText());
+        getTemplatePresentation().setDescription(RustLocalize.actionCargoRustfmtfileDescription());
+        getTemplatePresentation().setIcon(PlatformIconGroup.actionsIntentionbulb());
+    }
+
 
 
     @Override

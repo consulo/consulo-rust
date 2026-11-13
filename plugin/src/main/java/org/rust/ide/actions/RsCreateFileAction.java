@@ -62,6 +62,6 @@ public class RsCreateFileAction extends CreateFileFromTemplateAction implements 
     @Override
     protected void buildDialog(@Nonnull Project project, @Nonnull PsiDirectory directory, @Nonnull CreateFileFromTemplateDialog.Builder builder) {
         builder.setTitle(LocalizeValue.of(CAPTION))
-            .addKind(LocalizeValue.of(RsBundle.message("list.item.empty.file")), RsIcons.RUST_FILE, "Rust File");
+            .addKind(LocalizeValue.of(RsBundle.message("list.item.empty.file")), RsIcons.RUST_FILE, RsFileTemplateContributor.RUST_FILE_TEMPLATE);
     }
 }

@@ -57,6 +57,13 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- The schema compliance checker and its inspection state, which TOML has to drive itself. -->
+        <dependency>
+            <groupId>consulo.plugin</groupId>
+            <artifactId>consulo.json.scheme.impl</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>consulo</groupId>

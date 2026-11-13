@@ -10,7 +10,6 @@ import consulo.execution.ui.console.OpenFileHyperlinkInfo;
 import consulo.document.Document;
 import consulo.colorScheme.EditorColorsManager;
 import consulo.colorScheme.TextAttributesKey;
-import consulo.colorScheme.TextAttributes;
 import consulo.project.Project;
 import consulo.language.psi.PsiDocumentManager;
 import consulo.language.psi.PsiElement;
@@ -32,8 +31,10 @@ import java.util.regex.Pattern;
  */
 public class RsBacktraceItemFilter implements Filter {
 
-    public static final TextAttributes DIMMED_TEXT = EditorColorsManager.getInstance().getGlobalScheme()
-        .getAttributes(TextAttributesKey.createTextAttributesKey("org.rust.DIMMED_TEXT"));
+    /**
+     * Dims the hash suffix of a function in a backtrace; its colors come from the color scheme extenders.
+     */
+    public static final TextAttributesKey DIMMED_TEXT_KEY = TextAttributesKey.createTextAttributesKey("org.rust.DIMMED_TEXT");
 
     public static final String[] SKIP_PREFIXES = {
         "std::rt::lang_start",
@@ -82,7 +83,7 @@ public class RsBacktraceItemFilter implements Filter {
 
         // Dim the hashcode
         if (record.myFunctionHash != null) {
-            resultItems.add(new ResultItem(funcEnd, funcEnd + record.myFunctionHash.length(), null, DIMMED_TEXT));
+            resultItems.add(new ResultItem(funcEnd, funcEnd + record.myFunctionHash.length(), null, EditorColorsManager.getInstance().getGlobalScheme().getAttributes(DIMMED_TEXT_KEY)));
         }
 
         return new Result(resultItems);

@@ -5,6 +5,7 @@
 
 package org.rust.ide.actions;
 
+import consulo.rust.localize.RustLocalize;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.ToggleAction;
 import consulo.project.Project;
@@ -15,6 +16,10 @@ import consulo.annotation.component.ActionImpl;
 
 @ActionImpl(id = "Cargo.ToggleExternalLinterOnTheFlyAction")
 public class ToggleExternalLinterOnTheFlyAction extends ToggleAction {
+    public ToggleExternalLinterOnTheFlyAction() {
+        getTemplatePresentation().setText(RustLocalize.actionCargoToggleexternallinterontheflyactionText());
+    }
+
 
     @Override
     public boolean isSelected(AnActionEvent e) {

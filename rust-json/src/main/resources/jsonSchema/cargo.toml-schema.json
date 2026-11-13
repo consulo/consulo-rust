@@ -1,1 +1,212 @@
-{}
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Cargo.toml",
+  "description": "The Cargo manifest, see https://doc.rust-lang.org/cargo/reference/manifest.html",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "cargo-features": { "type": "array", "items": { "type": "string" } },
+    "package": { "$ref": "#/definitions/package" },
+    "project": { "$ref": "#/definitions/package", "description": "Deprecated alias of [package]." },
+    "lib": { "$ref": "#/definitions/target" },
+    "bin": { "type": "array", "items": { "$ref": "#/definitions/target" } },
+    "example": { "type": "array", "items": { "$ref": "#/definitions/target" } },
+    "test": { "type": "array", "items": { "$ref": "#/definitions/target" } },
+    "bench": { "type": "array", "items": { "$ref": "#/definitions/target" } },
+    "dependencies": { "$ref": "#/definitions/dependencies" },
+    "dev-dependencies": { "$ref": "#/definitions/dependencies" },
+    "dev_dependencies": { "$ref": "#/definitions/dependencies" },
+    "build-dependencies": { "$ref": "#/definitions/dependencies" },
+    "build_dependencies": { "$ref": "#/definitions/dependencies" },
+    "target": {
+      "type": "object",
+      "description": "Platform-specific dependencies, keyed by target triple or cfg(...) expression.",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "dependencies": { "$ref": "#/definitions/dependencies" },
+          "dev-dependencies": { "$ref": "#/definitions/dependencies" },
+          "dev_dependencies": { "$ref": "#/definitions/dependencies" },
+          "build-dependencies": { "$ref": "#/definitions/dependencies" },
+          "build_dependencies": { "$ref": "#/definitions/dependencies" }
+        }
+      }
+    },
+    "features": {
+      "type": "object",
+      "additionalProperties": { "type": "array", "items": { "type": "string" } }
+    },
+    "badges": { "type": "object" },
+    "lints": { "$ref": "#/definitions/lints" },
+    "hints": { "type": "object" },
+    "patch": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/dependencies" }
+    },
+    "replace": { "$ref": "#/definitions/dependencies" },
+    "profile": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/profile" }
+    },
+    "workspace": { "$ref": "#/definitions/workspace" }
+  },
+  "definitions": {
+    "inherited": {
+      "type": "object",
+      "description": "Takes the value from [workspace.package].",
+      "properties": { "workspace": { "type": "boolean", "enum": [true] } },
+      "required": ["workspace"],
+      "additionalProperties": false
+    },
+    "stringOrInherited": {
+      "oneOf": [ { "type": "string" }, { "$ref": "#/definitions/inherited" } ]
+    },
+    "stringArrayOrInherited": {
+      "oneOf": [
+        { "type": "array", "items": { "type": "string" } },
+        { "$ref": "#/definitions/inherited" }
+      ]
+    },
+    "edition": { "type": "string", "enum": ["2015", "2018", "2021", "2024"] },
+    "resolver": { "type": "string", "enum": ["1", "2", "3"] },
+    "package": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "$ref": "#/definitions/stringOrInherited" },
+        "authors": { "$ref": "#/definitions/stringArrayOrInherited" },
+        "edition": {
+          "oneOf": [ { "$ref": "#/definitions/edition" }, { "$ref": "#/definitions/inherited" } ]
+        },
+        "rust-version": { "$ref": "#/definitions/stringOrInherited" },
+        "description": { "$ref": "#/definitions/stringOrInherited" },
+        "documentation": { "$ref": "#/definitions/stringOrInherited" },
+        "readme": {
+          "oneOf": [ { "type": "string" }, { "type": "boolean" }, { "$ref": "#/definitions/inherited" } ]
+        },
+        "homepage": { "$ref": "#/definitions/stringOrInherited" },
+        "repository": { "$ref": "#/definitions/stringOrInherited" },
+        "license": { "$ref": "#/definitions/stringOrInherited" },
+        "license-file": { "$ref": "#/definitions/stringOrInherited" },
+        "keywords": { "$ref": "#/definitions/stringArrayOrInherited" },
+        "categories": { "$ref": "#/definitions/stringArrayOrInherited" },
+        "workspace": { "type": "string" },
+        "build": { "oneOf": [ { "type": "string" }, { "type": "boolean" } ] },
+        "links": { "type": "string" },
+        "exclude": { "$ref": "#/definitions/stringArrayOrInherited" },
+        "include": { "$ref": "#/definitions/stringArrayOrInherited" },
+        "publish": {
+          "oneOf": [
+            { "type": "boolean" },
+            { "type": "array", "items": { "type": "string" } },
+            { "$ref": "#/definitions/inherited" }
+          ]
+        },
+        "metadata": { "type": "object" },
+        "default-run": { "type": "string" },
+        "autolib": { "type": "boolean" },
+        "autobins": { "type": "boolean" },
+        "autoexamples": { "type": "boolean" },
+        "autotests": { "type": "boolean" },
+        "autobenches": { "type": "boolean" },
+        "resolver": { "$ref": "#/definitions/resolver" }
+      }
+    },
+    "target": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "path": { "type": "string" },
+        "test": { "type": "boolean" },
+        "doctest": { "type": "boolean" },
+        "bench": { "type": "boolean" },
+        "doc": { "type": "boolean" },
+        "plugin": { "type": "boolean" },
+        "proc-macro": { "type": "boolean" },
+        "harness": { "type": "boolean" },
+        "edition": { "$ref": "#/definitions/edition" },
+        "crate-type": { "type": "array", "items": { "type": "string" } },
+        "required-features": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/dependency" }
+    },
+    "dependency": {
+      "oneOf": [
+        { "type": "string", "description": "A version requirement, such as \"1.0\"." },
+        { "$ref": "#/definitions/detailedDependency" }
+      ]
+    },
+    "detailedDependency": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "string" },
+        "path": { "type": "string" },
+        "git": { "type": "string" },
+        "branch": { "type": "string" },
+        "tag": { "type": "string" },
+        "rev": { "type": "string" },
+        "registry": { "type": "string" },
+        "package": { "type": "string" },
+        "features": { "type": "array", "items": { "type": "string" } },
+        "optional": { "type": "boolean" },
+        "default-features": { "type": "boolean" },
+        "default_features": { "type": "boolean" },
+        "workspace": { "type": "boolean" },
+        "public": { "type": "boolean" }
+      }
+    },
+    "profile": {
+      "type": "object",
+      "properties": {
+        "inherits": { "type": "string" },
+        "opt-level": {
+          "oneOf": [
+            { "type": "integer", "minimum": 0, "maximum": 3 },
+            { "type": "string", "enum": ["0", "1", "2", "3", "s", "z"] }
+          ]
+        },
+        "debug": {
+          "oneOf": [
+            { "type": "boolean" },
+            { "type": "integer", "minimum": 0, "maximum": 2 },
+            { "type": "string", "enum": ["none", "line-directives-only", "line-tables-only", "limited", "full"] }
+          ]
+        },
+        "split-debuginfo": { "type": "string", "enum": ["off", "packed", "unpacked"] },
+        "strip": {
+          "oneOf": [ { "type": "boolean" }, { "type": "string", "enum": ["none", "debuginfo", "symbols"] } ]
+        },
+        "debug-assertions": { "type": "boolean" },
+        "overflow-checks": { "type": "boolean" },
+        "lto": {
+          "oneOf": [ { "type": "boolean" }, { "type": "string", "enum": ["off", "thin", "fat"] } ]
+        },
+        "panic": { "type": "string", "enum": ["unwind", "abort"] },
+        "incremental": { "type": "boolean" },
+        "codegen-units": { "type": "integer", "minimum": 1 },
+        "rpath": { "type": "boolean" }
+      }
+    },
+    "lints": {
+      "type": "object",
+      "properties": { "workspace": { "type": "boolean" } }
+    },
+    "workspace": {
+      "type": "object",
+      "properties": {
+        "members": { "type": "array", "items": { "type": "string" } },
+        "default-members": { "type": "array", "items": { "type": "string" } },
+        "exclude": { "type": "array", "items": { "type": "string" } },
+        "resolver": { "$ref": "#/definitions/resolver" },
+        "package": { "type": "object" },
+        "dependencies": { "$ref": "#/definitions/dependencies" },
+        "lints": { "type": "object" },
+        "metadata": { "type": "object" }
+      }
+    }
+  }
+}

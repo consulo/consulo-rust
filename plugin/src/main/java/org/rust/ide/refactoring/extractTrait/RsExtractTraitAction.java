@@ -5,6 +5,7 @@
 
 package org.rust.ide.refactoring.extractTrait;
 
+import consulo.rust.localize.RustLocalize;
 import consulo.annotation.component.ActionImpl;
 import consulo.annotation.component.ActionParentRef;
 import consulo.annotation.component.ActionRef;
@@ -28,6 +29,8 @@ import org.rust.lang.core.psi.ext.RsTraitOrImpl;
 public class RsExtractTraitAction extends BaseRefactoringAction {
 
     public RsExtractTraitAction() {
+        getTemplatePresentation().setText(RustLocalize.actionRustRsextracttraitText());
+        getTemplatePresentation().setDescription(RustLocalize.actionRustRsextracttraitDescription());
         setInjectedContext(true);
     }
 

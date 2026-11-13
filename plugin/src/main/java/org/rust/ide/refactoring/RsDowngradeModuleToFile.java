@@ -5,6 +5,7 @@
 
 package org.rust.ide.refactoring;
 
+import consulo.rust.localize.RustLocalize;
 import consulo.language.Language;
 import consulo.dataContext.DataContext;
 import consulo.codeEditor.Editor;
@@ -33,6 +34,11 @@ import consulo.annotation.component.ActionRef;
     )
 )
 public class RsDowngradeModuleToFile extends BaseRefactoringAction {
+    public RsDowngradeModuleToFile() {
+        getTemplatePresentation().setText(RustLocalize.actionRustRsdowngrademoduletofileText());
+        getTemplatePresentation().setDescription(RustLocalize.actionRustRsdowngrademoduletofileDescription());
+    }
+
 
     @Override
     protected boolean isEnabledOnElements(@Nonnull PsiElement[] elements) {

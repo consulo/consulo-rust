@@ -5,6 +5,7 @@
 
 package org.rust.ide.actions.macroExpansion;
 
+import consulo.rust.localize.RustLocalize;
 import consulo.annotation.component.ActionImpl;
 
 /**
@@ -14,5 +15,6 @@ import consulo.annotation.component.ActionImpl;
 public class RsShowRecursiveMacroExpansionAction extends RsShowMacroExpansionActions.RsShowMacroExpansionActionBase {
     public RsShowRecursiveMacroExpansionAction() {
         super(true);
+        getTemplatePresentation().setText(RustLocalize.actionRustShowrecursivemacroexpansionactionText());
     }
 }

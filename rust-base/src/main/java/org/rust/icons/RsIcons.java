@@ -78,6 +78,7 @@ public final class RsIcons {
     public static final Image RECURSIVE_CALL = AllIcons.Gutter.RecursiveMethod;
 
     public static final Image REPL = RustIconGroup.rustrepl();
+    public static final Image EXTERNAL_LINTER = RustIconGroup.externallinter();
 
     public static final Image CARGO_GENERATE = RustIconGroup.cargogenerate();
     public static final Image WASM_PACK = RustIconGroup.wasmpack();

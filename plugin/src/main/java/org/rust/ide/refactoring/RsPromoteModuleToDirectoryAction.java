@@ -5,6 +5,7 @@
 
 package org.rust.ide.refactoring;
 
+import consulo.rust.localize.RustLocalize;
 import consulo.language.Language;
 import consulo.dataContext.DataContext;
 import consulo.codeEditor.Editor;
@@ -38,6 +39,11 @@ import org.rust.openapiext.OpenApiUtil;
     )
 )
 public class RsPromoteModuleToDirectoryAction extends BaseRefactoringAction {
+    public RsPromoteModuleToDirectoryAction() {
+        getTemplatePresentation().setText(RustLocalize.actionRustRspromotemoduletodirectoryactionText());
+        getTemplatePresentation().setDescription(RustLocalize.actionRustRspromotemoduletodirectoryactionDescription());
+    }
+
 
     @Override
     protected boolean isEnabledOnElements(@Nonnull PsiElement[] elements) {

@@ -5,6 +5,8 @@
 
 package org.rust.ide.console;
 
+import consulo.rust.localize.RustLocalize;
+import org.rust.icons.RsIcons;
 import consulo.project.ui.notification.NotificationType;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DumbAwareAction;
@@ -18,6 +20,11 @@ import consulo.annotation.component.ActionImpl;
 
 @ActionImpl(id = "Rust.ConsoleREPL")
 public class RunRustConsoleAction extends LegacyDumbAwareAction {
+    public RunRustConsoleAction() {
+        getTemplatePresentation().setText(RustLocalize.actionRustConsolereplText());
+        getTemplatePresentation().setIcon(RsIcons.REPL);
+    }
+
 
 
     @Override

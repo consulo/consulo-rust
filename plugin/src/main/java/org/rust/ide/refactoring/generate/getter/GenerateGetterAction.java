@@ -5,6 +5,7 @@
 
 package org.rust.ide.refactoring.generate.getter;
 
+import consulo.rust.localize.RustLocalize;
 import jakarta.annotation.Nonnull;
 import org.rust.ide.refactoring.generate.BaseGenerateAction;
 import org.rust.ide.refactoring.generate.BaseGenerateHandler;
@@ -20,6 +21,10 @@ import consulo.annotation.component.ActionRef;
     )
 )
 public class GenerateGetterAction extends BaseGenerateAction {
+    public GenerateGetterAction() {
+        getTemplatePresentation().setText(RustLocalize.actionRustGenerategetterText());
+    }
+
     @Nonnull
     @Override
     protected BaseGenerateHandler getGenerateHandler() {

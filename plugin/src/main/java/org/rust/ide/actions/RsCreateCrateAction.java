@@ -5,6 +5,8 @@
 
 package org.rust.ide.actions;
 
+import consulo.rust.localize.RustLocalize;
+import org.rust.cargo.icons.CargoIcons;
 import org.rust.cargo.toolchain.RsToolchainLocator;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.language.editor.CommonDataKeys;
@@ -41,6 +43,12 @@ import org.rust.cargo.api.model.CargoProject;
     )
 )
 public class RsCreateCrateAction extends RunCargoCommandActionBase {
+    public RsCreateCrateAction() {
+        getTemplatePresentation().setText(RustLocalize.actionRustNewcargocrateText());
+        getTemplatePresentation().setDescription(RustLocalize.actionRustNewcargocrateDescription());
+        getTemplatePresentation().setIcon(CargoIcons.ICON);
+    }
+
     @Override
     public void actionPerformed(AnActionEvent e) {
         DataContext dataContext = e.getDataContext();

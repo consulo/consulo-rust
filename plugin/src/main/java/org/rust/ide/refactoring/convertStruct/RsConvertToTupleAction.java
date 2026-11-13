@@ -5,6 +5,7 @@
 
 package org.rust.ide.refactoring.convertStruct;
 
+import consulo.rust.localize.RustLocalize;
 import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.dataContext.DataContext;
 import consulo.codeEditor.Editor;
@@ -35,6 +36,11 @@ import consulo.annotation.component.ActionRef;
     )
 )
 public class RsConvertToTupleAction extends RsBaseEditorRefactoringAction {
+    public RsConvertToTupleAction() {
+        getTemplatePresentation().setText(RustLocalize.actionRustRsconverttotupleText());
+        getTemplatePresentation().setDescription(RustLocalize.actionRustRsconverttotupleDescription());
+    }
+
 
     @Override
     public boolean isAvailableOnElementInEditorAndFile(

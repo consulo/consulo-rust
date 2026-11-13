@@ -5,6 +5,7 @@
 
 package org.rust.ide.refactoring.extractEnumVariant;
 
+import consulo.rust.localize.RustLocalize;
 import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.dataContext.DataContext;
 import consulo.codeEditor.Editor;
@@ -33,6 +34,11 @@ import consulo.annotation.component.ActionRef;
     )
 )
 public class RsExtractEnumVariantAction extends RsBaseEditorRefactoringAction {
+    public RsExtractEnumVariantAction() {
+        getTemplatePresentation().setText(RustLocalize.actionRustRsextractenumvariantText());
+        getTemplatePresentation().setDescription(RustLocalize.actionRustRsextractenumvariantDescription());
+    }
+
 
     @Override
     public boolean isAvailableOnElementInEditorAndFile(

@@ -5,6 +5,11 @@
 
 package org.rust.ide.actions.macroExpansion;
 
+import consulo.util.concurrent.coroutine.Coroutine;
+import consulo.ui.ex.action.coroutine.ActionSafeReadLock;
+import consulo.ui.ex.action.AnActionWithAsyncUpdate;
+import consulo.language.psi.PsiFile;
+import consulo.codeEditor.EditorKeys;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.dataContext.DataContext;
@@ -21,7 +26,7 @@ import consulo.language.psi.PsiElement;
 
 public abstract class RsShowMacroExpansionActions {
 
-    public static abstract class RsShowMacroExpansionActionBase extends LegacyAnAction {
+    public static abstract class RsShowMacroExpansionActionBase extends LegacyAnAction implements AnActionWithAsyncUpdate {
         private final boolean expandRecursively;
 
         protected RsShowMacroExpansionActionBase(boolean expandRecursively) {
@@ -30,8 +35,10 @@ public abstract class RsShowMacroExpansionActions {
 
 
         @Override
-        public void update(AnActionEvent e) {
-            e.getPresentation().setEnabledAndVisible(getMacroUnderCaret(e.getDataContext()) != null);
+        public Coroutine<?, ?> updateAsync(AnActionEvent e) {
+            return ActionSafeReadLock.run(e, presentation ->
+                presentation.setEnabledAndVisible(getMacroUnderCaret(e.getDataContext()) != null)
+            ).toCoroutine();
         }
 
         @Override
@@ -83,7 +90,11 @@ public abstract class RsShowMacroExpansionActions {
 
     /** Returns closest macro call under cursor in the editor if present. */
     public static RsPossibleMacroCall getMacroUnderCaret(DataContext event) {
-        consulo.language.psi.PsiElement elementUnderCaret = OpenApiUtil.getElementUnderCaretInEditor(event);
+        // The snapshot can be read off the UI thread, which is where action updates run.
+        Editor editor = event.getData(EditorKeys.EDITOR_SNAPSHOT);
+        PsiFile file = event.getData(PsiFile.KEY);
+        if (editor == null || file == null) return null;
+        PsiElement elementUnderCaret = file.findElementAt(editor.getCaretModel().getOffset());
         if (elementUnderCaret == null) return null;
         return RsPossibleMacroCallUtil.getContextMacroCall(elementUnderCaret);
     }

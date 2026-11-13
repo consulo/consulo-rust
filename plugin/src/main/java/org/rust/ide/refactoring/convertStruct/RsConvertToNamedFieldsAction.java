@@ -5,6 +5,7 @@
 
 package org.rust.ide.refactoring.convertStruct;
 
+import consulo.rust.localize.RustLocalize;
 import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.dataContext.DataContext;
 import consulo.codeEditor.Editor;
@@ -47,6 +48,11 @@ import org.rust.lang.core.psi.RsTupleFieldDecl;
     )
 )
 public class RsConvertToNamedFieldsAction extends RsBaseEditorRefactoringAction {
+    public RsConvertToNamedFieldsAction() {
+        getTemplatePresentation().setText(RustLocalize.actionRustRsconverttonamedfieldsText());
+        getTemplatePresentation().setDescription(RustLocalize.actionRustRsconverttonamedfieldsDescription());
+    }
+
 
     @Override
     public boolean isAvailableOnElementInEditorAndFile(

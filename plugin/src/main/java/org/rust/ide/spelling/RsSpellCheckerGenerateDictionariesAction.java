@@ -5,6 +5,7 @@
 
 package org.rust.ide.spelling;
 
+import consulo.rust.localize.RustLocalize;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.language.editor.LangDataKeys;
@@ -35,6 +36,10 @@ import consulo.annotation.component.ActionRef;
     )
 )
 public class RsSpellCheckerGenerateDictionariesAction extends LegacyAnAction {
+    public RsSpellCheckerGenerateDictionariesAction() {
+        getTemplatePresentation().setText(RustLocalize.actionRustGeneratedictionariesText());
+    }
+
 
     private static final List<String> EXCLUDE_DIRS = Arrays.asList("tests", "benches");
 

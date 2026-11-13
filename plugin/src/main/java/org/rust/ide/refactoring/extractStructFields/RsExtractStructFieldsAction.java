@@ -5,6 +5,7 @@
 
 package org.rust.ide.refactoring.extractStructFields;
 
+import consulo.rust.localize.RustLocalize;
 import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import consulo.dataContext.DataContext;
 import consulo.codeEditor.Editor;
@@ -38,6 +39,11 @@ import consulo.annotation.component.ActionRef;
     )
 )
 public class RsExtractStructFieldsAction extends RsBaseEditorRefactoringAction {
+    public RsExtractStructFieldsAction() {
+        getTemplatePresentation().setText(RustLocalize.actionRustRsextractstructfieldsText());
+        getTemplatePresentation().setDescription(RustLocalize.actionRustRsextractstructfieldsDescription());
+    }
+
 
     @Override
     public boolean isAvailableOnElementInEditorAndFile(

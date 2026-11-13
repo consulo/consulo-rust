@@ -5,6 +5,7 @@
 
 package org.rust.ide.actions;
 
+import consulo.rust.localize.RustLocalize;
 import com.google.gson.Gson;
 import consulo.process.io.ProcessIOExecutorService;
 import consulo.project.ui.notification.NotificationAction;
@@ -47,6 +48,11 @@ import org.rust.openapiext.OpenApiUtil;
 
 @ActionImpl(id = "Rust.ShareInPlayground")
 public class ShareInPlaygroundAction extends LegacyDumbAwareAction {
+    public ShareInPlaygroundAction() {
+        getTemplatePresentation().setText(RustLocalize.actionRustShareinplaygroundText());
+        getTemplatePresentation().setDescription(RustLocalize.actionRustShareinplaygroundDescription());
+    }
+
 
     private static final String SHOW_SHARE_IN_PLAYGROUND_CONFIRMATION = "rs.show.share.in.playground.confirmation";
     private static String MOCK = null;
