@@ -10,6 +10,22 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.crate.Crate;
 import org.rust.lang.core.psi.ext.RsPossibleMacroCall;
+import consulo.language.impl.psi.PsiFileImpl;
+import consulo.language.impl.psi.stub.StubBasedPsiElementBase;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.stub.StubElement;
+import org.rust.lang.core.macros.RsExpandedElement;
+import org.rust.lang.core.macros.RsExpandedElementUtil;
+import org.rust.lang.core.psi.RsBlock;
+import org.rust.lang.core.psi.RsMetaItem;
+import org.rust.lang.core.psi.RsModDeclItem;
+import org.rust.lang.core.psi.ext.RsAttrProcMacroOwner;
+import org.rust.lang.core.psi.ext.RsMod;
+import org.rust.lang.core.psi.ext.impl.RsMetaItemUtil;
+import org.rust.lang.core.psi.impl.ProcMacroAttribute;
+import org.rust.lang.core.psi.impl.RsCodeFragment;
+import org.rust.lang.core.stubs.RsAttrProcMacroOwnerStub;
+import org.rust.lang.core.stubs.RsModDeclItemStub;
 
 public class RsModInfo {
     @Nonnull
@@ -63,18 +79,93 @@ public class RsModInfo {
     }
 
     /**
-     * Gets the macro index for a macro call in this mod context.
-     * <p>
-     * computes the parent's {@link MacroIndex} (handling {@code RsCodeFragment}, {@code RsBlock},
-     * {@code RsMod}, and {@code expandedOrIncludedFrom}) then appends the index in the parent's
-     * stub-children — see {@code getMacroIndex} / {@code getMacroIndexInParent} in
-     * dispatch via {@code ProcMacroAttribute.getProcMacroAttributeWithoutResolve}, and
-     * {@code DataPsiHelper.psiToData} — all of which haven't been wired yet on the Java side.
-     * Until that lands we fall back to the enclosing {@code ModData.macroIndex}, which is a
-     * reasonable approximation: callers consume the result for ordering/equality only.
+     * The position of {@code element} among the macro definitions and calls of its crate: the index of its parent
+     * (a module, a block with items, the call it was expanded from or a code fragment) followed by the number of
+     * siblings before it that shift the index - module declarations and possible macro calls.
      */
     @Nullable
-    public MacroIndex getMacroIndex(@Nonnull org.rust.lang.core.psi.ext.RsPossibleMacroCall call, @Nullable org.rust.lang.core.crate.Crate crate) {
-        return modData.getMacroIndex();
+    public MacroIndex getMacroIndex(@Nonnull PsiElement element, @Nullable Crate elementCrate) {
+        Crate crate = elementCrate != null ? elementCrate : this.crate;
+        if (crate == null) return null;
+
+        if (element instanceof RsMetaItem metaItem) {
+            return getMetaItemMacroIndex(metaItem, crate);
+        }
+
+        PsiElement current = element;
+        for (PsiElement parent = current.getContext(); parent != null; current = parent, parent = parent.getContext()) {
+            RsPossibleMacroCall expandedOrIncludedFrom = current instanceof RsExpandedElement expanded
+                ? RsExpandedElementUtil.getExpandedOrIncludedFrom(expanded)
+                : null;
+            MacroIndex parentIndex;
+            if (expandedOrIncludedFrom != null) {
+                parentIndex = getMacroIndex(expandedOrIncludedFrom, crate);
+            } else if (parent instanceof RsCodeFragment) {
+                parentIndex = new MacroIndex(new int[]{Integer.MAX_VALUE});
+            } else if (parent instanceof RsBlock block) {
+                ModData parentData = dataPsiHelper != null ? dataPsiHelper.psiToData(block) : null;
+                if (parentData == null) continue;
+                parentIndex = parentData.getMacroIndex();
+            } else if (parent instanceof RsMod mod) {
+                Integer crateId = crate.getId();
+                if (crateId == null) return null;
+                ModData modData = getModData(mod, crateId);
+                parentIndex = modData != null ? modData.getMacroIndex() : null;
+            } else {
+                continue;
+            }
+            if (parentIndex == null) return null;
+            return parentIndex.append(getMacroIndexInParent(current, parent));
+        }
+        return null;
+    }
+
+    @Nullable
+    private MacroIndex getMetaItemMacroIndex(@Nonnull RsMetaItem metaItem, @Nonnull Crate crate) {
+        if (!(RsMetaItemUtil.getOwner(metaItem) instanceof RsAttrProcMacroOwner owner)) return null;
+        MacroIndex ownerIndex = getMacroIndex(owner, crate);
+        if (ownerIndex == null) return null;
+        for (ProcMacroAttribute<RsMetaItem> attr : ProcMacroAttribute.getProcMacroAttributeWithoutResolve(owner, null, this.crate, true, null, false)) {
+            if (attr instanceof ProcMacroAttribute.Derive<RsMetaItem> derive) {
+                int index = 0;
+                for (RsMetaItem derived : derive.getDerives()) {
+                    if (derived == metaItem) return ownerIndex.append(index);
+                    index++;
+                }
+                return null;
+            }
+            if (attr instanceof ProcMacroAttribute.Attr<RsMetaItem> attribute && attribute.getAttr() == metaItem) {
+                return ownerIndex;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    private ModData getModData(@Nonnull RsMod mod, int modCrate) {
+        if (dataPsiHelper != null) {
+            ModData data = dataPsiHelper.psiToData(mod);
+            if (data != null) return data;
+        }
+        CrateDefMap crateDefMap = defMap.getDefMap(modCrate);
+        return crateDefMap != null ? crateDefMap.getModData(mod) : null;
+    }
+
+    private static int getMacroIndexInParent(@Nonnull PsiElement item, @Nonnull PsiElement parent) {
+        StubElement<?> itemStub = item instanceof StubBasedPsiElementBase<?> based ? based.getGreenStub() : null;
+        StubElement<?> parentStub = parent instanceof PsiFileImpl file ? file.getGreenStub()
+            : parent instanceof StubBasedPsiElementBase<?> based ? based.getGreenStub() : null;
+        int count = 0;
+        if (itemStub != null && parentStub != null) {
+            for (StubElement<?> child : parentStub.getChildrenStubs()) {
+                if (child == itemStub) break;
+                if (child instanceof RsModDeclItemStub || child instanceof RsAttrProcMacroOwnerStub) count++;
+            }
+        } else {
+            for (PsiElement child = parent.getFirstChild(); child != null && child != item; child = child.getNextSibling()) {
+                if (child instanceof RsModDeclItem || child instanceof RsAttrProcMacroOwner) count++;
+            }
+        }
+        return count;
     }
 }

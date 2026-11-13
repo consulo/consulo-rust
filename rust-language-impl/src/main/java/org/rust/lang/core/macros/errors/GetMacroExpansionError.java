@@ -274,6 +274,11 @@ public abstract class GetMacroExpansionError {
         }
 
         @Override
+        public String toString() {
+            return "GetMacroExpansionError.ExpansionError(error=" + myError + ")";
+        }
+
+        @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
@@ -284,11 +289,6 @@ public abstract class GetMacroExpansionError {
         @Override
         public int hashCode() {
             return myError.hashCode();
-        }
-
-        @Override
-        public String toString() {
-            return "GetMacroExpansionError.ExpansionError";
         }
     }
 }

@@ -42,6 +42,7 @@ import org.rust.lang.core.resolve.ref.RsPathReference;
 import org.rust.lang.core.resolve.ref.RsPathReferenceImpl;
 import org.rust.lang.core.resolve2.CrateDefMap;
 import org.rust.lang.core.resolve2.FacadeResolve;
+import org.rust.lang.core.macros.RsExpandedElementUtil;
 import org.rust.lang.core.resolve2.ModData;
 import org.rust.lang.core.resolve2.RsModInfo;
 import org.rust.lang.core.stubs.index.RsNamedElementIndex;
@@ -140,9 +141,12 @@ public final class NameResolution {
 
     @Nullable
     public static Crate resolveDollarCrateIdentifier(@Nonnull RsPath path) {
-        // Falls back to the containing crate, which is correct
-        // in non-macro contexts.
-        return RsElementUtil.getContainingCrate(path);
+        // `$crate` is the crate of the macro the path was expanded from; when the path itself came from the body of
+        // an outer call, that call's macro decides
+        PsiElement dollarCrateSource = RsExpandedElementUtil.findMacroCallFromWhichLeafIsExpanded(path);
+        if (dollarCrateSource == null) dollarCrateSource = path;
+        RsPossibleMacroCall call = RsExpandedElementUtil.findMacroCallExpandedFromNonRecursive(dollarCrateSource);
+        return call instanceof RsMacroCall macroCall ? FacadeResolve.resolveToMacroAndGetContainingCrate(macroCall) : null;
     }
 
     /**

@@ -231,6 +231,16 @@ public final class RsPossibleMacroCallUtil {
             }
             return sb.toString();
         }
+        if (replaceDollarCrate && call instanceof RsMacroCall macroCall && macroCall.getPath() != null) {
+            // a call that does not expand is shown as written, except for a `$crate` in its path
+            StringBuilder sb = new StringBuilder();
+            for (PsiElement child = macroCall.getFirstChild(); child != null; child = child.getNextSibling()) {
+                sb.append(child == macroCall.getPath()
+                    ? toExpandedText(child, depthLimit, true, expander).replace(" ", "")
+                    : child.getText());
+            }
+            return sb.toString();
+        }
         return textIfNotExpanded(call);
     }
 
@@ -247,7 +257,9 @@ public final class RsPossibleMacroCallUtil {
                     && RsPathUtil.getQualifier(path) == null
                     && path.getTypeQual() == null
                     && !path.getHasColonColon()) {
-                    return "::" + (refName != null ? refName : "");
+                    // the crate name can be wrong: crates can be renamed, and `$crate` can come from a transitive dependency
+                    org.rust.lang.core.crate.Crate crate = org.rust.lang.core.resolve.NameResolution.resolveDollarCrateIdentifier(path);
+                    return "::" + (crate != null ? crate.getNormName() : refName != null ? refName : "");
                 }
             }
             StringBuilder sb = new StringBuilder();

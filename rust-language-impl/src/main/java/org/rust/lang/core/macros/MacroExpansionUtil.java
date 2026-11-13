@@ -6,6 +6,7 @@
 package org.rust.lang.core.macros;
 
 import consulo.language.psi.PsiElement;
+import consulo.util.dataholder.Key;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.ext.RsPossibleMacroCall;
@@ -18,6 +19,11 @@ import java.util.List;
  * Delegates to RsExpandedElementUtil and other utilities.
  */
 public final class MacroExpansionUtil {
+    /**
+     * The mapping between the macro call body and the text of an in-memory expansion file.
+     */
+    public static final Key<RangeMap> MACRO_RANGE_MAP_KEY = Key.create("org.rust.lang.core.macros.MACRO_RANGE_MAP");
+
     private MacroExpansionUtil() {
     }
 
@@ -48,9 +54,9 @@ public final class MacroExpansionUtil {
 
     @Nonnull
     public static RangeMap getRanges(@Nonnull MacroExpansion expansion) {
-        // The ranges are stored in the expansion file's user data
         RangeMap forced = expansion.getFile().getUserData(RsExpandedElementUtil.RS_FORCED_REDUCED_RANGE_MAP_KEY);
         if (forced != null) return forced;
-        return RangeMap.EMPTY;
+        RangeMap ranges = expansion.getFile().getUserData(MACRO_RANGE_MAP_KEY);
+        return ranges != null ? ranges : RangeMap.EMPTY;
     }
 }
