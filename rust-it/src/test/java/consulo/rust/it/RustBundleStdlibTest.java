@@ -13,6 +13,7 @@ import consulo.content.base.BinariesOrderRootType;
 import consulo.content.base.SourcesOrderRootType;
 import consulo.it.HeadlessProjectExtension;
 import consulo.it.HeadlessProjects;
+import consulo.platform.Platform;
 import consulo.rust.bundle.RustBundleType;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -93,5 +95,30 @@ public class RustBundleStdlibTest {
         finally {
             WriteAction.run(() -> sdkTable.removeSdk(sdk));
         }
+    }
+
+    @Test
+    public void toolchainWithoutStdlibSourcesIsValid(HeadlessProjects projects) throws Exception {
+        // what rustup's default profile installs: the tools, but not the rust-src component
+        Path home = Files.createTempDirectory("consulo-rust-it-bundle-no-src");
+        Files.createDirectories(home.resolve("bin"));
+        Path rustc = executable(home.resolve("bin/rustc"));
+        executable(home.resolve("bin/cargo"));
+
+        RustBundleType type = RustBundleType.getInstance();
+        Platform platform = Platform.current();
+        assertThat(type.isValidSdkHome(platform, home)).as("rustc and cargo make a toolchain").isTrue();
+        assertThat(type.adjustSelectedSdkHome(platform, home.resolve("bin")))
+            .as("choosing its bin directory selects the toolchain")
+            .isEqualTo(home);
+
+        Files.delete(rustc);
+        assertThat(type.isValidSdkHome(platform, home)).as("cargo alone is not a toolchain").isFalse();
+    }
+
+    private static Path executable(Path path) throws Exception {
+        Files.writeString(path, "");
+        Files.setPosixFilePermissions(path, PosixFilePermissions.fromString("rwxr-xr-x"));
+        return path;
     }
 }

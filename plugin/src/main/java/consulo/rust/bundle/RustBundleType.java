@@ -95,9 +95,9 @@ public class RustBundleType extends PlatformAwareSdkType {
     }
 
     /**
-     * Candidates are toolchain roots - the directory holding both {@code bin} and the
-     * {@code lib/rustlib/src/rust} sources - never a directory of executables such as {@code /usr/bin},
-     * which the bundle would then have to watch in its entirety.
+     * Candidates are toolchain roots - the directory whose {@code bin} holds {@code rustc} and {@code cargo} -
+     * never a directory of executables such as {@code /usr/bin}, which the bundle would then have to watch in its
+     * entirety. Every path comes from {@code platform}'s file system, so a remote target is searched the same way.
      */
     @Override
     public void collectHomePaths(@Nonnull Platform platform, @Nonnull Consumer<Path> consumer) {
@@ -168,9 +168,10 @@ public class RustBundleType extends PlatformAwareSdkType {
     public boolean isValidSdkHome(@Nonnull Platform platform, @Nonnull Path path) {
         if (!Files.isDirectory(path)) return false;
         Path bin = binDirectory(path);
+        // the standard library sources (the rust-src component) are optional: rustup's default profile does not
+        // install them, and a toolchain without them still builds and runs - only the stdlib is not indexed
         return hasExecutable(platform, bin, Rustc.NAME)
-            && hasExecutable(platform, bin, Cargo.NAME)
-            && Files.isDirectory(path.resolve(STDLIB_SOURCES_RELATIVE));
+            && hasExecutable(platform, bin, Cargo.NAME);
     }
 
     /**
