@@ -339,33 +339,40 @@ public class DefCollector {
         List<MacroCallInfo> resolvedCalls = new ArrayList<>();
         List<MacroDefInfo> resolvedDefs = new ArrayList<>();
         boolean changed = false;
-        // new calls found in the expansions are added to the same list, so the list is drained before expanding
-        for (Iterator<MacroCallInfoBase> iterator = macroCallsToExpand.iterator(); iterator.hasNext(); ) {
+        // the calls found while expanding - in an included file, or in an item a derive is attached to - are added to
+        // the list, so the pending calls are taken out of it first; the ones that do not resolve yet go back for the next round
+        List<MacroCallInfoBase> pending = new ArrayList<>(macroCallsToExpand);
+        macroCallsToExpand.clear();
+        List<MacroCallInfoBase> unresolved = new ArrayList<>();
+        for (MacroCallInfoBase call : pending) {
             ProgressManager.checkCanceled();
-            MacroCallInfoBase call = iterator.next();
             if (call instanceof MacroCallInfo macroCall) {
                 String[] path = macroCall.getPath();
                 if ("include".equals(path[path.length - 1])) {
-                    iterator.remove();
                     expandIncludeMacroCall(macroCall);
                     changed = true;
                     continue;
                 }
                 MacroDefInfo def = PathResolution.resolveMacroCallToMacroDefInfo(
                     defMap, macroCall.getContainingMod(), path, macroCall.getMacroIndex());
-                if (def == null || def.getProcMacroKind() != RsProcMacroKind.FUNCTION_LIKE) continue;
-                iterator.remove();
+                if (def == null || def.getProcMacroKind() != RsProcMacroKind.FUNCTION_LIKE) {
+                    unresolved.add(call);
+                    continue;
+                }
                 resolvedCalls.add(macroCall);
                 resolvedDefs.add(def);
                 changed = true;
             }
             else if (call instanceof ProcMacroCallInfo procMacroCall) {
                 // attribute and derive macros are not expanded: the item they are attached to stays as written
-                iterator.remove();
                 treatAsIdentityMacro(procMacroCall);
                 changed = true;
             }
+            else {
+                unresolved.add(call);
+            }
         }
+        macroCallsToExpand.addAll(0, unresolved);
         for (int i = 0; i < resolvedCalls.size(); i++) {
             ProgressManager.checkCanceled();
             expandMacro(resolvedCalls.get(i), resolvedDefs.get(i));
