@@ -21,7 +21,6 @@ import consulo.module.content.layer.ModifiableRootModel;
 import consulo.project.Project;
 import consulo.rust.bundle.RustBundleType;
 import consulo.rust.module.extension.RustMutableModuleExtension;
-import consulo.util.concurrent.coroutine.CoroutineScope;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import org.junit.jupiter.api.Test;
@@ -93,7 +92,7 @@ public class CargoRunTargetAfterRestartTest {
 
             assertBinTargetIsFound(first, directory, "after the sync");
 
-            saveProject(first, application);
+            ProjectSaving.save(first, application);
             projects.close(first);
         }
         finally {
@@ -130,11 +129,4 @@ public class CargoRunTargetAfterRestartTest {
             .isTrue();
     }
 
-    /** @see consulo.it.index.ScanningTestSupport in the platform, which this mirrors. */
-    private static void saveProject(Project project, Application application) throws Exception {
-        project.saveAsync(application.getLastUIAccess())
-            .runAsync(CoroutineScope.of(project.coroutineContext()), null)
-            .toFuture()
-            .get(HeadlessProjects.TIMEOUT_SECONDS, TimeUnit.SECONDS);
-    }
 }
