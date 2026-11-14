@@ -407,6 +407,35 @@ public final class FacadeResolve {
     }
 
     /**
+     * Whether {@link #findFileInclusionPointsFor} can answer for {@code file} without building a def map: the def maps of
+     * the crates it would look in are all built and up to date. For callers that must not wait for a build, such as action
+     * updates, which then have no answer yet.
+     */
+    public static boolean areDefMapsReadyFor(@Nonnull RsFile file) {
+        Project project = file.getProject();
+        DefMapService defMapService = project.getService(DefMapService.class);
+        VirtualFile virtualFile = file.getVirtualFile();
+        if (!(virtualFile instanceof VirtualFileWithId)) return true;
+
+        List<Integer> crateIds = new ArrayList<>();
+        if (!defMapService.areAllDefMapsUpToDate()) {
+            CargoWorkspace.Package pkg = CargoProjectsUtil.findPackageForFile(project, virtualFile);
+            if (pkg == null) return false;
+            for (CargoWorkspace.Target target : pkg.getTargets()) {
+                VirtualFile crateRoot = target.getCrateRoot();
+                if (crateRoot == null) continue;
+                Crate crate = CrateGraphService.crateGraph(project).findCrateByRootMod(crateRoot);
+                if (crate != null && crate.getId() != null) crateIds.add(crate.getId());
+            }
+        }
+        crateIds.addAll(defMapService.findCrates(file));
+        for (int crateId : crateIds) {
+            if (!defMapService.getDefMapHolder(crateId).hasLatestStamp()) return false;
+        }
+        return true;
+    }
+
+    /**
      * Finds file inclusion points for a given RsFile.
      */
     @Nonnull

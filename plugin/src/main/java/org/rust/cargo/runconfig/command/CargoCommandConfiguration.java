@@ -270,6 +270,15 @@ public class CargoCommandConfiguration extends RsCommandConfiguration implements
         }
         CleanConfiguration.Ok ok = (CleanConfiguration.Ok) config;
 
+        RsToolchainBase toolchain = ok.getToolchain();
+        if (!toolchain.looksLikeValidToolchain()) {
+            throw new RuntimeConfigurationError(RsBundle.message("dialog.message.invalid.toolchain", toolchain.getPresentableLocation()));
+        }
+        RustChannel channel = getChannel();
+        if (channel != RustChannel.DEFAULT && !Rustup.isRustupAvailable(toolchain)) {
+            throw new RuntimeConfigurationError(RsBundle.message("dialog.message.channel.set.explicitly.with.no.rustup.available", channel));
+        }
+
         if (getWithSudo() && showTestToolWindow(ok.getCmd())) {
             String message = consulo.platform.Platform.current().os().isWindows()
                 ? RsBundle.message("notification.run.tests.as.root.windows")
@@ -394,18 +403,11 @@ public class CargoCommandConfiguration extends RsCommandConfiguration implements
             getWithSudo()
         );
 
+        // the toolchain comes from the project model alone: runners call this from action updates, which must not
+        // touch the file system - checkConfiguration looks at the toolchain on disk
         RsToolchainBase toolchain = RsToolchainLocator.getToolchain(getProject());
         if (toolchain == null) {
             return CleanConfiguration.error(RsBundle.message("dialog.message.no.rust.toolchain.specified"));
-        }
-
-        if (!toolchain.looksLikeValidToolchain()) {
-            return CleanConfiguration.error(RsBundle.message("dialog.message.invalid.toolchain", toolchain.getPresentableLocation()));
-        }
-
-        RustChannel channel = getChannel();
-        if (!Rustup.isRustupAvailable(toolchain) && channel != RustChannel.DEFAULT) {
-            return CleanConfiguration.error(RsBundle.message("dialog.message.channel.set.explicitly.with.no.rustup.available", channel));
         }
 
         return new CleanConfiguration.Ok(cmd, toolchain);
