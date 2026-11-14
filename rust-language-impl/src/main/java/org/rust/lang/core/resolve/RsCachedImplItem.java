@@ -24,6 +24,7 @@ import org.rust.lang.core.types.ty.Ty;
 import org.rust.lang.core.types.ty.TyTypeParameter;
 
 import java.util.*;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import org.rust.lang.core.psi.ext.impl.RsTraitRefUtil;
 import org.rust.lang.core.psi.impl.*;
 import org.rust.lang.core.psi.ext.impl.*;
@@ -69,10 +70,14 @@ public class RsCachedImplItem {
         this.explicitImpl = new TraitImplSource.ExplicitImpl(this);
     }
 
+    /** A valid project member: in a cfg-enabled file of a real crate, and not cfg-disabled itself. */
     private static boolean[] getValidAndCrates(RsImplItem impl) {
-        // Check if the impl is a valid project member (has a containing crate)
         RsFile file = impl.getContainingFile() instanceof RsFile ? (RsFile) impl.getContainingFile() : null;
-        boolean isValid = file != null && file.getCrate() != null;
+        boolean isValid = false;
+        if (file != null && file.isDeeplyEnabledByCfg()) {
+            Crate crate = file.getCrate() != null ? Crate.asNotFake(file.getCrate()) : null;
+            isValid = crate != null && RsElementUtil.existsAfterExpansion(impl, crate);
+        }
         boolean isReservation = RsImplItemUtil.isReservationImpl(impl);
         return new boolean[] { isValid && !isReservation };
     }

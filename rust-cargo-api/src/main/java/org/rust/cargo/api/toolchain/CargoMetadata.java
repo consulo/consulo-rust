@@ -660,6 +660,8 @@ public final class CargoMetadata {
             // a path of the machine cargo runs on
             VirtualFile outDir = findFile(fs, buildScriptMessage.getOutDir());
             if (outDir != null) {
+                // the build script has just written its output: load it, so that `include!(concat!(env!("OUT_DIR"), ..))` finds it
+                consulo.virtualFileSystem.util.VirtualFileUtil.markDirtyAndRefresh(false, true, true, outDir);
                 if (!isWorkspaceMember) {
                     outDir = outDir.getCanonicalFile();
                 }

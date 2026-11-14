@@ -81,6 +81,13 @@ public final class RsImplIndexAndTypeAliasCache implements Disposable {
                     result.add(item);
                 }
             }
+            // impls produced by macros are in no index
+            for (org.rust.lang.core.psi.RsImplItem impl : org.rust.lang.core.resolve.indexes.RsMacroExpandedImpls.findPotentialImpls(project, key)) {
+                RsCachedImplItem item = RsCachedImplItem.forImpl(impl);
+                if (item.isValid()) {
+                    result.add(item);
+                }
+            }
             return result;
         });
     }

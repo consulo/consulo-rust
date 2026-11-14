@@ -61,13 +61,29 @@ public class TyAdt extends Ty {
     }
 
     @Nonnull
+    /** The type arguments in the order the item declares its type parameters - `Result<T, E>` is `[T, E]`. */
     public List<Ty> getTypeArguments() {
-        return new ArrayList<>(mySubst.getTypes());
+        List<org.rust.lang.core.psi.RsTypeParameter> parameters =
+            org.rust.lang.core.psi.ext.impl.RsGenericDeclarationUtil.getTypeParameters(myItem);
+        List<Ty> result = new ArrayList<>(parameters.size());
+        for (org.rust.lang.core.psi.RsTypeParameter parameter : parameters) {
+            Ty ty = mySubst.get(parameter);
+            result.add(ty != null ? ty : TyUnknown.INSTANCE);
+        }
+        return result;
     }
 
+    /** The const arguments in declaration order. */
     @Nonnull
     public List<Const> getConstArguments() {
-        return new ArrayList<>(mySubst.getConsts());
+        List<org.rust.lang.core.psi.RsConstParameter> parameters =
+            org.rust.lang.core.psi.ext.impl.RsGenericDeclarationUtil.getConstParameters(myItem);
+        List<Const> result = new ArrayList<>(parameters.size());
+        for (org.rust.lang.core.psi.RsConstParameter parameter : parameters) {
+            Const value = mySubst.get(parameter);
+            result.add(value != null ? value : org.rust.lang.core.types.consts.CtUnknown.INSTANCE);
+        }
+        return result;
     }
 
     @Override

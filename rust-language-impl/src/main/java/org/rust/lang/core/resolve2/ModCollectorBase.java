@@ -260,12 +260,17 @@ public final class ModCollectorBase {
 
     private void collectMacroCall(@Nonnull RsMacroCallStub call, int macroIndexInParent) {
         if (!(isDeeplyEnabledByCfg && isEnabledByCfgSelf(call))) return;
-        String body = call.getMacroBody();
-        if (body == null) return;
         RsPathStub path = call.getPath();
         if (path == null) return;
         String[] pathSegments = PathUtil.getPathWithAdjustedDollarCrate(path);
         if (pathSegments == null) return;
+        String body = call.getMacroBody();
+        if ("include".equals(pathSegments[pathSegments.length - 1])) {
+            // `include!(concat!(env!("OUT_DIR"), "/x.rs"))`: the body is the path with its macros evaluated
+            String includePath = org.rust.lang.core.psi.ext.impl.RsMacroCallUtil.getIncludeMacroArgumentValue(call.getPsi(), crate);
+            if (includePath != null) body = includePath;
+        }
+        if (body == null) return;
 
         int bodyStart = call.getBodyStartOffset();
         visitor.collectMacroCall(new MacroCallLight(

@@ -68,8 +68,9 @@ public class RealToolchainHighlightingReportTest {
         "consulo.component.impl.internal.messagebus.MessageBusConnectionImpl",
         "consulo.application.internal.BackgroundTaskUtil",
         "consulo.it.internal.HeadlessApplicationImpl",
-        // the Cargo.toml inspections need the TOML plugin, which is not loaded here
-        "consulo.component.internal.NewExtensionPointImpl"
+        // the Cargo.toml inspections and reference providers need the TOML plugin, which is not loaded here
+        "consulo.component.internal.NewExtensionPointImpl",
+        "consulo.language.impl.internal.psi.resolve.reference.ReferenceProvidersRegistryImpl"
     })
     public void report(HeadlessProjects projects) throws Exception {
         String projectDir = System.getProperty("rust.report.project");
@@ -101,7 +102,7 @@ public class RealToolchainHighlightingReportTest {
             service.attachCargoProjectAsync(directory.resolve("Cargo.toml"))
                 .thenCompose(ignored -> service.refreshAllProjects())
                 .get(300, TimeUnit.SECONDS);
-            HeadlessProjects.awaitIdle(project);
+            awaitIndexed(project);
 
             List<Path> sources;
             try (Stream<Path> walk = Files.walk(directory.resolve("src"))) {
@@ -206,5 +207,18 @@ public class RealToolchainHighlightingReportTest {
 
     private static String line(String text, TextRange range) {
         return String.valueOf(text.substring(0, range.getStartOffset()).split("\n", -1).length);
+    }
+
+    /** A real project indexes its whole dependency tree, which can outlast one idle timeout. */
+    private static void awaitIndexed(Project project) throws Exception {
+        for (int attempt = 1; ; attempt++) {
+            try {
+                HeadlessProjects.awaitIdle(project);
+                return;
+            }
+            catch (AssertionError | IllegalStateException e) {
+                if (attempt == 10) throw e;
+            }
+        }
     }
 }

@@ -6,6 +6,7 @@
 package org.rust.lang.core.macros;
 
 import consulo.disposer.Disposable;
+import java.util.List;
 import consulo.component.persist.PersistentStateComponent;
 import consulo.component.persist.RoamingType;
 import consulo.component.persist.State;
@@ -30,7 +31,6 @@ import jakarta.inject.Inject;
 import consulo.component.util.ModificationTracker;
 import consulo.util.dataholder.Key;
 import consulo.util.lang.Pair;
-import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.lang.core.crate.Crate;
 import org.rust.lang.core.crate.impl.FakeCrate;
 import org.rust.lang.core.macros.errors.MacroExpansionError;
@@ -126,6 +126,12 @@ public class MacroExpansionManagerImpl
                 ModificationTracker.EVER_CHANGED
             );
         }
+        if ("include".equals(org.rust.lang.core.psi.ext.impl.RsMacroCallUtil.getMacroName(macroCall))) {
+            return CachedValueProvider.Result.create(
+                expandIncludeMacroCall(macroCall),
+                RsPsiManagerUtil.getRustStructureOrAnyPsiModificationTracker(macroCall)
+            );
+        }
         // the call is resolved through the DefMap of its crate, which is not built while indexing
         if (DumbService.isDumb(myProject)) {
             return CachedValueProvider.Result.create(
@@ -136,15 +142,43 @@ public class MacroExpansionManagerImpl
         return CachedValueProvider.Result.create(expandToMemoryFile(macroCall), getModificationTrackers(macroCall));
     }
 
+    /** `include!("x.rs")` expands to the items of the file it names. */
+    @Nonnull
+    private static RsResult<MacroExpansion, GetMacroExpansionError> expandIncludeMacroCall(@Nonnull RsMacroCall call) {
+        RsFile includingFile = findIncludingFile(call);
+        if (includingFile == null) return new RsResult.Err<>(GetMacroExpansionError.IncludingFileNotFound);
+        List<RsExpandedElement> items = PsiElementUtil.stubChildrenOfType(includingFile, RsExpandedElement.class);
+        return new RsResult.Ok<>(new MacroExpansion.Items(includingFile, items));
+    }
+
+    /** The file an `include!` names, relative to the file the call is written in. */
+    @Nullable
+    private static RsFile findIncludingFile(@Nonnull RsMacroCall call) {
+        String path = org.rust.lang.core.psi.ext.impl.RsMacroCallUtil.getIncludeMacroArgumentValue(call, null);
+        if (path == null) return null;
+        RsPossibleMacroCall expandedFrom = MacroExpansionUtil.findMacroCallExpandedFrom(call);
+        PsiElement source = expandedFrom != null ? expandedFrom : call;
+        consulo.language.psi.PsiFile containingFile = source.getContainingFile();
+        VirtualFile file = containingFile != null ? containingFile.getOriginalFile().getVirtualFile() : null;
+        VirtualFile parent = file != null ? file.getParent() : null;
+        if (parent == null) return null;
+        VirtualFile included;
+        try {
+            // an absolute path - `env!("OUT_DIR")` - is a path of the same machine as the file
+            included = consulo.virtualFileSystem.VirtualFileManager.getInstance().findFileByNioPath(parent.toNioPath().resolve(path));
+        }
+        catch (UnsupportedOperationException | java.nio.file.InvalidPathException e) {
+            included = parent.findFileByRelativePath(path);
+        }
+        if (included == null) return null;
+        return consulo.language.psi.PsiManager.getInstance(call.getProject()).findFile(included) instanceof RsFile rsFile ? rsFile : null;
+    }
+
     @Nonnull
     private static RsResult<MacroExpansion, GetMacroExpansionError> expandToMemoryFile(@Nonnull RsMacroCall call) {
         Crate crate = RsElementUtil.getContainingCrate(call);
         if (crate instanceof FakeCrate) {
             return new RsResult.Err<>(GetMacroExpansionError.Unresolved);
-        }
-        // the standard library is not expanded: its macros are mostly impls, which would cost memory for nothing
-        if (crate.getOrigin() == PackageOrigin.STDLIB) {
-            return new RsResult.Err<>(GetMacroExpansionError.OldEngineStd);
         }
         if (!RsElementUtil.isEnabledByCfg(call, crate)) {
             return new RsResult.Err<>(GetMacroExpansionError.CfgDisabled);

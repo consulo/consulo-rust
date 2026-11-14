@@ -136,17 +136,15 @@ public class TyTypeParameter extends Ty {
             return myTraitOrImpl;
         }
 
+        /** There is one {@code Self}: the trait or impl only tells where its bounds come from. */
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Self self = (Self) o;
-            return Objects.equals(myTraitOrImpl, self.myTraitOrImpl);
+            return o instanceof Self;
         }
 
         @Override
         public int hashCode() {
-            return myTraitOrImpl != null ? myTraitOrImpl.hashCode() : 0;
+            return Self.class.hashCode();
         }
 
         @Override

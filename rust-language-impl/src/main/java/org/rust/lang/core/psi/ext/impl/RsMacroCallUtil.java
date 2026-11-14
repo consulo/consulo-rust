@@ -134,6 +134,52 @@ public final class RsMacroCallUtil {
         return list;
     }
 
+    /**
+     * The path an {@code include!} names, with {@code concat!} and {@code env!} in it evaluated - {@code env!("OUT_DIR")}
+     * is the output directory of the crate's build script. {@code null} when it cannot be computed.
+     */
+    @Nullable
+    public static String getIncludeMacroArgumentValue(@Nonnull RsMacroCall call, @Nullable org.rust.lang.core.crate.Crate crate) {
+        RsIncludeMacroArgument argument = call.getIncludeMacroArgument();
+        RsExpr expr = argument != null ? argument.getExpr() : null;
+        return expr != null ? evaluateStringExpr(expr, crate) : null;
+    }
+
+    @Nullable
+    private static String evaluateStringExpr(@Nonnull RsExpr expr, @Nullable org.rust.lang.core.crate.Crate crate) {
+        if (expr instanceof RsLitExpr lit) {
+            return RsLitExprUtil.getStringValue(lit);
+        }
+        if (!(expr instanceof RsMacroExpr macroExpr)) return null;
+        RsMacroCall macroCall = macroExpr.getMacroCall();
+        String name = getMacroName(macroCall);
+        if ("concat".equals(name)) {
+            RsConcatMacroArgument argument = macroCall.getConcatMacroArgument();
+            if (argument == null) return null;
+            StringBuilder sb = new StringBuilder();
+            for (RsExpr part : argument.getExprList()) {
+                String value = evaluateStringExpr(part, crate);
+                if (value == null) return null;
+                sb.append(value);
+            }
+            return sb.toString();
+        }
+        if ("env".equals(name)) {
+            RsEnvMacroArgument argument = macroCall.getEnvMacroArgument();
+            if (argument == null || argument.getExprList().isEmpty()) return null;
+            if (!(argument.getExprList().get(0) instanceof RsLitExpr variableExpr)) return null;
+            String variable = RsLitExprUtil.getStringValue(variableExpr);
+            if (variable == null) return null;
+            org.rust.lang.core.crate.Crate effectiveCrate = crate != null ? crate : RsElementUtil.getContainingCrate(variableExpr);
+            if ("OUT_DIR".equals(variable)) {
+                consulo.virtualFileSystem.VirtualFile outDir = effectiveCrate.getOutDir();
+                return outDir != null ? outDir.getPath() : null;
+            }
+            return effectiveCrate.getEnv().get(variable);
+        }
+        return null;
+    }
+
     public static boolean processExpansionRecursively(@Nonnull RsMacroCall macroCall,
                                                        @Nonnull java.util.function.Function<RsExpandedElement, Boolean> processor) {
         MacroExpansion expansion = RsPossibleMacroCallUtil.getExpansion(macroCall);

@@ -90,11 +90,11 @@ public class FnSig implements TypeFoldable<FnSig> {
         List<Ty> paramTypes = new ArrayList<>();
         RsSelfParameter self = callable.getSelfParameter();
         if (self != null) {
-            @Nullable RsTypeReference selfTypeRef = self.getTypeReference();
-            paramTypes.add(selfTypeRef != null ? RsTypesUtil.getRawType(selfTypeRef) : TyUnknown.INSTANCE);
+            paramTypes.add(org.rust.lang.core.types.ExtensionsUtil.getTypeOfValue(self));
         }
         paramTypes.addAll(callable.getParameterTypes());
-        Ty retType = callable.getRawReturnType();
+        Ty rawReturnType = callable.getRawReturnType();
+        Ty retType = callable.isAsync() ? callable.getKnownItems().makeFuture(rawReturnType) : rawReturnType;
         return new FnSig(paramTypes, retType, Unsafety.fromBoolean(callable.isActuallyUnsafe()));
     }
 

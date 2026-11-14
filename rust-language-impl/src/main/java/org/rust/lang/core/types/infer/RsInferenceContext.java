@@ -1144,6 +1144,31 @@ public class RsInferenceContext implements RsInferenceData {
             }
             return SubstitutionUtil.EMPTY_SUBSTITUTION;
         }
+        if (source instanceof TraitImplSource.ProjectionBound && selfTy instanceof TyProjection projection) {
+            Map<TyTypeParameter, Ty> selfMap = new HashMap<>();
+            selfMap.put(TyTypeParameter.self(), projection.getType());
+            Substitution subst = projection.getTrait().getSubst()
+                .plus(projection.getTarget().getSubst())
+                .plus(SubstitutionUtil.toTypeSubst(selfMap));
+            for (TraitRef bound : RsGenericDeclarationUtil.getBounds(projection.getTrait().getTypedElement())) {
+                if (!probe(() -> combineTypes(FoldUtil.substitute(bound.getSelfTy(), subst), projection).isOk())) continue;
+                for (BoundElement<RsTraitItem> be : RsTraitItemUtil.getFlattenHierarchy(bound.getTrait())) {
+                    if (be.getTypedElement() == source.getValue()) return be.getSubst().substituteInValues(subst);
+                }
+            }
+            return SubstitutionUtil.EMPTY_SUBSTITUTION;
+        }
+        if (source instanceof TraitImplSource.Object) {
+            List<BoundElement<RsTraitItem>> traits = selfTy instanceof TyAnon anon ? anon.getTraits()
+                : selfTy instanceof TyTraitObject object ? object.getTraits()
+                : Collections.emptyList();
+            for (BoundElement<RsTraitItem> trait : traits) {
+                for (BoundElement<RsTraitItem> be : RsTraitItemUtil.getFlattenHierarchy(trait)) {
+                    if (be.getTypedElement() == source.getValue()) return be.getSubst();
+                }
+            }
+            return SubstitutionUtil.EMPTY_SUBSTITUTION;
+        }
         if (source instanceof TraitImplSource.Collapsed || source instanceof TraitImplSource.Builtin) {
             RsTraitItem trait = (RsTraitItem) source.getValue();
             Substitution typeParameters = instantiateBounds(trait);
@@ -1217,6 +1242,13 @@ public class RsInferenceContext implements RsInferenceData {
                     TyReference target = ((Adjustment.BorrowReference) adj).getTarget();
                     baseAdjustments.set(j, new Adjustment.BorrowReference(target.copy(Mutability.MUTABLE)));
                 }
+            }
+
+            int last = baseAdjustments.size() - 1;
+            if (last >= 1 && baseAdjustments.get(last) instanceof Adjustment.Unsize unsize
+                && baseAdjustments.get(last - 1) instanceof Adjustment.BorrowReference
+                && unsize.getTarget() instanceof TyReference unsizedRef) {
+                baseAdjustments.set(last, new Adjustment.Unsize(unsizedRef.copy(Mutability.MUTABLE)));
             }
 
             if (!baseAdjustments.isEmpty()) {

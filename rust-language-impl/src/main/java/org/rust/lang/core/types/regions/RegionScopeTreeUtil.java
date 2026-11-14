@@ -11,6 +11,7 @@ import jakarta.annotation.Nullable;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.impl.RsBlockUtil;
 import org.rust.lang.core.psi.ext.RsElement;
+import org.rust.lang.core.psi.ext.RsItemElement;
 import org.rust.lang.core.psi.ext.RsInferenceContextOwner;
 import org.rust.lang.core.psi.ext.impl.RsInferenceContextOwnerUtil;
 import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
@@ -197,12 +198,24 @@ public final class RegionScopeTreeUtil {
                 }
                 if (lambda.getExpr() != null) visitExpr(lambda.getExpr());
             } else {
-                for (PsiElement child = expr.getFirstChild(); child != null; child = child.getNextSibling()) {
-                    if (child instanceof RsExpr) visitExpr((RsExpr) child);
-                    else if (child instanceof RsBlock) visitBlock((RsBlock) child);
-                }
+                visitChildren(expr);
             }
             popCurrent();
+        }
+
+        /**
+         * The expressions and blocks under {@code element}, also those behind wrappers that are not expressions
+         * themselves - call and method arguments, struct literal fields. Nested items are bodies of their own.
+         */
+        void visitChildren(@Nonnull PsiElement element) {
+            for (PsiElement child = element.getFirstChild(); child != null; child = child.getNextSibling()) {
+                if (child instanceof RsExpr) visitExpr((RsExpr) child);
+                else if (child instanceof RsBlock) visitBlock((RsBlock) child);
+                else if (child instanceof RsElement && !(child instanceof RsItemElement) && !(child instanceof RsPat)
+                    && !(child instanceof RsTypeReference)) {
+                    visitChildren(child);
+                }
+            }
         }
 
         void bindPatterns(@Nonnull PsiElement pat, @Nonnull Scope scope) {

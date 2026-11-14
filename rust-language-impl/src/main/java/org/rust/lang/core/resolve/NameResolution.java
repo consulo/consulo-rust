@@ -19,6 +19,7 @@ import org.rust.lang.core.psi.ext.*;
 import org.rust.lang.core.resolve.ref.DotExprResolveVariant;
 import org.rust.lang.core.resolve.ref.FieldResolveVariant;
 import org.rust.lang.core.resolve.ref.MethodResolveVariant;
+import org.rust.lang.core.types.BoundElement;
 import org.rust.lang.core.types.ty.Ty;
 
 import java.util.ArrayList;
@@ -75,6 +76,7 @@ import org.rust.lang.core.types.SubstitutionUtil;
 import org.rust.lang.core.types.infer.FoldUtil;
 import org.rust.lang.core.types.infer.TypeInferenceUtil;
 import org.rust.lang.core.types.ty.TyInfer;
+import org.rust.lang.core.types.ty.TyTraitObject;
 import org.rust.lang.core.types.ty.TyTypeParameter;
 import org.rust.lang.core.types.ty.TyUnknown;
 import org.rust.lang.core.psi.impl.*;
@@ -348,17 +350,13 @@ public final class NameResolution {
         int derefIndex = 0;
         for (Ty ty : autoderef) {
             for (TraitImplSource source : lookup.findImplsAndTraits(ty)) {
-                RsTraitOrImpl implSite = source.getValue();
-                if (implSite == null) continue;
-                for (RsAbstractable member :
-                    RsTraitOrImplUtil.getExpandedMembers(implSite)) {
-                    if (!(member instanceof RsFunction)) continue;
-                    RsFunction fn = (RsFunction) member;
-                    if (!RsFunctionUtil.isMethod(fn)) continue;
-                    String name = fn.getName();
-                    if (name == null) continue;
-                    MethodResolveVariant variant = new MethodResolveVariant(name, fn, ty, derefIndex, source);
-                    if (processor.process(variant)) return true;
+                for (Map.Entry<String, List<RsAbstractable>> entry : source.getImplAndTraitExpandedMembers().entrySet()) {
+                    for (RsAbstractable member : entry.getValue()) {
+                        if (!(member instanceof RsFunction fn)) continue;
+                        if (!RsFunctionUtil.isMethod(fn)) continue;
+                        MethodResolveVariant variant = new MethodResolveVariant(entry.getKey(), fn, ty, derefIndex, source);
+                        if (processor.process(variant)) return true;
+                    }
                 }
             }
             derefIndex++;
@@ -576,8 +574,10 @@ public final class NameResolution {
         if (resolved instanceof RsMod) {
             return processModScope((RsMod) resolved, ns, new java.util.HashSet<>(), processor);
         }
-        if (resolved instanceof RsTraitItem && !hasCself && !(parent instanceof RsUseSpeck)) {
-            return processTraitMembers((RsTraitItem) resolved, ns, processor);
+        if (resolved instanceof RsTraitItem trait && !hasCself && !(parent instanceof RsUseSpeck)) {
+            BoundElement<RsElement> bound = ((RsPathReference) qualifier.getReference()).advancedResolve();
+            Substitution subst = bound != null ? bound.getSubst() : SubstitutionUtil.EMPTY;
+            return processTraitRelativePath(new BoundElement<>(trait, subst), ns, processor);
         }
         if (!(resolved instanceof RsTypeDeclarationElement)) return false;
 
@@ -592,7 +592,6 @@ public final class NameResolution {
             }
             else if (resolved instanceof RsTraitItem) {
                 // inside a trait `Self: Trait` holds, so its own members come first
-                if (!(parent instanceof RsUseSpeck) && processTraitMembers((RsTraitItem) resolved, ns, processor)) return true;
                 rawBaseTy = TyTypeParameter.self((RsTraitItem) resolved);
             }
             else {
@@ -610,7 +609,7 @@ public final class NameResolution {
                 }
                 subst = new Substitution(typeSubst);
             }
-            rawBaseTy = FoldUtil.substituteOrUnknown(((RsTypeDeclarationElement) resolved).getDeclaredType(), subst);
+            rawBaseTy = FoldUtil.substitute(((RsTypeDeclarationElement) resolved).getDeclaredType(), subst);
         }
         Ty baseTy = ctx.getImplLookup().getCtx().normalizeAssociatedTypesIn(rawBaseTy).getValue();
 
@@ -628,10 +627,19 @@ public final class NameResolution {
             }
         }
         if (parent instanceof RsUseSpeck || !ctx.isProcessAssocItems()) return false;
+        // `Self::Item` inside an impl names only members of the implemented trait or of its supertraits
+        if (ns.contains(Namespace.Types) && hasCself && resolved instanceof RsImplItem impl) {
+            BoundElement<RsTraitItem> implementedTrait = RsImplItemUtil.getImplementedTrait(impl);
+            if (implementedTrait != null) {
+                return processTypeAsTraitUFCSQualifiedPathResolveVariants(ns, baseTy,
+                    new ArrayList<>(RsTraitItemUtil.getFlattenHierarchy(implementedTrait)), processor);
+            }
+        }
         return processAssociatedItems(ctx.getImplLookup(), baseTy, ns, ctx.getContext(), new RsResolveProcessor() {
             @Override
             public boolean process(@Nonnull ScopeEntry entry) {
-                return !variantNames.contains(entry.getName()) && processor.process(entry);
+                if (variantNames.contains(entry.getName()) || isAssocTypeOfImplForTypeParameter(entry, baseTy)) return false;
+                return processor.process(entry);
             }
 
             @Nullable
@@ -642,10 +650,50 @@ public final class NameResolution {
         });
     }
 
-    /** {@code Trait::member}: the members of the trait, by namespace. */
+    /**
+     * `T::Item` of a type parameter names an associated type of a bound of `T`, never the alias of a blanket impl
+     * such as `impl<I: Iterator> IntoIterator for I { type Item = I::Item; }`.
+     */
+    private static boolean isAssocTypeOfImplForTypeParameter(@Nonnull ScopeEntry entry, @Nonnull Ty baseTy) {
+        return entry.getElement() instanceof RsTypeAlias && baseTy instanceof TyTypeParameter
+            && entry instanceof AssocItemScopeEntry assoc && assoc.getSource() instanceof TraitImplSource.ExplicitImpl;
+    }
+
+    /** {@code Trait::member}: the members of the trait and of its supertraits. */
+    private static boolean processTraitRelativePath(
+        @Nonnull BoundElement<RsTraitItem> baseBoundTrait,
+        @Nonnull Set<Namespace> ns,
+        @Nonnull RsResolveProcessor processor
+    ) {
+        for (BoundElement<RsTraitItem> boundTrait : RsTraitItemUtil.getFlattenHierarchy(baseBoundTrait)) {
+            TraitImplSource.Trait source = new TraitImplSource.Trait(boundTrait.getTypedElement());
+            if (processTraitMembers(boundTrait.getTypedElement(), ns, boundTrait.getSubst(), TyUnknown.INSTANCE, source, processor)) return true;
+        }
+        return false;
+    }
+
+    /** For {@code Item} in {@code <T as Trait>::Item}: the members of {@code Trait} with {@code Self} bound to {@code T}. */
+    private static boolean processTypeAsTraitUFCSQualifiedPathResolveVariants(
+        @Nonnull Set<Namespace> ns,
+        @Nonnull Ty baseTy,
+        @Nonnull List<BoundElement<RsTraitItem>> restrictedTraits,
+        @Nonnull RsResolveProcessor processor
+    ) {
+        Substitution selfSubst = SubstitutionUtil.toTypeSubst(Collections.singletonMap(TyTypeParameter.self(), baseTy));
+        for (BoundElement<RsTraitItem> boundTrait : restrictedTraits) {
+            TraitImplSource.Trait source = new TraitImplSource.Trait(boundTrait.getTypedElement());
+            Substitution subst = boundTrait.getSubst().plus(selfSubst);
+            if (processTraitMembers(boundTrait.getTypedElement(), ns, subst, baseTy, source, processor)) return true;
+        }
+        return false;
+    }
+
     private static boolean processTraitMembers(
         @Nonnull RsTraitItem trait,
         @Nonnull Set<Namespace> ns,
+        @Nonnull Substitution subst,
+        @Nonnull Ty selfTy,
+        @Nonnull TraitImplSource.Trait source,
         @Nonnull RsResolveProcessor processor
     ) {
         java.util.function.Predicate<RsAbstractable> nsFilter = assocMembersNsFilter(ns);
@@ -655,7 +703,7 @@ public final class NameResolution {
             String name = member.getName();
             if (name == null) continue;
             Set<Namespace> namespaces = member instanceof RsTypeAlias ? Namespace.TYPES : Namespace.VALUES;
-            if (Processors.processEntry(processor, name, namespaces, member)) return true;
+            if (processor.process(new AssocItemScopeEntry(name, member, namespaces, subst, selfTy, source))) return true;
         }
         return false;
     }
@@ -675,8 +723,18 @@ public final class NameResolution {
         java.util.function.Predicate<RsAbstractable> nsFilter = assocMembersNsFilter(ns);
         if (nsFilter == null) return false;
 
-        Substitution selfSubst = SubstitutionUtil.toTypeSubst(
-            java.util.Collections.singletonMap(TyTypeParameter.self(), type));
+        Substitution selfSubst = type instanceof TyTraitObject
+            ? SubstitutionUtil.EMPTY
+            : SubstitutionUtil.toTypeSubst(java.util.Collections.singletonMap(TyTypeParameter.self(), type));
+        java.util.Collection<BoundElement<RsTraitItem>> traitBounds = null;
+        if (type instanceof TyTypeParameter) {
+            // the same bound can come from the trait and from a where clause
+            traitBounds = new java.util.LinkedHashSet<>();
+            for (BoundElement<RsTraitItem> bound : lookup.getEnvBoundTransitivelyFor(type)) {
+                traitBounds.add(bound);
+            }
+        }
+        RsMod contextMod = context.getContainingMod();
 
         java.util.Map<String, RsAbstractable> visitedInherent = new java.util.HashMap<>();
         for (TraitImplSource source : lookup.findImplsAndTraits(type)) {
@@ -686,15 +744,32 @@ public final class NameResolution {
                 String name = entry.getKey();
                 for (RsAbstractable member : entry.getValue()) {
                     if (!nsFilter.test(member)) continue;
+                    // An inherent member (`impl Foo {}`) hides a trait member (`impl T for Foo {}`) of the same
+                    // name; `findImplsAndTraits` places the inherent impls first
                     if (isInherent) {
                         visitedInherent.put(name, member);
                     }
-                    else if (visitedInherent.containsKey(name)) {
-                        continue;
+                    else {
+                        RsAbstractable inherent = visitedInherent.get(name);
+                        if (inherent != null && (!(inherent instanceof RsVisible visible) || contextMod == null
+                            || RsVisibilityUtil.isVisibleFrom(visible, contextMod))) {
+                            continue;
+                        }
                     }
                     Set<Namespace> namespaces = member instanceof RsTypeAlias
                         ? Namespace.TYPES : Namespace.VALUES;
-                    if (processor.process(new AssocItemScopeEntry(
+                    if (traitBounds != null && source instanceof TraitImplSource.TraitBound) {
+                        // The subst of the bound itself: for `I: SliceIndex<S>`, `I::Output` maps the trait's `T`
+                        // to `S`
+                        for (BoundElement<RsTraitItem> bound : traitBounds) {
+                            if (bound.getTypedElement() != source.getValue()) continue;
+                            if (processor.process(new AssocItemScopeEntry(
+                                name, member, namespaces, bound.getSubst().plus(selfSubst), type, source))) {
+                                return true;
+                            }
+                        }
+                    }
+                    else if (processor.process(new AssocItemScopeEntry(
                         name, member, namespaces, selfSubst, type, source))) {
                         return true;
                     }
@@ -723,13 +798,39 @@ public final class NameResolution {
         @Nonnull RsTypeQual typeQual,
         @Nonnull RsResolveProcessor processor
     ) {
-        // The qualifier form `<T as Trait>::X` resolves X inside Trait.
         RsTraitRef traitRef = typeQual.getTraitRef();
-        if (traitRef == null) return false;
-        if (traitRef.getPath().getReference() == null) return false;
-        PsiElement resolved = traitRef.getPath().getReference().resolve();
-        if (!(resolved instanceof RsTraitItem)) return false;
-        return processAssocTypeVariants((RsTraitItem) resolved, processor);
+        BoundElement<RsTraitItem> trait = traitRef != null ? RsTraitRefUtil.resolveToBoundTrait(traitRef) : null;
+        Ty rawBaseTy = ExtensionsUtil.getRawType(typeQual.getTypeReference());
+        if (trait != null) {
+            // `<T as Trait>::Item`
+            return processTypeAsTraitUFCSQualifiedPathResolveVariants(ns, rawBaseTy, List.of(trait), processor);
+        }
+        if (traitRef != null) return false;
+        // `<T>::Item`
+        Ty baseTy = ctx.getImplLookup().getCtx().normalizeAssociatedTypesIn(rawBaseTy).getValue();
+        java.util.Set<String> variantNames = new java.util.HashSet<>();
+        if (baseTy instanceof TyAdt adt && adt.getItem() instanceof RsEnumItem enumItem && enumItem.getEnumBody() != null) {
+            for (RsEnumVariant variant : enumItem.getEnumBody().getEnumVariantList()) {
+                String name = variant.getName();
+                if (name == null) continue;
+                variantNames.add(name);
+                if (Processors.processEntry(processor, name, Namespace.ENUM_VARIANT_NS, variant)) return true;
+            }
+        }
+        if (!ctx.isProcessAssocItems()) return false;
+        return processAssociatedItems(ctx.getImplLookup(), baseTy, ns, ctx.getContext(), new RsResolveProcessor() {
+            @Override
+            public boolean process(@Nonnull ScopeEntry entry) {
+                if (variantNames.contains(entry.getName()) || isAssocTypeOfImplForTypeParameter(entry, baseTy)) return false;
+                return processor.process(entry);
+            }
+
+            @Nullable
+            @Override
+            public Set<String> getNames() {
+                return processor.getNames();
+            }
+        });
     }
 
     private static boolean processMacroDollarCrateResolveVariants(
@@ -1058,6 +1159,16 @@ public final class NameResolution {
         if (qualifier == null) {
             return processMacroCallVariantsInScope(path, false, processor);
         }
+        // `tokio::select!`, `#[tonic::async_trait]`: the def map follows the path through modules and re-exports
+        if (!isCompletion && path.getParent() instanceof RsPossibleMacroCall call
+            && RsPossibleMacroCallUtil.getCanBeMacroCall(call)) {
+            RsNamedElement def = FacadeResolve.resolveToMacroUsingNewResolve(call);
+            if (def == null) return false;
+            java.util.Set<String> names = processor.getNames();
+            String name = names != null && names.size() == 1 ? names.iterator().next() : def.getName();
+            return name != null && Processors.processEntry(processor, name, Namespace.MACROS, def);
+        }
+        // only `foo!()` or `krate::foo!()`
         if (qualifier.getPath() != null) return false;
         RsFile crateRoot = findDependencyCrateByNamePath(path, qualifier);
         if (crateRoot == null) return false;

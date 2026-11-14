@@ -103,9 +103,12 @@ public final class RsItemsOwnerCacheUtil {
         if (element instanceof RsItemElement || element instanceof RsMacro) {
             return processor.test(element);
         }
-        if (element instanceof RsMacroCall) {
+        if (element instanceof RsMacroCall call) {
             if (withMacroCalls && processor.test(element)) return true;
-            // Macro expansion handling would be needed here for full fidelity
+            // the items a macro call expands to belong to the scope of the call
+            if (isEnabledByCfgSelf(call)) {
+                return RsMacroCallUtil.processExpansionRecursively(call, expanded -> processItem(expanded, withMacroCalls, processor));
+            }
         }
         return false;
     }

@@ -268,8 +268,11 @@ public class ImplLookup {
     private List<TraitImplSource> rawFindImplsAndTraits(@Nonnull Ty ty) {
         List<TraitImplSource> implsAndTraits = new ArrayList<>();
         if (ty instanceof TyTraitObject) {
-            for (BoundElement<RsTraitItem> be : ((TyTraitObject) ty).getTraits()) {
-                implsAndTraits.add(new TraitImplSource.Object(be.getTypedElement()));
+            Set<RsTraitItem> seenObjectTraits = new HashSet<>();
+            for (BoundElement<RsTraitItem> be : traitBoundsTransitively(((TyTraitObject) ty).getTraits())) {
+                if (seenObjectTraits.add(be.getTypedElement())) {
+                    implsAndTraits.add(new TraitImplSource.Object(be.getTypedElement()));
+                }
             }
             findExplicitImpls(ty, impl -> {
                 implsAndTraits.add(impl.getExplicitImpl());
@@ -287,7 +290,7 @@ public class ImplLookup {
             if (items.getCopy() != null) implsAndTraits.add(new TraitImplSource.Builtin(items.getCopy()));
         } else if (ty instanceof TyAnon) {
             Set<RsTraitItem> seen = new HashSet<>();
-            for (BoundElement<RsTraitItem> be : ((TyAnon) ty).getTraits()) {
+            for (BoundElement<RsTraitItem> be : traitBoundsTransitively(((TyAnon) ty).getTraits())) {
                 if (seen.add(be.getTypedElement())) {
                     implsAndTraits.add(new TraitImplSource.Object(be.getTypedElement()));
                 }
@@ -297,8 +300,15 @@ public class ImplLookup {
                     implsAndTraits.add(blanketImpl.getExplicitImpl());
                 }
             }
-        } else if (ty instanceof TyProjection) {
-            // Simplified - add projection bounds
+        } else if (ty instanceof TyProjection projection) {
+            Substitution subst = projectionSubst(projection);
+            Set<RsTraitItem> seen = new LinkedHashSet<>();
+            for (TraitRef bound : RsGenericDeclarationUtil.getBounds(projection.getTrait().getTypedElement())) {
+                if (!getCtx().probe(() -> getCtx().combineTypes(FoldUtil.substitute(bound.getSelfTy(), subst), projection).isOk())) continue;
+                for (BoundElement<RsTraitItem> be : RsTraitItemUtil.getFlattenHierarchy(bound.getTrait())) {
+                    if (seen.add(be.getTypedElement())) implsAndTraits.add(new TraitImplSource.ProjectionBound(be.getTypedElement()));
+                }
+            }
         } else if (!(ty instanceof TyUnknown)) {
             implsAndTraits.addAll(findDerivedTraits(ty).stream()
                 .map(TraitImplSource.Derived::new)
@@ -525,14 +535,12 @@ public class ImplLookup {
             return SelectionResult.ambiguous();
         }
 
-        List<SelectionCandidate> assembled = assembleCandidates(ref);
+        CandidateSet candidateSet = assembleCandidates(ref);
+        if (candidateSet.ambiguous) return SelectionResult.ambiguous();
 
         List<SelectionCandidate> candidates = new ArrayList<>();
-        for (SelectionCandidate candidate : assembled) {
-            if (candidate instanceof SelectionCandidate.ImplCandidate.ExplicitImpl
-                && ((SelectionCandidate.ImplCandidate.ExplicitImpl) candidate).isNegativeImpl()) {
-                continue;
-            }
+        for (SelectionCandidate candidate : candidateSet.list) {
+            if (candidate instanceof SelectionCandidate.ImplCandidate.ExplicitImpl explicit && explicit.isNegativeImpl()) continue;
             candidates.add(candidate);
         }
 
@@ -555,7 +563,7 @@ public class ImplLookup {
             boolean isDup = false;
             for (int j = 0; j < filtered.size(); j++) {
                 if (j == i) continue;
-                if (candidateShouldBeDroppedInFavorOf(filtered.get(i), filtered.get(j))) {
+                if (candidateShouldBeDroppedInFavorOf(ref.getSelfTy(), filtered.get(i), filtered.get(j))) {
                     isDup = true;
                     break;
                 }
@@ -566,43 +574,293 @@ public class ImplLookup {
             }
             else {
                 i++;
-                if (i > 1) return SelectionResult.ambiguous();
+                if (i > 1) return SelectionResult.ambiguous(filtered);
             }
         }
-        return filtered.size() == 1 ? SelectionResult.ok(filtered.get(0)) : SelectionResult.ambiguous();
+        return filtered.size() == 1 ? SelectionResult.ok(filtered.get(0)) : SelectionResult.ambiguous(filtered);
     }
 
-    /** An impl written for a concrete type wins over a blanket impl written for a type parameter. */
+    /** Mirrors rustc's {@code candidate_should_be_dropped_in_favor_of}. */
     private boolean candidateShouldBeDroppedInFavorOf(
+        @Nonnull Ty selfTy,
         @Nonnull SelectionCandidate victim,
         @Nonnull SelectionCandidate other
     ) {
-        if (!(victim instanceof SelectionCandidate.ImplCandidate.ExplicitImpl)
-            || !(other instanceof SelectionCandidate.ImplCandidate.ExplicitImpl)) {
+        if (victim.isEquivalentTo(other)) return true;
+
+        if (other instanceof SelectionCandidate.BuiltinCandidate builtin && !builtin.hasNested()
+            || other == SelectionCandidate.ConstDestructCandidate.INSTANCE) {
+            return true;
+        }
+        if (victim instanceof SelectionCandidate.BuiltinCandidate builtin && !builtin.hasNested()
+            || victim == SelectionCandidate.ConstDestructCandidate.INSTANCE) {
             return false;
         }
-        SelectionCandidate.ImplCandidate.ExplicitImpl v = (SelectionCandidate.ImplCandidate.ExplicitImpl) victim;
-        SelectionCandidate.ImplCandidate.ExplicitImpl o = (SelectionCandidate.ImplCandidate.ExplicitImpl) other;
-        if (v.getImpl() == o.getImpl()) return false;
-        return v.getFormalSelfTy() instanceof TyTypeParameter
-            && !(o.getFormalSelfTy() instanceof TyTypeParameter);
+        if (other instanceof SelectionCandidate.ParamCandidate param && isNonParamCandidate(victim)) {
+            boolean wins = !(FoldUtil.isGlobal(selfTy) && FoldUtil.isGlobal(param.getBound()));
+            if (wins) TypeInferenceMarks.WinnowParamCandidateWins.hit();
+            return wins;
+        }
+        if (isNonParamCandidate(other) && victim instanceof SelectionCandidate.ParamCandidate param) {
+            return FoldUtil.isGlobal(selfTy) && FoldUtil.isGlobal(param.getBound());
+        }
+        if (isObjectOrProjection(other) && isNonParamCandidate(victim) && !isObjectOrProjection(victim)) {
+            TypeInferenceMarks.WinnowObjectOrProjectionCandidateWins.hit();
+            return true;
+        }
+        if (isNonParamCandidate(other) && !isObjectOrProjection(other) && isObjectOrProjection(victim)) {
+            return false;
+        }
+        // basic specialization
+        if (victim instanceof SelectionCandidate.ImplCandidate.ExplicitImpl v && v.getFormalSelfTy() instanceof TyTypeParameter
+            && other instanceof SelectionCandidate.ImplCandidate.ExplicitImpl o && !(o.getFormalSelfTy() instanceof TyTypeParameter)) {
+            TypeInferenceMarks.WinnowSpecialization.hit();
+            return true;
+        }
+        return false;
     }
 
+    private static boolean isNonParamCandidate(@Nonnull SelectionCandidate candidate) {
+        return candidate instanceof SelectionCandidate.ImplCandidate
+            || candidate instanceof SelectionCandidate.FnPointerCandidate
+            || candidate instanceof SelectionCandidate.BuiltinUnsizeCandidate
+            || candidate instanceof SelectionCandidate.BuiltinCandidate
+            || isObjectOrProjection(candidate);
+    }
+
+    private static boolean isObjectOrProjection(@Nonnull SelectionCandidate candidate) {
+        return candidate instanceof SelectionCandidate.ObjectCandidate
+            || candidate instanceof SelectionCandidate.ProjectionCandidate;
+    }
+
+    private static final class CandidateSet {
+        final List<SelectionCandidate> list = new ArrayList<>();
+        boolean ambiguous;
+    }
+
+    /** The conditions under which a builtin impl of {@code Sized}, {@code Copy} or {@code Clone} applies. */
+    private static final class BuiltinConditions {
+        static final BuiltinConditions NONE = new BuiltinConditions(null);
+        static final BuiltinConditions AMBIGUOUS = new BuiltinConditions(null);
+
+        /** The types that must implement the trait too; {@code null} for {@link #NONE} and {@link #AMBIGUOUS}. */
+        @Nullable final List<Ty> nested;
+
+        private BuiltinConditions(@Nullable List<Ty> nested) {
+            this.nested = nested;
+        }
+
+        static BuiltinConditions where(@Nonnull List<Ty> nested) {
+            return new BuiltinConditions(nested);
+        }
+    }
+
+    /** Mirrors rustc's {@code assemble_candidates}. */
     @Nonnull
-    private List<SelectionCandidate> assembleCandidates(@Nonnull TraitRef ref) {
-        List<SelectionCandidate> candidates = new ArrayList<>();
-        assembleCandidatesFromImpls(ref, candidates);
-        assembleCandidatesFromCallerBounds(ref, candidates);
-        if (candidates.isEmpty()) {
-            assembleCopyCloneCandidates(ref, candidates);
+    private CandidateSet assembleCandidates(@Nonnull TraitRef ref) {
+        CandidateSet candidates = new CandidateSet();
+        RsTraitItem trait = ref.getTrait().getTypedElement();
+        if (trait == items.getCopy()) {
+            assembleCandidatesFromImpls(ref, candidates.list);
+            assembleBuiltinBoundCandidates(copyCloneConditions(ref.getSelfTy()), candidates);
+        }
+        else if (trait == items.getSized()) {
+            assembleBuiltinBoundCandidates(sizedConditions(ref.getSelfTy()), candidates);
+        }
+        else if (trait == items.getUnsize()) {
+            assembleCandidatesForUnsizing(ref, candidates);
+        }
+        else if (trait == items.getDestruct()) {
+            candidates.list.add(SelectionCandidate.ConstDestructCandidate.INSTANCE);
+        }
+        else {
+            if (trait == items.getClone()) {
+                assembleBuiltinBoundCandidates(copyCloneConditions(ref.getSelfTy()), candidates);
+            }
+            assembleFnPointerCandidates(ref, candidates.list);
+            assembleCandidatesFromImpls(ref, candidates.list);
+            assembleCandidatesFromObjectTy(ref, candidates.list);
+        }
+
+        assembleCandidatesFromProjectedTys(ref, candidates.list);
+        assembleCandidatesFromCallerBounds(ref, candidates.list);
+
+        // Auto implementations have lower priority, so they are only considered when no other impl
+        // applies. Note that the list also contains negative impls like `impl !Sync for Foo {}`
+        if (candidates.list.isEmpty() && RsTraitItemUtil.isAuto(trait)) {
+            // For now, any type is thought to be Sync + Send
+            candidates.list.add(new SelectionCandidate.ParamCandidate(new BoundElement<>(trait)));
+        }
+        if (candidates.list.isEmpty() && !candidates.ambiguous) {
+            assembleCopyCloneCandidates(ref, candidates.list);
         }
         return candidates;
     }
 
+    private static void assembleBuiltinBoundCandidates(@Nonnull BuiltinConditions conditions, @Nonnull CandidateSet candidates) {
+        if (conditions == BuiltinConditions.AMBIGUOUS) {
+            candidates.ambiguous = true;
+        }
+        else if (conditions.nested != null) {
+            candidates.list.add(new SelectionCandidate.BuiltinCandidate(!conditions.nested.isEmpty()));
+        }
+    }
+
+    /** Mirrors rustc's {@code copy_clone_conditions}. */
+    @Nonnull
+    private static BuiltinConditions copyCloneConditions(@Nonnull Ty selfTy) {
+        if (selfTy instanceof TyInfer.IntVar || selfTy instanceof TyInfer.FloatVar || selfTy instanceof TyFunctionBase
+            || selfTy instanceof TyUnknown || selfTy instanceof TyUnit) {
+            return BuiltinConditions.where(Collections.emptyList());
+        }
+        if (selfTy instanceof TyTuple tuple) return BuiltinConditions.where(tuple.getTypes());
+        // Integers, floats, bool, char, pointers, `!`, references and arrays are implemented in libcore
+        return BuiltinConditions.NONE;
+    }
+
+    @Nonnull
+    private static BuiltinConditions sizedConditions(@Nonnull Ty selfTy) {
+        if (selfTy instanceof TyInfer.IntVar
+            || selfTy instanceof TyInfer.FloatVar
+            || selfTy instanceof TyNumeric
+            || selfTy instanceof TyBool
+            || selfTy instanceof TyFunctionBase
+            || selfTy instanceof TyPointer
+            || selfTy instanceof TyReference
+            || selfTy instanceof TyChar
+            || selfTy instanceof TyArray
+            || selfTy instanceof TyNever
+            || selfTy instanceof TyUnit
+            || selfTy instanceof TyUnknown) {
+            return BuiltinConditions.where(Collections.emptyList());
+        }
+        if (selfTy instanceof TyTuple tuple) {
+            List<Ty> types = tuple.getTypes();
+            return BuiltinConditions.where(types.isEmpty() ? Collections.emptyList() : List.of(types.get(types.size() - 1)));
+        }
+        if (selfTy instanceof TyAdt) {
+            Ty tail = TyUtil.structTail(selfTy);
+            return BuiltinConditions.where(tail != null ? List.of(tail) : Collections.emptyList());
+        }
+        if (selfTy instanceof TyInfer.TyVar) return BuiltinConditions.AMBIGUOUS;
+        // `str`, slices, trait objects, projections, type parameters and `impl Trait`
+        return BuiltinConditions.NONE;
+    }
+
+    private void assembleFnPointerCandidates(@Nonnull TraitRef ref, @Nonnull List<SelectionCandidate> candidates) {
+        RsTraitItem element = ref.getTrait().getTypedElement();
+        for (BoundElement<RsTraitItem> be : getTyFunctionImpls(ref.getSelfTy())) {
+            if (be.getTypedElement() == element && combinesWithTraitSubst(be, ref)) {
+                candidates.add(SelectionCandidate.FnPointerCandidate.INSTANCE);
+            }
+        }
+    }
+
+    private boolean combinesWithTraitSubst(@Nonnull BoundElement<RsTraitItem> be, @Nonnull TraitRef ref) {
+        return getCtx().probe(() ->
+            getCtx().combineTypePairs(be.getSubst().zipTypeValues(ref.getTrait().getSubst())).isOk()
+                && getCtx().combineConstPairs(be.getSubst().zipConstValues(ref.getTrait().getSubst())).isOk());
+    }
+
+    /** The `Fn*`, `Clone` and `Copy` impls every function type has. */
+    @Nonnull
+    private List<BoundElement<RsTraitItem>> getTyFunctionImpls(@Nonnull Ty ty) {
+        if (!(ty instanceof TyFunctionBase function)) return Collections.emptyList();
+        RsTypeAlias output = getFnOnceOutput();
+        Ty args = function.getParamTypes().isEmpty() ? TyUnit.INSTANCE : new TyTuple(function.getParamTypes());
+        Map<RsTypeAlias, Ty> assoc = output != null ? Map.of(output, function.getRetType()) : Collections.emptyMap();
+        List<BoundElement<RsTraitItem>> result = new ArrayList<>();
+        for (RsTraitItem fnTrait : fnTraits) {
+            BoundElement<RsTraitItem> withArgs = new BoundElement<>(fnTrait).withSubst(args);
+            result.add(new BoundElement<>(fnTrait, withArgs.getSubst(), assoc));
+        }
+        if (items.getClone() != null) result.add(new BoundElement<>(items.getClone()));
+        if (items.getCopy() != null) result.add(new BoundElement<>(items.getCopy()));
+        return result;
+    }
+
+    @Nonnull
+    private static List<BoundElement<RsTraitItem>> traitBoundsTransitively(@Nonnull List<BoundElement<RsTraitItem>> traits) {
+        List<BoundElement<RsTraitItem>> result = new ArrayList<>();
+        for (BoundElement<RsTraitItem> trait : traits) {
+            result.addAll(RsTraitItemUtil.getFlattenHierarchy(trait));
+        }
+        return result;
+    }
+
+    @Nullable
+    private static BoundElement<RsTraitItem> findObjectBound(@Nonnull Ty selfTy, @Nonnull RsTraitItem trait) {
+        List<BoundElement<RsTraitItem>> traits;
+        if (selfTy instanceof TyTraitObject object) traits = object.getTraits();
+        else if (selfTy instanceof TyAnon anon) traits = anon.getTraits();
+        else return null;
+        for (BoundElement<RsTraitItem> be : traitBoundsTransitively(traits)) {
+            if (be.getTypedElement() == trait) return be;
+        }
+        return null;
+    }
+
+    private void assembleCandidatesFromObjectTy(@Nonnull TraitRef ref, @Nonnull List<SelectionCandidate> candidates) {
+        if (ref.getSelfTy() instanceof TyTraitObject && findObjectBound(ref.getSelfTy(), ref.getTrait().getTypedElement()) != null) {
+            candidates.add(SelectionCandidate.ObjectCandidate.INSTANCE);
+        }
+    }
+
+    private void assembleCandidatesFromProjectedTys(@Nonnull TraitRef ref, @Nonnull List<SelectionCandidate> candidates) {
+        Ty selfTy = ref.getSelfTy();
+        if (selfTy instanceof TyProjection projection) {
+            Substitution subst = projectionSubst(projection);
+            Set<BoundElement<RsTraitItem>> seen = new LinkedHashSet<>();
+            for (TraitRef bound : RsGenericDeclarationUtil.getBounds(projection.getTrait().getTypedElement())) {
+                if (!getCtx().probe(() -> getCtx().combineTypes(FoldUtil.substitute(bound.getSelfTy(), subst), projection).isOk())) continue;
+                seen.addAll(RsTraitItemUtil.getFlattenHierarchy(bound.getTrait()));
+            }
+            for (BoundElement<RsTraitItem> be : seen) {
+                if (getCtx().probe(() -> getCtx().combineBoundElements(FoldUtil.substitute(be, subst), ref.getTrait()))) {
+                    candidates.add(new SelectionCandidate.ProjectionCandidate(be));
+                }
+            }
+        }
+        if (selfTy instanceof TyAnon && findObjectBound(selfTy, ref.getTrait().getTypedElement()) != null) {
+            candidates.add(SelectionCandidate.ObjectCandidate.INSTANCE);
+        }
+    }
+
+    /** {@code Trait<..>::Target<..>} with {@code Self} bound to the projected type. */
+    @Nonnull
+    private static Substitution projectionSubst(@Nonnull TyProjection projection) {
+        Map<TyTypeParameter, Ty> selfMap = new HashMap<>();
+        selfMap.put(TyTypeParameter.self(), projection.getType());
+        return projection.getTrait().getSubst()
+            .plus(projection.getTarget().getSubst())
+            .plus(SubstitutionUtil.toTypeSubst(selfMap));
+    }
+
+    /** Mirrors rustc's {@code assemble_candidates_for_unsizing}. */
+    private void assembleCandidatesForUnsizing(@Nonnull TraitRef ref, @Nonnull CandidateSet candidates) {
+        Ty source = ref.getSelfTy();
+        TyTypeParameter param = getTypeParamSingle(ref.getTrait().getTypedElement());
+        Ty target = param != null ? ref.getTrait().getSubst().get(param) : null;
+        if (target == null) return;
+        if (target instanceof TyTraitObject) {
+            // `T` -> `Trait` and `Trait+Kx+'a` -> `Trait+Ky+'b` (upcasts)
+            candidates.list.add(SelectionCandidate.BuiltinUnsizeCandidate.INSTANCE);
+        }
+        else if (source instanceof TyInfer.TyVar || target instanceof TyInfer.TyVar) {
+            candidates.ambiguous = true;
+        }
+        else if (source instanceof TyArray && target instanceof TySlice
+            || source instanceof TyAdt s && target instanceof TyAdt t && s.getItem() == t.getItem()
+                && s.getItem() instanceof RsStructItem struct && RsStructItemUtil.getKind(struct) == RsStructKind.STRUCT
+            || source instanceof TyTuple st && target instanceof TyTuple tt && st.getTypes().size() == tt.getTypes().size()) {
+            candidates.list.add(SelectionCandidate.BuiltinUnsizeCandidate.INSTANCE);
+        }
+    }
+
     /**
      * {@code Copy} and {@code Clone} of the scalar types. {@code core} implements them with macros
-     * ({@code marker_impls!}, {@code impl_clone!}), so without macro expansion there is no impl to find; only asked when
-     * no impl applies, so an expanded {@code core} never makes the selection ambiguous.
+     * ({@code marker_impls!}, {@code impl_clone!}); this covers a {@code core} whose macros did not expand. Only asked
+     * when no impl applies, so an expanded {@code core} never makes the selection ambiguous.
      */
     private void assembleCopyCloneCandidates(@Nonnull TraitRef ref, @Nonnull List<SelectionCandidate> candidates) {
         RsTraitItem trait = ref.getTrait().getTypedElement();
@@ -622,6 +880,7 @@ public class ImplLookup {
     }
 
     private void assembleCandidatesFromImpls(@Nonnull TraitRef ref, @Nonnull List<SelectionCandidate> candidates) {
+        assembleDerivedCandidates(ref, candidates);
         processTyFingerprintsWithAliases(ref.getSelfTy(), tyFingerprint -> {
             for (RsCachedImplItem cachedImpl : findPotentialImpls(tyFingerprint)) {
                 SelectionCandidate candidate = trySelectCandidate(cachedImpl, ref);
@@ -629,6 +888,20 @@ public class ImplLookup {
             }
             return false;
         });
+    }
+
+    /** Only the std traits are taken from `#[derive]`, because they are sure to be resolved correctly. */
+    private void assembleDerivedCandidates(@Nonnull TraitRef ref, @Nonnull List<SelectionCandidate> candidates) {
+        if (!(ref.getSelfTy() instanceof TyAdt adt) || !(adt.getItem() instanceof RsStructOrEnumItemElement item)) return;
+        RsTraitItem trait = ref.getTrait().getTypedElement();
+        for (RsTraitItem derived : RsStructOrEnumItemElementUtil.getDerivedTraits(item)) {
+            if (derived != trait || !RsTraitItemUtil.isKnownDerivable(derived)) continue;
+            if (derived == items.getPartialEq() || derived == items.getPartialOrd()) {
+                TraitRef actual = new TraitRef(ref.getSelfTy(), new BoundElement<>(derived).withSubst(ref.getSelfTy()));
+                if (!getCtx().probe(() -> getCtx().combineTraitRefs(ref, actual))) continue;
+            }
+            candidates.add(new SelectionCandidate.ImplCandidate.DerivedTrait(derived));
+        }
     }
 
     /** The impl applies if its own trait reference can be unified with the one being selected. */
@@ -687,20 +960,176 @@ public class ImplLookup {
         });
     }
 
+    /** Mirrors rustc's {@code confirm_candidate}. */
     @Nonnull
     private SelectionResult<Selection> confirmCandidate(
         @Nonnull TraitRef ref,
         @Nonnull SelectionCandidate candidate,
         int recursionDepth
     ) {
-        if (candidate instanceof SelectionCandidate.ParamCandidate) {
-            return SelectionResult.ok(confirmParamCandidate(ref, (SelectionCandidate.ParamCandidate) candidate));
+        if (candidate instanceof SelectionCandidate.BuiltinCandidate builtin) {
+            return SelectionResult.ok(confirmBuiltinCandidate(ref, recursionDepth, builtin.hasNested()));
         }
-        if (candidate instanceof SelectionCandidate.ImplCandidate) {
-            return SelectionResult.ok(confirmImplCandidate(ref, (SelectionCandidate.ImplCandidate) candidate, recursionDepth));
+        if (candidate instanceof SelectionCandidate.ParamCandidate param) {
+            return SelectionResult.ok(confirmParamCandidate(ref, param));
         }
-        // Default: return the trait element with no nested obligations
+        if (candidate instanceof SelectionCandidate.ImplCandidate impl) {
+            return SelectionResult.ok(confirmImplCandidate(ref, impl, recursionDepth));
+        }
+        if (candidate instanceof SelectionCandidate.ProjectionCandidate projection) {
+            return SelectionResult.ok(confirmProjectionCandidate(ref, projection));
+        }
+        if (candidate == SelectionCandidate.ObjectCandidate.INSTANCE) {
+            return confirmObjectCandidate(ref);
+        }
+        if (candidate == SelectionCandidate.BuiltinUnsizeCandidate.INSTANCE) {
+            return confirmBuiltinUnsizeCandidate(ref, recursionDepth);
+        }
+        if (candidate == SelectionCandidate.FnPointerCandidate.INSTANCE) {
+            return confirmFnPointerCandidate(ref);
+        }
         return SelectionResult.ok(new Selection(ref.getTrait().getTypedElement(), Collections.emptyList()));
+    }
+
+    @Nonnull
+    private Selection confirmBuiltinCandidate(@Nonnull TraitRef ref, int recursionDepth, boolean hasNested) {
+        RsTraitItem trait = ref.getTrait().getTypedElement();
+        if (!hasNested) return new Selection(trait, Collections.emptyList());
+        BuiltinConditions conditions = trait == items.getSized()
+            ? sizedConditions(ref.getSelfTy())
+            : copyCloneConditions(ref.getSelfTy());
+        List<Obligation> obligations = new ArrayList<>();
+        if (conditions.nested != null) {
+            for (Ty ty : conditions.nested) {
+                TyWithObligations<Ty> normalized = getCtx().normalizeAssociatedTypesIn(ty, recursionDepth + 1);
+                obligations.addAll(normalized.getObligations());
+                obligations.add(new Obligation(recursionDepth + 1,
+                    new Predicate.Trait(new TraitRef(normalized.getValue(), new BoundElement<>(trait).withSubst()))));
+            }
+        }
+        return new Selection(trait, obligations);
+    }
+
+    @Nonnull
+    private Selection confirmProjectionCandidate(@Nonnull TraitRef ref, @Nonnull SelectionCandidate.ProjectionCandidate candidate) {
+        TyProjection projection = (TyProjection) ref.getSelfTy();
+        getCtx().combineTraitRefs(ref, new TraitRef(projection, FoldUtil.substitute(candidate.getBound(), projectionSubst(projection))));
+        return new Selection(ref.getTrait().getTypedElement(), Collections.emptyList());
+    }
+
+    @Nonnull
+    private SelectionResult<Selection> confirmObjectCandidate(@Nonnull TraitRef ref) {
+        BoundElement<RsTraitItem> be = findObjectBound(ref.getSelfTy(), ref.getTrait().getTypedElement());
+        if (be == null) return SelectionResult.err();
+        getCtx().combineBoundElements(be, ref.getTrait());
+        return SelectionResult.ok(new Selection(be.getTypedElement(), Collections.emptyList()));
+    }
+
+    @Nonnull
+    private SelectionResult<Selection> confirmFnPointerCandidate(@Nonnull TraitRef ref) {
+        for (BoundElement<RsTraitItem> impl : getTyFunctionImpls(ref.getSelfTy())) {
+            if (impl.getTypedElement() == ref.getTrait().getTypedElement() && combinesWithTraitSubst(impl, ref)) {
+                getCtx().combineBoundElements(impl, ref.getTrait());
+                Map<TyTypeParameter, Ty> selfMap = new HashMap<>();
+                selfMap.put(TyTypeParameter.self(), ref.getSelfTy());
+                return SelectionResult.ok(new Selection(impl.getTypedElement(), Collections.emptyList(), SubstitutionUtil.toTypeSubst(selfMap)));
+            }
+        }
+        return SelectionResult.err();
+    }
+
+    /** Mirrors rustc's {@code confirm_builtin_unsize_candidate}. */
+    @Nonnull
+    private SelectionResult<Selection> confirmBuiltinUnsizeCandidate(@Nonnull TraitRef ref, int recursionDepth) {
+        RsTraitItem unsizeTrait = ref.getTrait().getTypedElement();
+        TyTypeParameter unsizeTypeParam = getTypeParamSingle(unsizeTrait);
+        if (unsizeTypeParam == null) return SelectionResult.err();
+        Ty rawTarget = ref.getTrait().getSubst().get(unsizeTypeParam);
+        if (rawTarget == null) return SelectionResult.err();
+        Ty source = getCtx().shallowResolve(ref.getSelfTy());
+        Ty target = getCtx().shallowResolve(rawTarget);
+        Map<TyTypeParameter, Ty> targetMap = new HashMap<>();
+        targetMap.put(unsizeTypeParam, target);
+        Substitution okSubst = SubstitutionUtil.toTypeSubst(targetMap);
+
+        if (target instanceof TyTraitObject) {
+            // Unsizing to a trait object is always allowed for now
+            TypeInferenceMarks.UnsizeToTraitObject.hit();
+            return SelectionResult.ok(new Selection(unsizeTrait, Collections.emptyList(), okSubst));
+        }
+        if (source instanceof TyArray array && target instanceof TySlice slice) {
+            if (getCtx().combineTypes(slice.getElementType(), array.getBase()).isOk()) {
+                TypeInferenceMarks.UnsizeArrayToSlice.hit();
+                return SelectionResult.ok(new Selection(unsizeTrait, Collections.emptyList(), okSubst));
+            }
+            return SelectionResult.err();
+        }
+        if (source instanceof TyAdt sourceAdt && target instanceof TyAdt targetAdt && sourceAdt.getItem() instanceof RsStructItem struct) {
+            List<RsFieldDecl> fields = RsFieldsOwnerUtil.getFields(struct);
+            if (fields.isEmpty()) return SelectionResult.err();
+            RsFieldDecl lastField = fields.get(fields.size() - 1);
+            RsTypeReference lastFieldTypeRef = lastField.getTypeReference();
+            if (lastFieldTypeRef == null) return SelectionResult.err();
+            Ty lastFieldType = ExtensionsUtil.getRawType(lastFieldTypeRef);
+            Set<TyTypeParameter> unsizingParams = new HashSet<>(typeParametersIn(lastFieldType));
+            for (RsFieldDecl field : fields) {
+                if (field == lastField) break;
+                RsTypeReference fieldTypeRef = field.getTypeReference();
+                if (fieldTypeRef == null) continue;
+                unsizingParams.removeAll(typeParametersIn(ExtensionsUtil.getRawType(fieldTypeRef)));
+            }
+            if (unsizingParams.isEmpty()) return SelectionResult.err();
+
+            Substitution sourceSubst = sourceAdt.getTypeParameterValues();
+            Substitution targetSubst = targetAdt.getTypeParameterValues();
+            // The source struct with the target's unsizing parameters must be equal to the target
+            Substitution subst = sourceSubst.mapTypeValues(entry -> {
+                if (!unsizingParams.contains(entry.getKey())) return entry.getValue();
+                Ty value = targetSubst.get(entry.getKey());
+                return value != null ? value : TyUnknown.INSTANCE;
+            });
+            Ty newStruct = FoldUtil.substitute(struct.getDeclaredType(), subst);
+            if (!getCtx().combineTypes(target, newStruct).isOk()) return SelectionResult.err();
+
+            // The nested `TailField<T>: Unsize<TailField<U>>` predicate
+            Ty sourceTail = FoldUtil.substitute(lastFieldType, sourceSubst);
+            Ty targetTail = FoldUtil.substitute(lastFieldType, targetSubst);
+            Obligation nested = new Obligation(recursionDepth + 1,
+                new Predicate.Trait(new TraitRef(sourceTail, new BoundElement<>(unsizeTrait).withSubst(targetTail))));
+            TypeInferenceMarks.UnsizeStruct.hit();
+            return SelectionResult.ok(new Selection(unsizeTrait, List.of(nested), okSubst));
+        }
+        if (source instanceof TyTuple sourceTuple && target instanceof TyTuple targetTuple) {
+            List<Ty> sourceTypes = sourceTuple.getTypes();
+            List<Ty> targetTypes = targetTuple.getTypes();
+            if (sourceTypes.isEmpty() || targetTypes.isEmpty()) return SelectionResult.err();
+            // The source tuple with the target's last element must be equal to the target
+            List<Ty> newTypes = new ArrayList<>(sourceTypes.subList(0, sourceTypes.size() - 1));
+            newTypes.add(targetTypes.get(targetTypes.size() - 1));
+            if (!getCtx().combineTypes(target, new TyTuple(newTypes)).isOk()) return SelectionResult.err();
+            Obligation nested = new Obligation(recursionDepth + 1,
+                new Predicate.Trait(new TraitRef(sourceTypes.get(sourceTypes.size() - 1),
+                    new BoundElement<>(unsizeTrait).withSubst(targetTypes.get(targetTypes.size() - 1)))));
+            TypeInferenceMarks.UnsizeTuple.hit();
+            return SelectionResult.ok(new Selection(unsizeTrait, List.of(nested), okSubst));
+        }
+        return SelectionResult.err();
+    }
+
+    @Nonnull
+    private static Set<TyTypeParameter> typeParametersIn(@Nonnull Ty ty) {
+        Set<TyTypeParameter> result = new HashSet<>();
+        ty.visitWith(new TypeVisitor() {
+            @Override
+            public boolean visitTy(@Nonnull Ty t) {
+                if (t instanceof TyTypeParameter parameter) {
+                    result.add(parameter);
+                    return false;
+                }
+                return t.superVisitWith(this);
+            }
+        });
+        return result;
     }
 
     @Nonnull
@@ -756,6 +1185,10 @@ public class ImplLookup {
                 new Predicate.Trait(new TraitRef(typeArg, new BoundElement<>(candidate.getItem())))
             ));
         }
+        RsTraitItem trait = ref.getTrait().getTypedElement();
+        if (trait == items.getPartialEq() || trait == items.getPartialOrd()) {
+            getCtx().combineTraitRefs(ref, new TraitRef(ref.getSelfTy(), new BoundElement<>(trait).withSubst(selfTy)));
+        }
         return new Selection(candidate.getItem(), obligations);
     }
 
@@ -804,7 +1237,7 @@ public class ImplLookup {
         if (trait == null) return null;
         RsTypeAlias assocType = RsTraitItemUtil.findAssociatedType(trait, "Output");
         if (assocType == null) return null;
-        TyProjection projection = TyProjection.valueOf(lhsType, new BoundElement<>(assocType).withSubst(rhsType));
+        TyProjection projection = TyProjection.valueOf(lhsType, new BoundElement<>(trait).withSubst(rhsType), new BoundElement<>(assocType).withSubst());
         return getCtx().normalizeAssociatedTypesIn(projection);
     }
 
@@ -940,11 +1373,16 @@ public class ImplLookup {
         if (selfTy instanceof TyTypeParameter) {
             return lookupAssocTypeInBounds(getEnvBoundTransitivelyFor(selfTy), res.getImpl(), assocType);
         }
-        if (selfTy instanceof TyTraitObject) {
-            return lookupAssocTypeInBounds(((TyTraitObject) selfTy).getTraits(), res.getImpl(), assocType);
+        if (selfTy instanceof TyTraitObject object) {
+            return lookupAssocTypeInBounds(traitBoundsTransitively(object.getTraits()), res.getImpl(), assocType);
         }
         Ty fromSelection = lookupAssocTypeInSelection(res, assocType);
         if (fromSelection != null) return fromSelection;
+        Ty fromFunction = lookupAssocTypeInBounds(getTyFunctionImpls(selfTy), res.getImpl(), assocType);
+        if (fromFunction != null) return fromFunction;
+        if (selfTy instanceof TyAnon anon) {
+            return lookupAssocTypeInBounds(traitBoundsTransitively(anon.getTraits()), res.getImpl(), assocType);
+        }
         return null;
     }
 
@@ -960,7 +1398,35 @@ public class ImplLookup {
         if (assocImpl == null) return null;
         RsTypeReference typeRef = assocImpl.getTypeReference();
         if (typeRef == null) return null;
-        return FoldUtil.substitute(ExtensionsUtil.getRawType(typeRef), selection.getSubst().plus(assocDef.getSubst()));
+        return FoldUtil.substitute(ExtensionsUtil.getRawType(typeRef), selection.getSubst().plus(substFromTraitToImpl(assocDef, assocImpl)));
+    }
+
+    /** The generic arguments of a trait's associated type, keyed by the parameters of the impl's associated type. */
+    @Nonnull
+    private static Substitution substFromTraitToImpl(@Nonnull BoundElement<RsTypeAlias> boundAssocDef, @Nonnull RsTypeAlias assocImpl) {
+        RsTypeAlias assocDef = boundAssocDef.getTypedElement();
+        Map<TyTypeParameter, TyTypeParameter> typeKeys = new HashMap<>();
+        List<RsTypeParameter> defTypeParameters = assocDef.getTypeParameters();
+        List<RsTypeParameter> implTypeParameters = assocImpl.getTypeParameters();
+        for (int i = 0; i < Math.min(defTypeParameters.size(), implTypeParameters.size()); i++) {
+            typeKeys.put(TyTypeParameter.named(defTypeParameters.get(i)), TyTypeParameter.named(implTypeParameters.get(i)));
+        }
+        Map<CtConstParameter, CtConstParameter> constKeys = new HashMap<>();
+        List<RsConstParameter> defConstParameters = assocDef.getConstParameters();
+        List<RsConstParameter> implConstParameters = assocImpl.getConstParameters();
+        for (int i = 0; i < Math.min(defConstParameters.size(), implConstParameters.size()); i++) {
+            constKeys.put(new CtConstParameter(defConstParameters.get(i)), new CtConstParameter(implConstParameters.get(i)));
+        }
+        Substitution subst = boundAssocDef.getSubst();
+        Map<TyTypeParameter, Ty> typeSubst = new HashMap<>();
+        for (Map.Entry<TyTypeParameter, Ty> entry : subst.getTypeSubst().entrySet()) {
+            typeSubst.put(typeKeys.getOrDefault(entry.getKey(), entry.getKey()), entry.getValue());
+        }
+        Map<CtConstParameter, Const> constSubst = new HashMap<>();
+        for (Map.Entry<CtConstParameter, Const> entry : subst.getConstSubst().entrySet()) {
+            constSubst.put(constKeys.getOrDefault(entry.getKey(), entry.getKey()), entry.getValue());
+        }
+        return new Substitution(typeSubst, subst.getRegionSubst(), constSubst);
     }
 
     @Nullable

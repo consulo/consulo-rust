@@ -103,9 +103,8 @@ public final class RsExpandedElementUtil {
 
     @Nullable
     public static RsPossibleMacroCall findMacroCallExpandedFromNonRecursive(@Nonnull PsiElement element) {
-        PsiElement current = element;
-        while (current != null) {
-            current = RsElementUtil.getStubParent(current);
+        // the element itself first: a top-level element of an expansion is expanded from the call directly
+        for (PsiElement current = element; current != null; current = RsElementUtil.getStubParent(current)) {
             if (current instanceof RsExpandedElement) {
                 RsPossibleMacroCall from = getExpandedFrom((RsExpandedElement) current);
                 if (from != null) return from;

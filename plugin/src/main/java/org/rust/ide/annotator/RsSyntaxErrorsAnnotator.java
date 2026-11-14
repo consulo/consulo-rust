@@ -535,7 +535,7 @@ public class RsSyntaxErrorsAnnotator extends AnnotatorBase {
     }
 
     private static void checkForeignModItem(@Nonnull AnnotationHolder holder, @Nonnull RsForeignModItem element) {
-        checkInvalidUnsafe(holder, element.getUnsafe(), "Extern block");
+        // `unsafe extern { .. }` is valid since Rust 1.82 and required since the 2024 edition
     }
 
     private static void checkInvalidUnsafe(@Nonnull AnnotationHolder holder, @Nullable PsiElement unsafe, @Nonnull String itemName) {

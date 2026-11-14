@@ -27,6 +27,7 @@ import org.rust.lang.core.types.infer.*;
 import org.rust.lang.core.types.regions.RegionScopeTreeUtil;
 import org.rust.lang.core.types.regions.ScopeTree;
 import org.rust.lang.core.types.ty.Ty;
+import org.rust.lang.core.types.ty.TyReference;
 import org.rust.lang.core.types.ty.TyTypeParameter;
 import org.rust.lang.core.types.ty.TyUnknown;
 
@@ -320,6 +321,45 @@ public final class ExtensionsUtil {
     }
 
     // ---- RsTraitOrImpl extensions ----
+
+    /** The type of the {@code self} value of a method, as seen from inside it. */
+    @Nonnull
+    public static Ty getTypeOfValue(@Nonnull RsSelfParameter self) {
+        RsFunction fn = org.rust.lang.core.psi.ext.impl.RsSelfParameterUtil.getParentFunction(self);
+        RsAbstractableOwner owner = fn.getOwner();
+        Ty selfType = null;
+        if (owner instanceof RsAbstractableOwner.Impl impl) selfType = getSelfType(impl.getImpl());
+        else if (owner instanceof RsAbstractableOwner.Trait trait) selfType = getSelfType(trait.getTrait());
+        return getTypeOfValue(self, selfType != null ? selfType : TyUnknown.INSTANCE);
+    }
+
+    /** The type of {@code self} for the receiver type {@code selfType}: {@code self}, {@code &mut self}, {@code self: Box<Self>}. */
+    @Nonnull
+    public static Ty getTypeOfValue(@Nonnull RsSelfParameter self, @Nonnull Ty selfType) {
+        if (org.rust.lang.core.psi.ext.impl.RsSelfParameterUtil.isExplicitType(self)) {
+            RsTypeReference typeRef = self.getTypeReference();
+            Ty formalSelfTy = typeRef != null ? getRawType(typeRef) : TyUnknown.INSTANCE;
+            RsAbstractableOwner owner = org.rust.lang.core.psi.ext.impl.RsSelfParameterUtil.getParentFunction(self).getOwner();
+            RsTypeReference implTypeRef = owner instanceof RsAbstractableOwner.Impl impl ? impl.getImpl().getTypeReference() : null;
+            if (implTypeRef != null) {
+                // In impls `Self` has already been replaced with the impl's formal self type; put the receiver there
+                Ty ownerImplTy = getRawType(implTypeRef);
+                return formalSelfTy.foldWith(new org.rust.lang.core.types.infer.TypeFolder() {
+                    @Nonnull
+                    @Override
+                    public Ty foldTy(@Nonnull Ty ty) {
+                        return ty.isEquivalentTo(ownerImplTy) ? selfType : ty.superFoldWith(this);
+                    }
+                });
+            }
+            return org.rust.lang.core.types.infer.FoldUtil.substitute(formalSelfTy,
+                SubstitutionUtil.toTypeSubst(java.util.Collections.singletonMap(TyTypeParameter.self(), selfType)));
+        }
+        if (org.rust.lang.core.psi.ext.impl.RsSelfParameterUtil.isRef(self)) {
+            return new TyReference(selfType, org.rust.lang.core.psi.ext.impl.RsSelfParameterUtil.getMutability(self));
+        }
+        return selfType;
+    }
 
     @Nonnull
     public static Ty getSelfType(@Nonnull RsTraitOrImpl traitOrImpl) {

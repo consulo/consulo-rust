@@ -109,6 +109,18 @@ public class KnownItems {
     }
     @Nullable public RsTraitItem getGenerator() { return findItem("core::ops::generator::Generator", true, RsTraitItem.class); }
     @Nullable public RsTraitItem getFuture() { return findItem("core::future::future::Future", true, RsTraitItem.class); }
+
+    /** {@code impl Future<Output = outputTy>}: what an async function, closure or block evaluates to. */
+    @Nonnull
+    public org.rust.lang.core.types.ty.Ty makeFuture(@Nonnull org.rust.lang.core.types.ty.Ty outputTy) {
+        RsTraitItem futureTrait = getFuture();
+        if (futureTrait == null) return org.rust.lang.core.types.ty.TyUnknown.INSTANCE;
+        java.util.List<org.rust.lang.core.types.BoundElement<RsTraitItem>> traits = new java.util.ArrayList<>();
+        traits.add(org.rust.lang.core.psi.ext.impl.RsTraitItemUtil.substAssocType(futureTrait, "Output", outputTy));
+        RsTraitItem sized = getSized();
+        if (sized != null) traits.add(new org.rust.lang.core.types.BoundElement<>(sized).withSubst());
+        return new org.rust.lang.core.types.ty.TyAnon(null, traits);
+    }
     @Nullable public RsTraitItem getIntoFuture() { return findItem("core::future::into_future::IntoFuture", true, RsTraitItem.class); }
     @Nullable public RsTraitItem getOctal() { return findItem("core::fmt::Octal", true, RsTraitItem.class); }
     @Nullable public RsTraitItem getLowerHex() { return findItem("core::fmt::LowerHex", true, RsTraitItem.class); }

@@ -66,7 +66,7 @@ fn move_out_of_tuple() {
     let t = (NotCopy, NotCopy);
     let (x, _) = t;
     consume(x);
-    consume(/*missing:E0382*/t.0);
+    consume(/*E0382*/t.0);
 }
 
 fn reinit_in_loop() {
@@ -74,5 +74,30 @@ fn reinit_in_loop() {
     for _ in [1, 2] {
         consume(a);
         a = NotCopy;
+    }
+}
+
+fn closure_parameter_moved_in_loop(c: bool) {
+    loop {
+        let f = |a: NotCopy| consume(a);
+        f(NotCopy);
+        if c {
+            break;
+        }
+    }
+}
+
+fn apply_each(items: [NotCopy; 2], f: fn(NotCopy)) {
+    for item in items {
+        f(item);
+    }
+}
+
+fn closure_argument_moves_parameter_in_loop(c: bool) {
+    loop {
+        apply_each([NotCopy, NotCopy], |a| consume(a));
+        if c {
+            break;
+        }
     }
 }

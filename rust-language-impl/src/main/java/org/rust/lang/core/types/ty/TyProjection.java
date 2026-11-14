@@ -5,6 +5,8 @@
 
 package org.rust.lang.core.types.ty;
 
+import org.rust.lang.core.psi.ext.impl.RsGenericDeclarationUtil;
+
 import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.RsTraitItem;
 import org.rust.lang.core.psi.RsTypeAlias;
@@ -61,23 +63,20 @@ public class TyProjection extends Ty {
     }
 
     @Nonnull
-    public static TyProjection valueOf(@Nonnull BoundElement<RsTypeAlias> boundAlias) {
-        RsTypeAlias alias = boundAlias.element();
-        RsTraitItem trait = (RsTraitItem) alias.getParent().getParent();
-        Substitution subst = boundAlias.getSubst();
-        Ty selfTy = subst.get(TyTypeParameter.self());
-        if (selfTy == null) selfTy = TyTypeParameter.self(trait);
-        BoundElement<RsTraitItem> boundTrait = new BoundElement<>(trait, subst);
-        return new TyProjection(selfTy, boundTrait, boundAlias);
+    public static TyProjection valueOf(@Nonnull Ty type, @Nonnull BoundElement<RsTraitItem> trait, @Nonnull BoundElement<RsTypeAlias> target) {
+        return new TyProjection(type, trait, target);
+    }
+
+    /** {@code <type as Trait<..>>::Target} with the trait's own generics left open. */
+    @Nonnull
+    public static TyProjection valueOf(@Nonnull Ty type, @Nonnull BoundElement<RsTypeAlias> target) {
+        RsTraitItem trait = (RsTraitItem) target.element().getParent().getParent();
+        return valueOf(type, RsGenericDeclarationUtil.withDefaultSubst(trait), target);
     }
 
     @Nonnull
-    public static TyProjection valueOf(@Nonnull Ty selfTy, @Nonnull BoundElement<RsTypeAlias> boundAlias) {
-        RsTypeAlias alias = boundAlias.element();
-        RsTraitItem trait = (RsTraitItem) alias.getParent().getParent();
-        Substitution subst = boundAlias.getSubst();
-        BoundElement<RsTraitItem> boundTrait = new BoundElement<>(trait, subst);
-        return new TyProjection(selfTy, boundTrait, boundAlias);
+    public static TyProjection valueOf(@Nonnull BoundElement<RsTypeAlias> target) {
+        return valueOf(TyTypeParameter.self(), target);
     }
 
     @Override

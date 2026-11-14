@@ -69,7 +69,7 @@ public class LazyParamEnv implements ParamEnv {
                         }
                     }
                 }
-            } else if (parameter == TyTypeParameter.Self.INSTANCE) {
+            } else if (parameter instanceof TyTypeParameter.Self) {
                 if (!(parentItem instanceof RsTraitOrImpl)) {
                     RsWhereClause whereClause = parentItem.getWhereClause();
                     if (whereClause != null) {
@@ -112,28 +112,29 @@ public class LazyParamEnv implements ParamEnv {
         }
     }
 
+    /** The bounds the parameter itself declares, with their supertraits. */
     @Nonnull
     private static List<BoundElement<RsTraitItem>> getTraitBoundsFromParameter(@Nonnull TyTypeParameter tyParam) {
+        List<BoundElement<RsTraitItem>> direct = new ArrayList<>();
         TyTypeParameter.TypeParameter parameter = tyParam.getParameter();
         if (parameter instanceof TyTypeParameter.Named) {
             RsTypeParameter rsParam = ((TyTypeParameter.Named) parameter).getParameter();
-            List<RsPolybound> bounds = RsTypeParameterUtil.getBounds(rsParam);
-            List<BoundElement<RsTraitItem>> result = new ArrayList<>();
-            for (RsPolybound polybound : bounds) {
+            for (RsPolybound polybound : RsTypeParameterUtil.getBounds(rsParam)) {
                 if (RsPolyboundUtil.getHasQ(polybound)) continue;
                 RsBound bound = polybound.getBound();
-                if (bound != null) {
-                    RsTraitRef traitRef = bound.getTraitRef();
-                    if (traitRef != null) {
-                        BoundElement<RsTraitItem> resolved = RsTraitRefUtil.resolveToBoundTrait(traitRef);
-                        if (resolved != null) {
-                            result.add(resolved);
-                        }
-                    }
-                }
+                RsTraitRef traitRef = bound != null ? bound.getTraitRef() : null;
+                BoundElement<RsTraitItem> resolved = traitRef != null ? RsTraitRefUtil.resolveToBoundTrait(traitRef) : null;
+                if (resolved != null) direct.add(resolved);
             }
-            return result;
         }
-        return Collections.emptyList();
+        else if (parameter instanceof TyTypeParameter.Self self && self.getTraitOrImpl() != null) {
+            BoundElement<RsTraitItem> implemented = RsTraitOrImplUtil.getImplementedTrait(self.getTraitOrImpl());
+            if (implemented != null) direct.add(implemented);
+        }
+        List<BoundElement<RsTraitItem>> result = new ArrayList<>();
+        for (BoundElement<RsTraitItem> bound : direct) {
+            result.addAll(RsTraitItemUtil.getFlattenHierarchy(bound));
+        }
+        return result;
     }
 }

@@ -224,7 +224,7 @@ public final class RsGenericDeclarationUtil {
             for (RsAssocTypeBinding binding : RsMethodOrPathUtil.getAssocTypeBindings(traitRef.getPath())) {
                 BoundElement<RsTypeAlias> assoc = RsAssocTypeBindingUtil.resolveToBoundAssocType(binding);
                 if (assoc == null) continue;
-                TyProjection projectionTy = TyProjection.valueOf(selfTy, assoc);
+                TyProjection projectionTy = TyProjection.valueOf(selfTy, boundTrait, assoc);
                 RsTypeReference typeRef = binding.getTypeReference();
                 if (typeRef != null) {
                     // T: Iterator<Item = Foo>  =>  `T::Item == Foo`

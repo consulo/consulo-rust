@@ -14,6 +14,10 @@ import org.rust.lang.core.macros.*;
 import org.rust.lang.core.psi.*;
 // import org.rust.lang.core.stubs.RsBlockStubBuilderUtil; // placeholder removed
 import org.rust.stdext.HashCode;
+import org.rust.stdext.RsResult;
+import org.rust.lang.core.psi.impl.RsFile;
+import org.rust.lang.core.psi.impl.RsPsiFactory;
+import org.rust.lang.core.psi.ext.RsItemsOwner;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -308,10 +312,154 @@ public class DefCollector {
         return changed;
     }
 
+    /**
+     * Expands the macro calls whose macro is resolved by now and collects the items they expand to, so that the
+     * next round of import resolution sees them. Expansions are parsed in memory; nothing is written to disk.
+     * Returns whether any call was consumed.
+     */
     private boolean expandMacros() {
         if (!shouldExpandMacros) return false;
-        // Simplified: actual expansion logic is complex
-        return false;
+        List<MacroCallInfo> resolvedCalls = new ArrayList<>();
+        List<MacroDefInfo> resolvedDefs = new ArrayList<>();
+        boolean changed = false;
+        // new calls found in the expansions are added to the same list, so the list is drained before expanding
+        for (Iterator<MacroCallInfoBase> iterator = macroCallsToExpand.iterator(); iterator.hasNext(); ) {
+            ProgressManager.checkCanceled();
+            MacroCallInfoBase call = iterator.next();
+            if (call instanceof MacroCallInfo macroCall) {
+                String[] path = macroCall.getPath();
+                if ("include".equals(path[path.length - 1])) {
+                    iterator.remove();
+                    expandIncludeMacroCall(macroCall);
+                    changed = true;
+                    continue;
+                }
+                MacroDefInfo def = PathResolution.resolveMacroCallToMacroDefInfo(
+                    defMap, macroCall.getContainingMod(), path, macroCall.getMacroIndex());
+                if (def == null || def.getProcMacroKind() != org.rust.lang.core.psi.impl.RsProcMacroKind.FUNCTION_LIKE) continue;
+                iterator.remove();
+                resolvedCalls.add(macroCall);
+                resolvedDefs.add(def);
+                changed = true;
+            }
+            else if (call instanceof ProcMacroCallInfo procMacroCall) {
+                // attribute and derive macros are not expanded: the item they are attached to stays as written
+                iterator.remove();
+                treatAsIdentityMacro(procMacroCall);
+                changed = true;
+            }
+        }
+        for (int i = 0; i < resolvedCalls.size(); i++) {
+            ProgressManager.checkCanceled();
+            expandMacro(resolvedCalls.get(i), resolvedDefs.get(i));
+        }
+        return changed;
+    }
+
+    private void expandMacro(@Nonnull MacroCallInfo call, @Nonnull MacroDefInfo def) {
+        RsResult<RsMacroDataWithHash<?>, ?> defData = RsMacroDataWithHash.fromDefInfo(def);
+        if (defData.isErr()) return;
+        RsMacroData data = defData.ok().getData();
+        // function-like procedural macros need the expander process, which is not run while building the def map
+        if (data instanceof RsProcMacroData) return;
+
+        RsMacroCallData callData = new RsMacroCallData(call.getBody(), context.getCrate().getEnv());
+        RsResult<consulo.util.lang.Pair<CharSequence, RangeMap>, ?> expanded = macroExpander.expandMacroAsTextWithErr(data, callData);
+        if (expanded.isErr()) return;
+        String text = expanded.ok().getFirst().toString();
+        ExpansionResultOk expansion = new ExpansionResultOk(text, expanded.ok().getSecond());
+
+        consulo.language.psi.stub.StubElement<? extends RsItemsOwner> expandedScope;
+        RsPsiFactory factory = new RsPsiFactory(project, false);
+        if (call.getContainingMod().isBlock()) {
+            // a macro called in a block body is expanded in statement context
+            MacroExpansionContext stmt = MacroExpansionContext.STMT;
+            if (!(factory.createPsiFile(stmt.prepareExpandedTextForParsing(text)) instanceof RsFile file)) return;
+            RsBlock block = org.rust.lang.core.psi.ext.impl.RsElementUtil.stubDescendantOfTypeOrStrict(file, RsBlock.class);
+            if (block == null) return;
+            expandedScope = org.rust.lang.core.resolve2.util.RsBlockStubBuilder.buildStub(block);
+            expansion = expansion.shiftDstRangesRight(stmt.getExpansionFileStartOffset());
+        }
+        else {
+            if (!(factory.createPsiFile(text) instanceof RsFile file)) return;
+            expandedScope = ModCollector.getOrBuildFileStub(file);
+        }
+        if (expandedScope == null) return;
+
+        ModCollectorContext collectorContext = getModCollectorContextForExpandedElements(call);
+        if (collectorContext == null) return;
+        org.rust.lang.core.resolve2.util.DollarCrateHelper dollarCrateHelper =
+            org.rust.lang.core.resolve2.util.DollarCrateUtil.createDollarCrateHelper(call, def, expansion);
+        ModCollector.collectExpandedElements(expandedScope, call, collectorContext, dollarCrateHelper);
+    }
+
+    /** `include!("file.rs")`: the items of the file, as if written in place of the call. */
+    private void expandIncludeMacroCall(@Nonnull MacroCallInfo call) {
+        Integer containingFileId = call.getContainingFileId();
+        if (containingFileId == null) return;
+        consulo.virtualFileSystem.VirtualFile containingFile =
+            consulo.virtualFileSystem.ManagingFS.getInstance().findFileById(containingFileId);
+        if (containingFile == null || !(call.getBody() instanceof MacroCallBody.FunctionLike functionLike)) return;
+        String includePath = functionLike.getText();
+        consulo.virtualFileSystem.VirtualFile parentDirectory = containingFile.getParent();
+        if (parentDirectory == null) return;
+        // an absolute path is a path of the same machine as the including file
+        java.nio.file.Path parentPath;
+        try {
+            parentPath = parentDirectory.toNioPath();
+        }
+        catch (UnsupportedOperationException e) {
+            parentPath = null;
+        }
+        consulo.virtualFileSystem.VirtualFile includingFile = parentPath != null
+            ? consulo.virtualFileSystem.VirtualFileManager.getInstance().findFileByNioPath(parentPath.resolve(includePath))
+            : parentDirectory.findFileByRelativePath(includePath);
+        if (includingFile == null) {
+            if (!context.isHangingMode() && parentPath != null) {
+                try {
+                    defMap.getMissedFiles().add(parentPath.resolve(includePath));
+                }
+                catch (java.nio.file.InvalidPathException ignored) {
+                }
+            }
+            return;
+        }
+        if (!(consulo.language.psi.PsiManager.getInstance(project).findFile(includingFile) instanceof RsFile includingRsFile)) return;
+        ModCollectorContext collectorContext = getModCollectorContextForExpandedElements(call);
+        if (collectorContext == null) return;
+        ModCollector.collectScope(
+            includingRsFile,
+            call.getContainingMod(),
+            collectorContext,
+            call.getMacroIndex(),
+            null,
+            call.getMacroIndex(),
+            true
+        );
+        ModCollector.recordChildFileInUnusualLocation(call.getContainingMod(), org.rust.openapiext.VirtualFileExtUtil.getFileId(includingFile));
+    }
+
+    @Nullable
+    private ModCollectorContext getModCollectorContextForExpandedElements(@Nonnull MacroCallInfo call) {
+        if (call.getDepth() >= recursionLimit) return null;
+        return new ModCollectorContext(defMap, context, call.getDepth() + 1, this::onAddItem);
+    }
+
+    private boolean onAddItem(@Nonnull ModData modData, @Nonnull String name, @Nonnull PerNs perNs, @Nonnull Visibility visibility) {
+        return update(modData, Collections.singletonList(new AbstractMap.SimpleEntry<>(name, perNs)), visibility, ImportType.NAMED);
+    }
+
+    /** The item an attribute macro is attached to, added as written - see {@code ModCollector.collectSimpleItem}. */
+    private void treatAsIdentityMacro(@Nonnull ProcMacroCallInfo call) {
+        org.rust.lang.core.resolve.SelectionCandidate.Triple<VisItem, Set<org.rust.lang.core.resolve.Namespace>, org.rust.lang.core.psi.impl.RsProcMacroKind> originalItem =
+            call.getOriginalItem();
+        if (originalItem == null) return;
+        VisItem visItem = originalItem.getFirst();
+        PerNs perNs = PerNs.from(visItem, originalItem.getSecond());
+        update(call.getContainingMod(), Collections.singletonList(new AbstractMap.SimpleEntry<>(visItem.getName(), perNs)), visItem.getVisibility(), ImportType.NAMED);
+        if (originalItem.getThird() != null) {
+            call.getContainingMod().getProcMacros().put(visItem.getName(), originalItem.getThird());
+        }
     }
 
     private static void removeInvalidImportsAndMacroCalls(

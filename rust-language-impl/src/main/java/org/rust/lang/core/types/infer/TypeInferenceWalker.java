@@ -8,6 +8,7 @@ package org.rust.lang.core.types.infer;
 import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
 import consulo.application.progress.ProgressManager;
 import consulo.language.psi.PsiElement;
+import consulo.language.psi.util.PsiTreeUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.macros.MacroExpansion;
@@ -154,7 +155,14 @@ class RsTypeInferenceWalker {
             Ty inferredTy;
             Ty coercedInferredTy;
             if (expr != null) {
-                inferredTy = inferExprType(expr, Expectation.maybeHasType(explicitTy));
+                // `let ref mut x = place;` borrows the place mutably
+                boolean patHasRefMut = pat != null && PsiTreeUtil.findChildrenOfType(pat, RsPatIdent.class).stream()
+                    .anyMatch(ident -> RsPatBindingUtil.getKind(ident.getPatBinding()) instanceof RsBindingModeKind.BindByReference byRef
+                        && byRef.getMutability() == Mutability.MUTABLE)
+                    || pat instanceof RsPatIdent ident && RsPatBindingUtil.getKind(ident.getPatBinding()) instanceof RsBindingModeKind.BindByReference byRef
+                        && byRef.getMutability() == Mutability.MUTABLE;
+                Expectation initializerExpectation = Expectation.maybeHasType(explicitTy);
+                inferredTy = patHasRefMut ? inferMutPlaceType(expr, initializerExpectation) : inferExprType(expr, initializerExpectation);
                 if (explicitTy != null && coerce(expr, inferredTy, explicitTy)) {
                     coercedInferredTy = explicitTy;
                 } else {
@@ -200,6 +208,14 @@ class RsTypeInferenceWalker {
 
         Ty ty = inferExprTypeInner(expr, expected);
         ctx.writeExprTy(expr, ty);
+        return ty;
+    }
+
+    /** Infers a place that is mutated or mutably borrowed: its overloaded derefs and indexes become mutable. */
+    @Nonnull
+    private Ty inferMutPlaceType(@Nonnull RsExpr expr, @Nonnull Expectation expected) {
+        Ty ty = inferExprType(expr, expected);
+        ctx.convertPlaceDerefsToMutable(RsExprUtil.unwrapParenExprs(expr));
         return ty;
     }
 
@@ -944,17 +960,42 @@ class RsTypeInferenceWalker {
 
     @Nonnull
     private Ty inferFieldExprType(@Nonnull Ty receiver, @Nonnull RsFieldLookup fieldLookup) {
-        var variants = RsMethodCallReferenceImpl.resolveFieldLookupReferenceWithReceiverType(getLookup(), receiver, fieldLookup);
-        ctx.writeResolvedField(fieldLookup, variants.stream().map(v -> v.getElement()).collect(Collectors.toList()));
-        var field = variants.isEmpty() ? null : variants.get(0);
-        if (field == null) return TyUnknown.INSTANCE;
-        RsElement fieldElement = field.getElement();
-        if (fieldElement instanceof RsFieldDecl fieldDecl) {
-            var typeRef = fieldDecl.getTypeReference();
-            if (typeRef == null) return TyUnknown.INSTANCE;
-            return FoldUtil.substitute(ExtensionsUtil.getRawType(typeRef), field.getSelfTy().getTypeParameterValues());
+        if (fieldLookup.getIdentifier() != null && "await".equals(fieldLookup.getIdentifier().getText())
+            && RsElementUtil.isAtLeastEdition2018(fieldLookup)) {
+            return getFulfill().register(getLookup().lookupFutureOutputTy(receiver, false));
         }
-        return TyUnknown.INSTANCE;
+
+        List<FieldResolveVariant> variants = RsMethodCallReferenceImpl.resolveFieldLookupReferenceWithReceiverType(getLookup(), receiver, fieldLookup);
+        ctx.writeResolvedField(fieldLookup, variants.stream().map(v -> v.getElement()).collect(Collectors.toList()));
+        RsExpr receiverExpr = ((RsDotExpr) fieldLookup.getParent()).getExpr();
+        FieldResolveVariant field = variants.isEmpty() ? null : variants.get(0);
+        if (field == null) {
+            Autoderef autoderef = getLookup().coercionSequence(receiver);
+            for (Ty type : autoderef) {
+                if (type instanceof TyTuple tuple) {
+                    getFulfill().registerPredicateObligations(autoderef.obligations());
+                    ctx.applyAdjustments(receiverExpr, new ArrayList<>(Autoderef.toAdjustments(autoderef.steps(), getItems())));
+                    PsiElement integer = fieldLookup.getIntegerLiteral();
+                    if (integer == null) return TyUnknown.INSTANCE;
+                    int fieldIndex;
+                    try {
+                        fieldIndex = Integer.parseInt(integer.getText());
+                    }
+                    catch (NumberFormatException e) {
+                        return TyUnknown.INSTANCE;
+                    }
+                    List<Ty> types = tuple.getTypes();
+                    return fieldIndex >= 0 && fieldIndex < types.size() ? types.get(fieldIndex) : TyUnknown.INSTANCE;
+                }
+            }
+            return TyUnknown.INSTANCE;
+        }
+        getFulfill().registerPredicateObligations(field.getObligations());
+        ctx.applyAdjustments(receiverExpr, new ArrayList<>(Autoderef.toAdjustments(field.getDerefSteps(), getItems())));
+
+        RsTypeReference typeRef = field.getElement() instanceof RsFieldDecl fieldDecl ? fieldDecl.getTypeReference() : null;
+        Ty raw = typeRef != null ? ExtensionsUtil.getRawType(typeRef) : TyUnknown.INSTANCE;
+        return FoldUtil.substitute(raw, field.getSelfTy().getTypeParameterValues()).foldWith(associatedTypeNormalizer);
     }
 
     @Nonnull
@@ -1009,7 +1050,64 @@ class RsTypeInferenceWalker {
 
     @Nonnull
     private Ty inferBlockExprType(@Nonnull RsBlockExpr blockExpr, @Nonnull Expectation expected) {
-        return inferBlockType(blockExpr.getBlock(), expected, false);
+        if (RsBlockExprUtil.isTry(blockExpr)) return inferTryBlockExprType(blockExpr, expected);
+        if (RsBlockExprUtil.isAsync(blockExpr)) return inferAsyncBlockExprType(blockExpr, expected);
+        Ty type = inferBlockType(blockExpr.getBlock(), expected, false);
+        return inferLabeledExprType(blockExpr, type, true);
+    }
+
+    @Nonnull
+    private Ty inferTryBlockExprType(@Nonnull RsBlockExpr blockExpr, @Nonnull Expectation expected) {
+        Ty oldTryTy = tryTy;
+        try {
+            Ty expectedTy = expected.onlyHasTy(ctx);
+            tryTy = expectedTy != null ? expectedTy : new TyInfer.TyVar();
+            Ty resultTy = tryTy;
+            Ty okTy = inferBlockType(blockExpr.getBlock(), Expectation.NoExpectation, false);
+            registerTryProjection(resultTy, okTy);
+            return resultTy;
+        }
+        finally {
+            tryTy = oldTryTy;
+        }
+    }
+
+    /** An async block is a future of what its body evaluates to; a `return` in it leaves the block, not the function. */
+    @Nonnull
+    private Ty inferAsyncBlockExprType(@Nonnull RsBlockExpr blockExpr, @Nonnull Expectation expected) {
+        Ty expectedTy = expected.tyAsNullable(ctx);
+        Ty resolvedExpectedTy = expectedTy != null ? resolveTypeVarsWithObligations(expectedTy) : null;
+        Ty retTy = resolvedExpectedTy != null && !(resolvedExpectedTy instanceof TyInfer.TyVar)
+            ? getFulfill().register(getLookup().lookupFutureOutputTy(resolvedExpectedTy, false))
+            : new TyInfer.TyVar();
+        new RsTypeInferenceWalker(ctx, retTy).inferBlockType(blockExpr.getBlock(), new Expectation.ExpectHasType(retTy), true);
+        return getItems().makeFuture(resolveTypeVarsWithObligations(retTy));
+    }
+
+    private void registerTryProjection(@Nonnull Ty resultTy, @Nonnull Ty assocTypeTy) {
+        RsTraitItem tryTrait = getItems().getTry();
+        if (tryTrait == null) return;
+        RsTypeAlias assocType = RsTraitItemUtil.findAssociatedType(tryTrait, "Output");
+        if (assocType == null) assocType = RsTraitItemUtil.findAssociatedType(tryTrait, "Ok");
+        if (assocType == null) return;
+        TyProjection projection = TyProjection.valueOf(resultTy, new BoundElement<>(assocType));
+        getFulfill().registerPredicateObligation(new Obligation(new Predicate.Projection(projection, assocTypeTy)));
+    }
+
+    /** The type of a labeled expression: its own type joined with the values of the `break`s that leave it. */
+    @Nonnull
+    private Ty inferLabeledExprType(@Nonnull RsLabeledExpression expr, @Nonnull Ty baseType, boolean matchOnlyByLabel) {
+        List<Ty> returningTypes = new ArrayList<>();
+        returningTypes.add(baseType);
+        RsLabelDecl labelDecl = expr.getLabelDecl();
+        String label = labelDecl != null ? labelDecl.getName() : null;
+        if (label != null || !matchOnlyByLabel) {
+            RsLabeledExpressionUtil.processBreakExprs(expr, label, matchOnlyByLabel, breakExpr -> {
+                RsExpr value = breakExpr.getExpr();
+                returningTypes.add(value != null ? ctx.getExprType(value) : TyUnit.INSTANCE);
+            });
+        }
+        return getMoreCompleteType(returningTypes);
     }
 
     @Nonnull
@@ -1018,13 +1116,14 @@ class RsTypeInferenceWalker {
         if (condition != null && condition.getExpr() != null) {
             inferExprCoercableTo(condition.getExpr(), TyBool.INSTANCE);
         }
-        Ty blockTy = expr.getBlock() != null ? inferBlockType(expr.getBlock(), expected, false) : null;
+        List<Ty> blockTys = new ArrayList<>();
+        if (expr.getBlock() != null) blockTys.add(inferBlockType(expr.getBlock(), expected, false));
         RsElseBranch elseBranch = expr.getElseBranch();
         if (elseBranch != null) {
-            if (elseBranch.getIfExpr() != null) inferExprType(elseBranch.getIfExpr(), expected);
-            if (elseBranch.getBlock() != null) inferBlockType(elseBranch.getBlock(), expected, false);
+            if (elseBranch.getIfExpr() != null) blockTys.add(inferExprType(elseBranch.getIfExpr(), expected));
+            if (elseBranch.getBlock() != null) blockTys.add(inferBlockType(elseBranch.getBlock(), expected, false));
         }
-        return expr.getElseBranch() == null ? TyUnit.INSTANCE : (blockTy != null ? blockTy : TyUnknown.INSTANCE);
+        return elseBranch == null ? TyUnit.INSTANCE : getMoreCompleteType(blockTys);
     }
 
     @Nonnull
@@ -1032,7 +1131,7 @@ class RsTypeInferenceWalker {
         if (expr.getBlock() != null) {
             inferBlockType(expr.getBlock(), Expectation.NoExpectation, false);
         }
-        return TyNever.INSTANCE;
+        return inferLabeledExprType(expr, TyNever.INSTANCE, false);
     }
 
     @Nonnull
@@ -1079,13 +1178,59 @@ class RsTypeInferenceWalker {
     private Ty inferUnaryExprType(@Nonnull RsUnaryExpr expr, @Nonnull Expectation expected) {
         RsExpr innerExpr = expr.getExpr();
         if (innerExpr == null) return TyUnknown.INSTANCE;
-        return innerExpr instanceof RsExpr ? inferExprType(innerExpr, expected) : TyUnknown.INSTANCE;
+        switch (org.rust.lang.core.psi.ext.impl.RsUnaryExprUtil.getOperatorType(expr)) {
+            case REF: return inferRefType(innerExpr, expected, Mutability.IMMUTABLE, false);
+            case REF_MUT: return inferRefType(innerExpr, expected, Mutability.MUTABLE, false);
+            case RAW_REF_CONST: return inferRefType(innerExpr, expected, Mutability.IMMUTABLE, true);
+            case RAW_REF_MUT: return inferRefType(innerExpr, expected, Mutability.MUTABLE, true);
+            case DEREF: return inferDerefExprType(expr, innerExpr);
+            case BOX:
+                inferExprType(innerExpr);
+                return TyUnknown.INSTANCE;
+            default:
+                // `-x` and `!x`
+                return inferExprType(innerExpr, expected);
+        }
+    }
+
+    @Nonnull
+    private Ty inferDerefExprType(@Nonnull RsUnaryExpr expr, @Nonnull RsExpr operandExpr) {
+        // the expectation must not be used for a deref
+        Ty operandTy = resolveTypeVarsWithObligations(inferExprType(operandExpr));
+        consulo.util.lang.Pair<Ty, Mutability> builtin = org.rust.lang.core.types.ty.TyUtil.builtinDeref(operandTy, getItems(), true);
+        if (builtin != null) return builtin.getFirst();
+        TyWithObligations<Ty> overloaded = getLookup().deref(operandTy);
+        if (overloaded == null) return TyUnknown.INSTANCE;
+        // `Deref::deref` takes `&self`
+        ctx.applyAdjustment(operandExpr, new Adjustment.BorrowReference(new TyReference(operandTy, Mutability.IMMUTABLE)));
+        ctx.writeOverloadedOperator(expr);
+        return getFulfill().register(overloaded);
+    }
+
+    /** `&expr`, `&mut expr` and the raw borrows `&raw const expr`, `&raw mut expr`. */
+    @Nonnull
+    private Ty inferRefType(@Nonnull RsExpr expr, @Nonnull Expectation expected, @Nonnull Mutability mutability, boolean raw) {
+        Expectation hint = Expectation.NoExpectation;
+        Ty expectedTy = expected.onlyHasTy(ctx);
+        Ty referenced = expectedTy instanceof TyReference reference ? reference.getReferenced()
+            : expectedTy instanceof TyPointer pointer ? pointer.getReferenced()
+            : null;
+        if (referenced != null) {
+            boolean isPlace = expr instanceof RsPathExpr || expr instanceof RsIndexExpr
+                || (expr instanceof RsUnaryExpr unary && org.rust.lang.core.psi.ext.impl.RsUnaryExprUtil.getOperatorType(unary) == org.rust.lang.core.psi.ext.impl.UnaryOperator.DEREF)
+                || (expr instanceof RsDotExpr dot && dot.getFieldLookup() != null);
+            hint = isPlace ? new Expectation.ExpectHasType(referenced) : Expectation.rvalueHint(referenced);
+        }
+        Ty ty = mutability.isMut() ? inferMutPlaceType(expr, hint) : inferExprType(expr, hint);
+        return raw ? new TyPointer(ty, mutability) : new TyReference(ty, mutability);
     }
 
     @Nonnull
     private Ty inferBinaryExprType(@Nonnull RsBinaryExpr expr) {
         BinaryOperator op = RsBinaryExprUtil.getOperatorType(expr);
-        Ty lhsType = resolveTypeVarsWithObligations(inferExprType(expr.getLeft()));
+        Ty lhsType = resolveTypeVarsWithObligations(op instanceof AssignmentOp
+            ? inferMutPlaceType(expr.getLeft(), Expectation.NoExpectation)
+            : inferExprType(expr.getLeft()));
         RsExpr right = expr.getRight();
 
         Ty rhsType;
@@ -1275,8 +1420,56 @@ class RsTypeInferenceWalker {
 
     @Nonnull
     private Ty inferRangeType(@Nonnull RsRangeExpr expr) {
-        for (RsExpr e : expr.getExprList()) inferExprType(e);
-        return TyUnknown.INSTANCE;
+        List<RsExpr> el = expr.getExprList();
+        PsiElement dot2 = expr.getDotdot();
+        PsiElement dot3 = expr.getDotdotdot() != null ? expr.getDotdotdot() : expr.getDotdoteq();
+        String rangeName;
+        Ty indexType;
+        if (dot2 != null && el.isEmpty()) {
+            rangeName = "RangeFull";
+            indexType = null;
+        }
+        else if (dot2 != null && el.size() == 1) {
+            RsExpr e = el.get(0);
+            rangeName = e.getStartOffsetInParent() < dot2.getStartOffsetInParent() ? "RangeFrom" : "RangeTo";
+            indexType = inferExprType(e);
+        }
+        else if (dot2 != null && el.size() == 2) {
+            rangeName = "Range";
+            indexType = getMoreCompleteType(inferExprType(el.get(0)), inferExprType(el.get(1)));
+        }
+        else if (dot3 != null && el.size() == 1) {
+            RsExpr e = el.get(0);
+            if (e.getStartOffsetInParent() < dot3.getStartOffsetInParent()) {
+                inferExprType(e);
+                return TyUnknown.INSTANCE;
+            }
+            rangeName = "RangeToInclusive";
+            indexType = inferExprType(e);
+        }
+        else if (dot3 != null && el.size() == 2) {
+            rangeName = "RangeInclusive";
+            indexType = getMoreCompleteType(inferExprType(el.get(0)), inferExprType(el.get(1)));
+        }
+        else {
+            for (RsExpr e : el) inferExprType(e);
+            return TyUnknown.INSTANCE;
+        }
+        return findRangeTy(rangeName, indexType);
+    }
+
+    /** {@code core::ops::<rangeName><indexType>}. */
+    @Nonnull
+    private Ty findRangeTy(@Nonnull String rangeName, @Nullable Ty indexType) {
+        RsNamedElement item = getItems().findItem("core::ops::" + rangeName, false, RsNamedElement.class);
+        Ty ty = ExtensionsUtil.asTy(item);
+        if (indexType == null || !(ty instanceof TyAdt adt)) return ty;
+        for (RsTypeParameter parameter : RsGenericDeclarationUtil.getTypeParameters(adt.getItem())) {
+            if ("Idx".equals(parameter.getName())) {
+                return FoldUtil.substitute(ty, SubstitutionUtil.toTypeSubst(Collections.singletonMap(TyTypeParameter.named(parameter), indexType)));
+            }
+        }
+        return ty;
     }
 
     @Nonnull
@@ -1339,20 +1532,63 @@ class RsTypeInferenceWalker {
     @Nonnull
     private Ty inferLambdaExprType(@Nonnull RsLambdaExpr expr, @Nonnull Expectation expected) {
         List<RsValueParameter> params = expr.getValueParameters();
+        Ty expectedTy = expected.tyAsNullable(ctx);
+        TyFunctionBase expectedFnTy = expectedTy != null ? deduceLambdaType(expectedTy) : null;
+        List<Ty> expectedParamTypes = expectedFnTy != null ? expectedFnTy.getParamTypes() : null;
         List<Ty> paramTypes = new ArrayList<>();
-        for (RsValueParameter param : params) {
+        for (int i = 0; i < params.size(); i++) {
+            RsValueParameter param = params.get(i);
+            Ty expectedArg = expectedParamTypes == null
+                ? new TyInfer.TyVar()
+                : i < expectedParamTypes.size() ? expectedParamTypes.get(i) : TyUnknown.INSTANCE;
             Ty paramTy = param.getTypeReference() != null
                 ? normalizeAssociatedTypesIn(ExtensionsUtil.getRawType(param.getTypeReference()))
-                : new TyInfer.TyVar();
+                : expectedArg;
             if (param.getPat() != null) PatternMatchingUtil.extractBindings(param.getPat(), this, paramTy);
             paramTypes.add(paramTy);
         }
-        Ty retTy = expr.getRetType() != null && expr.getRetType().getTypeReference() != null
+        Ty expectedRetTy = expr.getRetType() != null && expr.getRetType().getTypeReference() != null
             ? normalizeAssociatedTypesIn(ExtensionsUtil.getRawType(expr.getRetType().getTypeReference()))
-            : new TyInfer.TyVar();
+            : expectedFnTy != null && !(expectedFnTy.getRetType() instanceof TyUnknown) ? expectedFnTy.getRetType() : null;
+        boolean isFreshRetTy = expectedRetTy == null;
+        Ty retTy = expectedRetTy != null ? expectedRetTy : new TyInfer.TyVar();
+
         RsTypeInferenceWalker lambdaCtx = new RsTypeInferenceWalker(ctx, retTy);
         if (expr.getExpr() != null) lambdaCtx.inferLambdaBody(expr.getExpr());
-        return new TyClosure(expr, new FnSig(paramTypes, retTy));
+        boolean isDefaultRetTy = isFreshRetTy && retTy instanceof TyInfer.TyVar && !ctx.isTypeVarAffected((TyInfer.TyVar) retTy);
+        Ty actualRetTy = isDefaultRetTy ? TyUnit.INSTANCE : retTy;
+        return new TyClosure(expr, new FnSig(paramTypes, RsLambdaExprUtil.isAsync(expr) ? getItems().makeFuture(actualRetTy) : actualRetTy));
+    }
+
+    /** The signature a closure must have to fit {@code expected}: an `Fn*` bound on it, or the function type itself. */
+    @Nullable
+    private TyFunctionBase deduceLambdaType(@Nonnull Ty expected) {
+        if (expected instanceof TyInfer.TyVar) {
+            for (PendingPredicateObligation pending : getFulfill().getPendingObligations()) {
+                if (!(pending.getObligation().getPredicate() instanceof Predicate.Trait predicate)) continue;
+                TraitRef traitRef = predicate.getTrait();
+                if (traitRef.getSelfTy().equals(expected) && isFnTrait(traitRef.getTrait().getElement())) {
+                    return getLookup().asTyFunction(traitRef.getTrait());
+                }
+            }
+            return null;
+        }
+        if (expected instanceof TyTraitObject traitObject) {
+            List<BoundElement<RsTraitItem>> traits = traitObject.getTraits();
+            return traits.isEmpty() ? null : getLookup().asTyFunction(traits.get(0));
+        }
+        if (expected instanceof TyFunctionBase function) return function;
+        if (expected instanceof TyAnon anon) {
+            for (BoundElement<RsTraitItem> trait : anon.getTraits()) {
+                if (isFnTrait(trait.getElement())) return getLookup().asTyFunction(trait);
+            }
+        }
+        return null;
+    }
+
+    private boolean isFnTrait(@Nonnull PsiElement trait) {
+        KnownItems items = getItems();
+        return trait.equals(items.getFn()) || trait.equals(items.getFnMut()) || trait.equals(items.getFnOnce());
     }
 
     @Nonnull
@@ -1387,14 +1623,26 @@ class RsTypeInferenceWalker {
         return TyBool.INSTANCE;
     }
 
+    /**
+     * Like rustc: the arguments that are not closures are checked first, then the obligations of the call are
+     * selected where possible, and only then the closures - so that they see the most complete parameter types.
+     */
     private void inferArgumentTypes(@Nonnull List<Ty> formalInputTys, @Nonnull List<Ty> expectedInputTys, @Nonnull List<RsExpr> argExprs) {
-        for (int i = 0; i < argExprs.size(); i++) {
-            Ty formalInputTy = i < formalInputTys.size() ? formalInputTys.get(i) : TyUnknown.INSTANCE;
-            Ty expectedInputTy = i < expectedInputTys.size() ? expectedInputTys.get(i) : formalInputTy;
-            Ty inferred = inferExprType(argExprs.get(i), Expectation.rvalueHint(expectedInputTy));
-            Ty coercedTy = resolveTypeVarsWithObligations(expectedInputTy);
-            coerce(argExprs.get(i), inferred, coercedTy);
-            ctx.combineTypes(formalInputTy, coercedTy);
+        for (boolean checkLambdas : new boolean[]{false, true}) {
+            if (checkLambdas) selectObligationsWherePossible();
+            for (int i = 0; i < argExprs.size(); i++) {
+                RsExpr expr = argExprs.get(i);
+                boolean isLambda = RsExprUtil.unwrapParenExprs(expr) instanceof RsLambdaExpr;
+                if (isLambda != checkLambdas) continue;
+                Ty formalInputTy = i < formalInputTys.size() ? formalInputTys.get(i) : TyUnknown.INSTANCE;
+                Ty expectedInputTy = i < expectedInputTys.size() ? expectedInputTys.get(i) : formalInputTy;
+                Expectation expectation = Expectation.rvalueHint(expectedInputTy);
+                Ty inferred = inferExprType(expr, expectation);
+                Ty onlyHasTy = expectation.onlyHasTy(ctx);
+                Ty coercedTy = resolveTypeVarsWithObligations(onlyHasTy != null ? onlyHasTy : formalInputTy);
+                coerce(expr, inferred, coercedTy);
+                ctx.combineTypes(formalInputTy, coercedTy);
+            }
         }
     }
 
@@ -1521,14 +1769,6 @@ final class RsTypeInferenceWalkerHelper {
 
     @Nonnull
     public static Ty getTypeOfSelfParameterValue(@Nonnull RsSelfParameter self, @Nonnull Ty selfType) {
-        if (RsSelfParameterUtil.isRef(self)) {
-            return new TyReference(selfType, RsSelfParameterUtil.getMutability(self));
-        }
-        return selfType;
+        return ExtensionsUtil.getTypeOfValue(self, selfType);
     }
 }
-
-/**
- * RsPat extension for extractBindings.
- */
-// In Java, we delegate to PatternMatching.extractBindings.
