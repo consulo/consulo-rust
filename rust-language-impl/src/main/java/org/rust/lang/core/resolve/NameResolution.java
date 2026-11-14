@@ -198,19 +198,7 @@ public final class NameResolution {
      */
     @Nonnull
     public static Set<Namespace> allowedNamespaces(@Nonnull RsPath path) {
-        PsiElement parent = path.getParent();
-        if (parent instanceof RsPath) {
-            // Qualifier: allow Types only (the tail segment refines further).
-            return Namespace.TYPES;
-        }
-        if (parent instanceof RsTraitRef || parent instanceof RsPathType) return Namespace.TYPES;
-        if (parent instanceof RsPathExpr || parent instanceof RsPatTupleStruct || parent instanceof RsPatStruct) {
-            return Namespace.TYPES_N_VALUES;
-        }
-        if (parent instanceof RsMacroCall || parent instanceof RsMetaItem) return Namespace.MACROS;
-        if (parent instanceof RsUseSpeck) return Namespace.TYPES_N_VALUES_N_MACROS;
-        // Default: treat as general resolution — types and values.
-        return Namespace.TYPES_N_VALUES_N_MACROS;
+        return org.rust.lang.core.psi.ext.impl.RsPathUtil.allowedNamespaces(path, false);
     }
 
     // -------------------------------------------------------------------------
@@ -580,67 +568,94 @@ public final class NameResolution {
         @Nonnull RsResolveProcessor processor
     ) {
         if (qualifier.getReference() == null) return false;
-        PsiElement resolved = RsPathReferenceImpl.deepResolve(
-            (RsPathReference) qualifier.getReference());
+        boolean hasCself = RsPathUtil.getHasCself(qualifier);
+        // `Self` stays the impl or trait it names: its members are looked up through the implementing type
+        PsiElement resolved = hasCself
+            ? qualifier.getReference().resolve()
+            : RsPathReferenceImpl.deepResolve((RsPathReference) qualifier.getReference());
         if (resolved instanceof RsMod) {
             return processModScope((RsMod) resolved, ns, new java.util.HashSet<>(), processor);
         }
-        if (resolved instanceof RsEnumItem) {
-            RsEnumBody body = ((RsEnumItem) resolved).getEnumBody();
-            if (body == null) return false;
-            for (RsEnumVariant variant : body.getEnumVariantList()) {
-                String name = variant.getName();
-                if (name == null) continue;
-                if (Processors.processEntry(processor, name, Namespace.ENUM_VARIANT_NS, variant)) return true;
-            }
-            return false;
+        if (resolved instanceof RsTraitItem && !hasCself && !(parent instanceof RsUseSpeck)) {
+            return processTraitMembers((RsTraitItem) resolved, ns, processor);
         }
-        if (resolved instanceof RsTraitItem) {
-            return processAssocTypeVariants((RsTraitItem) resolved, processor);
-        }
+        if (!(resolved instanceof RsTypeDeclarationElement)) return false;
+
         // `Foo::bar` where Foo names a type: the associated item lives in a detached `impl` block,
         // so the qualifier has to be lowered to a type and the impls looked up through it.
-        if (resolved instanceof RsTypeDeclarationElement
-            && !(parent instanceof RsUseSpeck)
-            && ctx.isProcessAssocItems()) {
-            Ty rawBaseTy;
-            if (RsPathUtil.getHasCself(qualifier)) {
-                // `Self::bar()` inside an impl or trait names the implementing type.
-                if (resolved instanceof RsImplItem) {
-                    RsTypeReference typeRef =
-                        ((RsImplItem) resolved).getTypeReference();
-                    rawBaseTy = typeRef != null
-                        ? ExtensionsUtil.getRawType(typeRef)
-                        : TyUnknown.INSTANCE;
-                }
-                else if (resolved instanceof RsTraitItem) {
-                    rawBaseTy = TyTypeParameter.self((RsTraitItem) resolved);
-                }
-                else {
-                    rawBaseTy = TyUnknown.INSTANCE;
-                }
+        Ty rawBaseTy;
+        if (hasCself) {
+            if (resolved instanceof RsImplItem) {
+                // `impl S { fn foo() { Self::bar() } }`
+                RsTypeReference typeRef = ((RsImplItem) resolved).getTypeReference();
+                rawBaseTy = typeRef != null ? ExtensionsUtil.getRawType(typeRef) : TyUnknown.INSTANCE;
+            }
+            else if (resolved instanceof RsTraitItem) {
+                // inside a trait `Self: Trait` holds, so its own members come first
+                if (!(parent instanceof RsUseSpeck) && processTraitMembers((RsTraitItem) resolved, ns, processor)) return true;
+                rawBaseTy = TyTypeParameter.self((RsTraitItem) resolved);
             }
             else {
-                Substitution subst = SubstitutionUtil.EMPTY;
-                // Without explicit type arguments the generics stay open, so they become inference
-                // variables - otherwise a generic type never matches its own impl.
-                if (qualifier.getTypeArgumentList() == null
-                    && resolved instanceof RsGenericDeclaration) {
-                    java.util.Map<TyTypeParameter, Ty> typeSubst =
-                        new java.util.HashMap<>();
-                    for (TyTypeParameter gen
-                        : TypeInferenceUtil.getGenerics(
-                            (RsGenericDeclaration) resolved)) {
-                        typeSubst.put(gen, new TyInfer.TyVar(gen));
-                    }
-                    subst = new Substitution(typeSubst);
-                }
-                rawBaseTy = FoldUtil.substituteOrUnknown(
-                    ((RsTypeDeclarationElement) resolved).getDeclaredType(), subst);
+                rawBaseTy = TyUnknown.INSTANCE;
             }
-            Ty baseTy =
-                ctx.getImplLookup().getCtx().normalizeAssociatedTypesIn(rawBaseTy).getValue();
-            return processAssociatedItems(ctx.getImplLookup(), baseTy, ns, ctx.getContext(), processor);
+        }
+        else {
+            Substitution subst = SubstitutionUtil.EMPTY;
+            // Without explicit type arguments the generics stay open, so they become inference
+            // variables - otherwise a generic type never matches its own impl.
+            if (qualifier.getTypeArgumentList() == null && resolved instanceof RsGenericDeclaration) {
+                java.util.Map<TyTypeParameter, Ty> typeSubst = new java.util.HashMap<>();
+                for (TyTypeParameter gen : TypeInferenceUtil.getGenerics((RsGenericDeclaration) resolved)) {
+                    typeSubst.put(gen, new TyInfer.TyVar(gen));
+                }
+                subst = new Substitution(typeSubst);
+            }
+            rawBaseTy = FoldUtil.substituteOrUnknown(((RsTypeDeclarationElement) resolved).getDeclaredType(), subst);
+        }
+        Ty baseTy = ctx.getImplLookup().getCtx().normalizeAssociatedTypesIn(rawBaseTy).getValue();
+
+        // the variants of an enum come first, an associated item of the same name is shadowed by them
+        java.util.Set<String> variantNames = new java.util.HashSet<>();
+        if (baseTy instanceof TyAdt && ((TyAdt) baseTy).getItem() instanceof RsEnumItem) {
+            RsEnumBody body = ((RsEnumItem) ((TyAdt) baseTy).getItem()).getEnumBody();
+            if (body != null) {
+                for (RsEnumVariant variant : body.getEnumVariantList()) {
+                    String name = variant.getName();
+                    if (name == null) continue;
+                    variantNames.add(name);
+                    if (Processors.processEntry(processor, name, Namespace.ENUM_VARIANT_NS, variant)) return true;
+                }
+            }
+        }
+        if (parent instanceof RsUseSpeck || !ctx.isProcessAssocItems()) return false;
+        return processAssociatedItems(ctx.getImplLookup(), baseTy, ns, ctx.getContext(), new RsResolveProcessor() {
+            @Override
+            public boolean process(@Nonnull ScopeEntry entry) {
+                return !variantNames.contains(entry.getName()) && processor.process(entry);
+            }
+
+            @Nullable
+            @Override
+            public Set<String> getNames() {
+                return processor.getNames();
+            }
+        });
+    }
+
+    /** {@code Trait::member}: the members of the trait, by namespace. */
+    private static boolean processTraitMembers(
+        @Nonnull RsTraitItem trait,
+        @Nonnull Set<Namespace> ns,
+        @Nonnull RsResolveProcessor processor
+    ) {
+        java.util.function.Predicate<RsAbstractable> nsFilter = assocMembersNsFilter(ns);
+        if (nsFilter == null) return false;
+        for (RsAbstractable member : RsTraitOrImplUtil.getExpandedMembers(trait)) {
+            if (!nsFilter.test(member)) continue;
+            String name = member.getName();
+            if (name == null) continue;
+            Set<Namespace> namespaces = member instanceof RsTypeAlias ? Namespace.TYPES : Namespace.VALUES;
+            if (Processors.processEntry(processor, name, namespaces, member)) return true;
         }
         return false;
     }
@@ -1181,6 +1196,12 @@ public final class NameResolution {
                 if (bindings && processLambdaScope((RsLambdaExpr) scope, ns, seen, processor)) return true;
             } else if (scope instanceof RsGenericDeclaration) {
                 if (processGenericParamsScope((RsGenericDeclaration) scope, ns, seen, processor)) return true;
+                // inside a type or a trait and its impls, `Self` names that type (or the implementing type)
+                if ((scope instanceof RsStructItem || scope instanceof RsEnumItem || scope instanceof RsTraitOrImpl)
+                    && seen.add("Self")
+                    && Processors.processEntry(processor, "Self", Namespace.TYPES_N_VALUES, (RsElement) scope)) {
+                    return true;
+                }
             } else if (!bindings) {
                 // the rest are local variables
             } else if (scope instanceof RsForExpr) {
@@ -1309,7 +1330,8 @@ public final class NameResolution {
         @Nonnull java.util.Set<String> seen
     ) {
         return Processors.asResolveProcessor(
-            Processors.wrapWithFilter(processor, entry -> seen.add(entry.getName())));
+            // `use Trait as _` imports are all named `_` and never shadow each other
+            Processors.wrapWithFilter(processor, entry -> "_".equals(entry.getName()) || seen.add(entry.getName())));
     }
 
     /**

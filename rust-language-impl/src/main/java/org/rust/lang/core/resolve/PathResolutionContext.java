@@ -126,7 +126,7 @@ public class PathResolutionContext {
 
         RsPath qualifier = RsPathUtil.getQualifier(path);
         RsTypeQual typeQual = path.getTypeQual();
-        Set<Namespace> ns = NameResolutionUtil.allowedNamespaces(path);
+        Set<Namespace> ns = RsPathUtil.allowedNamespaces(path, isCompletion);
 
         if (qualifier != null) {
             return new RsPathResolveKind.QualifiedPath(path, ns, qualifier, parent);

@@ -125,8 +125,27 @@ public final class PatternMatchingUtil {
             for (RsPat subPat : ((RsOrPat) pat).getPatList()) {
                 extractBindings(subPat, walker, ty);
             }
+        } else if (pat instanceof RsPatConst) {
+            // a path, a literal or a constant expression to compare with: it is inferred like any expression, so
+            // that a path such as `Self::Variant` is resolved
+            RsExpr expr = ((RsPatConst) pat).getExpr();
+            if (expr instanceof RsPathExpr) {
+                Ty inferred = walker.inferType(expr);
+                java.util.List<ResolvedPath> resolved = walker.getResolvedPath((RsPathExpr) expr);
+                boolean constant = resolved.size() == 1 && resolved.get(0).getElement() instanceof RsConstant;
+                walker.coerce(expr, inferred, constant ? ty : org.rust.lang.core.types.ty.TyUtil.stripReferences(ty));
+            } else {
+                boolean string = expr instanceof RsLitExpr
+                    && org.rust.lang.core.psi.impl.RsLiteralKindUtil.getKind((RsLitExpr) expr) instanceof org.rust.lang.core.psi.impl.RsLiteralKind.StringLiteral;
+                walker.inferTypeCoercableTo(expr, string ? ty : org.rust.lang.core.types.ty.TyUtil.stripReferences(ty));
+            }
+        } else if (pat instanceof RsPatRange) {
+            Ty expected = org.rust.lang.core.types.ty.TyUtil.stripReferences(ty);
+            for (RsPatConst bound : ((RsPatRange) pat).getPatConstList()) {
+                walker.inferTypeCoercableTo(bound.getExpr(), expected);
+            }
         }
-        // RsPatWild, RsPatConst, RsPatRange, RsPatRest, RsPatMacro - no bindings to extract
+        // RsPatWild, RsPatRest, RsPatMacro - no bindings to extract
     }
 
     public static final class PatternMatchingTestMarks {

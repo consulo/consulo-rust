@@ -95,6 +95,19 @@ public class TyLowering {
         return TyUnknown.INSTANCE;
     }
 
+    /**
+     * The cached type of {@code element}. Lowering a type can lower another one and so fill the cache meanwhile,
+     * which {@link Map#computeIfAbsent} does not allow.
+     */
+    @Nonnull
+    private Ty declaredType(@Nonnull RsTypeDeclarationElement element, @Nonnull java.util.function.Function<RsTypeDeclarationElement, Ty> compute) {
+        Ty cached = myDeclaredTypeCache.get(element);
+        if (cached != null) return cached;
+        Ty ty = compute.apply(element);
+        myDeclaredTypeCache.put(element, ty);
+        return ty;
+    }
+
     @Nonnull
     private Ty lowerPathType(@Nonnull RsPathType type, @Nullable Region defaultTraitObjectRegion) {
         RsPath path = type.getPath();
@@ -120,11 +133,11 @@ public class TyLowering {
                 if (typeReference == null || containsElement(RsPathUtil.getContexts(path), typeReference)) {
                     return TyUnknown.INSTANCE;
                 } else {
-                    return myDeclaredTypeCache.computeIfAbsent((RsTypeDeclarationElement) target,
+                    return declaredType((RsTypeDeclarationElement) target,
                         k -> lowerTy(typeReference, null));
                 }
             } else {
-                return myDeclaredTypeCache.computeIfAbsent((RsTypeDeclarationElement) target,
+                return declaredType((RsTypeDeclarationElement) target,
                     k -> TyTypeParameter.self((RsTraitOrImpl) target));
             }
         }
@@ -136,7 +149,7 @@ public class TyLowering {
             return new TyTraitObject(traits, region, false);
         }
         if (target instanceof RsTypeDeclarationElement) {
-            Ty ty = myDeclaredTypeCache.computeIfAbsent((RsTypeDeclarationElement) target,
+            Ty ty = declaredType((RsTypeDeclarationElement) target,
                 k -> ((RsTypeDeclarationElement) target).getDeclaredType());
             ty = substituteWithTraitObjectRegion(ty, boundElement.getSubst(),
                 defaultTraitObjectRegion != null ? defaultTraitObjectRegion : ReStatic.INSTANCE);
