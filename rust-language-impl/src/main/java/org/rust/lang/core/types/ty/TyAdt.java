@@ -17,6 +17,9 @@ import org.rust.lang.core.types.infer.TypeVisitor;
 
 import java.util.*;
 import consulo.util.lang.Pair;
+import org.rust.lang.core.psi.RsTypeParameter;
+import org.rust.lang.core.psi.RsConstParameter;
+import org.rust.lang.core.types.consts.CtUnknown;
 
 public class TyAdt extends Ty {
     @Nonnull
@@ -63,10 +66,10 @@ public class TyAdt extends Ty {
     @Nonnull
     /** The type arguments in the order the item declares its type parameters - `Result<T, E>` is `[T, E]`. */
     public List<Ty> getTypeArguments() {
-        List<org.rust.lang.core.psi.RsTypeParameter> parameters =
-            org.rust.lang.core.psi.ext.impl.RsGenericDeclarationUtil.getTypeParameters(myItem);
+        List<RsTypeParameter> parameters =
+            RsGenericDeclarationUtil.getTypeParameters(myItem);
         List<Ty> result = new ArrayList<>(parameters.size());
-        for (org.rust.lang.core.psi.RsTypeParameter parameter : parameters) {
+        for (RsTypeParameter parameter : parameters) {
             Ty ty = mySubst.get(parameter);
             result.add(ty != null ? ty : TyUnknown.INSTANCE);
         }
@@ -76,12 +79,12 @@ public class TyAdt extends Ty {
     /** The const arguments in declaration order. */
     @Nonnull
     public List<Const> getConstArguments() {
-        List<org.rust.lang.core.psi.RsConstParameter> parameters =
-            org.rust.lang.core.psi.ext.impl.RsGenericDeclarationUtil.getConstParameters(myItem);
+        List<RsConstParameter> parameters =
+            RsGenericDeclarationUtil.getConstParameters(myItem);
         List<Const> result = new ArrayList<>(parameters.size());
-        for (org.rust.lang.core.psi.RsConstParameter parameter : parameters) {
+        for (RsConstParameter parameter : parameters) {
             Const value = mySubst.get(parameter);
-            result.add(value != null ? value : org.rust.lang.core.types.consts.CtUnknown.INSTANCE);
+            result.add(value != null ? value : CtUnknown.INSTANCE);
         }
         return result;
     }

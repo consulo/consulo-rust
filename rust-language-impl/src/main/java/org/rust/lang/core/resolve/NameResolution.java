@@ -81,6 +81,9 @@ import org.rust.lang.core.types.ty.TyTypeParameter;
 import org.rust.lang.core.types.ty.TyUnknown;
 import org.rust.lang.core.psi.impl.*;
 import org.rust.lang.core.psi.ext.impl.*;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.HashSet;
 
 /**
  * Rust name resolution algorithm. Top-level entry points for resolving paths, method calls,
@@ -528,7 +531,7 @@ public final class NameResolution {
             if (!cr.getHasColonColon() && processSelfSuperCrate(cr.getNs(), ctx, processor)) return true;
             RsMod crateRoot = ctx.getCrateRoot();
             if (crateRoot == null) return false;
-            return processModScope(crateRoot, cr.getNs(), new java.util.HashSet<>(), processor);
+            return processModScope(crateRoot, cr.getNs(), new HashSet<>(), processor);
         }
         if (pathKind instanceof RsPathResolveKind.ExternCratePath) {
             return processExternPreludeResolveVariants(ctx, processor);
@@ -572,7 +575,7 @@ public final class NameResolution {
             ? qualifier.getReference().resolve()
             : RsPathReferenceImpl.deepResolve((RsPathReference) qualifier.getReference());
         if (resolved instanceof RsMod) {
-            return processModScope((RsMod) resolved, ns, new java.util.HashSet<>(), processor);
+            return processModScope((RsMod) resolved, ns, new HashSet<>(), processor);
         }
         if (resolved instanceof RsTraitItem trait && !hasCself && !(parent instanceof RsUseSpeck)) {
             BoundElement<RsElement> bound = ((RsPathReference) qualifier.getReference()).advancedResolve();
@@ -614,7 +617,7 @@ public final class NameResolution {
         Ty baseTy = ctx.getImplLookup().getCtx().normalizeAssociatedTypesIn(rawBaseTy).getValue();
 
         // the variants of an enum come first, an associated item of the same name is shadowed by them
-        java.util.Set<String> variantNames = new java.util.HashSet<>();
+        Set<String> variantNames = new HashSet<>();
         if (baseTy instanceof TyAdt && ((TyAdt) baseTy).getItem() instanceof RsEnumItem) {
             RsEnumBody body = ((RsEnumItem) ((TyAdt) baseTy).getItem()).getEnumBody();
             if (body != null) {
@@ -725,11 +728,11 @@ public final class NameResolution {
 
         Substitution selfSubst = type instanceof TyTraitObject
             ? SubstitutionUtil.EMPTY
-            : SubstitutionUtil.toTypeSubst(java.util.Collections.singletonMap(TyTypeParameter.self(), type));
-        java.util.Collection<BoundElement<RsTraitItem>> traitBounds = null;
+            : SubstitutionUtil.toTypeSubst(Collections.singletonMap(TyTypeParameter.self(), type));
+        Collection<BoundElement<RsTraitItem>> traitBounds = null;
         if (type instanceof TyTypeParameter) {
             // the same bound can come from the trait and from a where clause
-            traitBounds = new java.util.LinkedHashSet<>();
+            traitBounds = new LinkedHashSet<>();
             for (BoundElement<RsTraitItem> bound : lookup.getEnvBoundTransitivelyFor(type)) {
                 traitBounds.add(bound);
             }
@@ -808,7 +811,7 @@ public final class NameResolution {
         if (traitRef != null) return false;
         // `<T>::Item`
         Ty baseTy = ctx.getImplLookup().getCtx().normalizeAssociatedTypesIn(rawBaseTy).getValue();
-        java.util.Set<String> variantNames = new java.util.HashSet<>();
+        Set<String> variantNames = new HashSet<>();
         if (baseTy instanceof TyAdt adt && adt.getItem() instanceof RsEnumItem enumItem && enumItem.getEnumBody() != null) {
             for (RsEnumVariant variant : enumItem.getEnumBody().getEnumVariantList()) {
                 String name = variant.getName();
@@ -1075,14 +1078,14 @@ public final class NameResolution {
                 return Processors.processEntry(processor, traitName, Namespace.TYPES, hardcoded);
             }
         }
-        java.util.Collection<RsNamedElement> found =
+        Collection<RsNamedElement> found =
             RsNamedElementIndex.findElementsByName(element.getProject(), traitName);
         return Processors.processAll(processor,
             new java.util.ArrayList<>(filterTraits(found)), Namespace.TYPES);
     }
 
     @Nonnull
-    private static java.util.List<RsNamedElement> filterTraits(@Nonnull java.util.Collection<RsNamedElement> elements) {
+    private static java.util.List<RsNamedElement> filterTraits(@Nonnull Collection<RsNamedElement> elements) {
         java.util.List<RsNamedElement> result = new java.util.ArrayList<>();
         for (RsNamedElement el : elements) {
             if (el instanceof RsTraitItem) result.add(el);
@@ -1164,7 +1167,7 @@ public final class NameResolution {
             && RsPossibleMacroCallUtil.getCanBeMacroCall(call)) {
             RsNamedElement def = FacadeResolve.resolveToMacroUsingNewResolve(call);
             if (def == null) return false;
-            java.util.Set<String> names = processor.getNames();
+            Set<String> names = processor.getNames();
             String name = names != null && names.size() == 1 ? names.iterator().next() : def.getName();
             return name != null && Processors.processEntry(processor, name, Namespace.MACROS, def);
         }
@@ -1184,7 +1187,7 @@ public final class NameResolution {
         boolean ignoreLegacyMacros,
         @Nonnull RsResolveProcessor processor
     ) {
-        java.util.Set<String> seen = new java.util.HashSet<>();
+        Set<String> seen = new HashSet<>();
         PsiElement scope = path.getContext();
         while (scope != null) {
             if (scope instanceof RsItemsOwner) {
@@ -1290,7 +1293,7 @@ public final class NameResolution {
         @Nonnull RsResolveProcessor processor,
         boolean bindings
     ) {
-        java.util.Set<String> seen = new java.util.HashSet<>();
+        Set<String> seen = new HashSet<>();
         PsiElement cameFrom = scopeStart;
         PsiElement scope = scopeStart.getContext();
         while (scope != null) {
@@ -1371,7 +1374,7 @@ public final class NameResolution {
         @Nullable RsExpr expr,
         @Nullable PsiElement cameFrom,
         @Nonnull Set<Namespace> ns,
-        @Nonnull java.util.Set<String> seen,
+        @Nonnull Set<String> seen,
         @Nonnull RsResolveProcessor processor
     ) {
         if (expr == null || expr == cameFrom) return false;
@@ -1393,7 +1396,7 @@ public final class NameResolution {
     private static boolean processModScope(
         @Nonnull RsMod mod,
         @Nonnull Set<Namespace> ns,
-        @Nonnull java.util.Set<String> seen,
+        @Nonnull Set<String> seen,
         @Nonnull RsResolveProcessor processor
     ) {
         RsModInfo modInfo = FacadeResolve.getModInfo(mod);
@@ -1421,7 +1424,7 @@ public final class NameResolution {
     private static boolean processModScopeFromPsi(
         @Nonnull RsMod mod,
         @Nonnull Set<Namespace> ns,
-        @Nonnull java.util.Set<String> seen,
+        @Nonnull Set<String> seen,
         @Nonnull RsResolveProcessor processor
     ) {
         for (RsItemElement item : RsItemsOwnerUtil.getExpandedItemsExceptImplsAndUses(mod)) {
@@ -1438,7 +1441,7 @@ public final class NameResolution {
     @Nonnull
     private static RsResolveProcessor shadowingProcessor(
         @Nonnull RsResolveProcessor processor,
-        @Nonnull java.util.Set<String> seen
+        @Nonnull Set<String> seen
     ) {
         return Processors.asResolveProcessor(
             // `use Trait as _` imports are all named `_` and never shadow each other
@@ -1469,7 +1472,7 @@ public final class NameResolution {
         @Nonnull RsBlock block,
         @Nonnull PsiElement cameFrom,
         @Nonnull Set<Namespace> ns,
-        @Nonnull java.util.Set<String> seen,
+        @Nonnull Set<String> seen,
         @Nonnull RsResolveProcessor processor,
         boolean bindings
     ) {
@@ -1503,7 +1506,7 @@ public final class NameResolution {
     private static boolean processFunctionScope(
         @Nonnull RsFunction fn,
         @Nonnull Set<Namespace> ns,
-        @Nonnull java.util.Set<String> seen,
+        @Nonnull Set<String> seen,
         @Nonnull RsResolveProcessor processor,
         boolean bindings
     ) {
@@ -1528,7 +1531,7 @@ public final class NameResolution {
     private static boolean processLambdaScope(
         @Nonnull RsLambdaExpr lambda,
         @Nonnull Set<Namespace> ns,
-        @Nonnull java.util.Set<String> seen,
+        @Nonnull Set<String> seen,
         @Nonnull RsResolveProcessor processor
     ) {
         if (!ns.contains(Namespace.Values)) return false;
@@ -1544,7 +1547,7 @@ public final class NameResolution {
     private static boolean processGenericParamsScope(
         @Nonnull RsGenericDeclaration decl,
         @Nonnull Set<Namespace> ns,
-        @Nonnull java.util.Set<String> seen,
+        @Nonnull Set<String> seen,
         @Nonnull RsResolveProcessor processor
     ) {
         if (ns.contains(Namespace.Types)) {
@@ -1574,7 +1577,7 @@ public final class NameResolution {
     private static boolean processPatternBindings(
         @Nonnull PsiElement pat,
         @Nonnull Set<Namespace> ns,
-        @Nonnull java.util.Set<String> seen,
+        @Nonnull Set<String> seen,
         @Nonnull RsResolveProcessor processor
     ) {
         if (!ns.contains(Namespace.Values)) return false;

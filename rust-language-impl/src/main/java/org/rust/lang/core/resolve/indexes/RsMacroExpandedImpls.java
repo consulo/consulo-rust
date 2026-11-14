@@ -37,6 +37,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import consulo.application.util.CachedValue;
+import consulo.language.psi.PsiManager;
+import consulo.virtualFileSystem.ManagingFS;
+import org.rust.lang.core.resolve2.CrateDefMap;
+import org.rust.lang.core.resolve2.FacadeUpdateDefMapUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import org.rust.lang.core.psi.ext.RsDocAndAttributeOwner;
 
 /**
  * The impls that macro calls expand to, by the fingerprint of their self type. {@link RsImplIndex} sees only the impls
@@ -46,7 +53,7 @@ import java.util.Set;
  * Empty while indexing, when no macro can be expanded.
  */
 public final class RsMacroExpandedImpls {
-    private static final Key<consulo.application.util.CachedValue<Map<TyFingerprint, List<RsImplItem>>>> KEY =
+    private static final Key<CachedValue<Map<TyFingerprint, List<RsImplItem>>>> KEY =
         Key.create("org.rust.lang.core.resolve.indexes.RsMacroExpandedImpls");
 
     private RsMacroExpandedImpls() {
@@ -64,17 +71,17 @@ public final class RsMacroExpandedImpls {
     @Nonnull
     private static Map<TyFingerprint, List<RsImplItem>> collect(@Nonnull Project project) {
         Collector collector = new Collector();
-        consulo.language.psi.PsiManager psiManager = consulo.language.psi.PsiManager.getInstance(project);
-        consulo.virtualFileSystem.ManagingFS fs = consulo.virtualFileSystem.ManagingFS.getInstance();
+        PsiManager psiManager = PsiManager.getInstance(project);
+        ManagingFS fs = ManagingFS.getInstance();
         for (Crate crate : CrateGraphService.crateGraph(project).getTopSortedCrates()) {
             Integer crateId = crate.getId();
             if (crateId == null) continue;
             // the def map knows every file of the crate - also the modules declared inside macro calls,
             // which a PSI walk could not follow, since an expansion has no directory to resolve `mod x;` in
-            org.rust.lang.core.resolve2.CrateDefMap defMap = org.rust.lang.core.resolve2.FacadeUpdateDefMapUtil.getOrUpdateIfNeeded(crate);
+            CrateDefMap defMap = FacadeUpdateDefMapUtil.getOrUpdateIfNeeded(crate);
             if (defMap == null) continue;
             for (Integer fileId : new ArrayList<>(defMap.getFileInfos().keySet())) {
-                consulo.virtualFileSystem.VirtualFile file = fs.findFileById(fileId);
+                VirtualFile file = fs.findFileById(fileId);
                 if (file != null && psiManager.findFile(file) instanceof RsFile rsFile) {
                     collector.visitModule(rsFile);
                 }
@@ -135,7 +142,7 @@ public final class RsMacroExpandedImpls {
         }
 
         private static boolean isEnabledByCfg(@Nonnull PsiElement element) {
-            return !(element instanceof org.rust.lang.core.psi.ext.RsDocAndAttributeOwner owner)
+            return !(element instanceof RsDocAndAttributeOwner owner)
                 || RsDocAndAttributeOwnerUtil.evaluateCfg(owner, null) != ThreeValuedLogic.False;
         }
     }

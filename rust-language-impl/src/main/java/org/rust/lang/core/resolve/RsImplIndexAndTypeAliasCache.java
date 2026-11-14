@@ -25,6 +25,8 @@ import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
 import jakarta.inject.Inject;
+import org.rust.lang.core.psi.RsImplItem;
+import org.rust.lang.core.resolve.indexes.RsMacroExpandedImpls;
 
 @ServiceAPI(ComponentScope.PROJECT)
 @ServiceImpl
@@ -82,7 +84,7 @@ public final class RsImplIndexAndTypeAliasCache implements Disposable {
                 }
             }
             // impls produced by macros are in no index
-            for (org.rust.lang.core.psi.RsImplItem impl : org.rust.lang.core.resolve.indexes.RsMacroExpandedImpls.findPotentialImpls(project, key)) {
+            for (RsImplItem impl : RsMacroExpandedImpls.findPotentialImpls(project, key)) {
                 RsCachedImplItem item = RsCachedImplItem.forImpl(impl);
                 if (item.isValid()) {
                     result.add(item);

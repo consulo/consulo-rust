@@ -37,6 +37,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.rust.cargo.api.workspace.CargoWorkspace;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 
 public final class CargoMetadata {
 
@@ -661,7 +662,7 @@ public final class CargoMetadata {
             VirtualFile outDir = findFile(fs, buildScriptMessage.getOutDir());
             if (outDir != null) {
                 // the build script has just written its output: load it, so that `include!(concat!(env!("OUT_DIR"), ..))` finds it
-                consulo.virtualFileSystem.util.VirtualFileUtil.markDirtyAndRefresh(false, true, true, outDir);
+                VirtualFileUtil.markDirtyAndRefresh(false, true, true, outDir);
                 if (!isWorkspaceMember) {
                     outDir = outDir.getCanonicalFile();
                 }

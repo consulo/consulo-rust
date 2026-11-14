@@ -33,6 +33,9 @@ import java.util.stream.Collectors;
 import org.rust.lang.core.psi.ext.impl.RsSelfParameterUtil;
 import org.rust.lang.core.psi.impl.*;
 import org.rust.lang.core.psi.ext.impl.*;
+import org.rust.lang.core.psi.ext.impl.RsUnaryExprUtil;
+import consulo.util.lang.Pair;
+import org.rust.lang.core.psi.ext.impl.UnaryOperator;
 
 /**
  * Walks function bodies and infers types for all expressions.
@@ -1178,7 +1181,7 @@ class RsTypeInferenceWalker {
     private Ty inferUnaryExprType(@Nonnull RsUnaryExpr expr, @Nonnull Expectation expected) {
         RsExpr innerExpr = expr.getExpr();
         if (innerExpr == null) return TyUnknown.INSTANCE;
-        switch (org.rust.lang.core.psi.ext.impl.RsUnaryExprUtil.getOperatorType(expr)) {
+        switch (RsUnaryExprUtil.getOperatorType(expr)) {
             case REF: return inferRefType(innerExpr, expected, Mutability.IMMUTABLE, false);
             case REF_MUT: return inferRefType(innerExpr, expected, Mutability.MUTABLE, false);
             case RAW_REF_CONST: return inferRefType(innerExpr, expected, Mutability.IMMUTABLE, true);
@@ -1197,7 +1200,7 @@ class RsTypeInferenceWalker {
     private Ty inferDerefExprType(@Nonnull RsUnaryExpr expr, @Nonnull RsExpr operandExpr) {
         // the expectation must not be used for a deref
         Ty operandTy = resolveTypeVarsWithObligations(inferExprType(operandExpr));
-        consulo.util.lang.Pair<Ty, Mutability> builtin = org.rust.lang.core.types.ty.TyUtil.builtinDeref(operandTy, getItems(), true);
+        Pair<Ty, Mutability> builtin = TyUtil.builtinDeref(operandTy, getItems(), true);
         if (builtin != null) return builtin.getFirst();
         TyWithObligations<Ty> overloaded = getLookup().deref(operandTy);
         if (overloaded == null) return TyUnknown.INSTANCE;
@@ -1217,7 +1220,7 @@ class RsTypeInferenceWalker {
             : null;
         if (referenced != null) {
             boolean isPlace = expr instanceof RsPathExpr || expr instanceof RsIndexExpr
-                || (expr instanceof RsUnaryExpr unary && org.rust.lang.core.psi.ext.impl.RsUnaryExprUtil.getOperatorType(unary) == org.rust.lang.core.psi.ext.impl.UnaryOperator.DEREF)
+                || (expr instanceof RsUnaryExpr unary && RsUnaryExprUtil.getOperatorType(unary) == UnaryOperator.DEREF)
                 || (expr instanceof RsDotExpr dot && dot.getFieldLookup() != null);
             hint = isPlace ? new Expectation.ExpectHasType(referenced) : Expectation.rvalueHint(referenced);
         }

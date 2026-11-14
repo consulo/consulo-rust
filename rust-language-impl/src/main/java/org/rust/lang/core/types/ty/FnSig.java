@@ -18,6 +18,7 @@ import org.rust.lang.core.types.infer.TypeVisitor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.rust.lang.core.types.ExtensionsUtil;
 
 public class FnSig implements TypeFoldable<FnSig> {
     @Nonnull
@@ -90,7 +91,7 @@ public class FnSig implements TypeFoldable<FnSig> {
         List<Ty> paramTypes = new ArrayList<>();
         RsSelfParameter self = callable.getSelfParameter();
         if (self != null) {
-            paramTypes.add(org.rust.lang.core.types.ExtensionsUtil.getTypeOfValue(self));
+            paramTypes.add(ExtensionsUtil.getTypeOfValue(self));
         }
         paramTypes.addAll(callable.getParameterTypes());
         Ty rawReturnType = callable.getRawReturnType();

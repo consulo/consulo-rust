@@ -28,6 +28,13 @@ import org.rust.lang.core.resolve.indexes.RsLangItemIndex;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import org.rust.lang.core.types.ty.Ty;
+import org.rust.lang.core.types.ty.TyUnknown;
+import java.util.List;
+import org.rust.lang.core.types.BoundElement;
+import java.util.ArrayList;
+import org.rust.lang.core.psi.ext.impl.RsTraitItemUtil;
+import org.rust.lang.core.types.ty.TyAnon;
 
 /**
  * CargoProject-related object that allows to lookup rust items in project dependencies,
@@ -112,14 +119,14 @@ public class KnownItems {
 
     /** {@code impl Future<Output = outputTy>}: what an async function, closure or block evaluates to. */
     @Nonnull
-    public org.rust.lang.core.types.ty.Ty makeFuture(@Nonnull org.rust.lang.core.types.ty.Ty outputTy) {
+    public Ty makeFuture(@Nonnull Ty outputTy) {
         RsTraitItem futureTrait = getFuture();
-        if (futureTrait == null) return org.rust.lang.core.types.ty.TyUnknown.INSTANCE;
-        java.util.List<org.rust.lang.core.types.BoundElement<RsTraitItem>> traits = new java.util.ArrayList<>();
-        traits.add(org.rust.lang.core.psi.ext.impl.RsTraitItemUtil.substAssocType(futureTrait, "Output", outputTy));
+        if (futureTrait == null) return TyUnknown.INSTANCE;
+        List<BoundElement<RsTraitItem>> traits = new ArrayList<>();
+        traits.add(RsTraitItemUtil.substAssocType(futureTrait, "Output", outputTy));
         RsTraitItem sized = getSized();
-        if (sized != null) traits.add(new org.rust.lang.core.types.BoundElement<>(sized).withSubst());
-        return new org.rust.lang.core.types.ty.TyAnon(null, traits);
+        if (sized != null) traits.add(new BoundElement<>(sized).withSubst());
+        return new TyAnon(null, traits);
     }
     @Nullable public RsTraitItem getIntoFuture() { return findItem("core::future::into_future::IntoFuture", true, RsTraitItem.class); }
     @Nullable public RsTraitItem getOctal() { return findItem("core::fmt::Octal", true, RsTraitItem.class); }
