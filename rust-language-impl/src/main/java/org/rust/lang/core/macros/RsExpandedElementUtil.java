@@ -23,6 +23,7 @@ import org.rust.lang.core.psi.ext.impl.RsMetaItemUtil;
 import org.rust.lang.core.stubs.RsPathStub;
 import org.rust.lang.core.psi.impl.*;
 import org.rust.lang.core.psi.ext.impl.*;
+import org.rust.lang.core.macros.generated.RsGeneratedCode;
 
 public final class RsExpandedElementUtil {
     private RsExpandedElementUtil() {}
@@ -433,6 +434,14 @@ public final class RsExpandedElementUtil {
             PsiElement nameId = ((RsNameIdentifierOwner) element).getNameIdentifier();
             if (nameId != null) target = nameId;
         }
+        // generated code navigates to the source its names were generated from
+        PsiFile file = target.getContainingFile();
+        RsGeneratedCode generated =
+            file != null ? file.getUserData(RsGeneratedCode.KEY) : null;
+        if (generated != null) {
+            PsiElement source = generated.findTarget(target.getTextRange().getStartOffset());
+            if (source != null) return source;
+        }
         PsiElement expanded = findElementExpandedFrom(target);
         if (expanded != null) return expanded;
         RsPossibleMacroCall call = findMacroCallExpandedFrom(element);
@@ -479,7 +488,7 @@ public final class RsExpandedElementUtil {
         @Nonnull org.rust.lang.core.psi.impl.RsPsiFactory factory,
         @Nonnull CharSequence text
     ) {
-        consulo.language.psi.PsiFile psiFile = factory.createPsiFile(context.prepareExpandedTextForParsing(text));
+        PsiFile psiFile = factory.createPsiFile(context.prepareExpandedTextForParsing(text));
         if (!(psiFile instanceof RsFile)) return null;
         return getExpansionFromExpandedFile(context, (RsFile) psiFile);
     }
@@ -534,7 +543,7 @@ public final class RsExpandedElementUtil {
     @Nullable
     public static MacroExpansion getExpansionFromExpandedFile(
         @Nonnull MacroExpansionContext context,
-        @Nonnull consulo.language.psi.PsiFile file
+        @Nonnull PsiFile file
     ) {
         if (file instanceof RsFile) {
             return getExpansionFromExpandedFile(context, (RsFile) file);

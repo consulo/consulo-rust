@@ -30,6 +30,8 @@ import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.lang.core.macros.MacroExpansionContext;
 import org.rust.lang.core.psi.impl.*;
 import org.rust.lang.core.psi.ext.*;
+import org.rust.lang.core.crate.Crate;
+import consulo.virtualFileSystem.VirtualFile;
 
 public final class RsMacroCallUtil {
     private RsMacroCallUtil() {
@@ -135,18 +137,24 @@ public final class RsMacroCallUtil {
     }
 
     /**
-     * The path an {@code include!} names, with {@code concat!} and {@code env!} in it evaluated - {@code env!("OUT_DIR")}
-     * is the output directory of the crate's build script. {@code null} when it cannot be computed.
+     * Stands for {@code env!("OUT_DIR")} in an evaluated {@code include!} path: the output directory of the build
+     * script is resolved only when the file is looked up, so a generated file can be found without it.
+     */
+    public static final String OUT_DIR_PLACEHOLDER = "$OUT_DIR";
+
+    /**
+     * The path an {@code include!} names, with {@code concat!} and {@code env!} in it evaluated. {@code env!("OUT_DIR")}
+     * is left as {@link #OUT_DIR_PLACEHOLDER}. {@code null} when it cannot be computed.
      */
     @Nullable
-    public static String getIncludeMacroArgumentValue(@Nonnull RsMacroCall call, @Nullable org.rust.lang.core.crate.Crate crate) {
+    public static String getIncludeMacroArgumentValue(@Nonnull RsMacroCall call, @Nullable Crate crate) {
         RsIncludeMacroArgument argument = call.getIncludeMacroArgument();
         RsExpr expr = argument != null ? argument.getExpr() : null;
         return expr != null ? evaluateStringExpr(expr, crate) : null;
     }
 
     @Nullable
-    private static String evaluateStringExpr(@Nonnull RsExpr expr, @Nullable org.rust.lang.core.crate.Crate crate) {
+    private static String evaluateStringExpr(@Nonnull RsExpr expr, @Nullable Crate crate) {
         if (expr instanceof RsLitExpr lit) {
             return RsLitExprUtil.getStringValue(lit);
         }
@@ -170,14 +178,28 @@ public final class RsMacroCallUtil {
             if (!(argument.getExprList().get(0) instanceof RsLitExpr variableExpr)) return null;
             String variable = RsLitExprUtil.getStringValue(variableExpr);
             if (variable == null) return null;
-            org.rust.lang.core.crate.Crate effectiveCrate = crate != null ? crate : RsElementUtil.getContainingCrate(variableExpr);
-            if ("OUT_DIR".equals(variable)) {
-                consulo.virtualFileSystem.VirtualFile outDir = effectiveCrate.getOutDir();
-                return outDir != null ? outDir.getPath() : null;
-            }
+            Crate effectiveCrate = crate != null ? crate : RsElementUtil.getContainingCrate(variableExpr);
+            if ("OUT_DIR".equals(variable)) return OUT_DIR_PLACEHOLDER;
             return effectiveCrate.getEnv().get(variable);
         }
         return null;
+    }
+
+    /** For an include path under the output directory of the build script, the path relative to it; else {@code null}. */
+    @Nullable
+    public static String getOutDirRelativePath(@Nonnull String includePath) {
+        if (!includePath.startsWith(OUT_DIR_PLACEHOLDER)) return null;
+        String relative = includePath.substring(OUT_DIR_PLACEHOLDER.length());
+        while (relative.startsWith("/") || relative.startsWith("\\")) relative = relative.substring(1);
+        return relative;
+    }
+
+    /** The include path with the output directory of {@code crate} in place of the placeholder; {@code null} if unknown. */
+    @Nullable
+    public static String resolveOutDir(@Nonnull String includePath, @Nullable Crate crate) {
+        if (!includePath.startsWith(OUT_DIR_PLACEHOLDER)) return includePath;
+        VirtualFile outDir = crate != null ? crate.getOutDir() : null;
+        return outDir != null ? outDir.getPath() + includePath.substring(OUT_DIR_PLACEHOLDER.length()) : null;
     }
 
     public static boolean processExpansionRecursively(@Nonnull RsMacroCall macroCall,

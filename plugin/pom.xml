@@ -32,6 +32,7 @@
                         <dependency>com.intellij.regexp</dependency>
                         <dependency>consulo.markdown</dependency>
                         <dependency>consulo.json</dependency>
+                        <dependency>consulo.google.protobuf</dependency>
                         <dependency>consulo.nativeDev</dependency>
                     </dependencies>
                     <packaging>
@@ -64,6 +65,11 @@
         <dependency>
             <groupId>consulo.plugin</groupId>
             <artifactId>consulo.rust.json</artifactId>
+            <version>3-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>consulo.plugin</groupId>
+            <artifactId>consulo.rust.protobuf</artifactId>
             <version>3-SNAPSHOT</version>
         </dependency>
         <dependency>

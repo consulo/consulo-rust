@@ -33,6 +33,7 @@
         <module>rust-language-api</module>
         <module>rust-language-impl</module>
         <module>rust-json</module>
+        <module>rust-protobuf</module>
         <module>plugin</module>
         <module>rust-it</module>
     </modules>

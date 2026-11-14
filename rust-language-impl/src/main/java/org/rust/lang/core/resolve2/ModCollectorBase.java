@@ -47,6 +47,7 @@ import org.rust.lang.core.stubs.RsVisStub;
 import org.rust.stdext.HashCode;
 
 import java.util.List;
+import org.rust.lang.core.psi.ext.impl.RsMacroCallUtil;
 
 /**
  * Walks the stub tree of a module and reports every item that takes part in name resolution to a
@@ -267,7 +268,7 @@ public final class ModCollectorBase {
         String body = call.getMacroBody();
         if ("include".equals(pathSegments[pathSegments.length - 1])) {
             // `include!(concat!(env!("OUT_DIR"), "/x.rs"))`: the body is the path with its macros evaluated
-            String includePath = org.rust.lang.core.psi.ext.impl.RsMacroCallUtil.getIncludeMacroArgumentValue(call.getPsi(), crate);
+            String includePath = RsMacroCallUtil.getIncludeMacroArgumentValue(call.getPsi(), crate);
             if (includePath != null) body = includePath;
         }
         if (body == null) return;

@@ -1,0 +1,3 @@
+<consulo-plugin-requires>
+    <plugins><plugin>consulo.google.protobuf</plugin></plugins>
+</consulo-plugin-requires>

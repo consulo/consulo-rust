@@ -22,6 +22,23 @@ import org.rust.lang.core.psi.ext.RsItemsOwner;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import org.rust.lang.core.macros.MacroExpansionManager;
+import org.rust.lang.core.psi.impl.RsProcMacroKind;
+import consulo.util.lang.Pair;
+import consulo.language.psi.stub.StubElement;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
+import org.rust.lang.core.resolve2.util.RsBlockStubBuilder;
+import org.rust.lang.core.resolve2.util.DollarCrateHelper;
+import org.rust.lang.core.resolve2.util.DollarCrateUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.ManagingFS;
+import org.rust.lang.core.psi.ext.impl.RsMacroCallUtil;
+import org.rust.lang.core.macros.generated.RsGeneratedCode;
+import org.rust.lang.core.macros.generated.RsGeneratedIncludes;
+import consulo.virtualFileSystem.VirtualFileManager;
+import consulo.language.psi.PsiManager;
+import org.rust.openapiext.VirtualFileExtUtil;
+import org.rust.lang.core.resolve.SelectionCandidate;
+import org.rust.lang.core.resolve.Namespace;
 
 /**
  * Resolves all imports and expands macros (new items are added to defMap) using fixed point iteration algorithm.
@@ -336,7 +353,7 @@ public class DefCollector {
                 }
                 MacroDefInfo def = PathResolution.resolveMacroCallToMacroDefInfo(
                     defMap, macroCall.getContainingMod(), path, macroCall.getMacroIndex());
-                if (def == null || def.getProcMacroKind() != org.rust.lang.core.psi.impl.RsProcMacroKind.FUNCTION_LIKE) continue;
+                if (def == null || def.getProcMacroKind() != RsProcMacroKind.FUNCTION_LIKE) continue;
                 iterator.remove();
                 resolvedCalls.add(macroCall);
                 resolvedDefs.add(def);
@@ -364,20 +381,20 @@ public class DefCollector {
         if (data instanceof RsProcMacroData) return;
 
         RsMacroCallData callData = new RsMacroCallData(call.getBody(), context.getCrate().getEnv());
-        RsResult<consulo.util.lang.Pair<CharSequence, RangeMap>, ?> expanded = macroExpander.expandMacroAsTextWithErr(data, callData);
+        RsResult<Pair<CharSequence, RangeMap>, ?> expanded = macroExpander.expandMacroAsTextWithErr(data, callData);
         if (expanded.isErr()) return;
         String text = expanded.ok().getFirst().toString();
         ExpansionResultOk expansion = new ExpansionResultOk(text, expanded.ok().getSecond());
 
-        consulo.language.psi.stub.StubElement<? extends RsItemsOwner> expandedScope;
+        StubElement<? extends RsItemsOwner> expandedScope;
         RsPsiFactory factory = new RsPsiFactory(project, false);
         if (call.getContainingMod().isBlock()) {
             // a macro called in a block body is expanded in statement context
             MacroExpansionContext stmt = MacroExpansionContext.STMT;
             if (!(factory.createPsiFile(stmt.prepareExpandedTextForParsing(text)) instanceof RsFile file)) return;
-            RsBlock block = org.rust.lang.core.psi.ext.impl.RsElementUtil.stubDescendantOfTypeOrStrict(file, RsBlock.class);
+            RsBlock block = RsElementUtil.stubDescendantOfTypeOrStrict(file, RsBlock.class);
             if (block == null) return;
-            expandedScope = org.rust.lang.core.resolve2.util.RsBlockStubBuilder.buildStub(block);
+            expandedScope = RsBlockStubBuilder.buildStub(block);
             expansion = expansion.shiftDstRangesRight(stmt.getExpansionFileStartOffset());
         }
         else {
@@ -388,8 +405,8 @@ public class DefCollector {
 
         ModCollectorContext collectorContext = getModCollectorContextForExpandedElements(call);
         if (collectorContext == null) return;
-        org.rust.lang.core.resolve2.util.DollarCrateHelper dollarCrateHelper =
-            org.rust.lang.core.resolve2.util.DollarCrateUtil.createDollarCrateHelper(call, def, expansion);
+        DollarCrateHelper dollarCrateHelper =
+            DollarCrateUtil.createDollarCrateHelper(call, def, expansion);
         ModCollector.collectExpandedElements(expandedScope, call, collectorContext, dollarCrateHelper);
     }
 
@@ -397,11 +414,23 @@ public class DefCollector {
     private void expandIncludeMacroCall(@Nonnull MacroCallInfo call) {
         Integer containingFileId = call.getContainingFileId();
         if (containingFileId == null) return;
-        consulo.virtualFileSystem.VirtualFile containingFile =
-            consulo.virtualFileSystem.ManagingFS.getInstance().findFileById(containingFileId);
+        VirtualFile containingFile =
+            ManagingFS.getInstance().findFileById(containingFileId);
         if (containingFile == null || !(call.getBody() instanceof MacroCallBody.FunctionLike functionLike)) return;
         String includePath = functionLike.getText();
-        consulo.virtualFileSystem.VirtualFile parentDirectory = containingFile.getParent();
+        String outDirRelativePath = RsMacroCallUtil.getOutDirRelativePath(includePath);
+        if (outDirRelativePath != null) {
+            // a file a provider generates is never read from `OUT_DIR`
+            RsGeneratedCode generated =
+                RsGeneratedIncludes.getInstance(project).find(context.getCrate(), outDirRelativePath);
+            if (generated != null) {
+                collectGeneratedCode(call, generated);
+                return;
+            }
+            includePath = RsMacroCallUtil.resolveOutDir(includePath, context.getCrate());
+            if (includePath == null) return;
+        }
+        VirtualFile parentDirectory = containingFile.getParent();
         if (parentDirectory == null) return;
         // an absolute path is a path of the same machine as the including file
         java.nio.file.Path parentPath;
@@ -411,8 +440,8 @@ public class DefCollector {
         catch (UnsupportedOperationException e) {
             parentPath = null;
         }
-        consulo.virtualFileSystem.VirtualFile includingFile = parentPath != null
-            ? consulo.virtualFileSystem.VirtualFileManager.getInstance().findFileByNioPath(parentPath.resolve(includePath))
+        VirtualFile includingFile = parentPath != null
+            ? VirtualFileManager.getInstance().findFileByNioPath(parentPath.resolve(includePath))
             : parentDirectory.findFileByRelativePath(includePath);
         if (includingFile == null) {
             if (!context.isHangingMode() && parentPath != null) {
@@ -424,7 +453,7 @@ public class DefCollector {
             }
             return;
         }
-        if (!(consulo.language.psi.PsiManager.getInstance(project).findFile(includingFile) instanceof RsFile includingRsFile)) return;
+        if (!(PsiManager.getInstance(project).findFile(includingFile) instanceof RsFile includingRsFile)) return;
         ModCollectorContext collectorContext = getModCollectorContextForExpandedElements(call);
         if (collectorContext == null) return;
         ModCollector.collectScope(
@@ -436,7 +465,17 @@ public class DefCollector {
             call.getMacroIndex(),
             true
         );
-        ModCollector.recordChildFileInUnusualLocation(call.getContainingMod(), org.rust.openapiext.VirtualFileExtUtil.getFileId(includingFile));
+        ModCollector.recordChildFileInUnusualLocation(call.getContainingMod(), VirtualFileExtUtil.getFileId(includingFile));
+    }
+
+    /** The items of generated code, collected as if the code were the expansion of the {@code include!}. */
+    private void collectGeneratedCode(@Nonnull MacroCallInfo call, @Nonnull RsGeneratedCode generated) {
+        if (!(new RsPsiFactory(project, false).createPsiFile(generated.getText()) instanceof RsFile file)) return;
+        StubElement<? extends RsItemsOwner> scope = ModCollector.getOrBuildFileStub(file);
+        if (scope == null) return;
+        ModCollectorContext collectorContext = getModCollectorContextForExpandedElements(call);
+        if (collectorContext == null) return;
+        ModCollector.collectExpandedElements(scope, call, collectorContext, null);
     }
 
     @Nullable
@@ -451,7 +490,7 @@ public class DefCollector {
 
     /** The item an attribute macro is attached to, added as written - see {@code ModCollector.collectSimpleItem}. */
     private void treatAsIdentityMacro(@Nonnull ProcMacroCallInfo call) {
-        org.rust.lang.core.resolve.SelectionCandidate.Triple<VisItem, Set<org.rust.lang.core.resolve.Namespace>, org.rust.lang.core.psi.impl.RsProcMacroKind> originalItem =
+        SelectionCandidate.Triple<VisItem, Set<Namespace>, RsProcMacroKind> originalItem =
             call.getOriginalItem();
         if (originalItem == null) return;
         VisItem visItem = originalItem.getFirst();

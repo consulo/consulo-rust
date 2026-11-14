@@ -52,6 +52,13 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- the code prost and tonic generate is built from .proto files -->
+        <dependency>
+            <groupId>consulo.plugin</groupId>
+            <artifactId>consulo.google.protobuf.api</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- string literals are regexp language hosts -->
         <dependency>
             <groupId>consulo.plugin</groupId>

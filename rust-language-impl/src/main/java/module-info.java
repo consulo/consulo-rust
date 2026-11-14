@@ -31,6 +31,7 @@ open module consulo.rust.language.impl {
     exports org.rust.lang.core.injected;
     exports org.rust.lang.core.lexer;
     exports org.rust.lang.core.macros;
+    exports org.rust.lang.core.macros.generated;
     exports org.rust.lang.core.macros.builtin;
     exports org.rust.lang.core.macros.decl;
     exports org.rust.lang.core.macros.errors;
@@ -50,6 +51,7 @@ open module consulo.rust.language.impl {
     exports org.rust.lang.core.parser;
     exports org.rust.lang.core.presentation;
     exports org.rust.lang.core.psi;
+    exports org.rust.lang.core.psi.light;
     exports org.rust.lang.core.psi.ext;
     exports org.rust.lang.core.psi.ext.impl;
     exports org.rust.lang.core.psi.impl;

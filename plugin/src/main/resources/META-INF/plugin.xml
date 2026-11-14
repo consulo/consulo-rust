@@ -20,4 +20,5 @@
     <depends>consulo.markdown</depends>
     <depends>consulo.nativeDev</depends>
     <depends optional="true">consulo.json</depends>
+    <depends optional="true">consulo.google.protobuf</depends>
 </consulo-plugin>

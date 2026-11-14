@@ -42,6 +42,13 @@ import org.rust.lang.core.psi.ext.impl.RsPossibleMacroCallUtil;
 import org.rust.lang.core.psi.impl.RsPsiFactory;
 import org.rust.lang.core.psi.impl.RsPsiManagerUtil;
 import org.rust.lang.core.resolve2.FacadeResolve;
+import org.rust.lang.core.psi.ext.impl.RsMacroCallUtil;
+import org.rust.lang.core.macros.generated.RsGeneratedCode;
+import org.rust.lang.core.macros.generated.RsGeneratedIncludes;
+import org.rust.lang.core.psi.light.RsLightItems;
+import consulo.language.psi.PsiFile;
+import consulo.virtualFileSystem.VirtualFileManager;
+import consulo.language.psi.PsiManager;
 
 /**
  * The main implementation of {@link MacroExpansionManager}.
@@ -126,7 +133,7 @@ public class MacroExpansionManagerImpl
                 ModificationTracker.EVER_CHANGED
             );
         }
-        if ("include".equals(org.rust.lang.core.psi.ext.impl.RsMacroCallUtil.getMacroName(macroCall))) {
+        if ("include".equals(RsMacroCallUtil.getMacroName(macroCall))) {
             return CachedValueProvider.Result.create(
                 expandIncludeMacroCall(macroCall),
                 RsPsiManagerUtil.getRustStructureOrAnyPsiModificationTracker(macroCall)
@@ -142,36 +149,83 @@ public class MacroExpansionManagerImpl
         return CachedValueProvider.Result.create(expandToMemoryFile(macroCall), getModificationTrackers(macroCall));
     }
 
-    /** `include!("x.rs")` expands to the items of the file it names. */
+    /**
+     * `include!("x.rs")` expands to the items of the file it names. A file under `OUT_DIR` that a provider generates
+     * expands to the generated code instead, and is never read from the output directory of the build script.
+     */
     @Nonnull
     private static RsResult<MacroExpansion, GetMacroExpansionError> expandIncludeMacroCall(@Nonnull RsMacroCall call) {
-        RsFile includingFile = findIncludingFile(call);
+        String path = RsMacroCallUtil.getIncludeMacroArgumentValue(call, null);
+        if (path == null) return new RsResult.Err<>(GetMacroExpansionError.IncludingFileNotFound);
+        String outDirRelativePath = RsMacroCallUtil.getOutDirRelativePath(path);
+        if (outDirRelativePath != null) {
+            Crate crate = RsElementUtil.getContainingCrate(call);
+            RsGeneratedCode generated = crate instanceof FakeCrate
+                ? null
+                : RsGeneratedIncludes.getInstance(call.getProject()).find(crate, outDirRelativePath);
+            if (generated != null) return expandGeneratedCode(call, generated);
+            path = RsMacroCallUtil.resolveOutDir(path, crate);
+            if (path == null) return new RsResult.Err<>(GetMacroExpansionError.IncludingFileNotFound);
+        }
+        RsFile includingFile = findIncludingFile(call, path);
         if (includingFile == null) return new RsResult.Err<>(GetMacroExpansionError.IncludingFileNotFound);
         List<RsExpandedElement> items = PsiElementUtil.stubChildrenOfType(includingFile, RsExpandedElement.class);
         return new RsResult.Ok<>(new MacroExpansion.Items(includingFile, items));
     }
 
+    /** The generated code, parsed in memory as the expansion of the call; its names navigate to their sources. */
+    @Nonnull
+    private static RsResult<MacroExpansion, GetMacroExpansionError> expandGeneratedCode(
+        @Nonnull RsMacroCall call,
+        @Nonnull RsGeneratedCode generated
+    ) {
+        MacroExpansion expansion = RsExpandedElementUtil.parseExpandedTextWithContext(
+            MacroExpansionContext.ITEM,
+            new RsPsiFactory(call.getProject(), false),
+            generated.getText()
+        );
+        if (expansion == null) {
+            return new RsResult.Err<>(new GetMacroExpansionError.MemExpParsingError(generated.getText(), MacroExpansionContext.ITEM));
+        }
+        expansion.getFile().putUserData(RsGeneratedCode.KEY, generated);
+        PsiElement callContext = RsPossibleMacroCallUtil.getContextToSetForExpansion(call);
+        for (RsExpandedElement element : expansion.getElements()) {
+            element.putUserData(RS_EXPANSION_MACRO_CALL, call);
+            if (callContext instanceof RsElement rsContext) {
+                RsExpandedElementUtil.setExpandedElementContext(element, rsContext);
+            }
+        }
+        if (callContext instanceof RsElement rsContext) {
+            RsExpandedElementUtil.setRsFileContext(expansion.getFile(), rsContext, true);
+        }
+        // the items generated from a source element stand for it: light elements that navigate to and rename it.
+        // They take the place of the parsed items, which keep the context set above for the code inside them.
+        expansion = new MacroExpansion.Items(expansion.getFile(), RsLightItems.lighten(expansion.getElements(), generated));
+        for (RsExpandedElement element : expansion.getElements()) {
+            element.putUserData(RS_EXPANSION_MACRO_CALL, call);
+        }
+        return new RsResult.Ok<>(expansion);
+    }
+
     /** The file an `include!` names, relative to the file the call is written in. */
     @Nullable
-    private static RsFile findIncludingFile(@Nonnull RsMacroCall call) {
-        String path = org.rust.lang.core.psi.ext.impl.RsMacroCallUtil.getIncludeMacroArgumentValue(call, null);
-        if (path == null) return null;
+    private static RsFile findIncludingFile(@Nonnull RsMacroCall call, @Nonnull String path) {
         RsPossibleMacroCall expandedFrom = MacroExpansionUtil.findMacroCallExpandedFrom(call);
         PsiElement source = expandedFrom != null ? expandedFrom : call;
-        consulo.language.psi.PsiFile containingFile = source.getContainingFile();
+        PsiFile containingFile = source.getContainingFile();
         VirtualFile file = containingFile != null ? containingFile.getOriginalFile().getVirtualFile() : null;
         VirtualFile parent = file != null ? file.getParent() : null;
         if (parent == null) return null;
         VirtualFile included;
         try {
-            // an absolute path - `env!("OUT_DIR")` - is a path of the same machine as the file
-            included = consulo.virtualFileSystem.VirtualFileManager.getInstance().findFileByNioPath(parent.toNioPath().resolve(path));
+            // an absolute path - the output directory of the build script - is a path of the same machine as the file
+            included = VirtualFileManager.getInstance().findFileByNioPath(parent.toNioPath().resolve(path));
         }
         catch (UnsupportedOperationException | java.nio.file.InvalidPathException e) {
             included = parent.findFileByRelativePath(path);
         }
         if (included == null) return null;
-        return consulo.language.psi.PsiManager.getInstance(call.getProject()).findFile(included) instanceof RsFile rsFile ? rsFile : null;
+        return PsiManager.getInstance(call.getProject()).findFile(included) instanceof RsFile rsFile ? rsFile : null;
     }
 
     @Nonnull
