@@ -19,7 +19,9 @@ import org.rust.lang.core.macros.MacroExpansion;
 import org.rust.lang.core.macros.RsExpandedElement;
 import org.rust.lang.core.macros.RsExpandedElementUtil;
 import org.rust.lang.core.macros.errors.GetMacroExpansionError;
+import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsMacroCall;
+import org.rust.lang.core.psi.RsMethodCall;
 import org.rust.lang.core.psi.RsPathExpr;
 import org.rust.lang.core.psi.RsStructItem;
 import org.rust.lang.core.psi.ext.impl.RsElementUtil;
@@ -89,6 +91,51 @@ public class MacroExpansionTest {
                 PsiElement target = path.getPath().getReference().resolve();
                 assertThat(target).isInstanceOf(RsStructItem.class);
                 assertThat(target.getContainingFile()).isSameAs(source.getFile());
+            });
+        }
+    }
+
+    @Test
+    @AllowLogError({
+        "consulo.component.impl.internal.messagebus.MessageBusConnectionImpl",
+        "consulo.application.internal.BackgroundTaskUtil"
+    })
+    public void methodsOfImplsWrittenByMacrosResolve(HeadlessProjects projects) throws Exception {
+        String text = """
+            pub struct Meters(u32);
+            macro_rules! with_double {
+                ($t:ident) => { impl $t { pub fn double(&self) -> u32 { 0 } } };
+            }
+            with_double!(Meters);
+
+            pub struct Unit;
+            macro_rules! answer_for_unit {
+                () => { impl Unit { pub fn answer(&self) -> u32 { 42 } } };
+            }
+            answer_for_unit!();
+
+            pub trait Len { fn len(&self) -> usize; }
+            macro_rules! pair_len {
+                () => { impl Len for (u8, u8) { fn len(&self) -> usize { 2 } } };
+            }
+            pair_len!();
+
+            pub fn main() {
+                Meters(1).double();
+                Unit.answer();
+                (1u8, 2u8).len();
+            }
+            """;
+        try (RsFlowTesting.CargoSource source = RsFlowTesting.openCargoSource(projects, text)) {
+            ReadAction.run(() -> {
+                // the type named in the arguments of the call, the type the definition names, a tuple the definition names
+                for (RsMethodCall call : PsiTreeUtil.findChildrenOfType(source.getFile(), RsMethodCall.class)) {
+                    PsiElement target = call.getReference().resolve();
+                    assertThat(target).as(call.getText() + " must resolve to the method of the impl the macro writes")
+                        .isInstanceOf(RsFunction.class);
+                    assertThat(((RsFunction) target).getName()).isEqualTo(call.getIdentifier().getText());
+                }
+                assertThat(PsiTreeUtil.findChildrenOfType(source.getFile(), RsMethodCall.class)).hasSize(3);
             });
         }
     }

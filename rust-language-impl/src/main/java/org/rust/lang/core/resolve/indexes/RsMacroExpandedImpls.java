@@ -8,24 +8,23 @@ package org.rust.lang.core.resolve.indexes;
 import consulo.application.util.CachedValueProvider;
 import consulo.application.util.CachedValuesManager;
 import consulo.language.psi.PsiElement;
+import consulo.language.psi.scope.GlobalSearchScope;
+import consulo.language.psi.stub.StubIndex;
 import consulo.project.DumbService;
 import consulo.project.Project;
 import consulo.util.dataholder.Key;
 import jakarta.annotation.Nonnull;
-import org.rust.lang.core.crate.Crate;
-import org.rust.lang.core.crate.CrateGraphService;
 import org.rust.lang.core.psi.RsImplItem;
+import org.rust.lang.core.psi.RsMacro;
 import org.rust.lang.core.psi.RsMacroCall;
 import org.rust.lang.core.psi.RsModItem;
 import org.rust.lang.core.psi.RsTypeParameter;
 import org.rust.lang.core.psi.RsTypeReference;
 import org.rust.lang.core.psi.ext.RsElement;
-import org.rust.lang.core.psi.ext.RsItemsOwner;
 import org.rust.lang.core.psi.ext.impl.RsDocAndAttributeOwnerUtil;
 import org.rust.lang.core.psi.ext.impl.RsGenericDeclarationUtil;
 import org.rust.lang.core.psi.ext.impl.RsItemsOwnerUtil;
 import org.rust.lang.core.psi.ext.impl.RsMacroCallUtil;
-import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.impl.RsPsiManagerUtil;
 import org.rust.lang.core.types.TyFingerprint;
 import org.rust.lang.utils.evaluation.ThreeValuedLogic;
@@ -34,27 +33,30 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import consulo.application.util.CachedValue;
-import consulo.language.psi.PsiManager;
-import consulo.virtualFileSystem.ManagingFS;
-import org.rust.lang.core.resolve2.CrateDefMap;
-import org.rust.lang.core.resolve2.FacadeUpdateDefMapUtil;
-import consulo.virtualFileSystem.VirtualFile;
 import org.rust.lang.core.psi.ext.RsDocAndAttributeOwner;
 
 /**
  * The impls that macro calls expand to, by the fingerprint of their self type. {@link RsImplIndex} sees only the impls
  * written in files, but much of the standard library and of crates like tokio implements traits from macros
  * ({@code impl Ord for usize} in {@code core::cmp}, everything in {@code cfg_io_util! { .. }}). Expansions live in
- * memory, so they are found by expanding the module-level macro calls of every file of every crate.
- * Empty while indexing, when no macro can be expanded.
+ * memory, so for one fingerprint only the module-level macro calls that may produce it are expanded: the calls with an
+ * impl for the type written in them, the calls of the {@code macro_rules!} that write one, the calls that name the type
+ * in their arguments and pass it to a macro that takes the self type of an impl from a metavariable, and the calls that
+ * include a file (see {@link RsImplMacroKeys}). Empty while indexing, when no macro can be expanded.
  */
 public final class RsMacroExpandedImpls {
     private static final Key<CachedValue<Map<TyFingerprint, List<RsImplItem>>>> KEY =
         Key.create("org.rust.lang.core.resolve.indexes.RsMacroExpandedImpls");
+    private static final Key<CachedValue<Map<RsMacroCall, Map<TyFingerprint, List<RsImplItem>>>>> EXPANDED_CALLS_KEY =
+        Key.create("org.rust.lang.core.resolve.indexes.RsMacroExpandedImpls.expandedCalls");
+    private static final Key<CachedValue<Set<String>>> METAVARIABLE_MACROS_KEY =
+        Key.create("org.rust.lang.core.resolve.indexes.RsMacroExpandedImpls.metavariableMacros");
 
     private RsMacroExpandedImpls() {
     }
@@ -62,52 +64,92 @@ public final class RsMacroExpandedImpls {
     @Nonnull
     public static List<RsImplItem> findPotentialImpls(@Nonnull Project project, @Nonnull TyFingerprint tyf) {
         if (DumbService.isDumb(project)) return Collections.emptyList();
-        Map<TyFingerprint, List<RsImplItem>> impls = CachedValuesManager.getManager(project).getCachedValue(project, KEY, () ->
-            CachedValueProvider.Result.create(collect(project), RsPsiManagerUtil.getRustStructureModificationTracker(project)), false);
-        List<RsImplItem> result = impls.get(tyf);
-        return result != null ? result : Collections.emptyList();
+        Map<TyFingerprint, List<RsImplItem>> cache = CachedValuesManager.getManager(project).getCachedValue(project, KEY, () ->
+            CachedValueProvider.Result.create(new ConcurrentHashMap<>(), RsPsiManagerUtil.getRustStructureModificationTracker(project)), false);
+        List<RsImplItem> cached = cache.get(tyf);
+        if (cached != null) return cached;
+        // not computeIfAbsent: expanding a macro resolves names, which may look up the impls of another type
+        List<RsImplItem> impls = collect(project, tyf);
+        List<RsImplItem> previous = cache.putIfAbsent(tyf, impls);
+        return previous != null ? previous : impls;
     }
 
     @Nonnull
-    private static Map<TyFingerprint, List<RsImplItem>> collect(@Nonnull Project project) {
-        Collector collector = new Collector();
-        PsiManager psiManager = PsiManager.getInstance(project);
-        ManagingFS fs = ManagingFS.getInstance();
-        for (Crate crate : CrateGraphService.crateGraph(project).getTopSortedCrates()) {
-            Integer crateId = crate.getId();
-            if (crateId == null) continue;
-            // the def map knows every file of the crate - also the modules declared inside macro calls,
-            // which a PSI walk could not follow, since an expansion has no directory to resolve `mod x;` in
-            CrateDefMap defMap = FacadeUpdateDefMapUtil.getOrUpdateIfNeeded(crate);
-            if (defMap == null) continue;
-            for (Integer fileId : new ArrayList<>(defMap.getFileInfos().keySet())) {
-                VirtualFile file = fs.findFileById(fileId);
-                if (file != null && psiManager.findFile(file) instanceof RsFile rsFile) {
-                    collector.visitModule(rsFile);
-                }
+    private static List<RsImplItem> collect(@Nonnull Project project, @Nonnull TyFingerprint tyf) {
+        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+        Set<String> keys = new LinkedHashSet<>(RsImplMacroKeys.forFingerprint(tyf));
+        keys.add(RsImplMacroKeys.INCLUDE);
+        Set<RsMacroCall> calls = new LinkedHashSet<>();
+        Set<String> macroNames = new HashSet<>();
+        for (String key : keys) {
+            // an impl for the type written in the call, or in the definition of the macro it calls
+            calls.addAll(StubIndex.getElements(RsImplMacroCallIndex.KEY, key, project, scope, RsMacroCall.class));
+            for (RsMacro macro : StubIndex.getElements(RsImplMacroDefIndex.KEY, key, project, scope, RsMacro.class)) {
+                if (macro.getName() != null) macroNames.add(macro.getName());
             }
         }
-        return collector.impls;
+        for (String name : macroNames) {
+            calls.addAll(StubIndex.getElements(RsImplMacroCallIndex.KEY, RsImplMacroKeys.callOf(name), project, scope, RsMacroCall.class));
+        }
+        // the type in the arguments of a call that passes it on to the self type of an impl
+        Set<String> metavariableMacros = metavariableSelfTypeMacros(project);
+        for (String key : RsImplMacroKeys.forFingerprint(tyf)) {
+            for (RsMacroCall call : StubIndex.getElements(RsImplMacroCallIndex.KEY, RsImplMacroKeys.argument(key), project, scope, RsMacroCall.class)) {
+                if (callsAnyOf(call, metavariableMacros)) calls.add(call);
+            }
+        }
+        Map<RsMacroCall, Map<TyFingerprint, List<RsImplItem>>> expanded = expandedCalls(project);
+        List<RsImplItem> result = new ArrayList<>();
+        for (RsMacroCall call : calls) {
+            Map<TyFingerprint, List<RsImplItem>> implsOfCall = expanded.get(call);
+            if (implsOfCall == null) {
+                Collector collector = new Collector();
+                collector.visitMacroCall(call);
+                implsOfCall = collector.impls;
+                expanded.putIfAbsent(call, implsOfCall);
+            }
+            List<RsImplItem> impls = implsOfCall.get(tyf);
+            if (impls != null) result.addAll(impls);
+        }
+        return result;
+    }
+
+    /** The impls each macro call expanded so far adds, by fingerprint: a call is expanded once for all the types it may serve. */
+    @Nonnull
+    private static Map<RsMacroCall, Map<TyFingerprint, List<RsImplItem>>> expandedCalls(@Nonnull Project project) {
+        return CachedValuesManager.getManager(project).getCachedValue(project, EXPANDED_CALLS_KEY, () ->
+            CachedValueProvider.Result.create(new ConcurrentHashMap<>(), RsPsiManagerUtil.getRustStructureModificationTracker(project)), false);
+    }
+
+    /** The names of the {@code macro_rules!} whose impls take their self type from a metavariable. */
+    @Nonnull
+    private static Set<String> metavariableSelfTypeMacros(@Nonnull Project project) {
+        return CachedValuesManager.getManager(project).getCachedValue(project, METAVARIABLE_MACROS_KEY, () -> {
+            Set<String> names = new HashSet<>();
+            for (RsMacro macro : StubIndex.getElements(RsImplMacroDefIndex.KEY, RsImplMacroKeys.METAVARIABLE_SELF_TYPE, project,
+                GlobalSearchScope.allScope(project), RsMacro.class)) {
+                if (macro.getName() != null) names.add(macro.getName());
+            }
+            return CachedValueProvider.Result.create(names, RsPsiManagerUtil.getRustStructureModificationTracker(project));
+        }, false);
+    }
+
+    /** Whether {@code call} calls one of {@code macros}, itself or in its arguments. */
+    private static boolean callsAnyOf(@Nonnull RsMacroCall call, @Nonnull Set<String> macros) {
+        if (macros.contains(RsMacroCallUtil.getMacroName(call))) return true;
+        String body = RsMacroCallUtil.getMacroBody(call);
+        if (body == null) return false;
+        for (String name : RsImplMacroKeys.calledMacros(body)) {
+            if (macros.contains(name)) return true;
+        }
+        return false;
     }
 
     private static final class Collector {
         final Map<TyFingerprint, List<RsImplItem>> impls = new HashMap<>();
         private final Set<PsiElement> visited = new HashSet<>();
 
-        /** A module as written: only its macro calls can add impls the index does not know. */
-        void visitModule(@Nonnull RsItemsOwner module) {
-            if (!visited.add(module)) return;
-            for (RsElement element : RsItemsOwnerUtil.getItemsAndMacros(module)) {
-                if (element instanceof RsMacroCall call) {
-                    visitMacroCall(call);
-                }
-                else if (element instanceof RsModItem inlineModule && isEnabledByCfg(inlineModule)) {
-                    visitModule(inlineModule);
-                }
-            }
-        }
-
-        private void visitMacroCall(@Nonnull RsMacroCall call) {
+        void visitMacroCall(@Nonnull RsMacroCall call) {
             if (!isEnabledByCfg(call)) return;
             RsMacroCallUtil.processExpansionRecursively(call, expanded -> {
                 visitExpanded(expanded);

@@ -77,5 +77,6 @@ public class RsMacroCallStub extends RsAttrProcMacroOwnerStubBase<RsMacroCall> {
                     RsMacroCallUtil.getBodyTextRange(psi) != null ? RsMacroCallUtil.getBodyTextRange(psi).getStartOffset() : -1,
                     flags, procMacroInfo);
             }
+            @Override public void indexStub(@Nonnull RsMacroCallStub s, @Nonnull IndexSink sink) { StubIndexing.indexMacroCall(sink, s); }
         };
 }

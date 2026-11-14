@@ -10,6 +10,8 @@ import jakarta.annotation.Nonnull;
 import org.rust.lang.core.psi.ext.RsAbstractableOwner;
 import org.rust.lang.core.psi.ext.impl.RsAbstractableUtil;
 import org.rust.lang.core.resolve.indexes.RsImplIndex;
+import org.rust.lang.core.resolve.indexes.RsImplMacroCallIndex;
+import org.rust.lang.core.resolve.indexes.RsImplMacroDefIndex;
 import org.rust.lang.core.resolve.indexes.RsLangItemIndex;
 import org.rust.lang.core.resolve.indexes.RsMacroIndex;
 import org.rust.lang.core.stubs.index.*;
@@ -85,6 +87,11 @@ public final class StubIndexing {
     public static void indexMacro(@Nonnull IndexSink sink, @Nonnull RsMacroStub stub) {
         indexNamedStub(sink, stub);
         RsMacroIndex.index(stub, sink);
+        RsImplMacroDefIndex.index(stub, sink);
+    }
+
+    public static void indexMacroCall(@Nonnull IndexSink sink, @Nonnull RsMacroCallStub stub) {
+        RsImplMacroCallIndex.index(stub, sink);
     }
 
     public static void indexMacroDef(@Nonnull IndexSink sink, @Nonnull RsMacro2Stub stub) {
