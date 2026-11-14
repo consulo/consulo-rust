@@ -163,13 +163,19 @@ public final class VisItem {
             if (scope instanceof RsEnumItem) {
                 RsEnumBody body = ((RsEnumItem) scope).getEnumBody();
                 if (body == null) continue;
+                if (!Namespace.ENUM_VARIANT_NS.contains(namespace)) continue;
                 for (RsEnumVariant variant : body.getEnumVariantList()) {
-                    if (getName().equals(variant.getName())) result.add(variant);
+                    if (getName().equals(variant.getName()) && matchesIsEnabledByCfg(variant)) result.add(variant);
                 }
             } else if (scope instanceof RsItemsOwner) {
                 for (RsItemElement item :
                     namedItems((RsItemsOwner) scope, getName())) {
-                    if (item instanceof RsNamedElement) result.add((RsNamedElement) item);
+                    // a trait and a macro can share a name, as `Clone` in `core::clone` does
+                    if (item instanceof RsNamedElement named
+                        && Namespace.getNamespaces(named).contains(namespace)
+                        && matchesIsEnabledByCfg(item)) {
+                        result.add(named);
+                    }
                 }
             }
         }

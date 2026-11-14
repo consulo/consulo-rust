@@ -14,6 +14,9 @@ import jakarta.annotation.Nullable;
 import org.rust.cargo.api.model.CargoProjectsUtil;
 import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.lang.core.crate.Crate;
+import org.rust.lang.core.macros.RsExpandedElementUtil;
+import org.rust.lang.core.macros.decl.DeclMacroConstantsUtil;
+import org.rust.lang.core.resolve.NameResolution;
 import org.rust.lang.core.crate.CrateGraphService;
 import org.rust.lang.core.crate.impl.CargoBasedCrate;
 import org.rust.lang.core.crate.impl.DoctestCrate;
@@ -195,6 +198,52 @@ public final class FacadeResolve {
         return defMap.getRoot().processMacros(call.getPath(), processor, info);
     }
 
+    /**
+     * The segments of a macro call path as the def map resolves them. A path expanded from a macro starts with the
+     * `$crate` placeholder: it is followed by the id of the crate it stands for. A single-segment call made by a
+     * `#[macro_export(local_inner_macros)]` macro is resolved in the crate of that macro.
+     */
+    @Nullable
+    private static String[] pathSegmentsAdjusted(@Nonnull RsPath path) {
+        String[] segments = RsPathUtil.getPathSegmentsAdjusted(path);
+        if (segments == null) return null;
+
+        if (!(RsExpandedElementUtil.findMacroCallExpandedFromNonRecursive(path) instanceof RsMacroCall callExpandedFrom)) {
+            return segments;
+        }
+        RsMod containingMod = callExpandedFrom.getContainingMod();
+        RsModInfo info = containingMod != null ? getModInfo(containingMod) : null;
+        if (info == null) return segments;
+        MacroDefInfo def = resolveToMacroDefInfo(callExpandedFrom, info);
+        if (def == null) return segments;
+
+        boolean hasLocalInnerMacros = def instanceof DeclMacroDefInfo && ((DeclMacroDefInfo) def).isHasLocalInnerMacros();
+        if (segments.length == 1 && !RsExpandedElementUtil.cameFromMacroCall(path) && hasLocalInnerMacros) {
+            return new String[]{DeclMacroConstantsUtil.MACRO_DOLLAR_CRATE_IDENTIFIER, String.valueOf(def.getCrate()), segments[0]};
+        }
+        return withDollarCrateId(path, segments);
+    }
+
+    /** {@link #pathSegmentsAdjusted} without the `local_inner_macros` case. */
+    @Nullable
+    private static String[] pathSegmentsAdjustedForAttrMacro(@Nonnull RsPath path) {
+        String[] segments = RsPathUtil.getPathSegmentsAdjusted(path);
+        return segments == null ? null : withDollarCrateId(path, segments);
+    }
+
+    @Nonnull
+    private static String[] withDollarCrateId(@Nonnull RsPath path, @Nonnull String[] segments) {
+        if (!DeclMacroConstantsUtil.MACRO_DOLLAR_CRATE_IDENTIFIER.equals(segments[0])) return segments;
+        Crate crate = NameResolution.resolveDollarCrateIdentifier(path);
+        Integer crateId = crate != null ? crate.getId() : null;
+        if (crateId == null) return segments;
+        String[] result = new String[segments.length + 1];
+        result[0] = DeclMacroConstantsUtil.MACRO_DOLLAR_CRATE_IDENTIFIER;
+        result[1] = crateId.toString();
+        System.arraycopy(segments, 1, result, 2, segments.length - 1);
+        return result;
+    }
+
     @Nullable
     private static Object[] resolveToMacroInfo(@Nonnull RsPossibleMacroCall call) {
         RsItemsOwner scope = RsElementUtil.contextStrict(call, RsItemsOwner.class);
@@ -232,7 +281,7 @@ public final class FacadeResolve {
         CrateDefMap defMap = info.getDefMap();
         ModData modData = info.getModData();
         RsPath path = metaItem.getPath();
-        String[] macroPath = path != null ? RsPathUtil.getPathSegmentsAdjustedForAttrMacro(path) : null;
+        String[] macroPath = path != null ? pathSegmentsAdjustedForAttrMacro(path) : null;
         if (macroPath == null) return null;
         if (macroPath.length == 1) {
             String name = macroPath[0];
@@ -259,7 +308,7 @@ public final class FacadeResolve {
         Crate crate = containingModInfo.getCrate();
         return RsResolveCache.getInstance(project).resolveWithCaching(call, ResolveCacheDependency.LOCAL_AND_RUST_STRUCTURE, (c) -> {
             RsPath callPath = c.getPath();
-            String[] pathSegments = callPath != null ? RsPathUtil.getPathSegmentsAdjusted(callPath) : null;
+            String[] pathSegments = callPath != null ? pathSegmentsAdjusted(callPath) : null;
             if (pathSegments == null) return null;
             MacroIndex macroIndex = containingModInfo.getMacroIndex(c, crate);
             if (macroIndex == null) return null;

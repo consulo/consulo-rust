@@ -135,21 +135,66 @@ public final class FormatImpl {
         for (ParsedParameter param : ctx.getParameters()) {
             java.util.regex.MatchResult completeMatch = param.getCompleteMatch();
             java.util.regex.MatchResult match = param.getInnerContentMatch();
-            if (match == null) continue;
+            if (match == null || completeMatch.group(2) == null) continue;
+            if ("{{".equals(match.group()) || "}}".equals(match.group())) continue;
+            // offsets of the groups below are relative to the content between the braces
+            int innerStart = completeMatch.start(2);
 
-            String idStr = getNamedGroup(match, "id");
-            String typeStr = getNamedGroup(match, "type");
-            if (typeStr == null) typeStr = "";
+            String id = getNamedGroup(match, "id");
+            String precision = getNamedGroup(match, "precision");
+            boolean isPrecisionAsterisk = "*".equals(precision);
+            boolean isPrecisionValueFirst = false;
 
+            String type = getNamedGroup(match, "type");
+            String typeStr = type != null ? type : "";
+            TextRange typeRange = type != null
+                ? ctx.toSourceRange(match.start("type"), match.end("type") - 1, innerStart)
+                : ctx.toSourceRange(0, 0, innerStart);
             TextRange paramRange = ctx.toSourceRange(param.getRangeStart(), param.getRangeEnd());
-            TextRange typeRange = paramRange; // simplified
 
-            if (idStr != null) {
+            if (id != null) {
+                ParameterMatchInfo matchInfo = new ParameterMatchInfo(
+                    ctx.toSourceRange(match.start("id"), match.end("id") - 1, innerStart), completeMatch.group());
+                isPrecisionValueFirst = true;
+                result.add(new FormatParameter.Value(matchInfo, buildLookup(id), typeStr, typeRange));
+            }
+            else {
                 ParameterMatchInfo matchInfo = new ParameterMatchInfo(paramRange, completeMatch.group());
-                result.add(new FormatParameter.Value(matchInfo, buildLookup(idStr), typeStr, typeRange));
-            } else {
-                ParameterMatchInfo matchInfo = new ParameterMatchInfo(paramRange, completeMatch.group());
-                result.add(new FormatParameter.Value(matchInfo, new ParameterLookup.Positional(implicitPositionCounter++), typeStr, typeRange));
+                if (isPrecisionAsterisk) {
+                    result.add(new FormatParameter.Specifier(matchInfo, new ParameterLookup.Positional(implicitPositionCounter++), "precision"));
+                }
+                else {
+                    result.add(new FormatParameter.Value(matchInfo, new ParameterLookup.Positional(implicitPositionCounter++), typeStr, typeRange));
+                }
+            }
+
+            // `{:1$}` and `{:.prec$}` take the width or the precision from an argument
+            for (String specifier : new String[]{"width", "precision"}) {
+                String text = getNamedGroup(match, specifier);
+                if (text == null || !text.endsWith("$")) continue;
+                result.add(new FormatParameter.Specifier(
+                    new ParameterMatchInfo(ctx.toSourceRange(match.start(specifier), match.end(specifier) - 1, innerStart), text),
+                    buildLookup(text.substring(0, text.length() - 1)),
+                    specifier
+                ));
+            }
+
+            // `{:.*}` takes the precision from the next positional argument, before or after the value
+            if (isPrecisionAsterisk) {
+                if (isPrecisionValueFirst) {
+                    result.add(new FormatParameter.Specifier(
+                        new ParameterMatchInfo(ctx.toSourceRange(match.start("precision"), match.end("precision") - 1, innerStart), precision),
+                        new ParameterLookup.Positional(implicitPositionCounter++),
+                        "precision"
+                    ));
+                }
+                else {
+                    result.add(new FormatParameter.Value(
+                        new ParameterMatchInfo(paramRange, completeMatch.group()),
+                        new ParameterLookup.Positional(implicitPositionCounter++),
+                        typeStr, typeRange
+                    ));
+                }
             }
         }
 
@@ -298,15 +343,11 @@ public final class FormatImpl {
 
     @Nullable
     private static String getNamedGroup(@Nonnull java.util.regex.MatchResult match, @Nonnull String name) {
-        // Java regex MatchResult doesn't support named groups directly from MatchResult
-        // This is a simplified implementation
         try {
-            if (match instanceof Matcher) {
-                return ((Matcher) match).group(name);
-            }
-        } catch (IllegalArgumentException e) {
-            // Group name not found
+            return match.group(name);
         }
-        return null;
+        catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 }

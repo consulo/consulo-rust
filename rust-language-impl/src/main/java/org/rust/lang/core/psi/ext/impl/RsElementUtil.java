@@ -500,18 +500,31 @@ public final class RsElementUtil {
      */
     @Nonnull
     public static <T extends RsElement> List<T> filterInScope(@Nonnull List<T> elements, @Nonnull PsiElement context) {
-        RsMod contextMod = getContainingMod(context);
-        if (contextMod == null) return elements;
-        List<T> result = new ArrayList<>();
-        for (T element : elements) {
-            if (element instanceof RsVisible) {
-                if (RsVisibilityUtil.isVisibleFrom((RsVisible) element, contextMod)) {
-                    result.add(element);
+        if (elements.isEmpty() || !(context instanceof RsElement rsContext)) return elements;
+        // in scope means named somewhere up the scopes of the context - declared, imported (also as `_`) or in the
+        // prelude; being merely visible from there is not enough
+        java.util.Set<RsElement> notFound = new java.util.HashSet<>(elements);
+        org.rust.lang.core.resolve.NameResolution.processNestedScopesUpwards(
+            rsContext,
+            org.rust.lang.core.resolve.Namespace.TYPES,
+            null,
+            new org.rust.lang.core.resolve.RsResolveProcessor() {
+                @Override
+                public boolean process(@Nonnull org.rust.lang.core.resolve.ScopeEntry entry) {
+                    notFound.remove(entry.getElement());
+                    return notFound.isEmpty();
                 }
-            } else {
-                result.add(element);
+
+                @Nullable
+                @Override
+                public java.util.Set<String> getNames() {
+                    return null;
+                }
             }
-        }
+        );
+        if (notFound.isEmpty()) return elements;
+        List<T> result = new ArrayList<>(elements);
+        result.removeAll(notFound);
         return result;
     }
 
