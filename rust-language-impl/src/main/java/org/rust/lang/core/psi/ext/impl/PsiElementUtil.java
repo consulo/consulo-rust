@@ -107,12 +107,11 @@ public final class PsiElementUtil {
 
     @Nonnull
     public static <T extends PsiElement> List<T> childrenOfType(@Nonnull PsiElement element, @Nonnull Class<T> clazz) {
-        Collection<T> found = PsiTreeUtil.findChildrenOfType(element, clazz);
-        // Only direct children
+        // the direct children only: walking the whole subtree would also parse every lazily parsed block in it
         List<T> result = new ArrayList<>();
-        for (T child : found) {
-            if (child.getParent() == element) {
-                result.add(child);
+        for (PsiElement child = element.getFirstChild(); child != null; child = child.getNextSibling()) {
+            if (clazz.isInstance(child)) {
+                result.add(clazz.cast(child));
             }
         }
         return result;
