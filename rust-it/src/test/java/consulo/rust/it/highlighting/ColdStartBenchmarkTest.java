@@ -163,12 +163,15 @@ public class ColdStartBenchmarkTest {
                 time(report, project, "resolve every path of the file", () -> {
                     int resolved = 0;
                     int total = 0;
+                    List<String> unresolved = new ArrayList<>();
                     for (RsPath path : PsiTreeUtil.findChildrenOfType(rsFile.get(), RsPath.class)) {
                         PsiReference reference = path.getReference();
                         if (reference == null) continue;
                         total++;
                         if (reference.resolve() != null) resolved++;
+                        else unresolved.add(path.getText());
                     }
+                    if (round.equals("cold")) report.add("unresolved: " + unresolved);
                     return resolved + "/" + total + " resolved";
                 });
             }
@@ -232,7 +235,7 @@ public class ColdStartBenchmarkTest {
         if (elapsed > 1000) {
             inclusive.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                .limit(40)
+                .limit(150)
                 .forEach(e -> report.add(String.format("      %3d%%  %s", e.getValue() * 100 / Math.max(1, samples[0]), e.getKey())));
         }
     }
