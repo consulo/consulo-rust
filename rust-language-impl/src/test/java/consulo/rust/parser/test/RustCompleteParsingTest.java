@@ -371,6 +371,12 @@ public class RustCompleteParsingTest extends SimpleParsingTest<Object> {
         doTest(context, null);
     }
 
+    /** Item syntax newer than the upstream fixtures: const traits, `[const]` bounds, `use<..>`, `safe` items. */
+    @Test
+    public void testNewerItemSyntax(Context context) throws Exception {
+        doTest(context, null);
+    }
+
     /** No tree is recorded upstream for this one; it only asserts the parser terminates. */
     @Test
     public void testWayTooManyTypeQuals(Context context) throws Exception {

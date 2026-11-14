@@ -92,6 +92,7 @@ public final class StubImplementationsKt {
             case "TYPE_PARAM_BOUNDS": return new RsPlaceholderStub.Type<>("TYPE_PARAM_BOUNDS", RsTypeParamBoundsImpl::new);
             case "POLYBOUND": return RsPolyboundStub.Type;
             case "BOUND": return new RsPlaceholderStub.Type<>("BOUND", RsBoundImpl::new);
+            case "USE_BOUND_GENERIC_ARGS": return new RsPlaceholderStub.Type<>("USE_BOUND_GENERIC_ARGS", RsUseBoundGenericArgsImpl::new);
             case "WHERE_CLAUSE": return new RsPlaceholderStub.Type<>("WHERE_CLAUSE", RsWhereClauseImpl::new);
             case "WHERE_PRED": return new RsPlaceholderStub.Type<>("WHERE_PRED", RsWherePredImpl::new);
             case "RET_TYPE": return new RsPlaceholderStub.Type<>("RET_TYPE", RsRetTypeImpl::new);

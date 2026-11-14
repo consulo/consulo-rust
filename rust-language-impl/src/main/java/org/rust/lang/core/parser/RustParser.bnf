@@ -84,6 +84,7 @@
         ASYNC     = 'async_kw'
         TRY       = 'try_kw'
         RAW       = 'raw_kw'
+        SAFE      = 'safe_kw'
 
         MACRO_KW  = 'macro'
         CSELF     = 'Self'
@@ -316,6 +317,7 @@ private async ::= <<asyncKeyword>>
 private asyncBlock ::= <<asyncBlockKeyword>>
 private try ::= <<tryKeyword>>
 private raw ::= <<rawKeyword>>
+private safe ::= <<safeKeyword>>
 
 private AttrsAndVis ::= OuterAttr* Vis?
 private AttrsAndVis_first ::= '#' | crate | pub
@@ -344,7 +346,7 @@ Item ::= AttrsAndVis default_? (Constant
 }
 
 private Item_first ::= '#' | pub | crate | fn | const | extern | unsafe | struct | enum | use | identifier | mod | trait
-  | static | TYPE_KW | impl | "union" | "default" | "auto" | "dyn" | "async" | MACRO_KW | self | super | '::'
+  | static | TYPE_KW | impl | "union" | "default" | "auto" | "dyn" | "async" | "safe" | MACRO_KW | self | super | '::'
 
 private RootItem_with_recover ::= !<<eof>> Item {
   pin = 1
@@ -426,7 +428,7 @@ FnTypeParameters      ::= <<variadic_params_impl AnonParameter>>
 PathParameters        ::= '::'? '(' [ <<comma_separated_list PathParameter>> ] ')' { pin = 2 }
 
 
-private meta variadic_params_impl ::= '(' [ <<param>> (',' <<param>>)*  [ ',' '...'? ] ] ')' { pin = 1 }
+private meta variadic_params_impl ::= '(' [ <<param>> (',' <<param>>)*  [ ',' [ [ '_' ':' ] '...' ] ] ] ')' { pin = 1 }
 
 private RestrictedPat ::= &( [ mut | '&' '&'? ] ( identifier | '_' ) ) Pat
 
@@ -519,8 +521,12 @@ ForLifetimes ::= for '<' LifetimesParams '>' {
   elementTypeFactory = "org.rust.lang.core.stubs.StubImplementationsKt.factory"
 }
 
-// Constness of a bound: `~const Trait` and the later `const Trait` spelling.
-TildeConst ::= TildeConstWithTilde | const
+// Constness of a bound: `~const Trait`, the later `const Trait` and the current `[const] Trait` spelling.
+TildeConst ::= TildeConstWithTilde | TildeConstInBrackets | const
+
+private TildeConstInBrackets ::= '[' const ']' {
+  pin = 2
+}
 
 // Pinned on the `~`, so a lone `~` reports the missing `const` here instead of failing the bound
 // and collapsing the whole parameter list around it.
@@ -537,7 +543,7 @@ RetType ::= '->' TypeReferenceNoImplicitTraitType {
   elementTypeFactory = "org.rust.lang.core.stubs.StubImplementationsKt.factory"
 }
 
-upper Function ::= async? const? unsafe? ExternAbi?
+upper Function ::= async? const? (unsafe | safe)? ExternAbi?
                    fn identifier
                    TypeParameterList?
                    FnParameters
@@ -654,7 +660,7 @@ PatField ::= PatFieldFull | box? PatBinding
 
 BindingMode ::= ref mut? | mut
 
-upper Constant ::= (static mut? | const) (identifier | '_') TypeAscription? [ '=' AnyExpr ] ';' {
+upper Constant ::= (safe? static mut? | const) (identifier | '_') TypeAscription? [ '=' AnyExpr ] ';' {
   pin = 2
   name = ""
   implements = [ "org.rust.lang.core.psi.ext.RsQualifiedNamedElement"
@@ -880,7 +886,7 @@ TupleFieldDecl ::= AttrsAndVis TypeReference DefaultParameterValue? {
 // Trait & Impl
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-upper TraitItem ::= unsafe? auto? trait identifier TypeParameterList? TypeParamBounds? WhereClause? Members {
+upper TraitItem ::= const? unsafe? auto? trait identifier TypeParameterList? TypeParamBounds? WhereClause? Members {
   pin = "trait"
   name = ""
   implements = [ "org.rust.lang.core.psi.ext.RsTraitOrImpl"
@@ -895,7 +901,7 @@ upper TraitItem ::= unsafe? auto? trait identifier TypeParameterList? TypeParamB
   elementTypeFactory = "org.rust.lang.core.stubs.StubImplementationsKt.factory"
 }
 
-upper ImplItem ::= unsafe? impl TypeParameterList? const? ( TraitImpl | InherentImpl ) WhereClause? Members {
+upper ImplItem ::= const? unsafe? impl TypeParameterList? const? ( TraitImpl | InherentImpl ) WhereClause? Members {
   pin = "impl"
   name = ""
   implements = [ "org.rust.lang.core.psi.ext.RsTraitOrImpl"
@@ -1032,7 +1038,15 @@ TupleOrParenType ::= '(' !')' TypeReference (TupleType_upper | ')') {
 
 upper TupleType_upper ::= ',' [ TypeReference (',' TypeReference)* ','? ] ')' { pin = 1 elementType = TupleType }
 
-Bound ::= Lifetime | TraitRef {
+Bound ::= Lifetime | TraitRef | UseBoundGenericArgs {
+  extends = "org.rust.lang.core.psi.ext.impl.RsStubbedElementImpl<?>"
+  stubClass = "org.rust.lang.core.stubs.RsPlaceholderStub<?>"
+  elementTypeFactory = "org.rust.lang.core.stubs.StubImplementationsKt.factory"
+}
+
+// `impl Trait + use<'a, T>`: the generic parameters an opaque type captures
+UseBoundGenericArgs ::= use TypeArgumentList {
+  pin = 1
   extends = "org.rust.lang.core.psi.ext.impl.RsStubbedElementImpl<?>"
   stubClass = "org.rust.lang.core.stubs.RsPlaceholderStub<?>"
   elementTypeFactory = "org.rust.lang.core.stubs.StubImplementationsKt.factory"

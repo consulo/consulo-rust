@@ -23,7 +23,7 @@ public final class RsTokenSets {
     }
 
     public static final TokenSet RS_KEYWORDS = RsTokenType.tokenSetOf(
-        RsElementTypes.AS, RsElementTypes.ASYNC, RsElementTypes.AUTO,
+        RsElementTypes.AS, RsElementTypes.ASYNC, RsElementTypes.AUTO, RsElementTypes.SAFE,
         RsElementTypes.BOX, RsElementTypes.BREAK,
         RsElementTypes.CONST, RsElementTypes.CONTINUE, RsElementTypes.CRATE, RsElementTypes.CSELF,
         RsElementTypes.DEFAULT, RsElementTypes.DYN,
@@ -118,7 +118,7 @@ public final class RsTokenSets {
     );
 
     public static final TokenSet RS_CONTEXTUAL_KEYWORDS = RsTokenType.tokenSetOf(
-        RsElementTypes.DEFAULT, RsElementTypes.UNION, RsElementTypes.AUTO, RsElementTypes.DYN, RsElementTypes.RAW
+        RsElementTypes.DEFAULT, RsElementTypes.UNION, RsElementTypes.AUTO, RsElementTypes.DYN, RsElementTypes.RAW, RsElementTypes.SAFE
     );
 
     public static final TokenSet RS_EDITION_2018_KEYWORDS = RsTokenType.tokenSetOf(

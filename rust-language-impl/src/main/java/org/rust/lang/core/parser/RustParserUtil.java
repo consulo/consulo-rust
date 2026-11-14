@@ -720,6 +720,12 @@ public class RustParserUtil extends GeneratedParserUtilBase {
         return contextualKeyword(b, "try", TRY, it -> TRY_NEXT_ELEMENTS.contains(it));
     }
 
+    /** {@code safe} marks an item of an {@code unsafe extern} block as safe to use: {@code safe fn}, {@code safe static}. */
+    @SuppressWarnings("unused")
+    public static boolean safeKeyword(@Nonnull PsiBuilder b, int level) {
+        return contextualKeyword(b, "safe", SAFE, it -> it == FN || it == STATIC);
+    }
+
     @SuppressWarnings("unused")
     public static boolean rawKeyword(@Nonnull PsiBuilder b, int level) {
         return contextualKeywordWithRollback(b, "raw", RAW);

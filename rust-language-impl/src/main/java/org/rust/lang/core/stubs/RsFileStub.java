@@ -92,7 +92,7 @@ public class RsFileStub extends PsiFileStubImpl<RsFile> implements RsAttributeOw
 
     public static final IStubFileElementType<RsFileStub> Type = new IStubFileElementType<RsFileStub>(RsLanguage.INSTANCE) {
         // Bump this number whenever the stub layout changes
-        private static final int STUB_VERSION = 235;
+        private static final int STUB_VERSION = 236;
 
         @Override
         public int getStubVersion() {
