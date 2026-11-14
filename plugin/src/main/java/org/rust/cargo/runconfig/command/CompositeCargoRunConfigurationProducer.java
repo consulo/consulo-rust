@@ -14,6 +14,7 @@ import consulo.execution.action.ConfigurationContext;
 import consulo.execution.action.ConfigurationFromContext;
 import consulo.execution.configuration.RunConfiguration;
 import consulo.module.Module;
+import consulo.project.DumbService;
 import consulo.util.lang.ref.SimpleReference;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
@@ -117,6 +118,8 @@ public class CompositeCargoRunConfigurationProducer extends CargoRunConfiguratio
 
     @Nullable
     private ConfigurationFromContext createPreferredConfigurationFromContext(@Nonnull ConfigurationContext context) {
+        // the producers read the def maps, which need the indexes
+        if (DumbService.isDumb(context.getProject())) return null;
         List<ConfigurationFromContext> configs = new ArrayList<>();
         for (CargoRunConfigurationProducer producer : myProducers) {
             ConfigurationFromContext config = producer.createConfigurationFromContext(context);
