@@ -21,8 +21,10 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.cargo.runconfig.test.CargoBenchRunConfigurationProducer;
 import org.rust.cargo.runconfig.test.CargoTestRunConfigurationProducer;
+import org.rust.lang.core.resolve2.DefMapService;
 
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
 @ExtensionImpl
@@ -118,8 +120,11 @@ public class CompositeCargoRunConfigurationProducer extends CargoRunConfiguratio
 
     @Nullable
     private ConfigurationFromContext createPreferredConfigurationFromContext(@Nonnull ConfigurationContext context) {
-        // the producers read the def maps, which need the indexes
+        // the producers read the def maps, which need the indexes. They run in action updates, under the read lock, so they
+        // must not wait for a def map build either: until it is done, there is no configuration
         if (DumbService.isDumb(context.getProject())) return null;
+        ReentrantLock buildLock = context.getProject().getInstance(DefMapService.class).getDefMapsBuildLock();
+        if (buildLock.isLocked() && !buildLock.isHeldByCurrentThread()) return null;
         List<ConfigurationFromContext> configs = new ArrayList<>();
         for (CargoRunConfigurationProducer producer : myProducers) {
             ConfigurationFromContext config = producer.createConfigurationFromContext(context);

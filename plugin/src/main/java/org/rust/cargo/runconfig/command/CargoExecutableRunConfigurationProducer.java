@@ -10,19 +10,17 @@ import consulo.execution.action.ConfigurationContext;
 import consulo.util.lang.ref.SimpleReference;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.language.psi.PsiElement;
-import consulo.language.psi.PsiFile;
+import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.rust.cargo.api.model.CargoProjectsService;
 import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.cargo.runconfig.RunConfigUtil;
 import org.rust.cargo.toolchain.CargoCommandLine;
-import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
-import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
-import org.rust.openapiext.OpenApiUtil;
 
 public class CargoExecutableRunConfigurationProducer extends CargoRunConfigurationProducer {
 
@@ -62,25 +60,26 @@ public class CargoExecutableRunConfigurationProducer extends CargoRunConfigurati
 
     public static boolean isMainFunction(RsFunction fn) {
         if (!RsFunctionUtil.isMain(fn)) return false;
-        CargoWorkspace ws = RsElementUtil.getCargoWorkspace(fn);
-        if (ws == null) return false;
-        return findBinaryTarget(ws, fn.getContainingFile().getVirtualFile()) != null;
+        VirtualFile file = fn.getContainingFile().getVirtualFile();
+        return file != null && findBinaryTarget(fn.getProject(), file) != null;
     }
 
     @Nullable
     private static ExecutableTarget findBinaryTarget(Location<?> location) {
         VirtualFile file = location.getVirtualFile();
         if (file == null) return null;
-        PsiFile psiFile = org.rust.openapiext.OpenApiUtil.toPsiFile(file, location.getProject());
-        if (!(psiFile instanceof RsFile rsFile)) return null;
-        CargoWorkspace ws = rsFile.getCargoWorkspace();
-        if (ws == null) return null;
-        return findBinaryTarget(ws, file);
+        return findBinaryTarget(location.getProject(), file);
     }
 
+    /**
+     * The binary whose crate root is {@code file}, found in the Cargo project model by path: a crate root needs no name
+     * resolution, and the producers run in action updates, which must not wait for the def maps.
+     */
     @Nullable
-    private static ExecutableTarget findBinaryTarget(CargoWorkspace ws, VirtualFile file) {
-        CargoWorkspace.Target target = ws.findTargetByCrateRoot(file);
+    private static ExecutableTarget findBinaryTarget(@Nonnull Project project, @Nonnull VirtualFile file) {
+        CargoWorkspace.Package pkg = CargoProjectsService.getInstance(project).findPackageForFile(file);
+        if (pkg == null) return null;
+        CargoWorkspace.Target target = pkg.getWorkspace().findTargetByCrateRoot(file);
         if (target == null) return null;
         if (!target.getKind().isBin() && !target.getKind().isExampleBin()) return null;
         return new ExecutableTarget(target);
