@@ -17,6 +17,7 @@ import consulo.rust.module.extension.RustModuleExtension;
 import consulo.rust.module.extension.RustMutableModuleExtension;
 import consulo.util.concurrent.coroutine.CoroutineScope;
 import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.RefreshQueue;
 import consulo.virtualFileSystem.VirtualFile;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +34,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,6 +73,7 @@ public class CargoWorkspaceRestoreTest {
             .isNotNull();
 
         saveProject(first, application);
+        awaitRefresh(root);
         projects.close(first);
 
         Project second = projects.open(directory);
@@ -137,6 +140,17 @@ public class CargoWorkspaceRestoreTest {
             extension.setCargoWorkspaceState(state);
             rootModel.commit();
         });
+    }
+
+    /**
+     * Saving creates the project directory, and the refresh that picks it up scans it with the project's file index. Closing
+     * the project under that scan fails it, so the close waits for it: the refresh sessions run one after another, so one
+     * queued after it finishes after it.
+     */
+    private static void awaitRefresh(VirtualFile root) throws Exception {
+        CompletableFuture<Void> refreshed = new CompletableFuture<>();
+        RefreshQueue.getInstance().refresh(true, true, () -> refreshed.complete(null), root);
+        refreshed.get(HeadlessProjects.TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     private static String directoryUrl(Path directory) {
