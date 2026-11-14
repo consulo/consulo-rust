@@ -18,9 +18,9 @@ import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.cargo.runconfig.RunConfigUtil;
 import org.rust.cargo.toolchain.CargoCommandLine;
 import org.rust.lang.core.psi.RsFunction;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.lang.core.psi.ext.RsElement;
 import org.rust.lang.core.psi.ext.impl.RsPsiJavaUtil;
-import org.rust.lang.core.psi.ext.impl.RsFunctionUtil;
 
 public class CargoExecutableRunConfigurationProducer extends CargoRunConfigurationProducer {
 
@@ -58,8 +58,14 @@ public class CargoExecutableRunConfigurationProducer extends CargoRunConfigurati
         return true;
     }
 
+    /**
+     * Whether {@code fn} is the {@code main} of a binary: a top-level {@code fn main} of a file the Cargo project model
+     * knows as the crate root of a binary target. Like the target lookup, it needs no name resolution, so the run
+     * markers and configurations of a binary are there as soon as the project model is.
+     */
     public static boolean isMainFunction(RsFunction fn) {
-        if (!RsFunctionUtil.isMain(fn)) return false;
+        if (!"main".equals(fn.getName())) return false;
+        if (!(fn.getContext() instanceof RsFile)) return false;
         VirtualFile file = fn.getContainingFile().getVirtualFile();
         return file != null && findBinaryTarget(fn.getProject(), file) != null;
     }

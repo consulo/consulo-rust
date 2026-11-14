@@ -31,8 +31,9 @@ import java.util.function.Function;
 @ExtensionImpl
 public class CompositeCargoRunConfigurationProducer extends CargoRunConfigurationProducer {
 
+    private final CargoExecutableRunConfigurationProducer myExecutableProducer = new CargoExecutableRunConfigurationProducer();
     private final List<CargoRunConfigurationProducer> myProducers = Arrays.asList(
-        new CargoExecutableRunConfigurationProducer(),
+        myExecutableProducer,
         new CargoTestRunConfigurationProducer(),
         new CargoBenchRunConfigurationProducer()
     );
@@ -79,7 +80,7 @@ public class CompositeCargoRunConfigurationProducer extends CargoRunConfiguratio
         @Nonnull CargoCommandConfiguration configuration,
         @Nonnull ConfigurationContext context
     ) {
-        for (CargoRunConfigurationProducer producer : myProducers) {
+        for (CargoRunConfigurationProducer producer : producersFor(context)) {
             if (producer.isConfigurationFromContext(configuration, context)) {
                 return true;
             }
@@ -93,7 +94,7 @@ public class CompositeCargoRunConfigurationProducer extends CargoRunConfiguratio
         @Nonnull ConfigurationContext context,
         @Nonnull SimpleReference<PsiElement> sourceElement
     ) {
-        for (CargoRunConfigurationProducer producer : myProducers) {
+        for (CargoRunConfigurationProducer producer : producersFor(context)) {
             if (producer.setupConfigurationFromContext(configuration, context, sourceElement)) {
                 return true;
             }
@@ -119,16 +120,25 @@ public class CompositeCargoRunConfigurationProducer extends CargoRunConfiguratio
         return configuration;
     }
 
-    @Nullable
-    private ConfigurationFromContext createPreferredConfigurationFromContext(@Nonnull ConfigurationContext context) {
-        // the producers read the def maps, which need the indexes. They run in action updates, so they must not build a
-        // def map or wait for one: until the def maps of the file are built, there is no configuration
-        if (DumbService.isDumb(context.getProject())) return null;
+    /**
+     * The producers that can answer for the context now. They run in action updates, so they must not build a def map or
+     * wait for one: the binary producer finds its target in the Cargo project model by path, but the test and bench
+     * producers need the crate of the file, so they have no answer until its def maps are built - and none in dumb mode,
+     * as the def maps need the indexes.
+     */
+    @Nonnull
+    private List<CargoRunConfigurationProducer> producersFor(@Nonnull ConfigurationContext context) {
+        if (DumbService.isDumb(context.getProject())) return List.of(myExecutableProducer);
         PsiElement psiLocation = context.getPsiLocation();
         PsiFile file = psiLocation != null ? psiLocation.getContainingFile() : null;
-        if (file instanceof RsFile rsFile && !FacadeResolve.areDefMapsReadyFor(rsFile)) return null;
+        if (file instanceof RsFile rsFile && !FacadeResolve.areDefMapsReadyFor(rsFile)) return List.of(myExecutableProducer);
+        return myProducers;
+    }
+
+    @Nullable
+    private ConfigurationFromContext createPreferredConfigurationFromContext(@Nonnull ConfigurationContext context) {
         List<ConfigurationFromContext> configs = new ArrayList<>();
-        for (CargoRunConfigurationProducer producer : myProducers) {
+        for (CargoRunConfigurationProducer producer : producersFor(context)) {
             ConfigurationFromContext config = producer.createConfigurationFromContext(context);
             if (config != null) {
                 configs.add(config);
@@ -141,7 +151,7 @@ public class CompositeCargoRunConfigurationProducer extends CargoRunConfiguratio
     @Nullable
     private CargoRunConfigurationProducer getPreferredProducerForContext(@Nonnull ConfigurationContext context) {
         List<Map.Entry<ConfigurationFromContext, CargoRunConfigurationProducer>> pairs = new ArrayList<>();
-        for (CargoRunConfigurationProducer producer : myProducers) {
+        for (CargoRunConfigurationProducer producer : producersFor(context)) {
             ConfigurationFromContext config = producer.createConfigurationFromContext(context);
             if (config != null) {
                 pairs.add(new AbstractMap.SimpleEntry<>(config, producer));
