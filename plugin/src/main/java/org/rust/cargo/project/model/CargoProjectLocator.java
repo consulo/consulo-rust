@@ -17,7 +17,6 @@ import org.rust.cargo.api.workspace.CargoWorkspace;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.nio.file.Paths;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.LocalFileSystem;
 import org.rust.cargo.api.workspace.PackageOrigin;
@@ -46,7 +45,7 @@ public final class CargoProjectLocator {
             // the manifest is a path of the machine the project lives on
             manifestPath = workingDirectory != null
                 ? workingDirectory.getFileSystem().getPath(additionalArgs.get(idx + 1))
-                : Paths.get(additionalArgs.get(idx + 1));
+                : project.getPlatform().fs().getPath(additionalArgs.get(idx + 1));
         }
 
         List<Path> dirs = new ArrayList<>();

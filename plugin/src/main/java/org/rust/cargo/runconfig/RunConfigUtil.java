@@ -103,7 +103,7 @@ public final class RunConfigUtil {
         RustProjectSettingsService settings = project.getService(RustProjectSettingsService.class);
         arguments.add("--all");
         if (settings.getCompileAllTargets()) {
-            org.rust.cargo.toolchain.RsToolchainBase toolchain = RsToolchainLocator.load(settings.getState());
+            org.rust.cargo.toolchain.RsToolchainBase toolchain = RsToolchainLocator.getToolchain(project);
             boolean allTargets = false;
             if (toolchain != null) {
                 allTargets = new Cargo(toolchain).checkSupportForBuildCheckAllTargets();

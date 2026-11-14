@@ -192,6 +192,21 @@ public class CargoCommandConfiguration extends RsCommandConfiguration implements
         return file;
     }
 
+    /**
+     * The input file as a path of the machine the project lives on, relative paths taken from the working directory.
+     */
+    @Nullable
+    private Path getRedirectInputTargetPath() {
+        String redirectInputPath = getRedirectInputPath();
+        if (redirectInputPath == null || redirectInputPath.isEmpty()) {
+            return null;
+        }
+        String expanded = ProgramParametersUtil.expandPath(redirectInputPath, null, getProject());
+        Path workingDirectory = getWorkingDirectory();
+        Path path = getProject().getPlatform().fs().getPath(expanded);
+        return path.isAbsolute() || workingDirectory == null ? path : workingDirectory.resolve(expanded);
+    }
+
     public boolean isRedirectInput() {
         return getOptions().isRedirectInput();
     }
@@ -240,11 +255,11 @@ public class CargoCommandConfiguration extends RsCommandConfiguration implements
     @Override
     public void checkConfiguration() throws RuntimeConfigurationException {
         if (isRedirectInput()) {
-            File file = getRedirectInputFile();
-            if (file == null || !file.exists()) {
+            Path file = getRedirectInputTargetPath();
+            if (file == null || !java.nio.file.Files.exists(file)) {
                 throw new RuntimeConfigurationWarning(RsBundle.message("dialog.message.input.file.doesn.t.exist"));
             }
-            if (!file.isFile()) {
+            if (!java.nio.file.Files.isRegularFile(file)) {
                 throw new RuntimeConfigurationWarning(RsBundle.message("dialog.message.input.file.not.valid"));
             }
         }

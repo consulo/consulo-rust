@@ -28,7 +28,6 @@ import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.cargo.api.util.ToolchainUtil;
 import org.rust.openapiext.JsonUtils;
 
-import java.io.File;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -147,7 +146,8 @@ public class CargoTestEventsConverter extends OutputToGeneralTestEventsConverter
                     fileSeparator = toolchain.getFileSeparator();
                 }
                 if (fileSeparator == null) {
-                    fileSeparator = File.separator;
+                    // the test executable runs on the machine of the project
+                    fileSeparator = project.getPlatform().fs().getSeparator();
                 }
                 int sepIdx = trimmed.lastIndexOf(fileSeparator);
                 String afterSep = sepIdx >= 0 ? trimmed.substring(sepIdx + fileSeparator.length()) : trimmed;
