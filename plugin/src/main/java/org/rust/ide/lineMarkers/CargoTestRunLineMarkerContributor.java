@@ -9,11 +9,11 @@ import consulo.language.Language;
 
 import consulo.execution.test.TestStateStorage;
 import consulo.annotation.component.ExtensionImpl;
+import consulo.execution.icon.ExecutionIconGroup;
 import consulo.execution.lineMarker.ExecutorAction;
 import consulo.execution.lineMarker.RunLineMarkerContributor;
 import consulo.execution.test.TestIconMapper;
 import consulo.execution.test.TestStateInfo;
-import consulo.application.AllIcons;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -72,7 +72,7 @@ public class CargoTestRunLineMarkerContributor extends RunLineMarkerContributor 
         // This is a simplification - the actual type depends on the producer
         consulo.ui.image.Image icon = getTestStateIcon(target);
         if (icon == null) {
-            icon = AllIcons.RunConfigurations.Application;
+            icon = ExecutionIconGroup.gutterRun();
         }
 
         consulo.ui.image.Image finalIcon = icon;

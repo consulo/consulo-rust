@@ -8,10 +8,10 @@ import org.rust.lang.RsLanguage;
 import consulo.language.Language;
 
 import consulo.annotation.component.ExtensionImpl;
+import consulo.execution.icon.ExecutionIconGroup;
 import consulo.execution.lineMarker.ExecutorAction;
 import consulo.execution.lineMarker.RunLineMarkerContributor;
 import consulo.ui.ex.action.AnAction;
-import consulo.application.AllIcons;
 import consulo.language.psi.PsiElement;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -40,7 +40,7 @@ public class CargoExecutableRunLineMarkerContributor extends RunLineMarkerContri
 
         AnAction[] actions = ExecutorAction.getActions(0);
         return new Info(
-            AllIcons.RunConfigurations.Application,
+            ExecutionIconGroup.gutterRun(),
             psiElement -> {
                 String[] texts = Arrays.stream(actions)
                     .map(action -> getText(action, psiElement))
