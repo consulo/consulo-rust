@@ -5,6 +5,8 @@
 
 package org.rust.lang.core.resolve;
 
+import consulo.application.util.RecursionManager;
+import consulo.application.util.RecursionGuard;
 import consulo.disposer.Disposable;
 import consulo.project.Project;
 import consulo.language.psi.PsiElement;
@@ -75,23 +77,28 @@ public final class RsImplIndexAndTypeAliasCache implements Disposable {
     public List<RsCachedImplItem> findPotentialImpls(@Nonnull TyFingerprint tyf) {
         dropCachesIfIndexStateChanged();
         ConcurrentMap<TyFingerprint, List<RsCachedImplItem>> cache = getOrCreateMap(implIndexCache);
-        return cache.computeIfAbsent(tyf, key -> {
-            List<RsCachedImplItem> result = new ArrayList<>();
-            for (RsCachedImplItem item : RsImplIndex.findPotentialImpls(project, key)) {
-                retainPsi(item.getImpl().getContainingFile());
-                if (item.isValid()) {
-                    result.add(item);
-                }
+        List<RsCachedImplItem> cached = cache.get(tyf);
+        if (cached != null) return cached;
+        // not computeIfAbsent: expanding the macros that write impls looks up the impls of other types
+        RecursionGuard.StackStamp stamp = RecursionManager.markStack();
+        List<RsCachedImplItem> result = new ArrayList<>();
+        for (RsCachedImplItem item : RsImplIndex.findPotentialImpls(project, tyf)) {
+            retainPsi(item.getImpl().getContainingFile());
+            if (item.isValid()) {
+                result.add(item);
             }
-            // impls produced by macros are in no index
-            for (RsImplItem impl : RsMacroExpandedImpls.findPotentialImpls(project, key)) {
-                RsCachedImplItem item = RsCachedImplItem.forImpl(impl);
-                if (item.isValid()) {
-                    result.add(item);
-                }
+        }
+        // impls produced by macros are in no index
+        for (RsImplItem impl : RsMacroExpandedImpls.findPotentialImpls(project, tyf)) {
+            RsCachedImplItem item = RsCachedImplItem.forImpl(impl);
+            if (item.isValid()) {
+                result.add(item);
             }
-            return result;
-        });
+        }
+        // the impls of a macro met while its expansion was being computed are missing, not absent
+        if (!stamp.mayCacheNow()) return result;
+        List<RsCachedImplItem> previous = cache.putIfAbsent(tyf, result);
+        return previous != null ? previous : result;
     }
 
     @Nonnull

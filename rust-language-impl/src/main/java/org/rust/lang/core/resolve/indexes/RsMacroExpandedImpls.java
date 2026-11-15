@@ -7,6 +7,8 @@ package org.rust.lang.core.resolve.indexes;
 
 import consulo.application.util.CachedValueProvider;
 import consulo.application.util.CachedValuesManager;
+import consulo.application.util.RecursionGuard;
+import consulo.application.util.RecursionManager;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.scope.GlobalSearchScope;
 import consulo.language.psi.stub.StubIndex;
@@ -73,7 +75,10 @@ public final class RsMacroExpandedImpls {
         List<RsImplItem> cached = cache.get(tyf);
         if (cached != null) return cached;
         // not computeIfAbsent: expanding a macro resolves names, which may look up the impls of another type
+        RecursionGuard.StackStamp stamp = RecursionManager.markStack();
         List<RsImplItem> impls = collect(project, tyf);
+        // a call met while its own expansion was being computed gave no impls: those are missing, not absent
+        if (!stamp.mayCacheNow()) return impls;
         List<RsImplItem> previous = cache.putIfAbsent(tyf, impls);
         return previous != null ? previous : impls;
     }
@@ -102,10 +107,11 @@ public final class RsMacroExpandedImpls {
         for (RsMacroCall call : calls) {
             Map<TyFingerprint, List<RsImplItem>> implsOfCall = expanded.get(call);
             if (implsOfCall == null) {
+                RecursionGuard.StackStamp stamp = RecursionManager.markStack();
                 Collector collector = new Collector();
                 collector.visitMacroCall(call);
                 implsOfCall = collector.impls;
-                expanded.putIfAbsent(call, implsOfCall);
+                if (stamp.mayCacheNow()) expanded.putIfAbsent(call, implsOfCall);
             }
             List<RsImplItem> impls = implsOfCall.get(tyf);
             if (impls != null) result.addAll(impls);
