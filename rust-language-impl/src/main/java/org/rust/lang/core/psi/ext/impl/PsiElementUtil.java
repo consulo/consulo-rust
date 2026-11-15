@@ -119,7 +119,7 @@ public final class PsiElementUtil {
 
     @Nonnull
     public static <T extends PsiElement> List<T> stubChildrenOfType(@Nonnull PsiElement element, @Nonnull Class<T> clazz) {
-        StubElement<?> stub = getGreenStubOf(element);
+        StubElement<?> stub = getStubToWalk(element);
         if (stub != null) {
             List<T> result = new ArrayList<>();
             for (StubElement<?> childStub : stub.getChildrenStubs()) {
@@ -142,7 +142,7 @@ public final class PsiElementUtil {
     public static PsiElement stubChildOfElementType(@Nonnull PsiElement element,
                                                      @Nonnull TokenSet tokenSet,
                                                      @Nonnull Class<? extends PsiElement> clazz) {
-        StubElement<?> stub = getGreenStubOf(element);
+        StubElement<?> stub = getStubToWalk(element);
         if (stub != null) {
             for (StubElement<?> childStub : stub.getChildrenStubs()) {
                 if (!tokenSet.contains(childStub.getStubType())) continue;
@@ -164,7 +164,7 @@ public final class PsiElementUtil {
     @Nullable
     public static PsiElement stubChildOfElementType(@Nonnull PsiElement element,
                                                      @Nonnull IElementType type) {
-        StubElement<?> stub = getGreenStubOf(element);
+        StubElement<?> stub = getStubToWalk(element);
         if (stub != null) {
             for (StubElement<?> childStub : stub.getChildrenStubs()) {
                 if (childStub.getStubType() == type) {
@@ -179,6 +179,18 @@ public final class PsiElementUtil {
             }
         }
         return null;
+    }
+
+    /**
+     * The stub to walk instead of the AST of {@code element}: its green stub, or the stub tree of a file whose AST and
+     * stubs are not loaded yet. Without the latter, a file that nothing read yet is lexed and parsed whole to list its
+     * children. Never parses the file.
+     */
+    @Nullable
+    private static StubElement<?> getStubToWalk(@Nonnull PsiElement element) {
+        StubElement<?> stub = getGreenStubOf(element);
+        if (stub == null && element instanceof PsiFileImpl file) return file.getStub();
+        return stub;
     }
 
     /**

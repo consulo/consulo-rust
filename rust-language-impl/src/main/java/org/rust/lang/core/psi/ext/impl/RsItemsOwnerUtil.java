@@ -32,6 +32,8 @@ public final class RsItemsOwnerUtil {
         java.util.List stubChildren = null;
         if (owner instanceof RsFile) {
             Object stub = ((RsFile) owner).getGreenStub();
+            // a file nothing read yet: its stub tree, not the whole file lexed and parsed
+            if (stub == null) stub = ((RsFile) owner).getStub();
             if (stub != null) {
                 stubChildren = ((StubElement<?>) stub).getChildrenStubs();
             }
