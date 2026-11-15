@@ -10,7 +10,10 @@ import consulo.application.progress.ProgressManager;
 import consulo.project.Project;
 import consulo.util.io.FileUtil;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
+import consulo.language.psi.stub.ObjectStubTree;
+import consulo.language.psi.stub.StubTreeLoader;
 import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.VirtualFileWithId;
 import consulo.virtualFileSystem.ManagingFS;
 import consulo.language.psi.StubBasedPsiElement;
 import consulo.language.psi.stub.StubElement;
@@ -133,8 +136,13 @@ public final class ModCollector {
     public static RsFileStub getOrBuildFileStub(@Nonnull RsFileBase file) {
         Object greenStubTree = file.getGreenStubTree();
         StubElement<?> stub;
+        VirtualFile virtualFile = file.getViewProvider().getVirtualFile();
         if (greenStubTree != null) {
             stub = ((consulo.language.psi.stub.StubTree) greenStubTree).getRoot();
+        } else if (virtualFile instanceof VirtualFileWithId) {
+            // the stubs the index holds: building them from the file would parse all of it, bodies included
+            ObjectStubTree<?> stubTree = StubTreeLoader.getInstance().readOrBuild(file.getProject(), virtualFile, file);
+            stub = stubTree != null && stubTree.getRoot() instanceof StubElement<?> root ? root : null;
         } else if (file instanceof RsFile) {
             stub = ((RsFile) file).calcStubTree().getRoot();
         } else {

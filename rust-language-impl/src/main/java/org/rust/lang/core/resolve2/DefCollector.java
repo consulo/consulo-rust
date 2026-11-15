@@ -391,6 +391,8 @@ public class DefCollector {
         RsResult<Pair<CharSequence, RangeMap>, ?> expanded = macroExpander.expandMacroAsTextWithErr(data, callData);
         if (expanded.isErr()) return;
         String text = expanded.ok().getFirst().toString();
+        // impls declare no names: an expansion of nothing else adds nothing to the def map
+        if (ImplOnlyExpansion.isImplOnly(text)) return;
         ExpansionResultOk expansion = new ExpansionResultOk(text, expanded.ok().getSecond());
 
         StubElement<? extends RsItemsOwner> expandedScope;
