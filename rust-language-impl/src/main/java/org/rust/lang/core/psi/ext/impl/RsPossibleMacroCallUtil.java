@@ -11,7 +11,13 @@ import consulo.util.dataholder.Key;
 import consulo.document.util.TextRange;
 import consulo.language.psi.PsiElement;
 import consulo.application.util.CachedValue;
-import consulo.application.util.CachedValuesManager;
+import consulo.application.util.CachedValueProvider;
+import consulo.application.util.RecursionGuard;
+import consulo.application.util.RecursionManager;
+import consulo.component.util.ModificationTracker;
+import consulo.language.psi.PsiFile;
+import consulo.util.dataholder.UserDataHolderEx;
+import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.macros.*;
@@ -48,7 +54,7 @@ public final class RsPossibleMacroCallUtil {
     private RsPossibleMacroCallUtil() {
     }
 
-    private static final Key<CachedValue<RsResult<MacroExpansion, GetMacroExpansionError>>> RS_MACRO_CALL_EXPANSION_RESULT =
+    private static final Key<HeldExpansion> RS_MACRO_CALL_EXPANSION_RESULT =
         Key.create("org.rust.lang.core.psi.ext.RS_MACRO_CALL_EXPANSION_RESULT");
 
     @Nonnull
@@ -182,22 +188,86 @@ public final class RsPossibleMacroCallUtil {
         return result instanceof RsResult.Ok ? ((RsResult.Ok<MacroExpansion, GetMacroExpansionError>) result).getOk() : null;
     }
 
+    /**
+     * The expansion is held strongly by the call until what it depends on changes. A {@link CachedValue} keeps its value
+     * through a soft reference: an expansion dropped under memory pressure is parsed again into other PSI, while the
+     * caches of names and impls still hold the elements of the first one, so a type and its impls no longer match.
+     */
     @Nonnull
     public static RsResult<MacroExpansion, GetMacroExpansionError> getExpansionResult(@Nonnull RsPossibleMacroCall call) {
-        return CachedValuesManager.getManager(call.getProject()).getCachedValue(call, RS_MACRO_CALL_EXPANSION_RESULT, () -> {
-            RsPossibleMacroCall originalOrSelf = CompletionUtilCore.getOriginalElement(call) instanceof RsPossibleMacroCall
-                ? (RsPossibleMacroCall) CompletionUtilCore.getOriginalElement(call)
-                : null;
-            if (originalOrSelf != null) {
-                MacroCallBody origBody = getMacroBody(originalOrSelf);
-                MacroCallBody thisBody = getMacroBody(call);
-                boolean bodiesEqual = (origBody == null && thisBody == null) ||
-                    (origBody != null && thisBody != null && origBody.equals(thisBody));
-                if (!bodiesEqual) originalOrSelf = null;
+        HeldExpansion held = call.getUserData(RS_MACRO_CALL_EXPANSION_RESULT);
+        if (held != null && held.isUpToDate()) return held.result();
+        RecursionGuard.StackStamp stamp = RecursionManager.markStack();
+        CachedValueProvider.Result<RsResult<MacroExpansion, GetMacroExpansionError>> computed = computeExpansionResult(call);
+        HeldExpansion fresh = HeldExpansion.of(computed);
+        // an expansion computed under a prevented recursion is held all the same once its macro resolved: the
+        // expansion of a call to a resolved macro is always the same, and a copy of it per caller makes the items of
+        // one copy and the impls of another
+        if (fresh == null || !stamp.mayCacheNow() && !(fresh.result() instanceof RsResult.Ok)) return computed.getValue();
+        if (!(call instanceof UserDataHolderEx holder)) {
+            call.putUserData(RS_MACRO_CALL_EXPANSION_RESULT, fresh);
+            return fresh.result();
+        }
+        // every caller must get the same PSI: one held meanwhile by another thread wins over this one
+        while (true) {
+            HeldExpansion current = holder.getUserData(RS_MACRO_CALL_EXPANSION_RESULT);
+            if (current != null && current != held && current.isUpToDate()) return current.result();
+            if (holder.replace(RS_MACRO_CALL_EXPANSION_RESULT, current, fresh)) return fresh.result();
+        }
+    }
+
+    @Nonnull
+    private static CachedValueProvider.Result<RsResult<MacroExpansion, GetMacroExpansionError>> computeExpansionResult(@Nonnull RsPossibleMacroCall call) {
+        RsPossibleMacroCall originalOrSelf = CompletionUtilCore.getOriginalElement(call) instanceof RsPossibleMacroCall
+            ? (RsPossibleMacroCall) CompletionUtilCore.getOriginalElement(call)
+            : null;
+        if (originalOrSelf != null) {
+            MacroCallBody origBody = getMacroBody(originalOrSelf);
+            MacroCallBody thisBody = getMacroBody(call);
+            boolean bodiesEqual = (origBody == null && thisBody == null) ||
+                (origBody != null && thisBody != null && origBody.equals(thisBody));
+            if (!bodiesEqual) originalOrSelf = null;
+        }
+        if (originalOrSelf == null) originalOrSelf = call;
+        return call.getProject().getService(MacroExpansionManager.class).getExpansionFor(originalOrSelf);
+    }
+
+    /** An expansion with the stamps its dependencies had when it was computed. */
+    private record HeldExpansion(@Nonnull RsResult<MacroExpansion, GetMacroExpansionError> result,
+                                 @Nonnull Object[] dependencies,
+                                 @Nonnull long[] stamps) {
+        /** Null when the result cannot be held: it depends on something that changes every time, or is gone. */
+        @Nullable
+        static HeldExpansion of(@Nonnull CachedValueProvider.Result<RsResult<MacroExpansion, GetMacroExpansionError>> computed) {
+            RsResult<MacroExpansion, GetMacroExpansionError> value = computed.getValue();
+            Object[] dependencies = computed.getDependencyItems();
+            if (value == null || dependencies.length == 0) return null;
+            long[] stamps = new long[dependencies.length];
+            for (int i = 0; i < dependencies.length; i++) {
+                if (dependencies[i] == ModificationTracker.EVER_CHANGED) return null;
+                stamps[i] = stampOf(dependencies[i]);
+                if (stamps[i] < 0) return null;
             }
-            if (originalOrSelf == null) originalOrSelf = call;
-            return call.getProject().getService(MacroExpansionManager.class).getExpansionFor(originalOrSelf);
-        }, false);
+            return new HeldExpansion(value, dependencies, stamps);
+        }
+
+        boolean isUpToDate() {
+            for (int i = 0; i < dependencies.length; i++) {
+                if (stampOf(dependencies[i]) != stamps[i]) return false;
+            }
+            return true;
+        }
+
+        private static long stampOf(@Nonnull Object dependency) {
+            if (dependency instanceof ModificationTracker tracker) return tracker.getModificationCount();
+            if (dependency instanceof PsiElement element) {
+                if (!element.isValid()) return -1;
+                PsiFile file = element.getContainingFile();
+                return file != null ? file.getModificationStamp() : -1;
+            }
+            if (dependency instanceof VirtualFile file) return file.getModificationStamp();
+            return -1;
+        }
     }
 
     @Nullable
