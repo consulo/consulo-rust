@@ -667,6 +667,10 @@ public class ImplLookup {
         else if (trait == items.getSized()) {
             assembleBuiltinBoundCandidates(sizedConditions(ref.getSelfTy()), candidates);
         }
+        else if (trait != null && (trait == items.getPointeeSized() || trait == items.getMetaSized())) {
+            // every type implements both but extern types, which are not modelled: `impl<T: PointeeSized + Display> Display for &T`
+            assembleBuiltinBoundCandidates(BuiltinConditions.where(Collections.emptyList()), candidates);
+        }
         else if (trait == items.getUnsize()) {
             assembleCandidatesForUnsizing(ref, candidates);
         }

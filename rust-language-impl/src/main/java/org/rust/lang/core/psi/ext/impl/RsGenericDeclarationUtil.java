@@ -158,11 +158,15 @@ public final class RsGenericDeclarationUtil {
         explicitPredicates.addAll(whereBounds);
         explicitPredicates.addAll(assocTypeBounds);
 
-        RsTraitItem sized = KnownItems.getKnownItems(decl).getSized();
+        KnownItems knownItems = KnownItems.getKnownItems(decl);
+        RsTraitItem sized = knownItems.getSized();
+        // `T: PointeeSized` and `T: MetaSized` relax the default `Sized` the way `?Sized` does (Rust 1.89)
+        RsTraitItem metaSized = knownItems.getMetaSized();
+        RsTraitItem pointeeSized = knownItems.getPointeeSized();
         List<Predicate> implicitPredicates = new ArrayList<>();
         if (sized != null) {
-            // Collect types that are explicitly marked `?Sized` (Unbound) or `T: Sized` (Bound) so we
-            // don't re-add an implicit `Sized` bound for them.
+            // Collect types that are explicitly marked `?Sized` (Unbound), `T: Sized` (Bound) or bounded by a
+            // supertrait of `Sized`, so we don't re-add an implicit `Sized` bound for them.
             Set<Ty> sizedBounds = new HashSet<>();
             for (PsiPredicate pp : explicitPredicates) {
                 if (pp instanceof PsiPredicate.Unbound) {
@@ -171,7 +175,8 @@ public final class RsGenericDeclarationUtil {
                     Predicate inner = ((PsiPredicate.Bound) pp).predicate;
                     if (inner instanceof Predicate.Trait) {
                         TraitRef tr = ((Predicate.Trait) inner).getTrait();
-                        if (tr.getTrait().getTypedElement() == sized) {
+                        RsTraitItem bound = tr.getTrait().getTypedElement();
+                        if (bound == sized || bound != null && (bound == metaSized || bound == pointeeSized)) {
                             sizedBounds.add(tr.getSelfTy());
                         }
                     }

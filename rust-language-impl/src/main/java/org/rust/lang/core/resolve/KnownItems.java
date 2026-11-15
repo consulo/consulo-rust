@@ -141,6 +141,9 @@ public class KnownItems {
     @Nullable public RsTraitItem getDeref() { return findLangItem("deref", AutoInjectedCrates.CORE, RsTraitItem.class); }
     @Nullable public RsTraitItem getDrop() { return findLangItem("drop", AutoInjectedCrates.CORE, RsTraitItem.class); }
     @Nullable public RsTraitItem getSized() { return findLangItem("sized", AutoInjectedCrates.CORE, RsTraitItem.class); }
+    /** The supertraits of {@code Sized} since Rust 1.89, which {@code impl<T: PointeeSized ..>} of std are bounded by. */
+    @Nullable public RsTraitItem getMetaSized() { return findLangItem("meta_sized", AutoInjectedCrates.CORE, RsTraitItem.class); }
+    @Nullable public RsTraitItem getPointeeSized() { return findLangItem("pointee_sized", AutoInjectedCrates.CORE, RsTraitItem.class); }
     @Nullable public RsTraitItem getUnsize() { return findLangItem("unsize", AutoInjectedCrates.CORE, RsTraitItem.class); }
     @Nullable public RsTraitItem getCoerceUnsized() { return findLangItem("coerce_unsized", AutoInjectedCrates.CORE, RsTraitItem.class); }
     @Nullable public RsTraitItem getDestruct() { return findLangItem("destruct", AutoInjectedCrates.CORE, RsTraitItem.class); }
