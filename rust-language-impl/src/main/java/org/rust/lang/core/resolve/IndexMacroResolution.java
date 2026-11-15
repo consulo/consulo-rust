@@ -9,6 +9,8 @@ import consulo.application.util.CachedValueProvider;
 import consulo.application.util.CachedValuesManager;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiReference;
+import consulo.language.psi.StubBasedPsiElement;
+import consulo.language.psi.stub.StubElement;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.rust.lang.core.macros.RsExpandedElement;
@@ -19,6 +21,7 @@ import org.rust.lang.core.psi.ext.RsItemsOwner;
 import org.rust.lang.core.psi.ext.RsMacroDefinitionBase;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.psi.ext.RsPossibleMacroCall;
+import org.rust.lang.core.psi.ext.impl.PsiElementUtil;
 import org.rust.lang.core.psi.ext.impl.RsDocAndAttributeOwnerUtil;
 import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import org.rust.lang.core.psi.ext.impl.RsExternCrateItemUtil;
@@ -59,8 +62,19 @@ public final class IndexMacroResolution {
                     continue;
                 }
             }
-            for (PsiElement sibling = element.getPrevSibling(); sibling != null; sibling = sibling.getPrevSibling()) {
-                if (walk.visit(sibling)) return true;
+            // the siblings by the stubs when the element has one: walking the PSI would parse every file on the way up
+            StubElement<?> stub = element instanceof StubBasedPsiElement<?> stubBased ? PsiElementUtil.getGreenStubOf(stubBased) : null;
+            StubElement<?> parentStub = stub != null ? stub.getParentStub() : null;
+            if (parentStub != null) {
+                List<StubElement> siblings = parentStub.getChildrenStubs();
+                for (int i = siblings.indexOf(stub) - 1; i >= 0; i--) {
+                    if (walk.visit(siblings.get(i).getPsi())) return true;
+                }
+            }
+            else {
+                for (PsiElement sibling = element.getPrevSibling(); sibling != null; sibling = sibling.getPrevSibling()) {
+                    if (walk.visit(sibling)) return true;
+                }
             }
             PsiElement context = element.getContext();
             if (context instanceof RsFile file) {
