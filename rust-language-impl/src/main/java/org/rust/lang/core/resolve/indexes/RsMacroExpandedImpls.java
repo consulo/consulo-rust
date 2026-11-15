@@ -55,6 +55,10 @@ public final class RsMacroExpandedImpls {
         Key.create("org.rust.lang.core.resolve.indexes.RsMacroExpandedImpls");
     private static final Key<CachedValue<Map<RsMacroCall, Map<TyFingerprint, List<RsImplItem>>>>> EXPANDED_CALLS_KEY =
         Key.create("org.rust.lang.core.resolve.indexes.RsMacroExpandedImpls.expandedCalls");
+    private static final Key<CachedValue<Map<String, KeyLookup>>> LOOKUPS_KEY =
+        Key.create("org.rust.lang.core.resolve.indexes.RsMacroExpandedImpls.lookups");
+    private static final Key<CachedValue<Map<RsMacroCall, Boolean>>> CALLS_METAVARIABLE_MACRO_KEY =
+        Key.create("org.rust.lang.core.resolve.indexes.RsMacroExpandedImpls.callsMetavariableMacro");
     private static final Key<CachedValue<Set<String>>> METAVARIABLE_MACROS_KEY =
         Key.create("org.rust.lang.core.resolve.indexes.RsMacroExpandedImpls.metavariableMacros");
 
@@ -76,27 +80,22 @@ public final class RsMacroExpandedImpls {
 
     @Nonnull
     private static List<RsImplItem> collect(@Nonnull Project project, @Nonnull TyFingerprint tyf) {
-        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
         Set<String> keys = new LinkedHashSet<>(RsImplMacroKeys.forFingerprint(tyf));
         keys.add(RsImplMacroKeys.INCLUDE);
         Set<RsMacroCall> calls = new LinkedHashSet<>();
         Set<String> macroNames = new HashSet<>();
         for (String key : keys) {
             // an impl for the type written in the call, or in the definition of the macro it calls
-            calls.addAll(StubIndex.getElements(RsImplMacroCallIndex.KEY, key, project, scope, RsMacroCall.class));
-            for (RsMacro macro : StubIndex.getElements(RsImplMacroDefIndex.KEY, key, project, scope, RsMacro.class)) {
-                if (macro.getName() != null) macroNames.add(macro.getName());
-            }
+            KeyLookup lookup = lookUp(project, key);
+            calls.addAll(lookup.calls());
+            macroNames.addAll(lookup.macroNames());
         }
         for (String name : macroNames) {
-            calls.addAll(StubIndex.getElements(RsImplMacroCallIndex.KEY, RsImplMacroKeys.callOf(name), project, scope, RsMacroCall.class));
+            calls.addAll(lookUp(project, RsImplMacroKeys.callOf(name)).calls());
         }
         // the type in the arguments of a call that passes it on to the self type of an impl
-        Set<String> metavariableMacros = metavariableSelfTypeMacros(project);
         for (String key : RsImplMacroKeys.forFingerprint(tyf)) {
-            for (RsMacroCall call : StubIndex.getElements(RsImplMacroCallIndex.KEY, RsImplMacroKeys.argument(key), project, scope, RsMacroCall.class)) {
-                if (callsAnyOf(call, metavariableMacros)) calls.add(call);
-            }
+            calls.addAll(lookUp(project, RsImplMacroKeys.argument(key)).metavariableCalls(project));
         }
         Map<RsMacroCall, Map<TyFingerprint, List<RsImplItem>>> expanded = expandedCalls(project);
         List<RsImplItem> result = new ArrayList<>();
@@ -118,6 +117,71 @@ public final class RsMacroExpandedImpls {
     @Nonnull
     private static Map<RsMacroCall, Map<TyFingerprint, List<RsImplItem>>> expandedCalls(@Nonnull Project project) {
         return CachedValuesManager.getManager(project).getCachedValue(project, EXPANDED_CALLS_KEY, () ->
+            CachedValueProvider.Result.create(new ConcurrentHashMap<>(), RsPsiManagerUtil.getRustStructureModificationTracker(project)), false);
+    }
+
+    /**
+     * The calls and the names of the {@code macro_rules!} the indexes have under {@code key}. Looked up once: every type
+     * asks for the include key, and reading an index loads the stubs of every file it names.
+     */
+    @Nonnull
+    private static KeyLookup lookUp(@Nonnull Project project, @Nonnull String key) {
+        Map<String, KeyLookup> lookups = CachedValuesManager.getManager(project).getCachedValue(project, LOOKUPS_KEY, () ->
+            CachedValueProvider.Result.create(new ConcurrentHashMap<>(), RsPsiManagerUtil.getRustStructureModificationTracker(project)), false);
+        KeyLookup cached = lookups.get(key);
+        if (cached != null) return cached;
+        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+        List<RsMacroCall> calls = List.copyOf(StubIndex.getElements(RsImplMacroCallIndex.KEY, key, project, scope, RsMacroCall.class));
+        Set<String> macroNames = new HashSet<>();
+        for (RsMacro macro : StubIndex.getElements(RsImplMacroDefIndex.KEY, key, project, scope, RsMacro.class)) {
+            if (macro.getName() != null) macroNames.add(macro.getName());
+        }
+        KeyLookup lookup = new KeyLookup(calls, macroNames);
+        KeyLookup previous = lookups.putIfAbsent(key, lookup);
+        return previous != null ? previous : lookup;
+    }
+
+    private static final class KeyLookup {
+        private final List<RsMacroCall> myCalls;
+        private final Set<String> myMacroNames;
+        private volatile List<RsMacroCall> myMetavariableCalls;
+
+        KeyLookup(@Nonnull List<RsMacroCall> calls, @Nonnull Set<String> macroNames) {
+            myCalls = calls;
+            myMacroNames = macroNames;
+        }
+
+        @Nonnull
+        List<RsMacroCall> calls() {
+            return myCalls;
+        }
+
+        @Nonnull
+        Set<String> macroNames() {
+            return myMacroNames;
+        }
+
+        /** The calls that call a macro taking the self type of an impl from a metavariable: their bodies lexed once. */
+        @Nonnull
+        List<RsMacroCall> metavariableCalls(@Nonnull Project project) {
+            List<RsMacroCall> result = myMetavariableCalls;
+            if (result == null) {
+                Map<RsMacroCall, Boolean> callsMetavariableMacro = callsMetavariableMacro(project);
+                Set<String> metavariableMacros = metavariableSelfTypeMacros(project);
+                List<RsMacroCall> filtered = new ArrayList<>();
+                for (RsMacroCall call : myCalls) {
+                    // a call is under the key of each identifier of its body: its body is lexed once for all of them
+                    if (callsMetavariableMacro.computeIfAbsent(call, it -> callsAnyOf(it, metavariableMacros))) filtered.add(call);
+                }
+                myMetavariableCalls = result = filtered;
+            }
+            return result;
+        }
+    }
+
+    @Nonnull
+    private static Map<RsMacroCall, Boolean> callsMetavariableMacro(@Nonnull Project project) {
+        return CachedValuesManager.getManager(project).getCachedValue(project, CALLS_METAVARIABLE_MACRO_KEY, () ->
             CachedValueProvider.Result.create(new ConcurrentHashMap<>(), RsPsiManagerUtil.getRustStructureModificationTracker(project)), false);
     }
 
