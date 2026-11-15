@@ -16,6 +16,7 @@ import consulo.it.HeadlessProjectExtension;
 import consulo.it.HeadlessProjects;
 import consulo.language.psi.PsiManager;
 import consulo.language.psi.PsiReference;
+import consulo.language.psi.stub.StubTreeLoader;
 import consulo.language.psi.util.PsiTreeUtil;
 import consulo.module.Module;
 import consulo.module.content.ModuleRootManager;
@@ -139,6 +140,19 @@ public class ColdStartBenchmarkTest {
                 }
                 return closure.size() + " -" + perTarget;
             }));
+            report.add("crate roots with stubs in the index, by origin: " + ReadAction.compute(() -> {
+                Map<String, int[]> counts = new java.util.TreeMap<>();
+                for (Crate crate : CrateGraphService.crateGraph(project).getTopSortedCrates()) {
+                    VirtualFile crateRoot = crate.getRootModFile();
+                    if (crateRoot == null) continue;
+                    int[] count = counts.computeIfAbsent(crate.getOrigin().name(), k -> new int[2]);
+                    count[1]++;
+                    if (StubTreeLoader.getInstance().readFromVFile(project, crateRoot) != null) count[0]++;
+                }
+                StringBuilder result = new StringBuilder();
+                counts.forEach((origin, count) -> result.append(" ").append(origin).append("=").append(count[0]).append("/").append(count[1]));
+                return result.toString();
+            }));
             report.add("crates in the graph: " + ReadAction.compute(() -> CrateGraphService.crateGraph(project).getTopSortedCrates().size()));
 
             time(report, project, "nothing (def maps built before the first step)", () -> "");
@@ -190,11 +204,15 @@ public class ColdStartBenchmarkTest {
         AtomicBoolean running = new AtomicBoolean(true);
         Thread sampler = new Thread(() -> {
             while (running.get()) {
-                Set<String> seen = new HashSet<>();
-                for (StackTraceElement frame : worker.getStackTrace()) {
-                    if (!frame.getClassName().startsWith("org.rust.")) continue;
-                    String method = frame.getClassName().substring(frame.getClassName().lastIndexOf('.') + 1) + "." + frame.getMethodName();
-                    if (seen.add(method)) inclusive.merge(method, 1, Integer::sum);
+                // every thread running Rust code: def maps are built on the resolve pool, not on the test thread
+                for (Map.Entry<Thread, StackTraceElement[]> thread : Thread.getAllStackTraces().entrySet()) {
+                    if (thread.getKey() != worker && !thread.getKey().getName().startsWith("Rust-")) continue;
+                    Set<String> seen = new HashSet<>();
+                    for (StackTraceElement frame : thread.getValue()) {
+                        if (!frame.getClassName().startsWith("org.rust.")) continue;
+                        String method = frame.getClassName().substring(frame.getClassName().lastIndexOf('.') + 1) + "." + frame.getMethodName();
+                        if (seen.add(method)) inclusive.merge(method, 1, Integer::sum);
+                    }
                 }
                 samples[0]++;
                 try {
