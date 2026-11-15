@@ -44,6 +44,31 @@ import org.rust.lang.core.resolve.NameResolution;
 import org.rust.lang.core.resolve.Namespace;
 import org.rust.lang.core.resolve.ResolveUtil;
 import org.rust.lang.core.resolve2.DefMapService;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.PsiNamedElement;
+import consulo.language.psi.PsiPolyVariantReference;
+import consulo.language.psi.ResolveResult;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import org.rust.lang.core.macros.MacroExpansion;
+import org.rust.lang.core.macros.MacroExpansionUtil;
+import org.rust.lang.core.psi.RsImplItem;
+import org.rust.lang.core.psi.RsMacroCall;
+import org.rust.lang.core.psi.RsPathType;
+import org.rust.lang.core.psi.RsStructItem;
+import org.rust.lang.core.psi.RsTypeReference;
+import org.rust.lang.core.psi.ext.RsMod;
+import org.rust.lang.core.psi.ext.RsPossibleMacroCall;
+import org.rust.lang.core.psi.ext.impl.RsItemsOwnerUtil;
+import org.rust.lang.core.psi.ext.impl.RsPossibleMacroCallUtil;
+import org.rust.lang.core.psi.impl.RsPsiManagerUtil;
+import org.rust.lang.core.psi.light.RsLightElement;
+import org.rust.lang.core.resolve.IndexItemResolution;
+import org.rust.lang.core.resolve.RsResolveProcessor;
+import org.rust.lang.core.resolve.ScopeEntry;
+import org.rust.lang.core.resolve.indexes.RsMacroExpandedImpls;
+import org.rust.lang.core.resolve2.ItemProcessingMode;
+import org.rust.lang.core.types.TyFingerprint;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -118,6 +143,10 @@ public class ColdStartBenchmarkTest {
             long indexStart = System.nanoTime();
             awaitIndexed(project);
             report.add("indexing: " + millis(indexStart) + " ms");
+            // the library roots and the Cargo model settle after the sync: measuring before would drop caches midway
+            long settleStart = System.nanoTime();
+            awaitStructureSettled(project);
+            report.add("settling: " + millis(settleStart) + " ms");
 
             VirtualFile file = LocalFileSystem.getInstance().refreshAndFindFileByNioFile(directory.resolve(fileName));
             Supplier<RsFile> rsFile = () -> (RsFile) PsiManager.getInstance(project).findFile(file);
@@ -163,12 +192,12 @@ public class ColdStartBenchmarkTest {
                     VirtualFile probe = LocalFileSystem.getInstance().refreshAndFindFileByNioFile(directory.resolve(probeFile));
                     if (probe == null) return "no file";
                     RsFile probed = (RsFile) PsiManager.getInstance(project).findFile(probe);
-                    var named = org.rust.lang.core.psi.ext.impl.RsItemsOwnerUtil.getExpandedItemsCached(probed).getNamed();
+                    var named = RsItemsOwnerUtil.getExpandedItemsCached(probed).getNamed();
                     List<String> found = new ArrayList<>();
-                    org.rust.lang.core.resolve.IndexItemResolution.processItemDeclarations(probed, Namespace.TYPES_N_VALUES_N_MACROS,
-                        new org.rust.lang.core.resolve.RsResolveProcessor() {
+                    IndexItemResolution.processItemDeclarations(probed, Namespace.TYPES_N_VALUES_N_MACROS,
+                        new RsResolveProcessor() {
                             @Override
-                            public boolean process(org.rust.lang.core.resolve.ScopeEntry entry) {
+                            public boolean process(ScopeEntry entry) {
                                 found.add(entry.getName() + "=" + entry.getElement());
                                 return false;
                             }
@@ -177,22 +206,22 @@ public class ColdStartBenchmarkTest {
                             public Set<String> getNames() {
                                 return Set.of("Backend", "CommitId");
                             }
-                        }, org.rust.lang.core.resolve2.ItemProcessingMode.WITH_PRIVATE_IMPORTS);
+                        }, ItemProcessingMode.WITH_PRIVATE_IMPORTS);
                     return "crate=" + probed.getCrate().getPresentableName() + " named=" + named.size() + " Backend=" + named.get("Backend")
                         + " CommitId=" + named.get("CommitId") + " lookup=" + found;
                 }));
             }
-            if (org.rust.lang.core.resolve.IndexItemResolution.isEnabled()) {
+            if (IndexItemResolution.isEnabled()) {
                 report.add("prelude probe: " + ReadAction.compute(() -> {
-                    org.rust.lang.core.psi.ext.RsMod prelude = org.rust.lang.core.resolve.IndexItemResolution.findPrelude(rsFile.get());
+                    RsMod prelude = IndexItemResolution.findPrelude(rsFile.get());
                     if (prelude == null) return "no prelude";
                     StringBuilder result = new StringBuilder(prelude.getContainingFile().getVirtualFile().getPath() + " ->");
                     for (String name : List.of("Option", "Some", "Vec", "String", "Result", "Box")) {
                         List<String> found = new ArrayList<>();
-                        org.rust.lang.core.resolve.IndexItemResolution.processItemDeclarations(prelude, Namespace.TYPES_N_VALUES_N_MACROS,
-                            new org.rust.lang.core.resolve.RsResolveProcessor() {
+                        IndexItemResolution.processItemDeclarations(prelude, Namespace.TYPES_N_VALUES_N_MACROS,
+                            new RsResolveProcessor() {
                                 @Override
-                                public boolean process(org.rust.lang.core.resolve.ScopeEntry entry) {
+                                public boolean process(ScopeEntry entry) {
                                     found.add(String.valueOf(entry.getElement()));
                                     return false;
                                 }
@@ -201,7 +230,7 @@ public class ColdStartBenchmarkTest {
                                 public Set<String> getNames() {
                                     return Set.of(name);
                                 }
-                            }, org.rust.lang.core.resolve2.ItemProcessingMode.WITHOUT_PRIVATE_IMPORTS);
+                            }, ItemProcessingMode.WITHOUT_PRIVATE_IMPORTS);
                         result.append(" ").append(name).append("=").append(found);
                     }
                     return result.toString();
@@ -241,10 +270,30 @@ public class ColdStartBenchmarkTest {
                                 StringBuilder chain = new StringBuilder("  chain " + path.getText() + ":");
                                 for (RsPath prefix = path; prefix != null; prefix = prefix.getPath()) {
                                     PsiReference prefixReference = prefix.getReference();
-                                    int count = prefixReference instanceof consulo.language.psi.PsiPolyVariantReference poly ? poly.multiResolve(false).length : -1;
+                                    int count = prefixReference instanceof PsiPolyVariantReference poly ? poly.multiResolve(false).length : -1;
                                     PsiElement target = prefixReference != null ? prefixReference.resolve() : null;
+                                    if (count > 1 && prefixReference instanceof PsiPolyVariantReference poly) {
+                                        for (ResolveResult result : poly.multiResolve(false)) {
+                                            PsiElement element = result.getElement();
+                                            PsiElement impl = element == null || element.getContext() == null ? null : element.getContext().getContext();
+                                            chain.append(" {").append(element == null ? "null" : "file#" + System.identityHashCode(element.getContainingFile())
+                                                + " impl=" + (impl == null ? null : impl.getText().substring(0, Math.min(60, impl.getText().length())).replace('\n', ' '))).append("}");
+                                        }
+                                    }
+                                    if (target instanceof RsStructItem struct && struct.getName() != null) {
+                                        chain.append(" <struct file#").append(System.identityHashCode(struct.getContainingFile())).append(contexts(struct));
+                                        for (RsImplItem impl : RsMacroExpandedImpls.findPotentialImpls(project,
+                                            new TyFingerprint(struct.getName()))) {
+                                            RsTypeReference tr = impl.getTypeReference();
+                                            PsiElement implTarget = tr instanceof RsPathType pt ? pt.getPath().getReference().resolve() : null;
+                                            chain.append(" impl file#").append(System.identityHashCode(impl.getContainingFile()))
+                                                .append(" self->").append(implTarget == null ? "null" : "file#" + System.identityHashCode(implTarget.getContainingFile()))
+                                                .append(implTarget == struct ? " SAME" : " OTHER").append(contexts(impl));
+                                        }
+                                        chain.append(">");
+                                    }
                                     chain.append(" [").append(prefix.getText()).append(" -> ").append(count).append(" ")
-                                        .append(target instanceof consulo.language.psi.PsiNamedElement named ? named.getName() + "@" + named.getContainingFile().getName() : String.valueOf(target)).append("]");
+                                        .append(target instanceof PsiNamedElement named ? named.getName() + "@" + named.getContainingFile().getName() : String.valueOf(target)).append("]");
                                 }
                                 report.add(chain.toString());
                             }
@@ -255,8 +304,8 @@ public class ColdStartBenchmarkTest {
                         try {
                             Files.write(Path.of("target/cold-start-unresolved.txt"), unresolved, StandardCharsets.UTF_8);
                         }
-                        catch (java.io.IOException e) {
-                            throw new java.io.UncheckedIOException(e);
+                        catch (IOException e) {
+                            throw new UncheckedIOException(e);
                         }
                     }
                     return resolved + "/" + total + " resolved";
@@ -368,6 +417,26 @@ public class ColdStartBenchmarkTest {
         return TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
     }
 
+    /** Until the Rust structure has not changed for two seconds, and the indexes are idle again. */
+    private static void awaitStructureSettled(Project project) throws Exception {
+        var tracker = RsPsiManagerUtil.getRustStructureModificationTracker(project);
+        long deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(120);
+        long last = tracker.getModificationCount();
+        long stableSince = System.currentTimeMillis();
+        while (System.currentTimeMillis() < deadline) {
+            Thread.sleep(200);
+            long current = tracker.getModificationCount();
+            if (current != last) {
+                last = current;
+                stableSince = System.currentTimeMillis();
+            }
+            else if (System.currentTimeMillis() - stableSince >= 2000) {
+                break;
+            }
+        }
+        awaitIndexed(project);
+    }
+
     /** A real project indexes its whole dependency tree, which can outlast one idle timeout. */
     private static void awaitIndexed(Project project) throws Exception {
         for (int attempt = 1; ; attempt++) {
@@ -380,4 +449,29 @@ public class ColdStartBenchmarkTest {
             }
         }
     }
+
+    /** The macro calls an element was expanded from, innermost first, with their identity and validity. */
+    private static String contexts(PsiElement element) {
+        StringBuilder result = new StringBuilder(" from[");
+        PsiElement from = element instanceof RsLightElement<?> light ? light.getAnchor() : element;
+        for (int depth = 0; depth < 4 && from != null; depth++) {
+            RsPossibleMacroCall call = MacroExpansionUtil.findMacroCallExpandedFromNonRecursive(from);
+            if (call == null) break;
+            MacroExpansion now = RsPossibleMacroCallUtil.getExpansion(call);
+            result.append(call.getText().substring(0, Math.min(20, call.getText().length()))).append("#").append(System.identityHashCode(call))
+                .append(call.isValid() ? "" : "!INVALID").append(" in F#").append(System.identityHashCode(call.getContainingFile()))
+                .append(" now->F#").append(now == null ? 0 : System.identityHashCode(now.getFile())).append("; ");
+            from = call;
+        }
+        result.append("] ctx[");
+        for (PsiElement context = element.getContext(); context != null; context = context.getContext()) {
+            if (context instanceof RsMacroCall call) {
+                result.append(call.getText().substring(0, Math.min(30, call.getText().length()))).append("#")
+                    .append(System.identityHashCode(call)).append(call.isValid() ? "" : "!INVALID").append(call.isPhysical() ? "P" : "").append(" ");
+            }
+            if (context instanceof PsiFile) result.append("F#").append(System.identityHashCode(context)).append(" ");
+        }
+        return result.append("]").toString();
+    }
+
 }
