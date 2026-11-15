@@ -14,6 +14,11 @@ import consulo.it.AllowLogError;
 import consulo.it.HeadlessModules;
 import consulo.it.HeadlessProjectExtension;
 import consulo.it.HeadlessProjects;
+import consulo.application.util.matcher.PrefixMatcher;
+import consulo.language.editor.completion.CompletionResultSet;
+import consulo.language.editor.completion.CompletionSorter;
+import consulo.language.editor.completion.lookup.LookupElement;
+import consulo.language.pattern.ElementPattern;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiManager;
 import consulo.language.psi.PsiReference;
@@ -35,6 +40,11 @@ import org.rust.cargo.api.model.CargoProjectsUtil;
 import org.rust.cargo.api.workspace.CargoWorkspace;
 import org.rust.lang.core.crate.Crate;
 import org.rust.lang.core.crate.CrateGraphService;
+import org.rust.ide.completion.RsCommonCompletionProvider;
+import org.rust.lang.core.completion.RsCompletionContext;
+import org.rust.lang.core.psi.RsMethodCall;
+import org.rust.lang.core.psi.ext.impl.RsElementUtil;
+import org.rust.lang.core.psi.ext.impl.RsMethodOrFieldUtil;
 import org.rust.lang.core.psi.RsBlock;
 import org.rust.lang.core.psi.RsFunction;
 import org.rust.lang.core.psi.RsPath;
@@ -82,6 +92,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -243,6 +254,7 @@ public class ColdStartBenchmarkTest {
                     Crate crate = rsFile.get().getCrate();
                     return crate.getPresentableName();
                 });
+                time(report, project, "complete methods after a dot", () -> completeMethods(rsFile.get()));
                 time(report, project, "names visible in a function body", () -> {
                     RsBlock block = null;
                     for (RsFunction fn : PsiTreeUtil.findChildrenOfType(rsFile.get(), RsFunction.class)) {
@@ -478,4 +490,88 @@ public class ColdStartBenchmarkTest {
         return result.append("]").toString();
     }
 
+
+    /**
+     * Method completion at the first method call of the file, run by the provider the IDE runs for `receiver.`: when
+     * the first variant arrives, how many there are, and whether the method written there is among them.
+     */
+    private static String completeMethods(RsFile file) {
+        // the first one in code that is compiled, or the one on the receiver -Drust.bench.complete names
+        String wanted = System.getProperty("rust.bench.complete");
+        RsMethodCall call = null;
+        for (RsMethodCall candidate : PsiTreeUtil.findChildrenOfType(file, RsMethodCall.class)) {
+            if (!RsElementUtil.isEnabledByCfg(candidate)) continue;
+            if (wanted != null && !RsMethodOrFieldUtil.getReceiver(candidate).getText().equals(wanted)) continue;
+            call = candidate;
+            break;
+        }
+        if (call == null) return "no method call";
+        long start = System.nanoTime();
+        long[] firstAt = {-1};
+        List<String> variants = new ArrayList<>();
+        CompletionResultSet result = new CollectingResultSet(element -> {
+            if (firstAt[0] < 0) firstAt[0] = millis(start);
+            variants.add(element.getLookupString());
+        });
+        RsCommonCompletionProvider.INSTANCE.addMethodAndFieldCompletion(call, result, new RsCompletionContext());
+        String receiver = RsMethodOrFieldUtil.getReceiver(call).getText().replace('\n', ' ');
+        if (receiver.length() > 30) receiver = receiver.substring(0, 30) + "..";
+        String written = call.getReferenceName();
+        try {
+            Files.write(Path.of("target/cold-start-completion.txt"), variants.stream().sorted().toList(), StandardCharsets.UTF_8);
+        }
+        catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return variants.size() + " variants of `" + receiver + ".`, first after " + firstAt[0] + " ms"
+            + (variants.contains(written) ? "" : ", `" + written + "` missing");
+    }
+
+    /** Hands every variant a provider adds to {@code consumer}, matched against no prefix. */
+    private static final class CollectingResultSet extends CompletionResultSet {
+        private final Consumer<LookupElement> myConsumer;
+
+        CollectingResultSet(Consumer<LookupElement> consumer) {
+            super(PrefixMatcher.ALWAYS_TRUE, result -> {
+            }, null);
+            myConsumer = consumer;
+        }
+
+        @Override
+        public void addElement(LookupElement element) {
+            myConsumer.accept(element);
+        }
+
+        @Override
+        public CompletionResultSet withPrefixMatcher(PrefixMatcher matcher) {
+            return this;
+        }
+
+        @Override
+        public CompletionResultSet withPrefixMatcher(String prefix) {
+            return this;
+        }
+
+        @Override
+        public CompletionResultSet withRelevanceSorter(CompletionSorter sorter) {
+            return this;
+        }
+
+        @Override
+        public void addLookupAdvertisement(String text) {
+        }
+
+        @Override
+        public CompletionResultSet caseInsensitive() {
+            return this;
+        }
+
+        @Override
+        public void restartCompletionOnPrefixChange(ElementPattern<String> prefixCondition) {
+        }
+
+        @Override
+        public void restartCompletionWhenNothingMatches() {
+        }
+    }
 }
