@@ -14,6 +14,7 @@ import consulo.it.AllowLogError;
 import consulo.it.HeadlessModules;
 import consulo.it.HeadlessProjectExtension;
 import consulo.it.HeadlessProjects;
+import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiManager;
 import consulo.language.psi.PsiReference;
 import consulo.language.psi.stub.StubTreeLoader;
@@ -156,6 +157,56 @@ public class ColdStartBenchmarkTest {
             report.add("crates in the graph: " + ReadAction.compute(() -> CrateGraphService.crateGraph(project).getTopSortedCrates().size()));
 
             time(report, project, "nothing (def maps built before the first step)", () -> "");
+            String probeFile = System.getProperty("rust.bench.probe");
+            if (probeFile != null) {
+                report.add("module probe: " + ReadAction.compute(() -> {
+                    VirtualFile probe = LocalFileSystem.getInstance().refreshAndFindFileByNioFile(directory.resolve(probeFile));
+                    if (probe == null) return "no file";
+                    RsFile probed = (RsFile) PsiManager.getInstance(project).findFile(probe);
+                    var named = org.rust.lang.core.psi.ext.impl.RsItemsOwnerUtil.getExpandedItemsCached(probed).getNamed();
+                    List<String> found = new ArrayList<>();
+                    org.rust.lang.core.resolve.IndexItemResolution.processItemDeclarations(probed, Namespace.TYPES_N_VALUES_N_MACROS,
+                        new org.rust.lang.core.resolve.RsResolveProcessor() {
+                            @Override
+                            public boolean process(org.rust.lang.core.resolve.ScopeEntry entry) {
+                                found.add(entry.getName() + "=" + entry.getElement());
+                                return false;
+                            }
+
+                            @Override
+                            public Set<String> getNames() {
+                                return Set.of("Backend", "CommitId");
+                            }
+                        }, org.rust.lang.core.resolve2.ItemProcessingMode.WITH_PRIVATE_IMPORTS);
+                    return "crate=" + probed.getCrate().getPresentableName() + " named=" + named.size() + " Backend=" + named.get("Backend")
+                        + " CommitId=" + named.get("CommitId") + " lookup=" + found;
+                }));
+            }
+            if (org.rust.lang.core.resolve.IndexItemResolution.isEnabled()) {
+                report.add("prelude probe: " + ReadAction.compute(() -> {
+                    org.rust.lang.core.psi.ext.RsMod prelude = org.rust.lang.core.resolve.IndexItemResolution.findPrelude(rsFile.get());
+                    if (prelude == null) return "no prelude";
+                    StringBuilder result = new StringBuilder(prelude.getContainingFile().getVirtualFile().getPath() + " ->");
+                    for (String name : List.of("Option", "Some", "Vec", "String", "Result", "Box")) {
+                        List<String> found = new ArrayList<>();
+                        org.rust.lang.core.resolve.IndexItemResolution.processItemDeclarations(prelude, Namespace.TYPES_N_VALUES_N_MACROS,
+                            new org.rust.lang.core.resolve.RsResolveProcessor() {
+                                @Override
+                                public boolean process(org.rust.lang.core.resolve.ScopeEntry entry) {
+                                    found.add(String.valueOf(entry.getElement()));
+                                    return false;
+                                }
+
+                                @Override
+                                public Set<String> getNames() {
+                                    return Set.of(name);
+                                }
+                            }, org.rust.lang.core.resolve2.ItemProcessingMode.WITHOUT_PRIVATE_IMPORTS);
+                        result.append(" ").append(name).append("=").append(found);
+                    }
+                    return result.toString();
+                }));
+            }
             for (String round : List.of("cold", "warm")) {
                 report.add("== " + round + " " + fileName);
                 time(report, project, "crate of the file", () -> {
@@ -183,9 +234,31 @@ public class ColdStartBenchmarkTest {
                         if (reference == null) continue;
                         total++;
                         if (reference.resolve() != null) resolved++;
-                        else unresolved.add(path.getText());
+                        else {
+                            boolean firstTime = !unresolved.contains(path.getText());
+                            unresolved.add(path.getText());
+                            if (round.equals("cold") && firstTime && new HashSet<>(unresolved).size() <= 40) {
+                                StringBuilder chain = new StringBuilder("  chain " + path.getText() + ":");
+                                for (RsPath prefix = path; prefix != null; prefix = prefix.getPath()) {
+                                    PsiReference prefixReference = prefix.getReference();
+                                    int count = prefixReference instanceof consulo.language.psi.PsiPolyVariantReference poly ? poly.multiResolve(false).length : -1;
+                                    PsiElement target = prefixReference != null ? prefixReference.resolve() : null;
+                                    chain.append(" [").append(prefix.getText()).append(" -> ").append(count).append(" ")
+                                        .append(target instanceof consulo.language.psi.PsiNamedElement named ? named.getName() + "@" + named.getContainingFile().getName() : String.valueOf(target)).append("]");
+                                }
+                                report.add(chain.toString());
+                            }
+                        }
                     }
-                    if (round.equals("cold")) report.add("unresolved: " + unresolved);
+                    if (round.equals("cold")) {
+                        report.add("unresolved: " + unresolved);
+                        try {
+                            Files.write(Path.of("target/cold-start-unresolved.txt"), unresolved, StandardCharsets.UTF_8);
+                        }
+                        catch (java.io.IOException e) {
+                            throw new java.io.UncheckedIOException(e);
+                        }
+                    }
                     return resolved + "/" + total + " resolved";
                 });
             }
