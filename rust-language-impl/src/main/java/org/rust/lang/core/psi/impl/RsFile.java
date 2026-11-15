@@ -50,11 +50,14 @@ import org.rust.lang.core.stubs.RsFileStub;
 import org.rust.lang.core.stubs.index.RsModulesIndex;
 import org.rust.openapiext.OpenApiUtil;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.rust.lang.core.psi.ext.impl.RsVisibilityUtil;
+import org.rust.lang.core.psi.ext.impl.CfgUtils;
+import org.rust.lang.core.psi.ext.impl.RsElementExtUtil;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.impl.*;
 
@@ -128,7 +131,7 @@ public class RsFile extends RsFileBase implements RsMod {
                 Collections.emptyList(), true, false, 0);
         }
 
-        return CachedValuesManager.getManager(getProject()).getCachedValue(this, CACHED_DATA_KEY, () -> {
+        CachedData data = CachedValuesManager.getManager(getProject()).getCachedValue(this, CACHED_DATA_KEY, () -> {
             CachedData value = doGetCachedData();
             Object modificationTracker;
             if (getVirtualFile() instanceof VirtualFileWindow) {
@@ -141,6 +144,9 @@ public class RsFile extends RsFileBase implements RsMod {
             }
             return CachedValueProvider.Result.create(value, modificationTracker);
         }, false);
+        // `mod` declarations that lead back to the file - `#[path]` cycles - end in no crate
+        return data != null ? data : new CachedData(null, null, null, new FakeInvalidCrate(getProject()),
+            Collections.emptyList(), true, false, 0);
     }
 
     @Nonnull
@@ -153,6 +159,10 @@ public class RsFile extends RsFileBase implements RsMod {
         }
 
 
+        CachedData fromModuleTree = cachedDataFromModuleTree(virtualFile);
+        if (fromModuleTree != null) return fromModuleTree;
+
+        // a file no `mod` declaration reaches - included by `include!`, or declared by a macro - is found in the def maps
         List<FileInclusionPoint> allInclusionPoints = FacadeResolve.findFileInclusionPointsFor(this);
         FileInclusionPoint inclusionPoint = pickSingleInclusionPoint(allInclusionPoints);
         if (inclusionPoint != null) {
@@ -217,6 +227,41 @@ public class RsFile extends RsFileBase implements RsMod {
             Collections.emptyList(), true, false, 0);
     }
 
+    /**
+     * The crate of the file found without a def map: a crate root is the root of its crate in the crate graph, and a file
+     * a {@code mod} declaration names - found by {@link RsModulesIndex} - belongs to the crates of the file declaring it.
+     * {@code null} when neither holds.
+     */
+    @Nullable
+    private CachedData cachedDataFromModuleTree(@Nonnull VirtualFile virtualFile) {
+        if (!(virtualFile instanceof VirtualFileWithId)) return null;
+        Crate root = CrateGraphService.crateGraph(getProject()).findCrateByRootMod(virtualFile);
+        if (root != null) {
+            return new CachedData(root.getCargoProject(), root.getCargoWorkspace(), root.getRootMod(), root,
+                Collections.singletonList(root), true, false, 0);
+        }
+        CachedData declaring = null;
+        boolean enabled = false;
+        List<Crate> crates = new ArrayList<>();
+        for (RsModDeclItem declaration : getDeclarations()) {
+            RsFile declaringFile = RsElementExtUtil.getContextualFile(declaration);
+            if (declaringFile == null || declaringFile == this) continue;
+            CachedData data = declaringFile.getCachedData();
+            if (Crate.asNotFake(data.crate) == null) continue;
+            boolean declarationEnabled = data.isDeeplyEnabledByCfg && CfgUtils.isEnabledByCfg(declaration, data.crate);
+            if (declaring == null || !enabled && declarationEnabled) {
+                declaring = data;
+                enabled = declarationEnabled;
+            }
+            for (Crate crate : data.crates) {
+                if (!crates.contains(crate)) crates.add(crate);
+            }
+        }
+        if (declaring == null) return null;
+        return new CachedData(declaring.cargoProject, declaring.cargoWorkspace, declaring.crateRoot, declaring.crate,
+            crates, enabled, declaring.isIncludedByIncludeMacro, 0);
+    }
+
     public void inheritCachedDataFrom(@Nonnull RsFile other, boolean isInMemoryMacroExpansion) {
         if (isInMemoryMacroExpansion) {
             CachedData otherCachedData = other.getCachedData();
@@ -247,6 +292,9 @@ public class RsFile extends RsFileBase implements RsMod {
     @Nullable
     @Override
     public RsMod getSuper() {
+        if (isCrateRoot()) return null;
+        RsModDeclItem declaration = getDeclaration();
+        if (declaration != null) return declaration.getContainingMod();
         List<FileInclusionPoint> points = FacadeResolve.findFileInclusionPointsFor(this);
         FileInclusionPoint inclusionPoint = pickSingleInclusionPoint(points);
         if (inclusionPoint == null) return null;
@@ -377,8 +425,10 @@ public class RsFile extends RsFileBase implements RsMod {
             } else {
                 decl = RsModulesIndex.getDeclarationsFor(orig);
             }
+            // not the tracker of the file's crate: the crate is found through these declarations
+            RsPsiManager psiManager = RsPsiManagerUtil.getRustPsiManager(orig.getProject());
             return CachedValueProvider.Result.create(decl,
-                RsElementUtil.getRustStructureOrAnyPsiModificationTracker(orig));
+                psiManager.getRustStructureModificationTracker(), psiManager.getRustStructureModificationTrackerInDependencies());
         }, false);
     }
 

@@ -39,10 +39,10 @@ public interface RsExpandedElement extends RsElement {
                 MacroExpansionManager macroExpansionManager = MacroExpansionManagerUtil.getMacroExpansionManager(project);
                 PsiElement context = macroExpansionManager.getContextOfMacroCallExpandedFrom(rsFile);
                 if (context != null) return context;
-                if (rsFile.isIncludedByIncludeMacro()) {
-                    org.rust.lang.core.psi.RsMacroCall includedFrom = macroExpansionManager.getIncludedFrom(rsFile);
-                    if (includedFrom != null) return includedFrom.getContainingMod();
-                }
+                // not `rsFile.isIncludedByIncludeMacro()` first: that needs the crate of the file, which is found through
+                // the `mod` declarations naming it - and resolving one asks for the context of its items
+                org.rust.lang.core.psi.RsMacroCall includedFrom = macroExpansionManager.getIncludedFrom(rsFile);
+                if (includedFrom != null) return includedFrom.getContainingMod();
             }
         }
         return parent;
