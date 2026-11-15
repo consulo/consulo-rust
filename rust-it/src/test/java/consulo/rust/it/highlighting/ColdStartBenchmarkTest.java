@@ -64,6 +64,7 @@ import org.rust.lang.core.psi.ext.impl.RsPossibleMacroCallUtil;
 import org.rust.lang.core.psi.impl.RsPsiManagerUtil;
 import org.rust.lang.core.psi.light.RsLightElement;
 import org.rust.lang.core.resolve.IndexItemResolution;
+import org.rust.lang.core.resolve.RsPathResolveResult;
 import org.rust.lang.core.resolve.RsResolveProcessor;
 import org.rust.lang.core.resolve.ScopeEntry;
 import org.rust.lang.core.resolve.indexes.RsMacroExpandedImpls;
@@ -276,7 +277,7 @@ public class ColdStartBenchmarkTest {
                                         for (ResolveResult result : poly.multiResolve(false)) {
                                             PsiElement element = result.getElement();
                                             PsiElement impl = element == null || element.getContext() == null ? null : element.getContext().getContext();
-                                            chain.append(" {").append(element == null ? "null" : "file#" + System.identityHashCode(element.getContainingFile())
+                                            chain.append(" {").append(element == null ? "null" : element.getClass().getSimpleName() + (result instanceof RsPathResolveResult<?> pathResult && !pathResult.isVisible() ? " invisible" : "") + " file#" + System.identityHashCode(element.getContainingFile())
                                                 + " impl=" + (impl == null ? null : impl.getText().substring(0, Math.min(60, impl.getText().length())).replace('\n', ' '))).append("}");
                                         }
                                     }
@@ -341,12 +342,15 @@ public class ColdStartBenchmarkTest {
                     // where the time is spent: the top of the stack, any code, and the first Rust method under it
                     if (runsRust && frames.length > 0 && !isWaiting(frames[0])) {
                         String leaf = frames[0].getClassName().substring(frames[0].getClassName().lastIndexOf('.') + 1) + "." + frames[0].getMethodName();
+                        // the first two Rust methods under it: a cheap leaf called in a loop shows by whom
                         String rustCaller = "";
+                        int rustFrames = 0;
                         for (StackTraceElement frame : frames) {
-                            if (frame.getClassName().startsWith("org.rust.")) {
-                                rustCaller = frame.getClassName().substring(frame.getClassName().lastIndexOf('.') + 1) + "." + frame.getMethodName();
-                                break;
-                            }
+                            if (!frame.getClassName().startsWith("org.rust.") || frame.getMethodName().startsWith("lambda$")) continue;
+                            String method = frame.getClassName().substring(frame.getClassName().lastIndexOf('.') + 1) + "." + frame.getMethodName();
+                            if (rustCaller.endsWith(method)) continue;
+                            rustCaller = rustFrames == 0 ? method : rustCaller + " <- " + method;
+                            if (++rustFrames == 2) break;
                         }
                         self.merge(leaf + "  <- " + rustCaller, 1, Integer::sum);
                     }
@@ -398,7 +402,7 @@ public class ColdStartBenchmarkTest {
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
                 .limit(150)
                 .forEach(e -> report.add(String.format("      %3d%%  %s", e.getValue() * 100 / Math.max(1, samples[0]), e.getKey())));
-            report.add("    self time (top of stack <- first Rust method):");
+            report.add("    self time (top of stack <- first two Rust methods):");
             self.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
                 .limit(40)
