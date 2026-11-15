@@ -5,6 +5,10 @@
 
 package org.rust.lang.core.resolve;
 
+import consulo.application.util.CachedValue;
+import consulo.application.util.CachedValueProvider;
+import consulo.application.util.CachedValuesManager;
+import consulo.util.dataholder.Key;
 import consulo.application.util.RecursionGuard;
 import consulo.application.util.RecursionManager;
 import consulo.language.psi.PsiElement;
@@ -27,6 +31,7 @@ import org.rust.lang.core.psi.ext.RsItemsOwner;
 import org.rust.lang.core.psi.ext.RsMod;
 import org.rust.lang.core.psi.ext.RsNamedElement;
 import org.rust.lang.core.psi.ext.RsVisibilityOwner;
+import org.rust.lang.core.psi.ext.RsVisible;
 import org.rust.lang.core.psi.ext.impl.RsCachedItems;
 import org.rust.lang.core.psi.ext.impl.RsDocAndAttributeOwnerUtil;
 import org.rust.lang.core.psi.ext.impl.RsElementUtil;
@@ -37,7 +42,9 @@ import org.rust.lang.core.psi.ext.impl.RsItemsOwnerUtil;
 import org.rust.lang.core.psi.ext.impl.RsMacroCallUtil;
 import org.rust.lang.core.psi.ext.impl.RsMacroUtil;
 import org.rust.lang.core.psi.ext.impl.RsUseSpeckUtil;
+import org.rust.lang.core.psi.ext.impl.RsVisibilityUtil;
 import org.rust.lang.core.psi.impl.RsFile;
+import org.rust.lang.core.psi.impl.RsPsiUtilUtil;
 import org.rust.lang.core.resolve.indexes.RsImplMacroCallIndex;
 import org.rust.lang.core.resolve.indexes.RsMacroIndex;
 import org.rust.lang.core.resolve2.ItemProcessingMode;
@@ -99,43 +106,26 @@ public final class IndexItemResolution {
             if (processExportedMacros(file, names, processor, declared)) return true;
         }
 
-        List<RsUseSpeck> starImports = new ArrayList<>();
+        ImportTable imports = importTable(scope);
         boolean isAtLeastEdition2018 = isAtLeastEdition2018(scope);
-        for (RsUseItem useItem : items.getImports()) {
-            if (!(isPublic(useItem) || withPrivateImports)) continue;
-            if (!RsDocAndAttributeOwnerUtil.existsAfterExpansionSelf(useItem)) continue;
-            RsUseSpeck root = useItem.getUseSpeck();
-            if (root == null) continue;
-            List<RsUseSpeck> leaves = new ArrayList<>();
-            RsUseSpeckUtil.forEachLeafSpeck(root, leaves::add);
-            for (RsUseSpeck speck : leaves) {
-                if (RsUseSpeckUtil.isStarImport(speck)) {
-                    starImports.add(speck);
-                    continue;
-                }
-                String name = RsUseSpeckUtil.getNameInScope(speck);
-                RsPath path = speck.getPath();
-                if (name == null || path == null) continue;
-                if (names != null && !names.contains(name)) continue;
-                // a single name, maybe renamed: `use foo;`, `use foo as bar;`
-                boolean isSingleName = path.getPath() == null && path.getColoncolon() == null && RsUseSpeckUtil.getQualifier(speck) == null;
-                // `pub(crate) use m;` re-exports the `macro_rules! m` written above it
-                if (isSingleName && ns.contains(Namespace.Macros) && processLegacyMacro(items, path.getReferenceName(), name, processor, declared)) {
-                    return true;
-                }
-                if (isAtLeastEdition2018 && isSingleName) {
-                    // `use foo;` names a crate since 2018, and only a `pub use` of it means anything to other modules
-                    if (!withPrivateImports && ns.contains(Namespace.Types)) {
-                        RsFile crateRoot = findDependencyCrateRoot(scope, path.getReferenceName());
-                        if (crateRoot != null && Processors.processEntry(processor, name, Namespace.TYPES, crateRoot)) return true;
-                    }
-                    continue;
-                }
-                // `use foo::bar::{self}` imports `foo::bar` itself
-                RsPath importedPath = "self".equals(path.getReferenceName()) && path.getPath() == null
-                    ? RsUseSpeckUtil.getQualifier(speck) : path;
-                if (importedPath != null && processImport(name, importedPath, ns, processor, declared)) return true;
+        for (NamedImport imported : imports.named(names)) {
+            if (!(imported.isPublic() || withPrivateImports)) continue;
+            String name = imported.name();
+            RsPath path = imported.path();
+            // `pub(crate) use m;` re-exports the `macro_rules! m` written above it
+            if (imported.isSingleName() && ns.contains(Namespace.Macros) && processLegacyMacro(items, path.getReferenceName(), name, processor, declared)) {
+                return true;
             }
+            if (isAtLeastEdition2018 && imported.isSingleName()) {
+                // `use foo;` names a crate since 2018, and only a `pub use` of it means anything to other modules
+                if (!withPrivateImports && ns.contains(Namespace.Types)) {
+                    RsFile crateRoot = findDependencyCrateRoot(scope, path.getReferenceName());
+                    if (crateRoot != null && Processors.processEntry(processor, name, Namespace.TYPES, crateRoot)) return true;
+                }
+                continue;
+            }
+            RsPath importedPath = imported.importedPath();
+            if (importedPath != null && processImport(name, importedPath, imported.useItem(), ns, processor, declared)) return true;
         }
 
         if (ipm.isWithExternCrates() && ns.contains(Namespace.Types) && scope instanceof RsMod mod) {
@@ -147,10 +137,74 @@ public final class IndexItemResolution {
             if (processExternCrateResolveVariants(mod, false, notShadowed)) return true;
         }
 
-        for (RsUseSpeck speck : starImports) {
-            if (processStarImport(scope, speck, ns, notShadowed(processor, declared), withPrivateImports)) return true;
+        for (StarImport star : imports.stars()) {
+            if (!(star.isPublic() || withPrivateImports)) continue;
+            if (processStarImport(scope, star.speck(), ns, notShadowed(processor, declared), withPrivateImports)) return true;
         }
         return false;
+    }
+
+    /**
+     * The `use` items of a module, leaf by leaf, by the name each brings into scope. Built once per structure change:
+     * a lookup of one name otherwise walks the trees of all the imports of the module.
+     */
+    @Nonnull
+    private static ImportTable importTable(@Nonnull RsItemsOwner scope) {
+        return CachedValuesManager.getManager(scope.getProject()).getCachedValue(scope, IMPORT_TABLE_KEY, () -> {
+            Map<String, List<NamedImport>> byName = new LinkedHashMap<>();
+            List<NamedImport> all = new ArrayList<>();
+            List<StarImport> stars = new ArrayList<>();
+            for (RsUseItem useItem : RsItemsOwnerUtil.getExpandedItemsCached(scope).getImports()) {
+                if (!RsDocAndAttributeOwnerUtil.existsAfterExpansionSelf(useItem)) continue;
+                RsUseSpeck root = useItem.getUseSpeck();
+                if (root == null) continue;
+                boolean isPublic = isPublic(useItem);
+                List<RsUseSpeck> leaves = new ArrayList<>();
+                RsUseSpeckUtil.forEachLeafSpeck(root, leaves::add);
+                for (RsUseSpeck speck : leaves) {
+                    if (RsUseSpeckUtil.isStarImport(speck)) {
+                        stars.add(new StarImport(speck, isPublic));
+                        continue;
+                    }
+                    String name = RsUseSpeckUtil.getNameInScope(speck);
+                    RsPath path = speck.getPath();
+                    if (name == null || path == null) continue;
+                    // a single name, maybe renamed: `use foo;`, `use foo as bar;`
+                    boolean isSingleName = path.getPath() == null && !path.getHasColonColon() && RsUseSpeckUtil.getQualifier(speck) == null;
+                    // `use foo::bar::{self}` imports `foo::bar` itself
+                    RsPath importedPath = "self".equals(path.getReferenceName()) && path.getPath() == null
+                        ? RsUseSpeckUtil.getQualifier(speck) : path;
+                    NamedImport imported = new NamedImport(name, useItem, path, importedPath, isSingleName, isPublic);
+                    byName.computeIfAbsent(name, k -> new ArrayList<>()).add(imported);
+                    all.add(imported);
+                }
+            }
+            return CachedValueProvider.Result.create(new ImportTable(byName, all, stars), RsPsiUtilUtil.getRustStructureOrAnyPsiModificationTracker(scope));
+        }, false);
+    }
+
+    private static final Key<CachedValue<ImportTable>> IMPORT_TABLE_KEY = Key.create("org.rust.lang.core.resolve.IndexItemResolution.importTable");
+
+    private record ImportTable(@Nonnull Map<String, List<NamedImport>> byName, @Nonnull List<NamedImport> all, @Nonnull List<StarImport> stars) {
+        /** The imports of {@code names}, in the order they are written, or all of them. */
+        @Nonnull
+        List<NamedImport> named(@Nullable Set<String> names) {
+            if (names == null) return all;
+            if (names.size() == 1) return byName.getOrDefault(names.iterator().next(), List.of());
+            List<NamedImport> result = new ArrayList<>();
+            for (NamedImport imported : all) {
+                if (names.contains(imported.name())) result.add(imported);
+            }
+            return result;
+        }
+    }
+
+    /** `use path as name`: {@code importedPath} is the path imported, the qualifier of `{self}`. */
+    private record NamedImport(@Nonnull String name, @Nonnull RsUseItem useItem, @Nonnull RsPath path, @Nullable RsPath importedPath,
+                               boolean isSingleName, boolean isPublic) {
+    }
+
+    private record StarImport(@Nonnull RsUseSpeck speck, boolean isPublic) {
     }
 
     private static boolean processItem(
@@ -167,14 +221,14 @@ public final class IndexItemResolution {
             PsiElement crateRoot = reference != null ? reference.resolve() : null;
             if (crateRoot == null) return false;
             declared.add(name);
-            return Processors.processEntry(processor, name, Namespace.TYPES, (RsElement) crateRoot);
+            return Processors.processEntry(processor, name, (RsElement) crateRoot, Namespace.TYPES, visibleAs(externCrate));
         }
         if (item instanceof RsModDeclItem modDecl) {
             if (!ns.contains(Namespace.Types)) return false;
             PsiElement mod = modDecl.getReference().resolve();
             if (!(mod instanceof RsElement module)) return false;
             declared.add(name);
-            return Processors.processEntry(processor, name, Namespace.TYPES, module);
+            return Processors.processEntry(processor, name, module, Namespace.TYPES, visibleAs(modDecl));
         }
         if (!(item instanceof RsNamedElement named)) return false;
         // a procedural macro is a function, but its name is the macro's
@@ -182,13 +236,27 @@ public final class IndexItemResolution {
             ? Namespace.MACROS : Namespace.getNamespaces(named);
         if (!intersects(itemNs, ns)) return false;
         declared.add(name);
-        return Processors.processEntry(processor, name, itemNs, named);
+        return Processors.processEntry(processor, name, named, itemNs, visibleAs(item));
+    }
+
+    /**
+     * Whether an entry is visible from the module of the path being resolved, by the visibility its item or import
+     * is declared with: `use futures::future::try_join_all` names both the private module and the function it
+     * re-exports, and only the function is visible from another crate.
+     */
+    @Nonnull
+    private static VisibilityFilter visibleAs(@Nonnull RsVisible declaration) {
+        return (context, lazyModInfo) -> {
+            RsMod mod = context.getContainingMod();
+            return mod == null || RsVisibilityUtil.isVisibleFrom(declaration, mod) ? VisibilityStatus.Visible : VisibilityStatus.Invisible;
+        };
     }
 
     /** `use path as name`: what the path resolves to in the namespaces asked for, each namespace once. */
     private static boolean processImport(
         @Nonnull String name,
         @Nonnull RsPath path,
+        @Nonnull RsUseItem useItem,
         @Nonnull Set<Namespace> ns,
         @Nonnull RsResolveProcessor processor,
         @Nonnull Set<String> declared
@@ -202,7 +270,7 @@ public final class IndexItemResolution {
             if (!intersects(targetNs, ns) || visited.containsAll(targetNs)) continue;
             visited.addAll(targetNs);
             declared.add(name);
-            if (Processors.processEntry(processor, name, targetNs, named)) return true;
+            if (Processors.processEntry(processor, name, named, targetNs, visibleAs(useItem))) return true;
         }
         return false;
     }

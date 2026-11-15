@@ -188,8 +188,15 @@ public class RsPathReferenceImpl extends RsReferenceBase<RsPath> implements RsPa
     @Override
     public RsElement resolve() {
         List<RsPathResolveResult<RsElement>> results = rawMultiResolve();
-        if (results.size() != 1) return null;
-        return results.get(0).element();
+        if (results.size() == 1) return results.get(0).element();
+        // `use futures::future::try_join_all` names a private module and the function it re-exports: the visible one
+        RsElement visible = null;
+        for (RsPathResolveResult<RsElement> result : results) {
+            if (!result.isVisible()) continue;
+            if (visible != null) return null;
+            visible = result.element();
+        }
+        return visible;
     }
 
     @Nonnull
