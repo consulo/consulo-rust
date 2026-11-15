@@ -6,7 +6,10 @@
 package org.rust.lang.core.resolve.indexes;
 
 import consulo.annotation.component.ExtensionImpl;
+import consulo.language.psi.scope.GlobalSearchScope;
 import consulo.language.psi.stub.IndexSink;
+import consulo.language.psi.stub.StubIndex;
+import consulo.project.Project;
 import consulo.language.psi.stub.StringStubIndexExtension;
 import consulo.language.psi.stub.StubElement;
 import consulo.language.psi.stub.StubIndexKey;
@@ -15,6 +18,8 @@ import org.rust.lang.core.psi.RsMacroCall;
 import org.rust.lang.core.stubs.RsFileStub;
 import org.rust.lang.core.stubs.RsMacroCallStub;
 import org.rust.lang.core.stubs.RsModItemStub;
+
+import java.util.Collection;
 
 /**
  * The macro calls written among the items of a module - the only ones whose expansion can add an impl - by the name of
@@ -35,6 +40,12 @@ public class RsImplMacroCallIndex extends StringStubIndexExtension<RsMacroCall> 
     @Override
     public StubIndexKey<String, RsMacroCall> getKey() {
         return KEY;
+    }
+
+    /** The module-level macro calls of {@code scope} that name {@code identifier} in their arguments. */
+    @Nonnull
+    public static Collection<RsMacroCall> callsMentioning(@Nonnull Project project, @Nonnull String identifier, @Nonnull GlobalSearchScope scope) {
+        return StubIndex.getElements(KEY, RsImplMacroKeys.argument(identifier), project, scope, RsMacroCall.class);
     }
 
     public static void index(@Nonnull RsMacroCallStub stub, @Nonnull IndexSink sink) {

@@ -5,6 +5,8 @@
 
 package org.rust.lang.core.resolve2;
 
+import org.rust.lang.core.resolve.IndexItemResolution;
+
 import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.VirtualFileWithId;
@@ -61,6 +63,7 @@ public final class FacadeResolve {
         @Nonnull RsResolveProcessor processor,
         @Nonnull ItemProcessingMode ipm
     ) {
+        if (IndexItemResolution.isEnabled()) return IndexItemResolution.processItemDeclarations(scope, ns, processor, ipm);
         RsModInfo info = getModInfo(scope);
         if (info == null) {
             return false;

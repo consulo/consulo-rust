@@ -5,6 +5,11 @@
 
 package org.rust.lang.core.macros;
 
+import org.rust.lang.core.resolve.IndexMacroResolution;
+
+import org.rust.lang.core.psi.ext.RsNamedElement;
+import org.rust.lang.core.resolve.IndexItemResolution;
+
 import consulo.disposer.Disposable;
 import java.util.List;
 import consulo.component.persist.PersistentStateComponent;
@@ -242,16 +247,26 @@ public class MacroExpansionManagerImpl
             return new RsResult.Err<>(GetMacroExpansionError.TooDeepExpansion);
         }
 
-        RsResult<RsMacroDataWithHash<?>, ResolveMacroWithoutPsiError> def = FacadeResolve.resolveToMacroWithoutPsi(call);
-        if (def.isErr()) {
-            return new RsResult.Err<>(toExpansionError(def.err()));
+        RsMacroDataWithHash<?> macroData;
+        if (IndexItemResolution.isEnabled()) {
+            // the definition the path of the call resolves to, without a def map
+            PsiElement resolved = IndexMacroResolution.resolveMacroCall(call);
+            macroData = resolved instanceof RsNamedElement named ? RsMacroDataWithHash.fromPsi(named) : null;
+            if (macroData == null) return new RsResult.Err<>(GetMacroExpansionError.Unresolved);
+        }
+        else {
+            RsResult<RsMacroDataWithHash<?>, ResolveMacroWithoutPsiError> def = FacadeResolve.resolveToMacroWithoutPsi(call);
+            if (def.isErr()) {
+                return new RsResult.Err<>(toExpansionError(def.err()));
+            }
+            macroData = def.ok();
         }
         RsMacroCallData callData = RsMacroCallData.fromPsi(call);
         if (callData == null) {
             return new RsResult.Err<>(GetMacroExpansionError.MacroCallSyntax);
         }
         RsResult<Pair<CharSequence, RangeMap>, MacroExpansionError> expanded =
-            FunctionLikeMacroExpander.forCrate(crate).expandMacroAsTextWithErr(def.ok().getData(), callData);
+            FunctionLikeMacroExpander.forCrate(crate).expandMacroAsTextWithErr(macroData.getData(), callData);
         if (expanded.isErr()) {
             return new RsResult.Err<>(new GetMacroExpansionError.ExpansionError(expanded.err()));
         }

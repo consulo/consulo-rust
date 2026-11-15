@@ -220,8 +220,15 @@ public abstract class ProcMacroAttribute<T extends RsMetaItemPsiOrStub> {
                     firstSeenAttrMacro = attr;
                 }
                 RsMetaItem metaItem = ((Attr<RsMetaItem>) attr).getAttr();
-                org.rust.lang.core.resolve2.ProcMacroDefInfo defInfo = org.rust.lang.core.resolve2.FacadeResolve.resolveToProcMacroWithoutPsi(metaItem, false);
-                KnownProcMacroKind kind = defInfo != null ? defInfo.getKind() : null;
+                KnownProcMacroKind kind;
+                if (org.rust.lang.core.resolve.IndexItemResolution.isEnabled()) {
+                    RsPath attrPath = metaItem.getPath();
+                    kind = attrPath != null ? org.rust.lang.core.resolve.IndexMacroResolution.resolveKnownAttributeMacroKind(attrPath) : null;
+                }
+                else {
+                    org.rust.lang.core.resolve2.ProcMacroDefInfo defInfo = org.rust.lang.core.resolve2.FacadeResolve.resolveToProcMacroWithoutPsi(metaItem, false);
+                    kind = defInfo != null ? defInfo.getKind() : null;
+                }
                 if (kind != null && outIgnoredAttributes != null) {
                     outIgnoredAttributes.add(kind);
                 }

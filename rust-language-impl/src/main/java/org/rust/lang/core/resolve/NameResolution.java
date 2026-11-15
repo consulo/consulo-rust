@@ -151,7 +151,13 @@ public final class NameResolution {
         PsiElement dollarCrateSource = RsExpandedElementUtil.findMacroCallFromWhichLeafIsExpanded(path);
         if (dollarCrateSource == null) dollarCrateSource = path;
         RsPossibleMacroCall call = RsExpandedElementUtil.findMacroCallExpandedFromNonRecursive(dollarCrateSource);
-        return call instanceof RsMacroCall macroCall ? FacadeResolve.resolveToMacroAndGetContainingCrate(macroCall) : null;
+        if (!(call instanceof RsMacroCall macroCall)) return null;
+        if (IndexItemResolution.isEnabled()) {
+            // the crate of the definition the call's path resolves to
+            PsiElement def = IndexMacroResolution.resolveMacroCall(macroCall);
+            return def instanceof RsElement element ? RsElementUtil.getContainingCrate(element) : null;
+        }
+        return FacadeResolve.resolveToMacroAndGetContainingCrate(macroCall);
     }
 
     /**
@@ -531,7 +537,7 @@ public final class NameResolution {
             if (!cr.getHasColonColon() && processSelfSuperCrate(cr.getNs(), ctx, processor)) return true;
             RsMod crateRoot = ctx.getCrateRoot();
             if (crateRoot == null) return false;
-            return processModScope(crateRoot, cr.getNs(), new HashSet<>(), processor);
+            return processQualifiedModScope(crateRoot, cr.getNs(), processor);
         }
         if (pathKind instanceof RsPathResolveKind.ExternCratePath) {
             return processExternPreludeResolveVariants(ctx, processor);
@@ -575,7 +581,7 @@ public final class NameResolution {
             ? qualifier.getReference().resolve()
             : RsPathReferenceImpl.deepResolve((RsPathReference) qualifier.getReference());
         if (resolved instanceof RsMod) {
-            return processModScope((RsMod) resolved, ns, new HashSet<>(), processor);
+            return processQualifiedModScope((RsMod) resolved, ns, processor);
         }
         if (resolved instanceof RsTraitItem trait && !hasCself && !(parent instanceof RsUseSpeck)) {
             BoundElement<RsElement> bound = ((RsPathReference) qualifier.getReference()).advancedResolve();
@@ -1159,6 +1165,19 @@ public final class NameResolution {
         @Nonnull RsResolveProcessor processor
     ) {
         RsPath qualifier = path.getPath();
+        if (IndexItemResolution.isEnabled()) {
+            if (qualifier == null) {
+                if (isCompletion) return IndexMacroResolution.processMacrosInScope(path, false, processor);
+                // the nearest macro of the name wins, as textual scoping has it
+                ScopeEntry first = Processors.pickFirstResolveEntry(path.getReferenceName(),
+                    picker -> IndexMacroResolution.processMacrosInScope(path, false, picker));
+                return first != null && processor.process(first);
+            }
+            // `a::b::m!`: the macro among the items of the module the qualifier names
+            PsiElement module = qualifier.getReference() != null ? qualifier.getReference().resolve() : null;
+            return module instanceof RsMod mod && IndexItemResolution.processItemDeclarations(mod, Namespace.MACROS, processor,
+                ItemProcessingMode.WITH_PRIVATE_IMPORTS);
+        }
         if (qualifier == null) {
             return processMacroCallVariantsInScope(path, false, processor);
         }
@@ -1187,6 +1206,15 @@ public final class NameResolution {
         boolean ignoreLegacyMacros,
         @Nonnull RsResolveProcessor processor
     ) {
+        if (IndexItemResolution.isEnabled()) {
+            // the nearest macro of the name wins; a processor without names lists them all, for completion
+            if (processor.getNames() == null || path.getReferenceName() == null) {
+                return IndexMacroResolution.processMacrosInScope(path, ignoreLegacyMacros, processor);
+            }
+            ScopeEntry first = Processors.pickFirstResolveEntry(path.getReferenceName(),
+                picker -> IndexMacroResolution.processMacrosInScope(path, ignoreLegacyMacros, picker));
+            return first != null && processor.process(first);
+        }
         Set<String> seen = new HashSet<>();
         PsiElement scope = path.getContext();
         while (scope != null) {
@@ -1393,15 +1421,33 @@ public final class NameResolution {
         return false;
     }
 
+    /**
+     * The items of {@code mod} asked for by a path that names it - {@code a::b::Name}, {@code crate::Name}: its own items
+     * and imports, without the crates and the prelude an unqualified name sees.
+     */
+    private static boolean processQualifiedModScope(@Nonnull RsMod mod, @Nonnull Set<Namespace> ns, @Nonnull RsResolveProcessor processor) {
+        if (!IndexItemResolution.isEnabled()) return processModScope(mod, ns, new HashSet<>(), processor);
+        return IndexItemResolution.processItemDeclarations(mod, ns, namespaceShadowingProcessor(processor, new HashSet<>()),
+            ItemProcessingMode.WITH_PRIVATE_IMPORTS);
+    }
+
     private static boolean processModScope(
         @Nonnull RsMod mod,
         @Nonnull Set<Namespace> ns,
         @Nonnull Set<String> seen,
         @Nonnull RsResolveProcessor processor
     ) {
-        RsModInfo modInfo = FacadeResolve.getModInfo(mod);
-        if (processor.getNames() != null && processor.getNames().contains("std")) {
+        if (IndexItemResolution.isEnabled()) {
+            // by name and namespace: the module `vec` does not hide the macro `vec`
+            RsResolveProcessor shadowing = namespaceShadowingProcessor(processor, seen);
+            if (IndexItemResolution.processItemDeclarations(mod, ns, shadowing, ItemProcessingMode.WITH_PRIVATE_IMPORTS_N_EXTERN_CRATES)) {
+                return true;
+            }
+            RsMod prelude = IndexItemResolution.findPrelude(mod);
+            return prelude != null && IndexItemResolution.processItemDeclarations(prelude, ns, shadowing,
+                ItemProcessingMode.WITHOUT_PRIVATE_IMPORTS);
         }
+        RsModInfo modInfo = FacadeResolve.getModInfo(mod);
         if (modInfo == null) {
             return processModScopeFromPsi(mod, ns, seen, processor);
         }
@@ -1435,6 +1481,30 @@ public final class NameResolution {
             if (Processors.processEntry(processor, name, elementNamespaces(item), item)) return true;
         }
         return false;
+    }
+
+    /**
+     * Drops a name an inner scope already bound, and a name this module already offered in the same namespace: a module
+     * and a macro may share a name.
+     */
+    @Nonnull
+    private static RsResolveProcessor namespaceShadowingProcessor(@Nonnull RsResolveProcessor processor, @Nonnull Set<String> seen) {
+        Set<String> boundHere = new HashSet<>();
+        Set<String> namesHere = new HashSet<>();
+        return Processors.asResolveProcessor(Processors.wrapWithFilter(processor, entry -> {
+            String name = entry.getName();
+            if ("_".equals(name)) return true;
+            if (seen.contains(name) && !namesHere.contains(name)) return false;
+            boolean fresh = false;
+            for (Namespace namespace : entry.getNamespaces()) {
+                if (boundHere.add(name + "/" + namespace)) fresh = true;
+            }
+            if (fresh) {
+                namesHere.add(name);
+                seen.add(name);
+            }
+            return fresh;
+        }));
     }
 
     /** Drops names an inner scope already bound, so that a local shadows an item of the same name. */
@@ -1611,6 +1681,7 @@ public final class NameResolution {
      */
     @Nullable
     public static RsMod findPrelude(@Nonnull RsElement element) {
+        if (IndexItemResolution.isEnabled()) return IndexItemResolution.findPrelude(element);
         RsMod containing = element.getContainingMod();
         if (containing == null) return null;
         RsModInfo info = FacadeResolve.getModInfo(containing);
@@ -1659,6 +1730,9 @@ public final class NameResolution {
         @Nonnull PathResolutionContext ctx,
         @Nonnull RsResolveProcessor processor
     ) {
+        if (IndexItemResolution.isEnabled()) {
+            return IndexItemResolution.processExternCrateResolveVariants(ctx.getContext(), false, processor);
+        }
         RsModInfo info = ctx.getContainingModInfo();
         if (info == null) return false;
         Set<String> wantedNames = processor.getNames();

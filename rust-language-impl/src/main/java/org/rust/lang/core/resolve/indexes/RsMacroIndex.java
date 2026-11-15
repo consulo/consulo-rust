@@ -62,6 +62,12 @@ public class RsMacroIndex extends StringStubIndexExtension<RsMacro> {
         }
     }
 
+    /** The {@code #[macro_export]} macros written in files of {@code scope}, without finding their crates. */
+    @Nonnull
+    public static Collection<RsMacro> exportedMacros(@Nonnull Project project, @Nonnull GlobalSearchScope scope) {
+        return StubIndex.getElements(KEY, SINGLE_KEY, project, scope, RsMacro.class);
+    }
+
     @Nonnull
     public static Map<RsMod, List<RsMacro>> allExportedMacros(@Nonnull Project project) {
         OpenApiUtil.checkCommitIsNotInProgress(project);

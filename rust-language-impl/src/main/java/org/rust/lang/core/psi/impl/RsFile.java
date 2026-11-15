@@ -48,6 +48,8 @@ import org.rust.lang.core.resolve2.FacadeResolve;
 import org.rust.lang.core.resolve2.FacadeResolve.FileInclusionPoint;
 import org.rust.lang.core.stubs.RsFileStub;
 import org.rust.lang.core.stubs.index.RsModulesIndex;
+import org.rust.lang.core.resolve.IndexItemResolution;
+import org.rust.lang.core.psi.ext.impl.RsItemsOwnerUtil;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.ArrayList;
@@ -163,7 +165,8 @@ public class RsFile extends RsFileBase implements RsMod {
         if (fromModuleTree != null) return fromModuleTree;
 
         // a file no `mod` declaration reaches - included by `include!`, or declared by a macro - is found in the def maps
-        List<FileInclusionPoint> allInclusionPoints = FacadeResolve.findFileInclusionPointsFor(this);
+        List<FileInclusionPoint> allInclusionPoints = IndexItemResolution.isEnabled()
+            ? Collections.emptyList() : FacadeResolve.findFileInclusionPointsFor(this);
         FileInclusionPoint inclusionPoint = pickSingleInclusionPoint(allInclusionPoints);
         if (inclusionPoint != null) {
             var crateGraph = CrateGraphService.crateGraph(getProject());
@@ -295,6 +298,7 @@ public class RsFile extends RsFileBase implements RsMod {
         if (isCrateRoot()) return null;
         RsModDeclItem declaration = getDeclaration();
         if (declaration != null) return declaration.getContainingMod();
+        if (IndexItemResolution.isEnabled()) return null;
         List<FileInclusionPoint> points = FacadeResolve.findFileInclusionPointsFor(this);
         FileInclusionPoint inclusionPoint = pickSingleInclusionPoint(points);
         if (inclusionPoint == null) return null;
@@ -424,12 +428,48 @@ public class RsFile extends RsFileBase implements RsMod {
                 decl = Collections.emptyList();
             } else {
                 decl = RsModulesIndex.getDeclarationsFor(orig);
+                if (decl.isEmpty()) decl = findDeclarationsInMacroExpansions(orig);
             }
             // not the tracker of the file's crate: the crate is found through these declarations
             RsPsiManager psiManager = RsPsiManagerUtil.getRustPsiManager(orig.getProject());
             return CachedValueProvider.Result.create(decl,
                 psiManager.getRustStructureModificationTracker(), psiManager.getRustStructureModificationTrackerInDependencies());
         }, false);
+    }
+
+    /**
+     * The `mod` declarations of {@code file} written inside macro calls - `cfg_net! { mod tcp; }` - which the index does
+     * not see: the declaration is in the expansions of the module the file belongs under by its path, `dir/mod.rs`,
+     * `dir.rs` or the crate root of `dir`.
+     */
+    @Nonnull
+    private static List<RsModDeclItem> findDeclarationsInMacroExpansions(@Nonnull RsFile file) {
+        VirtualFile virtualFile = file.getVirtualFile();
+        VirtualFile dir = virtualFile != null ? virtualFile.getParent() : null;
+        if (dir == null) return Collections.emptyList();
+        boolean isModRs = RsConstants.MOD_RS_FILE.equals(virtualFile.getName());
+        String modName = isModRs ? dir.getName() : virtualFile.getNameWithoutExtension();
+        VirtualFile parentDir = isModRs ? dir.getParent() : dir;
+        if (parentDir == null) return Collections.emptyList();
+        List<VirtualFile> parents = new ArrayList<>();
+        for (String name : List.of(RsConstants.MOD_RS_FILE, "lib.rs", "main.rs")) {
+            VirtualFile candidate = parentDir.findChild(name);
+            if (candidate != null) parents.add(candidate);
+        }
+        VirtualFile grandParent = parentDir.getParent();
+        VirtualFile sibling = grandParent != null ? grandParent.findChild(parentDir.getName() + ".rs") : null;
+        if (sibling != null) parents.add(sibling);
+
+        List<RsModDeclItem> result = new ArrayList<>();
+        for (VirtualFile parent : parents) {
+            if (parent.equals(virtualFile) || !(file.getManager().findFile(parent) instanceof RsFile parentFile)) continue;
+            List<RsItemElement> items = RsItemsOwnerUtil.getExpandedItemsCached(parentFile).getNamed().get(modName);
+            if (items == null) continue;
+            for (RsItemElement item : items) {
+                if (item instanceof RsModDeclItem declaration && declaration.getReference().resolve() == file) result.add(declaration);
+            }
+        }
+        return result;
     }
 
     public void forceSetStubTree(@Nonnull PsiFileStub<?> stub) {
