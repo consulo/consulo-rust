@@ -229,7 +229,9 @@ public class RsCommonCompletionProvider extends RsCompletionProvider {
 
         RsResolveProcessor deduped = Processors.deduplicateMethodCompletionVariants(processor);
         RsResolveProcessor boundFiltered = Processors.filterMethodCompletionVariantsByTraitBounds(lookup, receiverTy, deduped);
-        ImportContext importCtx = ImportContext.from(element, ImportContext.Type.COMPLETION);
+        // the import context is built on the def maps of the whole crate graph: the index engine has none, and the
+        // first `.` of a session would wait for all of them only to hide the methods of traits that cannot be imported
+        ImportContext importCtx = IndexItemResolution.isEnabled() ? null : ImportContext.from(element, ImportContext.Type.COMPLETION);
         RsResolveProcessor traitFiltered = importCtx != null ? ImportCandidatesCollector.filterAccessibleTraits(importCtx, boundFiltered) : boundFiltered;
         RsResolveProcessor visFiltered = Processors.filterCompletionVariantsByVisibility(element, traitFiltered);
 
