@@ -415,6 +415,8 @@ public final class FacadeResolve {
      * updates, which then have no answer yet.
      */
     public static boolean areDefMapsReadyFor(@Nonnull RsFile file) {
+        // the index engine resolves as soon as the indexes are ready, which the callers check
+        if (IndexItemResolution.isEnabled()) return true;
         Project project = file.getProject();
         DefMapService defMapService = project.getService(DefMapService.class);
         VirtualFile virtualFile = file.getVirtualFile();

@@ -75,9 +75,11 @@ public final class IndexItemResolution {
     private IndexItemResolution() {
     }
 
-    /** Whether name resolution uses this instead of the def maps - {@code -Drust.resolve.index=true} while the two are compared. */
+    private static final boolean ENABLED = !"false".equals(System.getProperty("rust.resolve.index"));
+
+    /** Whether name resolution uses this instead of the def maps - the default; {@code -Drust.resolve.index=false} for the def maps. */
     public static boolean isEnabled() {
-        return Boolean.getBoolean("rust.resolve.index");
+        return ENABLED;
     }
 
     /** The items {@code scope} declares, imports and gets from its dependencies, in that order of precedence. */

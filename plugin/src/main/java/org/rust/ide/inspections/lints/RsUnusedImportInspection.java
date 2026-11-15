@@ -29,6 +29,7 @@ import org.rust.lang.core.macros.MacroExpansionExtUtil;
 import org.rust.cargo.macros.ProcMacroApplicationService;
 import org.rust.lang.core.psi.*;
 import org.rust.lang.core.psi.ext.*;
+import org.rust.lang.core.resolve.IndexItemResolution;
 import org.rust.lang.core.resolve2.*;
 import org.rust.openapiext.OpenApiUtil;
 
@@ -314,10 +315,32 @@ public class RsUnusedImportInspection extends RsLintInspection {
         if (targetCrate == null || !crateId.equals(targetCrate.getId())) {
             return false;
         }
+        if (IndexItemResolution.isEnabled()) return hasTransitiveGlobImportByPsi(self, target, new HashSet<>());
         DefMapService defMapService = self.getProject().getService(DefMapService.class);
         CrateDefMap defMap = FacadeUpdateDefMap.getOrUpdateIfNeeded(defMapService, crateId);
         if (defMap == null) return false;
         return FacadeMetaInfo.hasTransitiveGlobImport(defMap, self, target);
+    }
+
+    /** Whether {@code self} glob-imports {@code target}, itself or through modules it glob-imports, without a def map. */
+    private static boolean hasTransitiveGlobImportByPsi(@Nonnull RsMod self, @Nonnull RsMod target, @Nonnull Set<RsMod> visited) {
+        if (self == target) return true;
+        if (!visited.add(self)) return false;
+        for (RsUseItem useItem : RsItemsOwnerUtil.getExpandedItemsCached(self).getImports()) {
+            RsUseSpeck root = useItem.getUseSpeck();
+            if (root == null) continue;
+            List<RsUseSpeck> leaves = new ArrayList<>();
+            RsUseSpeckUtil.forEachLeafSpeck(root, leaves::add);
+            for (RsUseSpeck speck : leaves) {
+                if (!RsUseSpeckUtil.isStarImport(speck)) continue;
+                RsPath path = speck.getPath();
+                // `use foo::{self, *}`: the `*` of the group imports from the qualifier
+                RsPath basePath = path == null && speck.getContext() instanceof RsUseGroup ? RsUseSpeckUtil.getQualifier(speck) : path;
+                PsiElement imported = basePath != null && basePath.getReference() != null ? basePath.getReference().resolve() : null;
+                if (imported instanceof RsMod module && hasTransitiveGlobImportByPsi(module, target, visited)) return true;
+            }
+        }
+        return false;
     }
 
     /**
