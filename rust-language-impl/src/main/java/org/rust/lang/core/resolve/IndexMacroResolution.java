@@ -26,6 +26,7 @@ import org.rust.lang.core.psi.ext.impl.RsDocAndAttributeOwnerUtil;
 import org.rust.lang.core.psi.ext.impl.RsElementUtil;
 import org.rust.lang.core.psi.ext.impl.RsExternCrateItemUtil;
 import org.rust.lang.core.psi.ext.impl.RsItemsOwnerUtil;
+import org.rust.lang.core.psi.ext.impl.RsMacroCallUtil;
 import org.rust.lang.core.psi.ext.impl.RsModDeclItemUtil;
 import org.rust.lang.core.psi.ext.impl.RsModItemUtil;
 import org.rust.lang.core.psi.impl.RsPsiManagerUtil;
@@ -277,15 +278,29 @@ public final class IndexMacroResolution {
 
     private static void collectVisibleMacros(@Nonnull RsItemsOwner scope, @Nonnull List<RsMacro> result) {
         for (RsElement element : RsItemsOwnerUtil.getItemsAndMacros(scope)) {
-            if (element instanceof RsMacro macro) {
-                result.add(macro);
-            }
-            else if (element instanceof RsModItem module && RsModItemUtil.getHasMacroUse(module) && exists(module)) {
-                collectVisibleMacros(module, result);
-            }
-            else if (element instanceof RsModDeclItem declaration && RsModDeclItemUtil.getHasMacroUse(declaration) && exists(declaration)) {
-                if (declaration.getReference().resolve() instanceof RsMod module) collectVisibleMacros(module, result);
-            }
+            collectVisibleMacros(element, result);
+        }
+    }
+
+    /**
+     * The `macro_rules!` an item of a `#[macro_use]` module leaves in scope after it - those that macro calls write as
+     * well: yansi's `define_properties! { .. }` writes the `fg!` its `properties!` calls.
+     */
+    private static void collectVisibleMacros(@Nonnull PsiElement element, @Nonnull List<RsMacro> result) {
+        if (element instanceof RsMacro macro) {
+            result.add(macro);
+        }
+        else if (element instanceof RsMacroCall call && exists(call)) {
+            RsMacroCallUtil.processExpansionRecursively(call, expanded -> {
+                if (!(expanded instanceof RsMacroCall)) collectVisibleMacros(expanded, result);
+                return false;
+            });
+        }
+        else if (element instanceof RsModItem module && RsModItemUtil.getHasMacroUse(module) && exists(module)) {
+            collectVisibleMacros(module, result);
+        }
+        else if (element instanceof RsModDeclItem declaration && RsModDeclItemUtil.getHasMacroUse(declaration) && exists(declaration)) {
+            if (declaration.getReference().resolve() instanceof RsMod module) collectVisibleMacros(module, result);
         }
     }
 
