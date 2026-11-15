@@ -14,12 +14,15 @@ import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.dataContext.DataContext;
 import consulo.codeEditor.Editor;
+import consulo.document.FileDocumentManager;
 import consulo.project.Project;
 import consulo.ui.ex.action.LegacyAnAction;
+import consulo.virtualFileSystem.VirtualFile;
 import org.rust.RsBundle;
 import org.rust.lang.core.macros.errors.GetMacroExpansionError;
 import org.rust.lang.core.psi.ext.RsPossibleMacroCall;
 import org.rust.lang.core.psi.ext.impl.RsPossibleMacroCallUtil;
+import org.rust.lang.core.psi.impl.RsFile;
 import org.rust.openapiext.OpenApiUtil;
 import org.rust.stdext.RsResult;
 import consulo.language.psi.PsiElement;
@@ -36,8 +39,10 @@ public abstract class RsShowMacroExpansionActions {
 
         @Override
         public Coroutine<?, ?> updateAsync(AnActionEvent e) {
-            return ActionSafeReadLock.run(e, presentation ->
-                presentation.setEnabledAndVisible(getMacroUnderCaret(e.getDataContext()) != null)
+            return ActionSafeReadLock.run(
+                e,
+                presentation -> presentation.setEnabledAndVisible(mayHaveMacroUnderCaret(e.getDataContext())),
+                presentation -> presentation.setEnabledAndVisible(getMacroUnderCaret(e.getDataContext()) != null)
             ).toCoroutine();
         }
 
@@ -86,6 +91,17 @@ public abstract class RsShowMacroExpansionActions {
     /** @deprecated Use {@link org.rust.ide.actions.macroExpansion.RsShowSingleStepMacroExpansionAction} directly. */
     @Deprecated
     public static class RsShowSingleStepMacroExpansionAction extends org.rust.ide.actions.macroExpansion.RsShowSingleStepMacroExpansionAction {
+    }
+
+    /**
+     * Whether {@link #getMacroUnderCaret} may find a macro call, decided without the read lock: there must be an editor, and
+     * the file it shows, when known, must be a Rust one - it is the file of the PSI file of the context.
+     */
+    public static boolean mayHaveMacroUnderCaret(DataContext event) {
+        Editor editor = event.getData(Editor.KEY);
+        if (editor == null) return false;
+        VirtualFile file = FileDocumentManager.getInstance().getFile(editor.getDocument());
+        return file == null || RsFile.isRustFile(file);
     }
 
     /** Returns closest macro call under cursor in the editor if present. */

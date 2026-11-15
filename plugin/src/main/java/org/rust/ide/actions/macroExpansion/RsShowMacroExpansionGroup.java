@@ -37,8 +37,14 @@ public class RsShowMacroExpansionGroup extends DefaultActionGroup implements AnA
     @Override
     public Coroutine<?, ?> updateAsync(AnActionEvent event) {
         boolean inEditorPopupMenu = ActionPlaces.EDITOR_POPUP.equals(event.getPlace());
-        return ActionSafeReadLock.run(event, presentation -> presentation.setEnabledAndVisible(
-            inEditorPopupMenu && RsShowMacroExpansionActions.getMacroUnderCaret(event.getDataContext()) != null
-        )).toCoroutine();
+        return ActionSafeReadLock.run(
+            event,
+            presentation -> presentation.setEnabledAndVisible(
+                inEditorPopupMenu && RsShowMacroExpansionActions.mayHaveMacroUnderCaret(event.getDataContext())
+            ),
+            presentation -> presentation.setEnabledAndVisible(
+                RsShowMacroExpansionActions.getMacroUnderCaret(event.getDataContext()) != null
+            )
+        ).toCoroutine();
     }
 }
