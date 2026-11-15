@@ -109,10 +109,12 @@ public final class RsResolveCache implements Disposable {
         if (cached != null) {
             return cached == NULL_RESULT ? null : (V) cached;
         }
+        // a result computed while a recursion was prevented on the way is incomplete: it is returned, not cached
+        RecursionGuard.StackStamp stamp = RecursionManager.markStack();
         V result = myGuard.doPreventingRecursion(key, true, () -> resolver.apply(key));
         ensureValidResult(result);
 
-        cache(map, key, result);
+        if (stamp.mayCacheNow()) cache(map, key, result);
         return result;
     }
 
