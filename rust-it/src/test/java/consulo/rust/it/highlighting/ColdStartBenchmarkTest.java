@@ -200,6 +200,7 @@ public class ColdStartBenchmarkTest {
     private static void time(List<String> report, Project project, String name, Supplier<String> step) {
         Thread worker = Thread.currentThread();
         Map<String, Integer> inclusive = new HashMap<>();
+        Map<String, Integer> self = new HashMap<>();
         int[] samples = {0};
         AtomicBoolean running = new AtomicBoolean(true);
         Thread sampler = new Thread(() -> {
@@ -207,8 +208,28 @@ public class ColdStartBenchmarkTest {
                 // every thread running Rust code: def maps are built on the resolve pool, not on the test thread
                 for (Map.Entry<Thread, StackTraceElement[]> thread : Thread.getAllStackTraces().entrySet()) {
                     if (thread.getKey() != worker && !thread.getKey().getName().startsWith("Rust-")) continue;
+                    StackTraceElement[] frames = thread.getValue();
+                    boolean runsRust = false;
+                    for (StackTraceElement frame : frames) {
+                        if (frame.getClassName().startsWith("org.rust.")) {
+                            runsRust = true;
+                            break;
+                        }
+                    }
+                    // where the time is spent: the top of the stack, any code, and the first Rust method under it
+                    if (runsRust && frames.length > 0 && !isWaiting(frames[0])) {
+                        String leaf = frames[0].getClassName().substring(frames[0].getClassName().lastIndexOf('.') + 1) + "." + frames[0].getMethodName();
+                        String rustCaller = "";
+                        for (StackTraceElement frame : frames) {
+                            if (frame.getClassName().startsWith("org.rust.")) {
+                                rustCaller = frame.getClassName().substring(frame.getClassName().lastIndexOf('.') + 1) + "." + frame.getMethodName();
+                                break;
+                            }
+                        }
+                        self.merge(leaf + "  <- " + rustCaller, 1, Integer::sum);
+                    }
                     Set<String> seen = new HashSet<>();
-                    for (StackTraceElement frame : thread.getValue()) {
+                    for (StackTraceElement frame : frames) {
                         if (!frame.getClassName().startsWith("org.rust.")) continue;
                         String method = frame.getClassName().substring(frame.getClassName().lastIndexOf('.') + 1) + "." + frame.getMethodName();
                         if (seen.add(method)) inclusive.merge(method, 1, Integer::sum);
@@ -255,7 +276,19 @@ public class ColdStartBenchmarkTest {
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
                 .limit(150)
                 .forEach(e -> report.add(String.format("      %3d%%  %s", e.getValue() * 100 / Math.max(1, samples[0]), e.getKey())));
+            report.add("    self time (top of stack <- first Rust method):");
+            self.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .limit(40)
+                .forEach(e -> report.add(String.format("      %4d  %s", e.getValue(), e.getKey())));
         }
+    }
+
+    /** A frame of a thread that waits rather than works. */
+    private static boolean isWaiting(StackTraceElement frame) {
+        String name = frame.getClassName() + "." + frame.getMethodName();
+        return name.startsWith("jdk.internal.misc.Unsafe.park") || name.startsWith("java.lang.Object.wait")
+            || name.startsWith("java.lang.Thread.sleep") || name.contains("LockSupport.park");
     }
 
     private static long millis(long start) {
