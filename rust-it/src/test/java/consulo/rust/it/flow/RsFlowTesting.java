@@ -171,6 +171,11 @@ public final class RsFlowTesting {
             return file;
         }
 
+        /** The home of the stub toolchain, whose {@code bin/} the plugin runs its tools from. */
+        public Path getToolchainHome() {
+            return Path.of(sdk.getHomePath());
+        }
+
         @Override
         public void close() {
             WriteAction.run(() -> SdkTable.getInstance().removeSdk(sdk));
