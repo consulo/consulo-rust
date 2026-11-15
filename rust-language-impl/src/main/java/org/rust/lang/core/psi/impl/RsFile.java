@@ -49,7 +49,8 @@ import org.rust.lang.core.resolve2.FacadeResolve.FileInclusionPoint;
 import org.rust.lang.core.stubs.RsFileStub;
 import org.rust.lang.core.stubs.index.RsModulesIndex;
 import org.rust.lang.core.resolve.IndexItemResolution;
-import org.rust.lang.core.psi.ext.impl.RsItemsOwnerUtil;
+import consulo.language.psi.scope.GlobalSearchScope;
+import org.rust.lang.core.resolve.indexes.RsImplMacroCallIndex;
 import org.rust.openapiext.OpenApiUtil;
 
 import java.util.ArrayList;
@@ -460,14 +461,19 @@ public class RsFile extends RsFileBase implements RsMod {
         VirtualFile sibling = grandParent != null ? grandParent.findChild(parentDir.getName() + ".rs") : null;
         if (sibling != null) parents.add(sibling);
 
+        parents.remove(virtualFile);
+        if (parents.isEmpty()) return Collections.emptyList();
+        // only the calls that name the module are expanded, not every macro of the parent files
         List<RsModDeclItem> result = new ArrayList<>();
-        for (VirtualFile parent : parents) {
-            if (parent.equals(virtualFile) || !(file.getManager().findFile(parent) instanceof RsFile parentFile)) continue;
-            List<RsItemElement> items = RsItemsOwnerUtil.getExpandedItemsCached(parentFile).getNamed().get(modName);
-            if (items == null) continue;
-            for (RsItemElement item : items) {
-                if (item instanceof RsModDeclItem declaration && declaration.getReference().resolve() == file) result.add(declaration);
-            }
+        GlobalSearchScope scope = GlobalSearchScope.filesScope(file.getProject(), parents);
+        for (RsMacroCall call : RsImplMacroCallIndex.callsMentioning(file.getProject(), modName, scope)) {
+            RsMacroCallUtil.processExpansionRecursively(call, expanded -> {
+                if (expanded instanceof RsModDeclItem declaration && modName.equals(declaration.getName())
+                    && declaration.getReference().resolve() == file) {
+                    result.add(declaration);
+                }
+                return false;
+            });
         }
         return result;
     }
