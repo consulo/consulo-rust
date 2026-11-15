@@ -10,7 +10,6 @@ import org.rust.lang.core.psi.BuiltinAttributes;
 import consulo.language.ast.ASTNode;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.stub.StubBuilder;
-import consulo.language.impl.ast.TreeUtil;
 import consulo.language.psi.stub.*;
 import consulo.language.ast.IElementType;
 import consulo.language.psi.stub.IStubFileElementType;
@@ -106,7 +105,8 @@ public class RsFileStub extends PsiFileStubImpl<RsFile> implements RsAttributeOw
                 @Nonnull
                 @Override
                 protected StubElement createStubForFile(@Nonnull PsiFile file) {
-                    TreeUtil.ensureParsed(file.getNode());
+                    // no `TreeUtil.ensureParsed`: it would parse every function body, which the stubs below skip unless
+                    // they may hold items
 
                     if (file instanceof RsReplCodeFragment) {
                         return new RsFileStub(null, 0);
