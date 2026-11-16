@@ -9,6 +9,7 @@ import consulo.virtualFileSystem.VirtualFileManager;
 import org.rust.cargo.api.model.UserDisabledFeatures;
 
 import org.rust.cargo.toolchain.RsToolchainLocator;
+import org.rust.cargo.toolchain.RsToolchainProvider;
 import org.rust.stdext.Lazy;
 import consulo.module.Module;
 import consulo.module.ModuleManager;
@@ -21,6 +22,8 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.api.model.ExternalCargoProjectData;
+import org.rust.cargo.api.model.ExternalRustToolchain;
 import org.rust.cargo.api.model.RustcInfo;
 import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import org.rust.cargo.api.CargoConfig;
@@ -75,6 +78,10 @@ public class CargoProjectImpl extends UserDataHolderBase implements CargoProject
     @Nullable
     private final Path procMacroExpanderPath;
 
+    /** The workspace another build system provided, {@code null} for a project read from {@code cargo metadata}. */
+    @Nullable
+    private final ExternalCargoProjectData myExternalData;
+
     // Lazy fields. Both are computed from the project model, which is not loaded yet when the first
     // caller arrives, so both hold a value only once there is a real one to hold - see getWorkspace().
     private volatile CargoWorkspace workspace;
@@ -93,6 +100,22 @@ public class CargoProjectImpl extends UserDataHolderBase implements CargoProject
         @Nonnull UpdateStatus stdlibStatus,
         @Nonnull UpdateStatus rustcInfoStatus
     ) {
+        this(manifest, projectService, userDisabledFeatures, rawWorkspace, stdlib, rustcInfo,
+            workspaceStatus, stdlibStatus, rustcInfoStatus, null);
+    }
+
+    public CargoProjectImpl(
+        @Nonnull Path manifest,
+        @Nonnull CargoProjectsServiceImpl projectService,
+        @Nonnull UserDisabledFeatures userDisabledFeatures,
+        @Nullable CargoWorkspace rawWorkspace,
+        @Nullable StandardLibrary stdlib,
+        @Nullable RustcInfo rustcInfo,
+        @Nonnull UpdateStatus workspaceStatus,
+        @Nonnull UpdateStatus stdlibStatus,
+        @Nonnull UpdateStatus rustcInfoStatus,
+        @Nullable ExternalCargoProjectData externalData
+    ) {
         this.manifest = manifest;
         this.projectService = projectService;
         this.userDisabledFeatures = userDisabledFeatures;
@@ -102,9 +125,10 @@ public class CargoProjectImpl extends UserDataHolderBase implements CargoProject
         this.workspaceStatus = workspaceStatus;
         this.stdlibStatus = stdlibStatus;
         this.rustcInfoStatus = rustcInfoStatus;
+        myExternalData = externalData;
 
         if (rustcInfo != null) {
-            RsToolchainBase toolchain = RsToolchainLocator.getToolchain(getProject());
+            RsToolchainBase toolchain = getToolchain();
             this.procMacroExpanderPath = toolchain != null
                 ? ProcMacroServerPool.findExpanderExecutablePath(toolchain, rustcInfo.getSysroot())
                 : null;
@@ -121,6 +145,49 @@ public class CargoProjectImpl extends UserDataHolderBase implements CargoProject
 
     public CargoProjectImpl(@Nonnull Path manifest, @Nonnull CargoProjectsServiceImpl projectService) {
         this(manifest, projectService, UserDisabledFeatures.EMPTY);
+    }
+
+    /** A not yet synced project of another build system. */
+    public CargoProjectImpl(
+        @Nonnull ExternalCargoProjectData externalData,
+        @Nonnull CargoProjectsServiceImpl projectService,
+        @Nonnull UserDisabledFeatures userDisabledFeatures
+    ) {
+        this(externalData.getManifest(), projectService, userDisabledFeatures, null, null, null,
+            UpdateStatus.NeedsUpdate.INSTANCE, UpdateStatus.NeedsUpdate.INSTANCE, UpdateStatus.NeedsUpdate.INSTANCE,
+            externalData);
+    }
+
+    @Override
+    public boolean isExternal() {
+        return myExternalData != null;
+    }
+
+    @Nullable
+    public ExternalCargoProjectData getExternalData() {
+        return myExternalData;
+    }
+
+    /**
+     * The toolchain this project is built with: the one its build system reported for an external project, the Rust
+     * bundle of the IDE project otherwise (and for an external project that reported none).
+     */
+    @Nullable
+    public RsToolchainBase getToolchain() {
+        RsToolchainBase external = getExternalToolchain();
+        return external != null ? external : RsToolchainLocator.getToolchain(getProject());
+    }
+
+    /** The toolchain reported by the build system of an external project, {@code null} if there is none. */
+    @Nullable
+    public RsToolchainBase getExternalToolchain() {
+        ExternalRustToolchain toolchain = myExternalData == null ? null : myExternalData.getToolchain();
+        Path binDir = toolchain == null ? null : toolchain.getRustc().getParent();
+        if (binDir == null) {
+            return null;
+        }
+        // the paths are ones of the machine the project lives on
+        return RsToolchainProvider.getToolchainStatic(binDir, getProject().getPlatform());
     }
 
     @Nonnull
@@ -334,11 +401,11 @@ public class CargoProjectImpl extends UserDataHolderBase implements CargoProject
             return new CargoProjectImpl(manifest, projectService,
                 userDisabledFeatures.retain(ok.getValue().getPackages()),
                 ok.getValue(), stdlib, rustcInfo,
-                UpdateStatus.UpToDate.INSTANCE, stdlibStatus, rustcInfoStatus);
+                UpdateStatus.UpToDate.INSTANCE, stdlibStatus, rustcInfoStatus, myExternalData);
         } else if (result instanceof TaskResult.Err err) {
             return new CargoProjectImpl(manifest, projectService, userDisabledFeatures,
                 rawWorkspace, stdlib, rustcInfo,
-                new UpdateStatus.UpdateFailed(err.getReason()), stdlibStatus, rustcInfoStatus);
+                new UpdateStatus.UpdateFailed(err.getReason()), stdlibStatus, rustcInfoStatus, myExternalData);
         }
         return this;
     }
@@ -347,11 +414,11 @@ public class CargoProjectImpl extends UserDataHolderBase implements CargoProject
         if (result instanceof TaskResult.Ok<RustcInfo> ok) {
             return new CargoProjectImpl(manifest, projectService, userDisabledFeatures,
                 rawWorkspace, stdlib, ok.getValue(),
-                workspaceStatus, stdlibStatus, UpdateStatus.UpToDate.INSTANCE);
+                workspaceStatus, stdlibStatus, UpdateStatus.UpToDate.INSTANCE, myExternalData);
         } else if (result instanceof TaskResult.Err err) {
             return new CargoProjectImpl(manifest, projectService, userDisabledFeatures,
                 rawWorkspace, stdlib, rustcInfo,
-                workspaceStatus, stdlibStatus, new UpdateStatus.UpdateFailed(err.getReason()));
+                workspaceStatus, stdlibStatus, new UpdateStatus.UpdateFailed(err.getReason()), myExternalData);
         }
         return this;
     }
@@ -373,7 +440,8 @@ public class CargoProjectImpl extends UserDataHolderBase implements CargoProject
             newRustcInfo != null ? newRustcInfo : rustcInfo,
             newWorkspaceStatus != null ? newWorkspaceStatus : workspaceStatus,
             newStdlibStatus != null ? newStdlibStatus : stdlibStatus,
-            newRustcInfoStatus != null ? newRustcInfoStatus : rustcInfoStatus
+            newRustcInfoStatus != null ? newRustcInfoStatus : rustcInfoStatus,
+            myExternalData
         );
     }
 
@@ -381,7 +449,7 @@ public class CargoProjectImpl extends UserDataHolderBase implements CargoProject
         @Nonnull UserDisabledFeatures userDisabledFeatures
     ) {
         return new CargoProjectImpl(manifest, projectService, userDisabledFeatures,
-            rawWorkspace, stdlib, rustcInfo, workspaceStatus, stdlibStatus, rustcInfoStatus);
+            rawWorkspace, stdlib, rustcInfo, workspaceStatus, stdlibStatus, rustcInfoStatus, myExternalData);
     }
 
     @Override
@@ -395,13 +463,14 @@ public class CargoProjectImpl extends UserDataHolderBase implements CargoProject
             Objects.equals(rustcInfo, that.rustcInfo) &&
             Objects.equals(workspaceStatus, that.workspaceStatus) &&
             Objects.equals(stdlibStatus, that.stdlibStatus) &&
-            Objects.equals(rustcInfoStatus, that.rustcInfoStatus);
+            Objects.equals(rustcInfoStatus, that.rustcInfoStatus) &&
+            Objects.equals(myExternalData, that.myExternalData);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(manifest, userDisabledFeatures, rawWorkspace, stdlib, rustcInfo,
-            workspaceStatus, stdlibStatus, rustcInfoStatus);
+            workspaceStatus, stdlibStatus, rustcInfoStatus, myExternalData);
     }
 
     @Override

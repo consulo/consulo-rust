@@ -20,6 +20,8 @@ import consulo.virtualFileSystem.VirtualFileManager;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.rust.cargo.api.model.CargoProject;
+import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import org.rust.cargo.project.workspace.CargoLibraries;
 import org.rust.cargo.project.workspace.CargoLibrary;
 import org.rust.cargo.api.workspace.CargoWorkspace;
@@ -239,8 +241,13 @@ public class CargoLibraryOrderEntryModel implements CustomOrderEntryModel {
         ModuleRootLayer layer = myModuleRootLayer;
         if (layer == null) return diagnose("no layer bound");
         RustModuleExtension extension = layer.getExtension(RustModuleExtension.class);
+        VirtualFile srcDir = extension == null ? null : RustBundleType.stdlibSrcDir(extension.getSdk());
+        if (srcDir == null && isOfExternalProject(layer.getProject())) {
+            // the toolchain of an external project need not be a bundle, and a build system's sysroot carries no
+            // rust-src: its standard library is the one the sync resolved, possibly from sources named explicitly
+            return mySourceRootUrls != null ? resolve(mySourceRootUrls) : resolveFromWorkspace(true);
+        }
         if (extension == null) return diagnose("no Rust module extension");
-        VirtualFile srcDir = RustBundleType.stdlibSrcDir(extension.getSdk());
         if (srcDir == null) return diagnose("no stdlib sources on bundle " + extension.getSdk());
 
         VirtualFile crateDir = StandardLibrary.findFirstFileByRelativePaths(srcDir, List.of(myName, "lib" + myName));
@@ -253,6 +260,18 @@ public class CargoLibraryOrderEntryModel implements CustomOrderEntryModel {
         roots.addAll(CargoWorkspace.stdlibAdditionalRoots(myName, crateDir));
         LOG.debug("stdlib crate " + myName + " -> " + roots.size() + " root(s)");
         return Collections.unmodifiableSet(roots);
+    }
+
+    private boolean isOfExternalProject(Project project) {
+        if (myManifestPath == null || project.isDisposed()) {
+            return false;
+        }
+        for (CargoProject cargoProject : CargoProjectServiceUtil.getCargoProjects(project).getAllProjects()) {
+            if (cargoProject.isExternal() && myManifestPath.equals(cargoProject.getManifest().toString())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Nonnull

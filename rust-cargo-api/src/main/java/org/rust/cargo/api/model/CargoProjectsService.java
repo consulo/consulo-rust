@@ -71,6 +71,20 @@ public interface CargoProjectsService {
 
     void attachCargoProjects(@Nonnull Path... manifests);
 
+    /**
+     * Attaches a project whose workspace another build system describes, or replaces the data of the one attached
+     * with the same {@link ExternalCargoProjectData#getManifest() manifest}, and syncs it.
+     * <p>
+     * The sync never runs {@code cargo metadata} for such a project: the workspace is built from
+     * {@code data} as is. It still asks the project's {@code rustc} for its version, sysroot and cfg options and
+     * attaches the standard library, and it creates no modules - see {@link ExternalCargoProjectData}. The project is
+     * not persisted, the provider attaches it again when the IDE project is opened. Use
+     * {@link #detachCargoProject} to drop it.
+     *
+     * @return the Cargo projects after the sync, completed once {@link #findProjectForFile} answers for the project
+     */
+    CompletableFuture<? extends List<CargoProject>> attachExternalCargoProject(ExternalCargoProjectData data);
+
     void detachCargoProject(@Nonnull CargoProject cargoProject);
 
     @Nonnull

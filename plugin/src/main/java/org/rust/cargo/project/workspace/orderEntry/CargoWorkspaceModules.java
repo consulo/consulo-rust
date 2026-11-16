@@ -24,6 +24,7 @@ import org.rust.cargo.api.workspace.PackageOrigin;
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -70,7 +71,7 @@ public final class CargoWorkspaceModules {
             }
         }
 
-        List<Module> stale = staleModules(moduleManager, wanted);
+        List<Module> stale = staleModules(moduleManager, wanted, externalManifests(project));
         List<Member> missing = new ArrayList<>();
 
         for (Map.Entry<Module, List<Member>> entry : membersByOwner.entrySet()) {
@@ -160,6 +161,10 @@ public final class CargoWorkspaceModules {
      */
     @Nonnull
     public static List<Member> membersOf(@Nonnull CargoProject cargoProject) {
+        if (cargoProject.isExternal()) {
+            // the build system that provided the workspace owns the modules of its members
+            return List.of();
+        }
         CargoWorkspace workspace = cargoProject.getWorkspace();
         if (workspace == null) {
             return List.of();
@@ -199,10 +204,15 @@ public final class CargoWorkspaceModules {
 
     /**
      * Modules this plugin created for a member that is no longer in any workspace. A module without the
-     * mark is never touched, and neither is one that owns a manifest of its own.
+     * mark is never touched, and neither is one that owns a manifest of its own, nor one bound to an external
+     * project, whose modules belong to the build system that provided it.
      */
     @Nonnull
-    private static List<Module> staleModules(@Nonnull ModuleManager moduleManager, @Nonnull Set<String> wantedPackageIds) {
+    private static List<Module> staleModules(
+        @Nonnull ModuleManager moduleManager,
+        @Nonnull Set<String> wantedPackageIds,
+        @Nonnull Set<String> externalManifests
+    ) {
         List<Module> result = new ArrayList<>();
         for (Module module : moduleManager.getModules()) {
             if (module.isDisposed()) continue;
@@ -210,8 +220,19 @@ public final class CargoWorkspaceModules {
             if (extension == null) continue;
             String packageId = extension.getCargoPackageId();
             if (packageId == null || wantedPackageIds.contains(packageId)) continue;
+            if (externalManifests.contains(extension.getCargoManifestPath())) continue;
             if (ownsManifest(module)) continue;
             result.add(module);
+        }
+        return result;
+    }
+
+    private static Set<String> externalManifests(Project project) {
+        Set<String> result = new HashSet<>();
+        for (CargoProject cargoProject : CargoProjectServiceUtil.getCargoProjects(project).getAllProjects()) {
+            if (cargoProject.isExternal()) {
+                result.add(cargoProject.getManifest().toString());
+            }
         }
         return result;
     }

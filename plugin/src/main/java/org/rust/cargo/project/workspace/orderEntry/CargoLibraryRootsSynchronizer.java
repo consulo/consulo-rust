@@ -285,6 +285,10 @@ public class CargoLibraryRootsSynchronizer implements CargoProjectsListener {
      * open rebuild it without running Cargo.
      */
     private static void storeWorkspace(@Nonnull ModifiableRootModel rootModel, @Nonnull CargoProject cargoProject) {
+        if (cargoProject.isExternal()) {
+            // provided by its build system on every open, and the module is that build system's
+            return;
+        }
         RustMutableModuleExtension extension = rootModel.getExtensionWithoutCheck(RustMutableModuleExtension.class);
         if (extension == null) return;
         CargoWorkspace workspace = cargoProject.getWorkspace();

@@ -69,6 +69,14 @@ public interface CargoProject extends UserDataHolderEx {
     @Nonnull
     UserDisabledFeatures getUserDisabledFeatures();
 
+    /**
+     * Whether the workspace of this project comes from another build system
+     * ({@link CargoProjectsService#attachExternalCargoProject}) rather than from {@code cargo metadata}.
+     */
+    default boolean isExternal() {
+        return false;
+    }
+
     abstract class UpdateStatus {
         private final int priority;
 

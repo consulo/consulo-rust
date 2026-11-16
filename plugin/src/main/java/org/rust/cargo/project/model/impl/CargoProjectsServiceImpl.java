@@ -12,6 +12,8 @@ import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.api.model.CargoProjectsService;
 import org.rust.cargo.api.model.RustcInfo;
 import org.rust.cargo.api.model.UserDisabledFeatures;
+import org.rust.cargo.api.model.ExternalCargoProjectData;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 
 import org.rust.cargo.project.model.CargoProjectServiceUtil;
 import consulo.annotation.component.ServiceImpl;
@@ -180,7 +182,10 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
             if (byEntry != null) return byEntry;
         }
         RustModuleExtension extension = moduleExtensionFor(file);
-        return extension == null ? null : findProjectByManifest(extension.getCargoManifestPath());
+        CargoProject byModule = extension == null ? null : findProjectByManifest(extension.getCargoManifestPath());
+        if (byModule != null) return byModule;
+        ExternalMember member = findExternalMember(file);
+        return member == null ? null : member.project();
     }
 
     @Nullable
@@ -193,8 +198,51 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
             if (pkg != null) return pkg;
         }
         RustModuleExtension extension = moduleExtensionFor(file);
-        if (extension == null) return null;
-        return findPackageById(findProjectByManifest(extension.getCargoManifestPath()), extension.getCargoPackageId());
+        CargoWorkspace.Package byModule = extension == null
+            ? null
+            : findPackageById(findProjectByManifest(extension.getCargoManifestPath()), extension.getCargoPackageId());
+        if (byModule != null) return byModule;
+        ExternalMember member = findExternalMember(file);
+        return member == null ? null : member.pkg();
+    }
+
+    /** A workspace package of an external project together with that project. */
+    private record ExternalMember(CargoProject project, CargoWorkspace.Package pkg) {
+    }
+
+    /**
+     * The workspace package of an external project that owns {@code file}: the one whose content root is the nearest
+     * ancestor of the file. The build system of such a project creates the modules, so no module names the package
+     * the way {@link RustModuleExtension#getCargoPackageId()} does for a Cargo workspace member.
+     */
+    @Nullable
+    private ExternalMember findExternalMember(VirtualFile file) {
+        ExternalMember result = null;
+        int resultDepth = -1;
+        for (CargoProjectImpl cargoProject : projects.getCurrentState()) {
+            if (!cargoProject.isExternal()) {
+                continue;
+            }
+            CargoWorkspace workspace = cargoProject.getWorkspace();
+            if (workspace == null) {
+                continue;
+            }
+            for (CargoWorkspace.Package pkg : workspace.getPackages()) {
+                if (pkg.getOrigin() != PackageOrigin.WORKSPACE) {
+                    continue;
+                }
+                VirtualFile contentRoot = pkg.getContentRoot();
+                if (contentRoot == null || !VirtualFileUtil.isAncestor(contentRoot, file, false)) {
+                    continue;
+                }
+                int depth = contentRoot.getPath().length();
+                if (depth > resultDepth) {
+                    result = new ExternalMember(cargoProject, pkg);
+                    resultDepth = depth;
+                }
+            }
+        }
+        return result;
     }
 
     /**
@@ -292,6 +340,30 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
             }
             return doRefresh(newProjects);
         });
+    }
+
+    @Override
+    public CompletableFuture<? extends List<CargoProject>> attachExternalCargoProject(ExternalCargoProjectData data) {
+        Path manifest = data.getManifest();
+        return modifyProjects(oldProjects -> {
+            List<CargoProjectImpl> others = new ArrayList<>(oldProjects.size());
+            UserDisabledFeatures userDisabledFeatures = UserDisabledFeatures.EMPTY;
+            for (CargoProjectImpl it : oldProjects) {
+                if (it.getManifest().equals(manifest)) {
+                    userDisabledFeatures = it.getUserDisabledFeatures();
+                }
+                else {
+                    others.add(it);
+                }
+            }
+            CargoProjectImpl external = new CargoProjectImpl(data, this, userDisabledFeatures);
+            // only the external project is synced, the attached Cargo projects keep their state
+            return doRefresh(List.of(external)).thenApply(refreshed -> {
+                List<CargoProjectImpl> newProjects = new ArrayList<>(others);
+                newProjects.addAll(refreshed);
+                return newProjects;
+            });
+        }).thenApply(ArrayList::new);
     }
 
     @Override
@@ -573,6 +645,10 @@ public class CargoProjectsServiceImpl implements CargoProjectsService, Persisten
     public Element getState() {
         Element state = new Element("state");
         for (CargoProject cargoProject : getAllProjects()) {
+            if (cargoProject.isExternal()) {
+                // the build system that provided it attaches it again, its workspace is not a manifest to sync
+                continue;
+            }
             Element cargoProjectElement = new Element("cargoProject");
             cargoProjectElement.setAttribute("FILE", cargoProject.getManifest().toString().replace('\\', '/'));
             state.addContent(cargoProjectElement);

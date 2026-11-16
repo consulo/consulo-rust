@@ -92,12 +92,18 @@ public class MissingToolchainNotificationProvider extends RsNotificationProvider
         if (!(RsFile.isRustFile(file) || AttachCargoProjectAction.isCargoToml(file)) || isNotificationDisabled(file)) return null;
         if (CargoProjectServiceUtil.guessAndSetupRustProject(project)) return null;
 
+        CargoProjectsService cargoProjects = CargoProjectServiceUtil.getCargoProjects(project);
+        // an external project (e.g. Bazel) brings its own toolchain and standard library, see attachExternalCargoProject
+        if (cargoProjects.getInitialized()) {
+            CargoProject externalProject = cargoProjects.findProjectForFile(file);
+            if (externalProject != null && externalProject.isExternal()) return null;
+        }
+
         RsToolchainBase toolchain = RsToolchainLocator.getToolchain(project);
         if (toolchain == null || !toolchain.looksLikeValidToolchain()) {
             return createBadToolchainPanel(file, builderFactory);
         }
 
-        CargoProjectsService cargoProjects = CargoProjectServiceUtil.getCargoProjects(project);
         if (!cargoProjects.getInitialized()) return null;
 
         CargoProject cargoProject = cargoProjects.findProjectForFile(file);

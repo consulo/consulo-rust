@@ -45,6 +45,8 @@ import org.rust.cargo.api.CfgOptions;
 import org.rust.cargo.api.model.CargoProject;
 import org.rust.cargo.api.model.ProcessProgressListener;
 import org.rust.cargo.api.model.RustcInfo;
+import org.rust.cargo.api.model.ExternalCargoProjectData;
+import org.rust.cargo.api.model.ExternalRustToolchain;
 import org.rust.cargo.api.settings.RsProjectSettingsServiceUtil;
 import org.rust.cargo.api.settings.RustProjectSettingsService;
 import org.rust.cargo.api.workspace.CargoWorkspace;
@@ -76,6 +78,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
@@ -210,7 +213,8 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
         @Nonnull BuildProgress<BuildProgressDescriptor> syncProgress
     ) {
         RsToolchainBase toolchain = RsToolchainLocator.getToolchain(rsProject);
-        if (toolchain == null) {
+        boolean hasExternalProjects = cargoProjects.stream().anyMatch(CargoProjectImpl::isExternal);
+        if (toolchain == null && !hasExternalProjects) {
             // Worth saying out loud: without this the sync simply produces nothing and the editor shows
             // every reference unresolved with no explanation.
             LOG.warn("Cargo sync stopped: no module carries a Rust toolchain bundle");
@@ -223,6 +227,21 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
 
         List<CargoProjectWithStdlib> results = new ArrayList<>(cargoProjects.size());
         for (CargoProjectImpl cargoProject : cargoProjects) {
+            if (cargoProject.isExternal()) {
+                results.add(runWithChildProgress(
+                    syncProgress,
+                    RsBundle.message("build.event.title.sync.project", cargoProject.getPresentableName()),
+                    childProgress -> syncExternalProject(indicator, syncProgress, childProgress, cargoProject),
+                    (childProgress, ignored) -> childProgress.finish()
+                ));
+                continue;
+            }
+            if (toolchain == null) {
+                // a Cargo project next to an external one, and no bundle to run cargo with: left as it was
+                LOG.warn("Cargo sync skipped " + cargoProject.getManifest() + ": no module carries a Rust toolchain bundle");
+                results.add(new CargoProjectWithStdlib(cargoProject, null));
+                continue;
+            }
             results.add(runWithChildProgress(
                 syncProgress,
                 RsBundle.message("build.event.title.sync.project", cargoProject.getPresentableName()),
@@ -521,6 +540,172 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
     }
 
     /**
+     * Syncs a project whose workspace another build system provided: no {@code cargo metadata}, the workspace is built
+     * from the data as is, while the version, sysroot and cfg options still come from the project's {@code rustc} and
+     * the standard library is attached as for a Cargo project.
+     */
+    @Nonnull
+    private CargoProjectWithStdlib syncExternalProject(
+        @Nonnull ProgressIndicator indicator,
+        @Nonnull BuildProgress<BuildProgressDescriptor> syncProgress,
+        @Nonnull BuildProgress<BuildProgressDescriptor> childProgress,
+        @Nonnull CargoProjectImpl cargoProject
+    ) {
+        ExternalCargoProjectData data = Objects.requireNonNull(cargoProject.getExternalData());
+        RsToolchainBase toolchain = cargoProject.getToolchain();
+        if (toolchain == null) {
+            String reason = RsBundle.message("build.event.message.cargo.project.update.failed.no.rust.toolchain");
+            CargoWorkspace workspace = buildExternalWorkspace(cargoProject, data,
+                data.getCfgOptions() != null ? data.getCfgOptions() : CfgOptions.DEFAULT);
+            CargoProjectImpl updated = cargoProject
+                .withRustcInfo(new TaskResult.Err<>(reason))
+                .withWorkspace(new TaskResult.Ok<>(workspace));
+            return new CargoProjectWithStdlib(updated, new TaskResult.Err<>(reason));
+        }
+
+        SyncContext context = new SyncContext(rsProject, cargoProject, toolchain, indicator, syncProgress.getId(), childProgress);
+        TaskResult<RustcInfo> rustcInfoResult = fetchExternalRustcInfo(context, data.getToolchain());
+        RustcInfo rustcInfo = rustcInfoResult instanceof TaskResult.Ok<RustcInfo> ok ? ok.getValue() : null;
+        CargoProjectImpl updated = cargoProject
+            .withRustcInfo(rustcInfoResult)
+            .withWorkspace(fetchExternalWorkspace(context, data));
+        return new CargoProjectWithStdlib(updated, fetchExternalStdlib(context, updated, data.getToolchain(), rustcInfo));
+    }
+
+    @Nonnull
+    private static TaskResult<RustcInfo> fetchExternalRustcInfo(
+        @Nonnull SyncContext context,
+        @Nullable ExternalRustToolchain externalToolchain
+    ) {
+        return context.runWithChildProgress(
+            RsBundle.message("progress.text.getting.toolchain.version"),
+            childContext -> {
+                RsToolchainBase toolchain = childContext.toolchain;
+                // only rustc is required: the toolchain of a build system need not ship cargo
+                if (!toolchain.hasExecutable(Rustc.NAME)) {
+                    return new TaskResult.Err<>(
+                        RsBundle.message("invalid.rust.toolchain.02", toolchain.getPresentableLocation()));
+                }
+
+                Path workingDirectory = org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(childContext.oldCargoProject);
+                Rustc rustc = Rustc.create(toolchain);
+
+                RsResult<RustcVersion, RsProcessExecutionException> versionResult =
+                    rustc.queryVersion(workingDirectory, childContext.project, new RustcVersionProcessAdapter(childContext));
+                RustcVersion rustcVersion = null;
+                if (versionResult instanceof RsResult.Ok<RustcVersion, RsProcessExecutionException> ok) {
+                    rustcVersion = ok.getOk();
+                }
+                else {
+                    RsProcessExecutionException err = versionResult.err();
+                    LOG.warn("Failed to fetch rustc version", err);
+                    childContext.error(
+                        RsBundle.message("build.event.title.failed.to.fetch.rustc.version"),
+                        err != null && err.getMessage() != null ? err.getMessage() : ""
+                    );
+                }
+
+                Path explicitSysroot = externalToolchain == null ? null : externalToolchain.getSysroot();
+                String sysroot = explicitSysroot != null ? explicitSysroot.toString() : rustc.getSysroot(workingDirectory);
+                if (sysroot == null) {
+                    return new TaskResult.Err<>(RsBundle.message("failed.to.get.project.sysroot"));
+                }
+                // no rustup: the toolchain is the build system's, whatever rustup has active is unrelated to it
+                return new TaskResult.Ok<>(new RustcInfo(sysroot, rustcVersion, null, rustc.getTargets(workingDirectory)));
+            }
+        );
+    }
+
+    @Nonnull
+    private static TaskResult<CargoWorkspace> fetchExternalWorkspace(
+        @Nonnull SyncContext context,
+        @Nonnull ExternalCargoProjectData data
+    ) {
+        return context.runWithChildProgress(
+            RsBundle.message("progress.text.updating.workspace.info"),
+            childContext -> {
+                CfgOptions cfgOptions = data.getCfgOptions();
+                if (cfgOptions == null) {
+                    Path workingDirectory = org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(childContext.oldCargoProject);
+                    ExternalRustToolchain toolchain = data.getToolchain();
+                    cfgOptions = Rustc.create(childContext.toolchain)
+                        .getCfgOptions(workingDirectory, toolchain == null ? null : toolchain.getTargetTriple());
+                }
+                return new TaskResult.Ok<>(buildExternalWorkspace(childContext.oldCargoProject, data, cfgOptions));
+            }
+        );
+    }
+
+    @Nonnull
+    private static CargoWorkspace buildExternalWorkspace(
+        @Nonnull CargoProjectImpl cargoProject,
+        @Nonnull ExternalCargoProjectData data,
+        @Nonnull CfgOptions cfgOptions
+    ) {
+        return CargoWorkspaceFactory.deserialize(cargoProject.getManifest(), data.getWorkspaceData(), cfgOptions,
+            externalCargoConfig(data.getToolchain()));
+    }
+
+    /** The build target of an external toolchain, the way a Cargo project's {@code build.target} names it. */
+    @Nonnull
+    private static CargoConfig externalCargoConfig(@Nullable ExternalRustToolchain toolchain) {
+        String target = toolchain == null ? null : toolchain.getTargetTriple();
+        return target == null ? CargoConfig.DEFAULT : new CargoConfig(List.of(target), Collections.emptyMap());
+    }
+
+    /**
+     * The standard library of an external project, from the first of: the sources its build system named, the
+     * {@code rust-src} component of its sysroot, the explicit stdlib path of the project settings, the standard
+     * library of the IDE project's Rust bundle.
+     */
+    @Nonnull
+    private static TaskResult<StandardLibrary> fetchExternalStdlib(
+        @Nonnull SyncContext context,
+        @Nonnull CargoProjectImpl cargoProject,
+        @Nullable ExternalRustToolchain externalToolchain,
+        @Nullable RustcInfo rustcInfo
+    ) {
+        return context.runWithChildProgress(
+            RsBundle.message("progress.text.getting.rust.stdlib"),
+            childContext -> {
+                CargoConfig cargoConfig = externalCargoConfig(externalToolchain);
+                List<String> candidates = new ArrayList<>();
+                Path explicitSources = externalToolchain == null ? null : externalToolchain.getStdlibSources();
+                if (explicitSources != null) {
+                    candidates.add(explicitSources.toString());
+                }
+                if (rustcInfo != null) {
+                    candidates.add(Rustc.stdlibPathFromSysroot(rustcInfo.getSysroot()));
+                }
+                String explicitPath = RsProjectSettingsServiceUtil.getRustSettings(childContext.project).getExplicitPathToStdlib();
+                if (explicitPath != null) {
+                    candidates.add(explicitPath);
+                }
+                RsToolchainBase bundleToolchain = RsToolchainLocator.getToolchain(childContext.project);
+                if (bundleToolchain != null && !bundleToolchain.equals(childContext.toolchain)) {
+                    Path workingDirectory = org.rust.cargo.project.model.CargoProjectLocator.getWorkingDirectory(cargoProject);
+                    String fromBundle = Rustc.create(bundleToolchain).getStdlibPathFromSysroot(workingDirectory);
+                    if (fromBundle != null) {
+                        candidates.add(fromBundle);
+                    }
+                }
+
+                for (String candidate : candidates) {
+                    StandardLibrary lib = StandardLibraryFactory.fromPath(
+                        childContext.project, candidate, rustcInfo, cargoConfig, false, new SyncProcessAdapter(childContext));
+                    if (lib != null) {
+                        return new TaskResult.Ok<>(lib);
+                    }
+                }
+                if (explicitSources != null) {
+                    return new TaskResult.Err<>(RsBundle.message("invalid.standard.library.0", explicitSources));
+                }
+                return new TaskResult.Err<>(RsBundle.message("no.explicit.stdlib.or.rustup.found"));
+            }
+        );
+    }
+
+    /**
      * Only one stdlib can be attached at a time. When cargo projects resolve different standard libraries
      * (a {@code rust-toolchain.toml} file or a {@code rustup override}), pick the most recent one, unless
      * one of the projects embeds its own stdlib.
@@ -530,6 +715,10 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
         StandardLibrary theMostRecentStdlib = null;
         RustcVersion theMostRecentVersion = null;
         for (CargoProjectWithStdlib it : projects) {
+            if (it.cargoProject.isExternal()) {
+                // the toolchain of an external project is its own, not the bundle the single stdlib is about
+                continue;
+            }
             RustcInfo rustcInfo = it.cargoProject.getRustcInfo();
             if (rustcInfo == null || rustcInfo.getVersion() == null) continue;
             if (!(it.stdlib instanceof TaskResult.Ok<StandardLibrary> ok)) continue;
@@ -548,7 +737,7 @@ public class CargoSyncTask extends Task.Backgroundable implements RsTask {
         for (CargoProjectWithStdlib it : projects) {
             if (it.stdlib == null) {
                 result.add(it.cargoProject);
-            } else if (it.stdlib instanceof TaskResult.Err) {
+            } else if (it.stdlib instanceof TaskResult.Err || it.cargoProject.isExternal()) {
                 result.add(it.cargoProject.withStdlib(it.stdlib));
             } else if (theMostRecentStdlib != null) {
                 result.add(it.cargoProject.withStdlib(new TaskResult.Ok<>(theMostRecentStdlib)));
