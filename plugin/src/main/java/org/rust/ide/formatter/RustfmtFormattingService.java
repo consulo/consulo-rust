@@ -106,9 +106,8 @@ public class RustfmtFormattingService extends AsyncDocumentFormattingService {
                     }
                     else if (result instanceof RsResult.Err<ProcessOutput, RsProcessExecutionException> err
                         && !(err.getErr() instanceof RsProcessExecutionException.Canceled)) {
-                        String message = err.getErr().getMessage();
                         request.onError(LocalizeValue.of(RsBundle.message("notification.title.rustfmt")),
-                            LocalizeValue.of(message != null ? message.trim() : ""));
+                            LocalizeValue.of(errorMessage(err.getErr())));
                     }
                 }
                 finally {
@@ -127,6 +126,17 @@ public class RustfmtFormattingService extends AsyncDocumentFormattingService {
                 return true;
             }
         };
+    }
+
+    /** What rustfmt said - `error: expected expression ...` - rather than the command line and both of its streams. */
+    @Nonnull
+    private static String errorMessage(@Nonnull RsProcessExecutionException error) {
+        if (error instanceof RsProcessExecutionException.ProcessAborted aborted) {
+            String stderr = aborted.getOutput().getStderr();
+            if (stderr != null && !stderr.isBlank()) return stderr.trim();
+        }
+        String message = error.getMessage();
+        return message != null ? message.trim() : "";
     }
 
     @Nonnull
